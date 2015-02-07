@@ -1,0 +1,1 @@
+https://code.google.com/p/eurocarb/source/browse/trunk/core-api/src/test/eurocarbdb/sugar/seq/GlycoctSequenceFormatTest.java?r=694
