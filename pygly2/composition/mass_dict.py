@@ -1,4 +1,3 @@
-111
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics
 # {
 #   symbol: {
