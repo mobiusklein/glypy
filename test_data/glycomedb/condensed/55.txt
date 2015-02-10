@@ -1,0 +1,13 @@
+RES
+1b:x-dman-HEX-x:x
+2b:a-dman-HEX-1:5
+3b:a-dman-HEX-1:5
+4b:a-dman-HEX-1:5
+5b:a-dman-HEX-1:5
+6s:phosphate
+LIN
+1:1o(2+1)2d
+2:2o(3+1)3d
+3:3o(3+1)4d
+4:4o(3+1)5d
+5:5o(6+1)6n

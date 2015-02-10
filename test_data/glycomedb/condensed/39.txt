@@ -1,0 +1,9 @@
+RES
+1b:b-dara-HEX-1:5|2:d|6:d
+2b:b-dara-HEX-1:5|2:d|6:d
+3b:b-drib-HEX-1:5|2:d|6:d
+4s:methyl
+LIN
+1:1o(3+1)2d
+2:2o(3+1)3d
+3:3d(3+1)4n

@@ -1,0 +1,11 @@
+setup.py
+pygly2/__init__.py
+pygly2/plot/__init__.py
+pygly2/plot/buchheim.py
+pygly2/plot/cfg_symbols.py
+pygly2/plot/draw_tree.py
+pygly2_plot.egg-info/PKG-INFO
+pygly2_plot.egg-info/SOURCES.txt
+pygly2_plot.egg-info/dependency_links.txt
+pygly2_plot.egg-info/namespace_packages.txt
+pygly2_plot.egg-info/top_level.txt

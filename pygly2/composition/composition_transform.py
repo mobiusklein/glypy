@@ -5,6 +5,10 @@ from .composition import Composition
 
 
 def derivatize(saccharide, substituent):
+    '''
+    For each monosaccharide and viable substituent, attach the specified
+    substituent.
+    '''
     if isinstance(substituent, basestring):
         substituent = Substituent(substituent)
     if isinstance(saccharide, Glycan):
@@ -15,22 +19,22 @@ def derivatize(saccharide, substituent):
 
 def derivatize_monosaccharide(monosaccharide_obj, substituent):
     open_sites, unknowns = monosaccharide_obj.open_attachment_sites()
-    for site in open_sites:
+    for site in open_sites[unknowns:]:
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1),
-            parent_position=site, child_loss=Composition(H=1), child_position=1)
+            position=site, child_loss=Composition(H=1), child_position=1)
     for subst in monosaccharide_obj.substituents():
-        if subst.name in permethylatable_substituents:
-            subst.add_substituent(substituent.clone(), parent_position=2, child_position=1)
+        if subst.name in derivatizable_substituents:
+            subst.add_substituent(substituent.clone(), position=2, child_position=1)
     reducing_end_pos = monosaccharide_obj.reducing_end
     if reducing_end_pos is not None:
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
-            parent_position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+            position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
 
 
 
-permethylatable_substituents = {
+derivatizable_substituents = {
     "n_acetyl",
     "n_glycolyl",
 }

@@ -13,9 +13,11 @@ class EnumValue(object):
         return self.value
 
     def __eq__(self, other):
-        if isinstance(other, EnumValue) and self.group != other.group:
-            return False
-        return self.name == other or self.value == other
+        if isinstance(other, EnumValue):
+            if self.group != other.group:
+                return False
+            return self.value == other.value or self.name == other.value
+        return self.value == other or self.name == other
 
     def __ne__(self, other):
         if isinstance(other, EnumValue) and self.group != other.group:
@@ -116,3 +118,11 @@ class EnumMeta(type):
 
     def __repr__(self):
         return "<Enum {0}>".format(self.__name__)
+
+
+class Enum(object):
+    __metaclass__ = EnumMeta
+
+    def __init__(self):
+        raise Exception("This class is not meant to be instantiated. Reference its attribute members directly")
+    

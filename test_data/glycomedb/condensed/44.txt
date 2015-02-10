@@ -1,0 +1,15 @@
+RES
+1r:r1
+REP
+REP1:5o(4+1)2d=-1--1
+RES
+2b:b-dman-HEX-1:5
+3b:b-dman-HEX-1:5
+4b:b-dman-HEX-1:5
+5b:b-dman-HEX-1:5
+6b:a-dgal-HEX-1:5
+LIN
+1:2o(4+1)3d
+2:3o(4+1)4d
+3:4o(4+1)5d
+4:5o(6+1)6d

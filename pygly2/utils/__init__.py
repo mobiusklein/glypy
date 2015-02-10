@@ -1,6 +1,8 @@
 __all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop']
 
 
+import gzip
+
 try:
     from lxml import etree as ET
 except ImportError:
@@ -38,6 +40,8 @@ def opener(obj, mode='r'):
 
     '''
     if isinstance(obj, basestring):
+        if obj[-2:] == 'gz':
+            return gzip.open(obj, mode)
         return open(obj, mode)
     elif hasattr(obj, "read"):
         return obj

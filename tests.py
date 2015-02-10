@@ -16,12 +16,11 @@ class GlycoCTParserTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
     def test_parse_file(self):
-        print(self.id())
         for g in glycoct.read(self._file_path):
             self.assertTrue(isinstance(g, glycan.Glycan))
 
 
-#monosaccharide_masses = json.load(open("./test_data/monosaccharide_masses.json"))
+# monosaccharide_masses = json.load(open("./test_data/monosaccharide_masses.json"))
 monosaccharide_structures = json.load(open("./pygly2/structure/data/monosaccharides.json"))
 
 wiki_masses = {
@@ -30,7 +29,7 @@ wiki_masses = {
     "Allose": 180.06,
 }
 
-#: Not common in any way other than 
+#: Not common in any way other than
 #: reused in many tests
 common_glycan = '''
 RES
@@ -48,25 +47,23 @@ LIN
 4:4o(6+1)5d
 5:5o(3+1)6d'''
 
+
 class MonosaccharideTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
     glycan = iter(glycoct.read(_file_path)).next()
 
     def test_from_glycoct(self):
-        print(self.id())
         s = self.glycan.root.to_glycoct()
         b = StringIO(s)
         g = iter(glycoct.read(b)).next()
         self.assertEqual(g.root.to_glycoct(), s)
 
     def test_named_structure_masses(self):
-        print(self.id())
         for name, mass in wiki_masses.items():
             structure = named_structures.monosaccharides[name]
-            self.assertAlmostEqual(mass, structure.mass(substituents=True), 2)
+            self.assertAlmostEqual(mass, structure.mass(), 2)
 
     def test_named_structure_glycoct(self):
-        print(self.id())
         for name, glycoct_str in monosaccharide_structures.items():
             structure = named_structures.monosaccharides[name]
             test, ref = (structure.to_glycoct(), glycoct_str)
@@ -78,8 +75,25 @@ class MonosaccharideTests(unittest.TestCase):
                     raise AssertionError("{j} != {k} at {i} in {name}\n{test_loc}\n{ref_loc}".format(**locals()))
                 i += 1
 
+    def test_ring_limit_modification(self):
+        structure = named_structures.monosaccharides['Hex']
+        self.assertRaises(IndexError, lambda : structure.add_modification('d', 8))
+
+    def test_occupancy_limit_modification(self):
+        structure = named_structures.monosaccharides['Hex']
+        structure.add_modification('d', 4)
+        self.assertRaises(ValueError, lambda : structure.add_modification('d', 4))
+
+    def test_ring_limit_substituent(self):
+        structure = named_structures.monosaccharides['Hex']
+        self.assertRaises(IndexError, lambda : structure.add_substituent('methyl', 8))
+
+    def test_occupancy_limit_substituent(self):
+        structure = named_structures.monosaccharides['Hex']
+        structure.add_substituent('methyl', 4)
+        self.assertRaises(ValueError, lambda : structure.add_substituent('methyl', 4))
+
     def test_add_remove_modifcations(self):
-        print(self.id())
         for name, mass in wiki_masses.items():
             structure = named_structures.monosaccharides[name]
             ref = structure.clone()
@@ -88,7 +102,7 @@ class MonosaccharideTests(unittest.TestCase):
             n_sites = len(open_sites)
             comp_delta = n_sites * structure_composition.modification_compositions[constants.Modification.aldi]
             for site in open_sites:
-                structure.add_modification(site, constants.Modification.aldi)
+                structure.add_modification(constants.Modification.aldi, site)
             self.assertEqual(structure.total_composition(), ref.total_composition() + comp_delta)
             self.assertEqual([], structure.open_attachment_sites()[0])
             for site in open_sites:
@@ -100,12 +114,10 @@ class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
     def test_from_glycoct(self):
-        print(self.id())
         for glycan in glycoct.read(self._file_path):
             self.assertAlmostEqual(glycan.mass(), iter(glycoct.loads(glycan.to_glycoct())).next().mass())
 
     def test_fragments_preserve(self):
-        print(self.id())
         for glycan in glycoct.read(self._file_path):
             dup = glycan.clone()
             self.assertEqual(glycan, dup)
@@ -114,22 +126,30 @@ class GlycanTests(unittest.TestCase):
             self.assertEqual(glycan, dup)
 
     def test_clone(self):
-        print(self.id())
         glycan = glycoct.loads(common_glycan).next()
         ref = glycan.clone()
         glycan.reducing_end = 1        
         self.assertTrue(glycan != ref)
 
 class CompositionTests(unittest.TestCase):
-    permethylated_reduced_mass = 1286.6718
 
-    def test_derivativize(self):
-        print(self.id())
+    def test_derivativize_bare(self):
+        permethylated_reduced_mass = 1286.6718
         glycan = glycoct.loads(common_glycan).next()
         ref = glycan.clone()
         glycan.reducing_end = 1
         composition_transform.derivatize(glycan, 'methyl')
-        self.assertAlmostEqual(glycan.mass(), self.permethylated_reduced_mass, 3)
+        self.assertAlmostEqual(glycan.mass(), permethylated_reduced_mass, 3)
+
+    def test_composition_equality(self):
+        self.assertEqual(Composition("H2O"), Composition("H2O"))
+
+    def test_composition_substraction(self):
+        self.assertEqual(Composition("NH2O") - Composition("N"), Composition("H2O"))
+
+    def test_isotope_parsing(self):
+        self.assertFalse(Composition("O[18]") == Composition("O"))
+        self.assertAlmostEqual(Composition("O[18]").mass, 17.999, 3)
 
 
 

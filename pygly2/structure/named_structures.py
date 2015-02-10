@@ -1,5 +1,6 @@
 import pkg_resources
 import json
+import uuid
 
 from copy import deepcopy
 
@@ -18,7 +19,7 @@ class MonosaccharideIndex(dict):
     def __getitem__(self, key):
         x = dict.__getitem__(self, key)
         ret = deepcopy(x)
-        assert(id(x) != id(ret))
+        ret.id = uuid.uuid4().int
         return ret
 
     def __repr__(self):
@@ -41,7 +42,6 @@ class GlycanIndex(dict):
     def __getitem__(self, key):
         x = dict.__getitem__(self, key)
         ret = deepcopy(x)
-        assert(id(x) != id(ret))
         return ret
 
     def __repr__(self):
@@ -50,3 +50,5 @@ class GlycanIndex(dict):
         for k, v in self.items():
             rep.write(fmt.format(k, v.to_glycoct(), v.mass()))
         return rep.getvalue()
+
+glycans = GlycanIndex()

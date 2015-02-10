@@ -1,0 +1,7 @@
+RES
+1b:b-dman-OCT-2:6|1:a|2:keto|3:d
+2b:b-dman-OCT-2:6|1:a|2:keto|3:d
+3b:b-dman-OCT-2:6|1:a|2:keto|3:d
+LIN
+1:1o(4+2)2d
+2:1o(7+2)3d

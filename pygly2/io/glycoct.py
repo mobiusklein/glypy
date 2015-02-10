@@ -19,6 +19,8 @@ START = "!START"
 RES = "RES"
 LIN = "LIN"
 REP = "REP"
+ALT = "ALT"
+UND = "UND"
 
 subsituent_start = "s"
 base_start = "b"
@@ -60,19 +62,19 @@ class GlycoCTError(Exception):
     pass
 
 
-class GlycoCTRepeatSectionUnsupported(GlycoCTError):
+class GlycoCTSectionUnsupported(GlycoCTError):
     pass
 
 
 class GlycoCT(object):
     '''
     Simple State-Machine parser for condensed GlycoCT representations. Yields
-    :class:`~pygly2.structure.glycan.Glycan` instances. 
+    |Glycan| instances. 
     '''
 
     @classmethod
     def loads(cls, glycoct_str):
-        '''Parse results from ``str``'''
+        '''Parse results from |str|'''
         rep = StringIO(glycoct_str)
         return cls(rep)
 
@@ -108,14 +110,14 @@ class GlycoCT(object):
 
     def __iter__(self):
         '''
-        Calls :meth:`GlycoCT.parse` and stores it for reuse with :meth:`GlycoCT.__next__`
+        Calls :meth:`parse` and stores it for reuse with :meth:`__next__`
         '''
         self._iter = self.parse()
         return self._iter
 
     def next(self):
         '''
-        Calls :meth:`GlycoCT.parse` if the internal iterator has not been instantiated
+        Calls :meth:`parse` if the internal iterator has not been instantiated
 
         '''
         if self._iter is None:
@@ -127,10 +129,10 @@ class GlycoCT(object):
 
     def handle_residue_line(self, line):
         '''
-        Handle a base line, creates an instance of :class:`~pygly2.structure.monosaccharide.Monosaccharide`
-        and adds it to :attr:`GlycoCT.graph` at the given index.
+        Handle a base line, creates an instance of |Monosaccharide|
+        and adds it to :attr:`graph` at the given index.
 
-        Called by :meth:`~GlycoCT.parse`
+        Called by :meth:`parse`
         '''        
         _, ix, residue_str = re.split(r"^(\d+)b", line, maxsplit=1)
         residue_dict = res_pattern.search(residue_str).groupdict()
@@ -161,11 +163,11 @@ class GlycoCT(object):
 
     def handle_residue_substituent(self, line):
         '''
-        Handle a substituent line, creates an instance of :class:`~pygly2.structure.substituent.Substituent`
-        and adds it to :attr:`GlycoCT.graph` at the given index. The :class:`~pygly2.structure.substituent.Substituent` object is not yet linked
-        to a :class:`~pygly2.structure.monosaccharide.Monosaccharide` instance.
+        Handle a substituent line, creates an instance of |Substituent|
+        and adds it to :attr:`graph` at the given index. The |Substituent| object is not yet linked
+        to a |Monosaccharide| instance.
 
-        Called by :meth:`~GlycoCT.parse`
+        Called by :meth:`parse`
 
         '''
         _, ix, subsituent_str = re.split(r"^(\d+)s:", line, maxsplit=1)
@@ -174,16 +176,16 @@ class GlycoCT(object):
 
     def handle_linkage(self, line):
         '''
-        Handle a linkage line, creates an instance of :class:`~pygly2.structure.link.Link` and
-        attaches it to the two referenced nodes in :attr:`GlycoCT.graph`. The parent node is always
-        an instance of :class:`~pygly2.structure.monosaccharide.Monosaccharide`, and the child node
-        may either be an instance of :class:`~pygly2.structure.monosaccharide.Monosaccharide` or
-        :class:`~pygly2.structure.substituent.Substituent` or :class:`~pygly2.structure.monosaccharide.Monosaccharide`. 
+        Handle a linkage line, creates an instance of |Link| and
+        attaches it to the two referenced nodes in :attr:`graph`. The parent node is always
+        an instance of |Monosaccharide|, and the child node
+        may either be an instance of |Monosaccharide| or
+        |Substituent| or |Monosaccharide|. 
 
-        Called by :meth:`~GlycoCT.parse`
+        Called by :meth:`parse`
 
-        See also :class:`~pygly2.structure.link.Link` for more information on the impact of instantiating
-        a ``Link`` object.
+        See also |Link| for more information on the impact of instantiating
+        a |Link| object.
         '''
         link_dict = link_pattern.search(line)
         if link_dict is not None:
@@ -223,7 +225,11 @@ class GlycoCT(object):
                 self.state = LIN
 
             elif REP == line.strip():
-                raise GlycoCTRepeatSectionUnsupported()
+                raise GlycoCTSectionUnsupported(REP)
+            elif ALT == line.strip():
+                raise GlycoCTSectionUnsupported(ALT)
+            elif UND == line.strip():
+                raise GlycoCTSectionUnsupported(UND)
 
             elif re.search(r"^(\d+)b", line) and self.state == RES:
                 logger.debug("handling residue")
@@ -237,21 +243,21 @@ class GlycoCT(object):
                 logger.debug("handling linkage")
                 self.handle_linkage(line)
             else:
-                raise GlycoCTError("Unknown section {}".format(line))
+                raise GlycoCTError("Unknown format error: {}".format(line))
         logger.debug("yielding root")        
         yield Glycan(self.root)
 
 
 def read(stream):
     '''
-    A convenience wrapper for :class:GlycoCT
+    A convenience wrapper for :class:`GlycoCT`
     '''
     return GlycoCT(stream)
 
 
 def loads(glycoct_str):
     '''
-    A convenience wrapper for :meth:GlycoCT.loads
+    A convenience wrapper for :meth:`GlycoCT.loads`
     '''
 
     return GlycoCT.loads(glycoct_str)

@@ -97,7 +97,7 @@ _substituent_compositions = {
     },
     "n_glycolyl": {
         "C": 2,
-        "H": 3,
+        "H": 4,
         "O": 1,
         "N": 1
     }, 
@@ -106,7 +106,7 @@ _substituent_compositions = {
         'O': 3, 
         'H': 3
     },
-    "acetyl": {'H': 2, 'C': 2, 'O': 1},
+    "acetyl": {'H': 4, 'C': 2, 'O': 1},
     "pyruvate": {'H': 2, 'C': 3, 'O': 2},
     "methyl": {'H': 4, 'C': 1},
     "n_sulfate": {'S': 1, 'O': 2, 'N': 1}

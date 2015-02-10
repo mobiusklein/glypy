@@ -1,0 +1,9 @@
+RES
+1b:x-dglc-HEX-x:x
+2b:a-dgal-HEX-1:5
+3b:a-dgal-HEX-1:5
+4b:a-dgal-HEX-1:5
+LIN
+1:1o(6+1)2d
+2:2o(6+1)3d
+3:3o(6+1)4d

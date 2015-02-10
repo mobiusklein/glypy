@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 class Bag(object):
-    '''Implements a simple MultiSet-like data structure on top of a dictionary of lists'''
+    '''Implements a simple MultiMap-like data structure on top of a dictionary of lists'''
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
         for k, v in kwargs.items():
@@ -14,6 +14,15 @@ class Bag(object):
         self.contents[key].append(value)
 
     def pop(self, key, value):
+        '''
+        Removes `value` from the collection of values stored at `key`
+        and returns the `tuple` `(key, value)`
+
+        Raises
+        ------
+        IndexError
+        KeyError
+        '''
         objs = self.contents[key]
         objs.pop(objs.index(value))
         if len(objs) == 0:
@@ -27,19 +36,33 @@ class Bag(object):
         return key in self.contents
 
     def keys(self):
+        '''
+        Returns an iterator over the keys of :attr:`contents`
+        An alias of :meth:`__iter__`
+        '''
         return iter(self)
 
     def values(self):
+        '''
+        Returns an iterator over the values of :attr:`contents`
+        '''
         for k in self:
             for v in self[k]:
                 yield v
 
     def items(self):
+        '''
+        Returns an iterator over the items of :attr:`contents`. Each item
+        takes the form of `(key, value)`.
+        '''
         for k in self:
             for v in self[k]:
                 yield (k, v)
 
     def __len__(self):
+        '''
+        Returns the number of items in :attr:`contents`
+        '''
         return sum(len(self[k]) for k in self)
 
     def __repr__(self):
@@ -53,7 +76,7 @@ class Bag(object):
 
 class OrderedBag(Bag):
     '''
-    Implements a simple MultiSet-like data structure on top of a dictionary of lists
+    Implements a simple MultiMap-like data structure on top of a dictionary of lists
     that remembers the order keys were first inserted in.
     '''
     def __init__(self, **kwargs):
@@ -65,10 +88,21 @@ class OrderedBag(Bag):
             self.contents[k].append(v)
 
     def __iter__(self):
+        '''
+        Returns an iterator over the keys of :attr:`contents` in the order
+        they were added.
+        '''
         for key in self.key_order:
             yield key
 
+    #: Alias of :meth:`__iter__`
+    keys = __iter__
+
     def items(self):
+        ''' 
+        As in :class:`Bag`, but items are yielded in the order their keys were
+        first added.
+        '''
         for key in self.key_order:
             for v in self[key]:
                 yield (key, v)

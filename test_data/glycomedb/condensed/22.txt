@@ -1,0 +1,9 @@
+RES
+1b:x-dglc-HEX-x:x
+2s:n-acetyl
+3b:a-dman-HEX-1:5
+4b:a-dman-HEX-1:5
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3o(3+1)4d

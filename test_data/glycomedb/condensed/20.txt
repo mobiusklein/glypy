@@ -1,0 +1,11 @@
+RES
+1b:x-dglc-HEX-x:x
+2r:r1
+3b:b-dglc-HEX-1:5
+LIN
+1:1o(4+1)2n
+2:2n(4+1)3d
+REP
+REP1:4o(4+1)4d=-1--1
+RES
+4b:b-dglc-HEX-1:5

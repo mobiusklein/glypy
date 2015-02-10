@@ -1,0 +1,7 @@
+RES
+1b:x-dman-HEX-1:5
+2b:a-dman-HEX-1:5
+3b:a-dman-HEX-1:5
+LIN
+1:1o(3+1)2d
+2:1o(6+1)3d

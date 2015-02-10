@@ -1,0 +1,15 @@
+RES
+1b:o-dglc-HEX-0:0|1:aldi
+2b:b-dglc-HEX-1:5
+3b:b-dglc-HEX-1:5
+4b:b-dglc-HEX-1:5
+5b:b-dglc-HEX-1:5
+6b:b-dglc-HEX-1:5
+7b:b-dglc-HEX-1:5
+LIN
+1:1o(6+1)2d
+2:2o(3+1)3d
+3:2o(6+1)4d
+4:4o(6+1)5d
+5:5o(3+1)6d
+6:5o(6+1)7d

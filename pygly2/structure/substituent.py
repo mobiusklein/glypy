@@ -79,7 +79,7 @@ class Substituent(SubstituentBase):
         self._name = value.replace("-", "_")
 
     def to_glycoct(self):
-        return "s:{0};".format(self.name.replace("_", "-"))
+        return "s:{0}".format(self.name.replace("_", "-"))
 
     def __repr__(self):
         return "<Substituent {name}>".format(name=self._name)
@@ -91,19 +91,20 @@ class Substituent(SubstituentBase):
         return not self == other
 
     def is_occupied(self, position):
+        if position > 2 or position < 1:
+            raise IndexError("Position out of range")
         return len(self.links[position])
 
-    def add_substituent(self, substitent, max_occupancy=1,
-                        parent_position=-1, child_position=-1,
-                        parent_loss=None, child_loss=None):
-        if self.is_occupied(parent_position) > max_occupancy:
+    def add_substituent(self, substitent, position=-1, max_occupancy=1,
+                        child_position=-1, parent_loss=None, child_loss=None):
+        if self.is_occupied(position) > max_occupancy:
             raise IndexError("Site is already occupied")
         if parent_loss is None:
             parent_loss = Composition(H=1)
         if child_loss is None:
             child_loss = Composition(H=1)
         Link(parent=self, child=substitent,
-             parent_position=parent_position, child_position=child_position,
+             parent_position=position, child_position=child_position,
              parent_loss=parent_loss, child_loss=child_loss)
 
     def drop_substiuent(self, position, substituent=None, refund=True):
@@ -119,7 +120,7 @@ class Substituent(SubstituentBase):
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''
-        Calculates the total mass of ``self`` and all nodes returned by :meth:`children`.
+        Calculates the total mass of `self` and all nodes returned by :meth:`children`.
 
         Parameters
         ----------
@@ -138,7 +139,7 @@ class Substituent(SubstituentBase):
 
         See also
         --------
-        :meth:`pygly2.composition.composition.calculate_mass`
+        :func:`pygly2.composition.composition.calculate_mass`
         '''
         mass = calculate_mass(self.composition, average=average, charge=charge, mass_data=mass_data)
         for link_pos, child in self.children():
@@ -158,7 +159,7 @@ class Substituent(SubstituentBase):
 
     def total_composition(self):
         '''
-        Computes the sum of the composition of ``self`` and each of its linked
+        Computes the sum of the composition of `self` and each of its linked
         :class:`~.substituent.Substituent`s
 
         Returns

@@ -99,6 +99,11 @@ add_module_names = True
 # output. They are ignored by default.
 #show_authors = False
 
+default_role = "py:obj"
+rst_prolog = '\n'.join([
+  ".. include:: {docroot}/defs.rst".format(docroot=os.path.abspath('.'))
+  ])
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 

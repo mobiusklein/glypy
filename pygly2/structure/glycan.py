@@ -1,6 +1,6 @@
 import logging
 import itertools
-logger = logging.getLogger("GlycanBuilder")
+logger = logging.getLogger("Glycan")
 from functools import partial
 from collections import deque, defaultdict, Callable
 
@@ -23,20 +23,34 @@ fragment_shift = {
 
 class Glycan(SaccharideBase):
     '''
-    Represents a full graph of connected :class:`~.monosaccharide.Monosaccharide`
-    objects and their connecting bonds.
+    Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
 
     Attributes
     ----------
-    root: :class:`~.monosaccharide.Monosaccharide`
+    root: |Monosaccharide|
         The first monosaccharide unit of the glycan, and the reducing end if present.
     index: :class:`list`
-        A list of the :class:`~.monosaccharide.Monosaccharide`
+        A list of the |Monosaccharide| instances in `self` in the order they are encountered
+        by traversal by `traversal_methods[index_method]`
+    link_index: :class:`list`
+        A list of the |Link| connecting the |Monosaccharide| instances in `self` in the order they
+        are encountered by traversal by `traversal_methods[index_method]`
+    reducing_end: |int| or |None|
+        The index of the reducing end on :attr:`root`.
 
     '''
     traversal_methods = {}
 
     def __init__(self, graph_root=None, reducing_end=None, index_method='dfs'):
+        '''
+        Constructs a new Glycan from the set of |Monosaccharide|
+        rooted at `graph_root`. 
+
+        If `reducing_end` is not |None|, it is set as the reducing end.
+
+        If index_method is not |None|, the graph is indexed by the default search method
+        given by `traversal_methods[index_method]`
+        '''
         logger.debug("Creating new glycan with root: %s", graph_root)
         if graph_root is None:
             graph_root = Monosaccharide()
@@ -49,8 +63,14 @@ class Glycan(SaccharideBase):
         if reducing_end is not None:
             self.root.reducing_end = reducing_end
 
-    def reindex(self, method='dfs'):
+    def reindex(self, method='bfs'):
         '''
+        Traverse the graph using the function specified by ``method``. The order of 
+        traversal defines the new :attr:`id` value for each |Monosaccharide|
+        and |Link|.
+
+        The order of traversal also defines the ordering of the |Monosaccharide|
+        in :attr:`index` and |Link| in :attr:`link_index`.
 
         '''
         traversal = self._get_traversal_method(method)
@@ -72,8 +92,19 @@ class Glycan(SaccharideBase):
 
         self.index = index
         self.link_index = link_index
+        return self
+
+    def deindex(self):
+        for node in self.index:
+            node.id *= -1
+        for link in self.link_index:
+            link.id *= -1
+        return self
 
     def __getitem__(self, ix, method='dfs'):
+        '''
+        Alias for :attr:`index.__getitem__`
+        '''
         if not isinstance(ix, int):
             raise TypeError("Residue indices must be integers")
         if self.index is None:
@@ -90,7 +121,11 @@ class Glycan(SaccharideBase):
 
     @property
     def reducing_end(self):
+        '''
+        An alias for :attr:`Monosaccharide.reducing_end` for :attr:`root`
+        '''
         return self.root.reducing_end
+
     @reducing_end.setter
     def reducing_end(self, value):
         self.root.reducing_end = value
@@ -106,9 +141,10 @@ class Glycan(SaccharideBase):
                 continue
             visited.add(node.id)
             yield apply_fn(node)
-            node_stack.extend(terminal for pos, link in node.links.items()
-                              for terminal in link if not terminal.id in visited)
+            node_stack.extend(sorted((terminal for pos, link in node.links.items()
+                              for terminal in link if not terminal.id in visited), key=Monosaccharide.order))
 
+    # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
     traversal_methods['dfs'] = "dfs"
     traversal_methods['depth_first_traversal'] = "dfs"
@@ -122,9 +158,10 @@ class Glycan(SaccharideBase):
                 continue
             visited.add(node.id)
             yield apply_fn(node)
-            node_queue.extend(terminal for pos, link in node.links.items()
-                              for terminal in link if not terminal.id in visited)
+            node_queue.extend(sorted((terminal for pos, link in node.links.items()
+                              for terminal in link if not terminal.id in visited), key=Monosaccharide.order))
 
+    # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal
     traversal_methods['bfs'] = "bfs"
     traversal_methods['breadth_first_traversal'] = "bfs"
@@ -174,17 +211,17 @@ class Glycan(SaccharideBase):
 
     def to_glycoct(self, buffer=None, close=False):
         '''
-        Serialize the :class:`Glycan` graph object into condensed GlycoCT, using
-        ``buffer`` to store the result. If ``buffer`` is :const:`None`, then the
+        Serialize the |Glycan| graph object into condensed GlycoCT, using
+        `buffer` to store the result. If `buffer` is |None|, then the
         function will operate on a newly created :class:`~pygly2.utils.StringIO` object.
 
         Parameters
         ----------
-        buffer: file-like or None
-            The stream to write the serialized structure to. If :const:`None`, uses an instance
-            of :class:`~pygly2.utils.StringIO`
-        close: bool
-            Whether or not to close the stream in ``buffer`` after writing is done
+        buffer: `file-like` or |None|
+            The stream to write the serialized structure to. If |None|, uses an instance
+            of `StringIO`
+        close: |bool|
+            Whether or not to close the stream in `buffer` after writing is done
 
         Returns
         -------
@@ -253,18 +290,18 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        average: bool, optional, defaults to False
+        average: |bool|, optional, defaults to |False|
             Whether or not to use the average isotopic composition when calculating masses.
             When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: int, optional, defaults to 0
+        charge: |int|, optional, defaults to 0
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: dict, optional, defaults to `None`
+        mass_data: |dict|, optional, defaults to |None|
             If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the 
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
 
         See also
         --------
-        :meth:`pygly2.composition.composition.calculate_mass`
+        :func:`pygly2.composition.composition.calculate_mass`
         '''
         return sum(node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
 
@@ -302,128 +339,106 @@ class Glycan(SaccharideBase):
         
     def fragments(self, kind=('B','Y'), max_cleavages=1, average=False, charge=0, mass_data=None):
         '''
-        Generate carbohydrate backbone fragments from this glycan by examining
-        the two disjoint subtrees created by removing one monosaccharide-monosaccharide bond.
-        Does not copy the structure, though it does mutate the structure but reverses the
-        effect so there should be no side-effects. 
+        Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees 
+        created by removing one or more monosaccharide-monosaccharide bond.
+
+        .. note::
+            Does not copy the structure, though it does mutate the structure but reverses the effect so there should be no side-effects. 
+            If an error should occur during iteration, there is a chance that the glycan structure may become corrupted. Efforts have been
+            taken to prevent such corruption from happening, but as the library develops, new errors may not yet be anticipated.
         
         Does not produce cross-ring cleavages. 
 
         Parameters
         ----------
 
-        kind: sequence
-            Any collection or sequence of characters corresponding to glycan fragment nomenclature
+        kind: `sequence`
+            Any `iterable` or `sequence` of characters corresponding to glycan fragment nomenclature
             as published by :title-reference:`Domon and Costello`
-        max_cleavages: int
+        max_cleavages: |int|
             The maximum number of bonds to break per fragment
-        average: bool, optional, defaults to False
+        average: |bool|, optional, defaults to |False|
             Whether or not to use the average isotopic composition when calculating masses.
             When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: int, optional, defaults to 0
+        charge: |int|, optional, defaults to 0
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: dict, optional, defaults to `None`
-            If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the 
-            contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
+        mass_data: |dict|, optional, defaults to |None|
+            If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the 
+            contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
 
         See also
         --------
-        :meth:`pygly2.composition.composition.calculate_mass`
+        :func:`pygly2.composition.composition.calculate_mass`
         '''
-        for pos, link in self.iterlinks():
-            parent, child = link.break_link()
-            link.refund()
-            parent_tree = Glycan(graph_root=parent, index_method=None)
-            child_tree = Glycan(graph_root=child, index_method=None)
-            results = []
-            if 'Y' in kind:
-                offset = fragment_shift['Y'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                y_mass = parent_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                
-                y_include  = [n.id for n in parent_tree]
-                results.append(('Y', y_include, y_mass))
-            if 'B' in kind:
-                offset = fragment_shift['B'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                b_mass = child_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                b_include  = [n.id for n in child_tree]
-                results.append(('B', b_include, b_mass))
-            if "C" in kind:
-                offset = fragment_shift['C'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                c_mass = child_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                c_include  = [n.id for n in child_tree]
-                results.append(('C', c_include, c_mass))
-            if 'Z' in kind:
-                offset = fragment_shift['Z'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                z_mass = parent_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                z_include  = [n.id for n in parent_tree]
-                results.append(('Z', z_include, z_mass))
+        for i in range(1, max_cleavages + 1):
+            link_group_gen = itertools.combinations((link for ind, link in self.iterlinks()), i)
+            for links in link_group_gen:
+                for frag in self.break_links(links, kind, average, charge, mass_data):
+                    yield frag
 
-            link.apply()
-            yield link.id, results
+
 
     def break_links(self, link_list, kind=('B','Y'), average=False, charge=0, mass_data=None):
         if len(link_list) == 0:
             raise StopIteration
-        link = link_list[0]
-        parent, child = link.break_link()
-        link.refund()
-        parent_tree = Glycan(graph_root=parent, index_method=None)
-        child_tree = Glycan(graph_root=child, index_method=None)
-        results = []
+        try:
+            link = link_list[0]
+            parent, child = link.break_link()
+            link.refund()
+            break_id = link.id
+            parent_tree = Glycan(graph_root=parent, index_method=None)
+            child_tree = Glycan(graph_root=child, index_method=None)
 
-        if len(link_list) > 1:
-            parent_frags = list(parent_tree.break_links(link_list[1:], kind=kind, average=average, charge=charge, mass_data=mass_data))
-            child_frags = list(child_tree.break_links(link_list[1:], kind=kind, average=average, charge=charge, mass_data=mass_data))
-            
-            if 'Y' in kind:
-                offset = fragment_shift['Y'].calc_mass(average=average, charge=charge, mass_data=mass_data)
-                for ion_type, mass in parent_frags:
-                    yield ion_type + 'Y', mass - offset
-            if 'Z' in kind:
-                offset = fragment_shift['Z'].calc_mass(average=average, charge=charge, mass_data=mass_data)
-                for ion_type, mass in parent_frags:
-                    yield ion_type + 'Z', mass - offset
-            if 'B' in kind:
-                offset = fragment_shift['B'].calc_mass(average=average, charge=charge, mass_data=mass_data)
-                for ion_type, mass in child_frags:
-                    yield ion_type + 'B', mass - offset
-            if 'C' in kind:
-                offset = fragment_shift['C'].calc_mass(average=average, charge=charge, mass_data=mass_data)
-                for ion_type, mass in child_frags:
-                    yield ion_type + 'C', mass - offset
-        else:
-            if 'Y' in kind:
-                offset = fragment_shift['Y'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)                 
-                y_mass = parent_tree.mass(
-                            average=average, charge=charge, mass_data=mass_data) - offset
-                yield ('Y', y_mass - offset)
-            if 'B' in kind:
-                offset = fragment_shift['B'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                b_mass = child_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                yield 'B', b_mass - offset
-            if "C" in kind:
-                offset = fragment_shift['C'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                c_mass = child_tree.mass(
-                    average=average, charge=charge, mass_data=mass_data) - offset
-                yield 'C', c_mass - offset
-            if 'Z' in kind:
-                offset = fragment_shift['Z'].calc_mass(
-                        average=average, charge=charge, mass_data=mass_data)
-                z_mass = parent_tree.mass(
+            if len(link_list) > 1:
+                parent_frags = list(parent_tree.break_links(link_list[1:], kind=kind, average=average, charge=charge, mass_data=mass_data))
+                child_frags = list(child_tree.break_links(link_list[1:], kind=kind, average=average, charge=charge, mass_data=mass_data))
+                
+                if 'Y' in kind:
+                    offset = fragment_shift['Y'].calc_mass(average=average, charge=charge, mass_data=mass_data)
+                    for ion_type, link_ids, include, mass in parent_frags:
+                        yield ion_type + 'Y',  link_ids + [break_id], include, mass - offset
+                if 'Z' in kind:
+                    offset = fragment_shift['Z'].calc_mass(average=average, charge=charge, mass_data=mass_data)
+                    for ion_type, link_ids, include, mass in parent_frags:
+                        yield ion_type + 'Z', link_ids + [break_id], include, mass - offset
+                if 'B' in kind:
+                    offset = fragment_shift['B'].calc_mass(average=average, charge=charge, mass_data=mass_data)
+                    for ion_type, link_ids, include, mass in child_frags:
+                        yield ion_type + 'B', link_ids + [break_id], include, mass - offset
+                if 'C' in kind:
+                    offset = fragment_shift['C'].calc_mass(average=average, charge=charge, mass_data=mass_data)
+                    for ion_type, link_ids, include, mass in child_frags:
+                        yield ion_type + 'C', include, link_ids + [break_id], mass - offset
+            else:
+                parent_include  = [n.id for n in parent_tree]
+                child_include  = [n.id for n in child_tree]
+
+                if 'Y' in kind:
+                    offset = fragment_shift['Y'].calc_mass(
+                            average=average, charge=charge, mass_data=mass_data)                 
+                    y_mass = parent_tree.mass(
+                                average=average, charge=charge, mass_data=mass_data) - offset
+                    yield ('Y', [break_id], parent_include, y_mass)
+                if 'B' in kind:
+                    offset = fragment_shift['B'].calc_mass(
+                            average=average, charge=charge, mass_data=mass_data)
+                    b_mass = child_tree.mass(
                         average=average, charge=charge, mass_data=mass_data) - offset
-                yield ('Z', z_mass - offset)
-
-        link.apply()
+                    yield 'B', [break_id], child_include, b_mass
+                if "C" in kind:
+                    offset = fragment_shift['C'].calc_mass(
+                            average=average, charge=charge, mass_data=mass_data)
+                    c_mass = child_tree.mass(
+                        average=average, charge=charge, mass_data=mass_data) - offset
+                    yield 'C', [break_id], child_include, c_mass
+                if 'Z' in kind:
+                    offset = fragment_shift['Z'].calc_mass(
+                            average=average, charge=charge, mass_data=mass_data)
+                    z_mass = parent_tree.mass(
+                            average=average, charge=charge, mass_data=mass_data) - offset
+                    yield ('Z', [break_id], parent_include, z_mass)
+        except Exception, e:
+            print(e)
+        finally:
+            link.apply()
 

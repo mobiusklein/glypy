@@ -1,8 +1,15 @@
-from ..utils.enum import EnumMeta
+from ..utils.enum import EnumMeta, Enum
 
 
-class SuperClass(object):
-    __metaclass__ = EnumMeta
+class SuperClass(Enum):
+    '''Corresponds to the number of carbon atoms in the carbohydrate backbone
+    of the |Monosaccharide|
+
+    Is an |Enum|
+    '''
+
+    #__metaclass__ = EnumMeta
+    
     tri = 3
     tet = 4
     pen = 5
@@ -14,8 +21,13 @@ class SuperClass(object):
     x = missing
 
 
-class Stem(object):
-    __metaclass__ = EnumMeta
+class Stem(Enum):
+    '''Corresponds to the bond formation pattern between the carbon atoms in the 
+    carbohydrate backbone of the |Monosaccharide|
+
+    Is an |Enum|
+    '''
+    #__metaclass__ = EnumMeta
     gro = 1
     ery = 2
     rib = 3
@@ -36,17 +48,25 @@ class Stem(object):
     x = missing
 
 
-class Configuration(object):
-    '''Optical Stereomers'''
-    __metaclass__ = EnumMeta
+class Configuration(Enum):
+    '''
+    Corresponds to the optical stereomeric state of the |Monosaccharide|
+
+    Is an |Enum|
+    '''
     d = 1
     l = 2
     missing = None
     x = missing
 
 
-class Modification(object):
-    __metaclass__ = EnumMeta
+class Modification(Enum):
+    '''
+    Corresponds to discrete composition shifts of the |Monosaccharide| which 
+    are simple enough to not constitute a distinct object to represent like |Substituent|.
+    
+    Is an |Enum|
+    '''
     d = 1
     keto = 2
     en = 3
@@ -59,12 +79,16 @@ class Modification(object):
     _cleave = 10
     _reduce = 11
 
-
+#: An alias for :attr:`Modification._reduce`
 ReducingEnd = Modification._reduce
 
 
-class Anomer(object):
-    __metaclass__ = EnumMeta
+class Anomer(Enum):
+    '''
+    Corresponds to the type of linkage found at the anomeric carbon of this |Monosaccharide|
+
+    Is an |Enum|
+    '''
     alpha = 1
     beta = 2
     uncyclized = 3

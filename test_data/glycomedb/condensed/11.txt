@@ -1,0 +1,17 @@
+RES
+1b:x-dglc-HEX-x:x
+2b:b-dglc-HEX-1:5
+3b:b-dglc-HEX-1:5
+4b:b-dglc-HEX-1:5
+5b:b-dglc-HEX-1:5
+6b:b-dglc-HEX-1:5
+7b:b-dglc-HEX-1:5
+8s:amino
+LIN
+1:1o(3+1)2d
+2:2o(3+1)3d
+3:1o(6+1)4d
+4:4o(6+1)5d
+5:5o(3+1)6d
+6:5o(6+1)7d
+7:7d(2+1)8n
