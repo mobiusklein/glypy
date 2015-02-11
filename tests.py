@@ -109,6 +109,27 @@ class MonosaccharideTests(unittest.TestCase):
                 structure.drop_modification(site, constants.Modification.aldi)
             self.assertEqual(structure.total_composition(), ref.total_composition())
 
+    def test_add_remove_substituents(self):
+        for name, mass in wiki_masses.items():
+            structure = named_structures.monosaccharides[name]
+            ref = structure.clone()
+            self.assertAlmostEqual(ref.mass(), structure.mass())
+            open_sites, unknowns = structure.open_attachment_sites()
+            n_sites = len(open_sites)
+            mass_delta = substituent.Substituent('methyl').mass() * n_sites - Composition("H2").mass * n_sites
+            ping = True
+            for site in open_sites:
+                if ping:
+                    structure.add_substituent(substituent.Substituent('methyl'), position=site)
+                    ping = False
+                else:
+                    structure.add_substituent('methyl', position=site)
+                    ping = True
+            self.assertAlmostEqual(structure.mass(), ref.mass() + mass_delta)
+            for site in open_sites:
+                structure.drop_substiuent(site, substituent.Substituent('methyl'))
+            self.assertAlmostEqual(structure.mass(), ref.mass())
+
 
 class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"

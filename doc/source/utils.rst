@@ -12,5 +12,5 @@ Many helper functions used throughout the rest of the library.
 .. automodule:: pygly2.utils.enum
     :members:
 
-.. automodule:: pygly2.utils.bag
+.. automodule:: pygly2.utils.multimap
     :members:

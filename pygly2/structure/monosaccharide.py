@@ -11,7 +11,7 @@ from .base import SaccharideBase
 
 from ..io.format_constants_map import anomer_map, superclass_map
 from ..utils import invert_dict, make_counter, StringIO
-from ..utils.bag import OrderedBag
+from ..utils.multimap import OrderedMultiMap
 from ..composition import Composition, calculate_mass
 
 anomer_map = invert_dict(anomer_map)
@@ -37,6 +37,7 @@ def get_standard_composition(monosaccharide):
 
 
 class Monosaccharide(SaccharideBase):
+
     '''
     Represents a single monosaccharide molecule, and its relationships with other
     molcules through |Link| objects. |Link| objects stored in :attr:`links` for connections to other
@@ -46,7 +47,7 @@ class Monosaccharide(SaccharideBase):
     objects are stored in :attr:`substituent_links`.
 
     Both :attr:`links` and :attr:`substituent_links` are instances of
-    |OrderedBag| objects where the key is the index of the
+    |OrderedMultiMap| objects where the key is the index of the
     carbon atom in the carbohydrate backbone that hosts the bond.
     An index of `x` or `-1` represents an unknown location.
 
@@ -57,7 +58,7 @@ class Monosaccharide(SaccharideBase):
         of the carbohydrate backbone. Is an entry of a class based on :class:`EnumMeta`
     superclass: :class:`SuperClass` or {'tri', 'tet', 'pen', 'hex', 'hep', 'oct', 'non' 'missing', 'x', None}
         An entry of :class:`~pygly2.structure.constants.SuperClass` that corresponds to the number of
-        carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the 
+        carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the
         instance and the number of positions open to be linked to or modified. Is an entry of a class
         based on :class:`EnumMeta`
     configuration: :class:`Configuration` or {'d', 'l', 'x', 'missing', None}
@@ -74,24 +75,21 @@ class Monosaccharide(SaccharideBase):
         The index of the carbon of the carbohydrate backbone that ends a ring. A value of :const:`-1`, :const:`'x'`, or
         :const:`None` corresponds to an unknown ends. A value of :const:`0` refers to a linear chain.
     reducing_end: :class:`int`
-        The index of the carbon which hosts the reducing end. 
-    modifications: |OrderedBag|
+        The index of the carbon which hosts the reducing end.
+    modifications: |OrderedMultiMap|
         The mapping of sites to :class:`~pygly2.structure.constants.Modification` entries. Directly modifies
         the instance's :attr:`Monosaccharide.composition`
-    links: |OrderedBag|
+    links: |OrderedMultiMap|
         The mapping of sites to :class:`~pygly2.structure.link.Link` entries that refer to other :class:`Monosaccharide` instances
-    substituent_links: |OrderedBag|
+    substituent_links: |OrderedMultiMap|
             The mapping of sites to :class:`~pygly2.structure.link.Link` entries that refer to
             :class:`~pygly2.structure.substituent.Substituent` instances.
     composition: |Composition|
         An instance of :class:`~pygly2.composition.composition.Composition` corresponding to the elemental composition
         of ``self`` and its immediate modifications.
 
-
-
-
-
     '''
+
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=None, ring_end=None,
                  modifications=None, links=None, substituent_links=None,
@@ -102,9 +100,10 @@ class Monosaccharide(SaccharideBase):
         self.superclass = superclass
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.modifications = OrderedBag() if modifications is None else modifications
-        self.links = OrderedBag() if links is None else links
-        self.substituent_links = OrderedBag() if substituent_links\
+        self.modifications = OrderedMultiMap(
+        ) if modifications is None else modifications
+        self.links = OrderedMultiMap() if links is None else links
+        self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
         self.id = id or uuid4().int
         if composition is None:
@@ -166,7 +165,7 @@ class Monosaccharide(SaccharideBase):
 
     def clone(self):
         '''
-        Copies just this |Monosaccharide| and its |Substituents|, creating a separate instance
+        Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
         with the same data. All mutable data structures are duplicated and distinct from the original.
 
         Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
@@ -281,7 +280,7 @@ class Monosaccharide(SaccharideBase):
             if pos in {-1, 'x'}:
                 unknowns += 1
             else:
-                slots[pos-1] += 1
+                slots[pos - 1] += 1
 
         reducing_end = self.reducing_end
         if reducing_end is not None:
@@ -292,7 +291,8 @@ class Monosaccharide(SaccharideBase):
 
         for i in range(len(slots)):
             if slots[i] <= max_occupancy and (i + 1) != self.ring_end:
-                open_slots.append((i + 1) if not can_determine_positions else -1)
+                open_slots.append(
+                    (i + 1) if not can_determine_positions else -1)
 
         if self.ring_end in {-1, 'x'}:
             open_slots.pop()
@@ -357,7 +357,8 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
-        self.composition = self.composition + modification_compositions[modification]
+        self.composition = self.composition + \
+            modification_compositions[modification]
         self.modifications[position] = Modification[modification]
         return self
 
@@ -365,7 +366,8 @@ class Monosaccharide(SaccharideBase):
         if position > self.superclass.value:
             raise IndexError("Index out of bounds")
         self.modifications.pop(position, modification)
-        self.composition = self.composition - modification_compositions[modification]
+        self.composition = self.composition - \
+            modification_compositions[modification]
         return self
 
     def add_substituent(self, substituent, position=-1, max_occupancy=0,
@@ -419,14 +421,16 @@ class Monosaccharide(SaccharideBase):
             substituent = Substituent(substituent)
         link_obj = None
         for substituent_link in self.substituent_links[position]:
-            if substituent_link.child == substituent or substituent is None:
+            if substituent_link.child.name == substituent.name or substituent is None:
                 link_obj = substituent_link
                 break
         if link_obj is None:
             if substituent is not None:
-                msg = "No matching substituent found at {position}.".format(position=position)
+                msg = "No matching substituent found at {position}.".format(
+                    position=position)
             else:
-                msg = "No substituents found at {position}.".format(position=position)
+                msg = "No substituents found at {position}.".format(
+                    position=position)
             raise IndexError(msg)
 
         link_obj.break_link(refund=refund)
@@ -474,16 +478,18 @@ class Monosaccharide(SaccharideBase):
              parent_loss=parent_loss, child_loss=child_loss)
         return self
 
-    def drop_monosaccharide(self, position, monosaccharide=None, refund=True):
+    def drop_monosaccharide(self, position, refund=True):
         if position > self.superclass.value:
             raise IndexError("Index out of bounds")
         link_obj = None
+        if len(self.links[position]) > 1:
+            raise ValueError("Too many monosaccharides found")
         for link in self.links[position]:
-            if link.child == monosaccharide or monosaccharide is None:
-                link_obj = link
-                break
+            link_obj = link
+            break
         if link_obj is None:
-            raise ValueError("No matching monosaccharide found at {position}".format(position=position))
+            raise ValueError(
+                "No matching monosaccharide found at {position}".format(position=position))
 
         link_obj.break_link(refund=refund)
         return self
@@ -524,12 +530,13 @@ class Monosaccharide(SaccharideBase):
         # This index is reused many times
         monosaccharide_index = res_index()
 
-
         # Format individual fields
         anomer = anomer_map[self.anomer]
-        conf_stem = ''.join("-{0}{1}".format(c.name, s.name) for c, s in zip(self.configuration, self.stem))
+        conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
+                            for c, s in zip(self.configuration, self.stem))
         superclass = "-" + superclass_map[self.superclass]
-        modifications = '|'.join("{0}:{1}".format(k, v.name) for k, v in self.modifications.items())
+        modifications = '|'.join(
+            "{0}:{1}".format(k, v.name) for k, v in self.modifications.items())
         modifications = "|" + modifications if modifications != "" else ""
 
         # The complete monosaccharide residue line
@@ -545,7 +552,8 @@ class Monosaccharide(SaccharideBase):
             sub_index = res_index()
             subst_str = str(sub_index) + sub.to_glycoct()
             res.append(subst_str)
-            lin.append(link_obj.to_glycoct(lin_index(), monosaccharide_index, sub_index))
+            lin.append(
+                link_obj.to_glycoct(lin_index(), monosaccharide_index, sub_index))
 
         # Completely render the data if `complete`
         if complete:
@@ -557,7 +565,7 @@ class Monosaccharide(SaccharideBase):
                 buff.write("\n".join(lin))
             return buff.getvalue()
         else:
-            return  [res, lin, monosaccharide_index]
+            return [res, lin, monosaccharide_index]
 
     def _flat_equality(self, other):
         '''
@@ -567,15 +575,15 @@ class Monosaccharide(SaccharideBase):
 
         '''
         flat = (self.anomer == other.anomer) and\
-         (self.ring_start == other.ring_start) and\
-         (self.ring_end == other.ring_end) and\
-         (self.superclass == other.superclass) and\
-         (self.modifications) == (other.modifications) and\
-         (self.configuration) == (other.configuration) and\
-         (self.stem) == (other.stem) and\
-         len(self.links) == len(other.links) and\
-         len(self.substituent_links) == len(other.substituent_links) and\
-         self.total_composition() == other.total_composition()
+            (self.ring_start == other.ring_start) and\
+            (self.ring_end == other.ring_end) and\
+            (self.superclass == other.superclass) and\
+            (self.modifications) == (other.modifications) and\
+            (self.configuration) == (other.configuration) and\
+            (self.stem) == (other.stem) and\
+            len(self.links) == len(other.links) and\
+            len(self.substituent_links) == len(other.substituent_links) and\
+            self.total_composition() == other.total_composition()
         return flat
 
     def __eq__(self, other):
@@ -586,7 +594,8 @@ class Monosaccharide(SaccharideBase):
         if (other is None):
             return False
         if not isinstance(other, Monosaccharide):
-            raise TypeError("Cannot compare non-Monosaccharide to Monosaccharide")
+            raise TypeError(
+                "Cannot compare non-Monosaccharide to Monosaccharide")
         flat = self._flat_equality(other)
         if flat:
             for i in self.links:
@@ -599,10 +608,8 @@ class Monosaccharide(SaccharideBase):
                         return False
         return flat
 
-
     def __ne__(self, other):
         return not (self == other)
-
 
     def __repr__(self):
         return self.to_glycoct()
@@ -632,10 +639,12 @@ class Monosaccharide(SaccharideBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
-        mass = calculate_mass(self.composition, average=average, charge=charge, mass_data=mass_data)
+        mass = calculate_mass(
+            self.composition, average=average, charge=charge, mass_data=mass_data)
         if substituents:
-            for link_pos, substituent_link,  in self.substituent_links.items():
-                mass += substituent_link[self].mass(average=average, charge=charge, mass_data=mass_data)
+            for link_pos, substituent_link, in self.substituent_links.items():
+                mass += substituent_link[self].mass(
+                    average=average, charge=charge, mass_data=mass_data)
         return mass
 
     def total_composition(self):

@@ -9,7 +9,7 @@
 
 .. |Composition| replace:: :class:`~pygly2.composition.composition.Composition`
 
-.. |OrderedBag| replace:: :class:`~pygly2.utils.bag.OrderedBag`
+.. |OrderedMultiMap| replace:: :class:`~pygly2.utils.multimap.OrderedMultiMap`
 .. |Enum| replace:: :class:`~pygly2.utils.enum.Enum`
 .. |SuperClass| replace:: :class:`~pygly2.structure.constants.SuperClass`
 .. |Modification| replace:: :class:`~pygly2.structure.constants.Modification`

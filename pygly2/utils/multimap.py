@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-class Bag(object):
-    '''Implements a simple MultiMap-like data structure on top of a dictionary of lists'''
+class MultiMap(object):
+    '''Implements a simple MultiMap data structure on top of a dictionary of lists'''
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
         for k, v in kwargs.items():
@@ -74,9 +74,9 @@ class Bag(object):
     def __ne__(self, other):
         return self.contents != other.contents
 
-class OrderedBag(Bag):
+class OrderedMultiMap(MultiMap):
     '''
-    Implements a simple MultiMap-like data structure on top of a dictionary of lists
+    Implements a simple MultiMap data structure on top of a dictionary of lists
     that remembers the order keys were first inserted in.
     '''
     def __init__(self, **kwargs):
@@ -100,7 +100,7 @@ class OrderedBag(Bag):
 
     def items(self):
         ''' 
-        As in :class:`Bag`, but items are yielded in the order their keys were
+        As in :class:`MultiMap`, but items are yielded in the order their keys were
         first added.
         '''
         for key in self.key_order:
@@ -113,7 +113,7 @@ class OrderedBag(Bag):
         self.contents[key].append(value)
 
     def pop(self, key, value):
-        rv = super(OrderedBag, self).pop(key, value)
+        rv = super(OrderedMultiMap, self).pop(key, value)
         if rv == 0:
             self.key_order.pop(self.key_order.index(key))
 

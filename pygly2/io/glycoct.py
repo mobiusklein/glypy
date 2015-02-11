@@ -5,7 +5,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from ..utils import opener, StringIO
-from ..utils.bag import OrderedBag
+from ..utils.multimap import OrderedMultiMap
 from ..composition import Composition
 from ..structure import monosaccharide, substituent, link, constants, glycan
 from .format_constants_map import anomer_map, superclass_map, link_replacement_composition_map
@@ -138,7 +138,7 @@ class GlycoCT(object):
         residue_dict = res_pattern.search(residue_str).groupdict()
 
         mods = residue_dict.pop("modifications")
-        modifications = OrderedBag()
+        modifications = OrderedMultiMap()
         if mods is not None:
             for p, mod in modification_pattern.findall(mods):
                 modifications[try_int(p)] = constants.Modification[mod]
