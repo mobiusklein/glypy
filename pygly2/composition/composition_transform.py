@@ -40,8 +40,8 @@ derivatizable_substituents = {
 }
 
 
-class DerivatizeBase(object):
-
+# WIP
+class DerivatizeBase(object):  # pragma: no cover
     def __init__(self, substituent, white_list, black_list, *args, **kwargs):
         self.substituent = substituent
         self.white_list = white_list

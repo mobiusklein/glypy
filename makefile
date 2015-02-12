@@ -2,7 +2,8 @@ all: test sphinx
 
 
 test:
-	python tests.py
+	coverage run tests.py
+	coverage html -d test_reports
 
 sphinx:
 	make -f Makefile clean -C doc html

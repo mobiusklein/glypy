@@ -6,7 +6,6 @@ from .base import SaccharideBase, SubstituentBase
 default_parent_loss = Composition(O=1, H=1)
 default_child_loss = Composition(H=1)
 
-
 class Link(object):
     '''
     Represents the linkage between two residues.
@@ -22,7 +21,7 @@ class Link(object):
         if isinstance(parent_loss, basestring):
             parent_loss = Composition(formula=parent_loss)
         if isinstance(child_loss, basestring):
-            child_loss = Composition(formula=parent_loss)
+            child_loss = Composition(formula=child_loss)
 
         self.parent = parent
         self.child = child
@@ -188,7 +187,7 @@ class Link(object):
         self.parent.composition = self.parent.composition + (self.parent_loss or default_parent_loss)
         self.child.composition = self.child.composition + (self.child_loss or default_child_loss)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()
         rep = "({parent}){parent_loss}({parent_position}+{child_position}){child_loss}({child})"
         return rep.format(

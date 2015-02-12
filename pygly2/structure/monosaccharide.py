@@ -658,7 +658,7 @@ class Monosaccharide(SaccharideBase):
         '''
         comp = self.composition
         for sub in self.substituents():
-            comp = comp + sub.composition
+            comp = comp + sub.total_composition()
         return comp
 
     def children(self):

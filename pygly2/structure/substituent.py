@@ -4,7 +4,7 @@ from .link import Link
 
 from ..composition import Composition, calculate_mass
 from ..utils import enum
-from ..utils.bag import Bag
+from ..utils.multimap import OrderedMultiMap
 
 
 class SubstituentEnum(object):
@@ -63,7 +63,7 @@ class Substituent(SubstituentBase):
 
     def __init__(self, name, links=None, composition=None):
         if links is None:
-            links = Bag()
+            links = OrderedMultiMap()
         self.name = name
         self.links = links
         if composition is None:
@@ -81,7 +81,7 @@ class Substituent(SubstituentBase):
     def to_glycoct(self):
         return "s:{0}".format(self.name.replace("_", "-"))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<Substituent {name}>".format(name=self._name)
 
     def __eq__(self, other):
@@ -167,8 +167,8 @@ class Substituent(SubstituentBase):
         :class:`~pygly2.composition.Composition`
         '''
         comp = self.composition
-        for sub in self.substituents():
-            comp = comp + sub.composition
+        for pos, sub in self.children():
+            comp = comp + sub.total_composition()
         return comp
 
     def children(self):

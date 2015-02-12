@@ -24,7 +24,7 @@ class EnumValue(object):
             return True
         return self.name != other or self.value != other
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<{group} {name}:{value}>".format(**self.__dict__)
 
 
@@ -70,7 +70,6 @@ class EnumMeta(type):
         return self.translate(k)
 
     def __setattr__(self, k, v):
-        print(k, v)
         super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
 
     def __setitem__(self, k, v):
@@ -108,8 +107,7 @@ class EnumMeta(type):
         elif k in self:
             return self[self.name(k)]
         else:
-            print("Could not translate {0} through {1}".format(k, self))
-            raise KeyError(k)
+            raise KeyError("Could not translate {0} through {1}".format(k, self))
 
     def name(self, v):
         for k, val in self:
@@ -121,8 +119,11 @@ class EnumMeta(type):
 
 
 class Enum(object):
+    '''
+    A simple class implementing :class:`EnumMeta`. Useful base type for other
+    enumerated types.
+    '''
     __metaclass__ = EnumMeta
 
     def __init__(self):
         raise Exception("This class is not meant to be instantiated. Reference its attribute members directly")
-    

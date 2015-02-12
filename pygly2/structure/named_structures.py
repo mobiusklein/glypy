@@ -22,7 +22,7 @@ class MonosaccharideIndex(dict):
         ret.id = uuid.uuid4().int
         return ret
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         rep = StringIO()
         fmt = "{0}\n{1}\n{2}\n\n"
         for k, v in self.items():
@@ -44,7 +44,7 @@ class GlycanIndex(dict):
         ret = deepcopy(x)
         return ret
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         rep = StringIO()
         fmt = "{0}\n{1}\n{2}\n\n"
         for k, v in self.items():

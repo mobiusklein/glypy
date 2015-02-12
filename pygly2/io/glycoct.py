@@ -92,7 +92,6 @@ class GlycoCT(object):
         self.state = START
         self.counter = 0
         self.repeats = {}
-        self.buffer = []
         self.root = None
         self._iter = None
 
@@ -107,6 +106,7 @@ class GlycoCT(object):
     def _reset(self):
         self.graph = {}
         self.root = None
+        #self.state = START
 
     def __iter__(self):
         '''
@@ -133,7 +133,7 @@ class GlycoCT(object):
         and adds it to :attr:`graph` at the given index.
 
         Called by :meth:`parse`
-        '''        
+        '''
         _, ix, residue_str = re.split(r"^(\d+)b", line, maxsplit=1)
         residue_dict = res_pattern.search(residue_str).groupdict()
 
@@ -180,7 +180,7 @@ class GlycoCT(object):
         attaches it to the two referenced nodes in :attr:`graph`. The parent node is always
         an instance of |Monosaccharide|, and the child node
         may either be an instance of |Monosaccharide| or
-        |Substituent| or |Monosaccharide|. 
+        |Substituent| or |Monosaccharide|.
 
         Called by :meth:`parse`
 
@@ -244,7 +244,6 @@ class GlycoCT(object):
                 self.handle_linkage(line)
             else:
                 raise GlycoCTError("Unknown format error: {}".format(line))
-        logger.debug("yielding root")        
         yield Glycan(self.root)
 
 

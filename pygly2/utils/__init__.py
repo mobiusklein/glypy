@@ -3,17 +3,17 @@ __all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop'
 
 import gzip
 
-try:
+try:  # pragma: no cover
     from lxml import etree as ET
-except ImportError:
+except ImportError:  # pragma: no cover
     try:
         from xml.etree import cElementTree as ET
     except:
         from xml.etree import ElementTree as ET
 
-try:
+try:   # pragma: no cover
     from cStringIO import StringIO
-except:
+except:  # pragma: no cover
     try:
         from StringIO import StringIO
     except:
@@ -74,9 +74,9 @@ def make_counter(start=1, label=""):
     return count_up
 
 
-def identity(x):
+def identity(x):   # pragma: no cover
     return x
 
 
-def nullop(*args, **kwargs):
+def nullop(*args, **kwargs):   # pragma: no cover
     pass

@@ -4,8 +4,6 @@ logger = logging.getLogger("Glycan")
 from functools import partial
 from collections import deque, defaultdict, Callable
 
-
-
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
 
@@ -63,7 +61,7 @@ class Glycan(SaccharideBase):
         if reducing_end is not None:
             self.root.reducing_end = reducing_end
 
-    def reindex(self, method='bfs'):
+    def reindex(self, method='dfs'):
         '''
         Traverse the graph using the function specified by ``method``. The order of 
         traversal defines the new :attr:`id` value for each |Monosaccharide|
@@ -129,8 +127,6 @@ class Glycan(SaccharideBase):
     @reducing_end.setter
     def reducing_end(self, value):
         self.root.reducing_end = value
-    
-
 
     def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         node_stack = list([self.root if from_node is None else from_node])
@@ -142,7 +138,7 @@ class Glycan(SaccharideBase):
             visited.add(node.id)
             yield apply_fn(node)
             node_stack.extend(sorted((terminal for pos, link in node.links.items()
-                              for terminal in link if not terminal.id in visited), key=Monosaccharide.order))
+                              for terminal in link if terminal.id not in visited), key=Monosaccharide.order))
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -159,7 +155,7 @@ class Glycan(SaccharideBase):
             visited.add(node.id)
             yield apply_fn(node)
             node_queue.extend(sorted((terminal for pos, link in node.links.items()
-                              for terminal in link if not terminal.id in visited), key=Monosaccharide.order))
+                              for terminal in link if terminal.id not in visited), key=Monosaccharide.order))
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal
@@ -189,6 +185,7 @@ class Glycan(SaccharideBase):
     def iterlinks(self, substituents=False, method='dfs', visited=None):
         traversal = self._get_traversal_method(method)
         links_visited = set()
+
         def links(obj):
             if substituents:
                 for pos, link in obj.substituent_links.items():
@@ -203,6 +200,7 @@ class Glycan(SaccharideBase):
 
     def leaves(self, method='dfs', visited=None):
         traversal = self._get_traversal_method(method)
+
         def no_leaves(obj):
             if len(list(obj.children())) == 0:
                 yield obj
@@ -234,7 +232,7 @@ class Glycan(SaccharideBase):
             is_stringio = True
 
         buffer.write("RES\n")
-        
+
         res_counter = make_counter()
         lin_counter = make_counter()
 
@@ -245,10 +243,10 @@ class Glycan(SaccharideBase):
         # Accumulator for linkage indices and mapping linkage indices to dependent RES indices
         lin_accumulator = []
         dependencies = defaultdict(dict)
-        
+
         for node in (self):
             res, lin, index = node.to_glycoct(res_counter, lin_counter, complete=False)
-            
+
             lin_accumulator.append((index, lin))
             residue_to_index[node.id] = index
             index_to_residue[index] = node
@@ -272,7 +270,6 @@ class Glycan(SaccharideBase):
                 ix, link = dependencies[child_res.id][residue.id]
                 buffer.write(link.to_glycoct(ix, res_ix, residue_to_index[child_res.id]) + "\n")
 
-
         if is_stringio:
             return buffer.getvalue()
         else:
@@ -281,7 +278,6 @@ class Glycan(SaccharideBase):
             return buffer
 
     __repr__ = to_glycoct
-
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''

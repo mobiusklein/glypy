@@ -40,10 +40,10 @@ def _parse_isotope_string(label):
 
 class Composition(defaultdict):
     '''Represent arbitrary elemental compositions'''
-    def __str__(self):
+    def __str__(self):   # pragma: no cover
         return 'Composition({})'.format(dict.__repr__(self))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return str(self)
 
     def __add__(self, other):
@@ -88,7 +88,6 @@ class Composition(defaultdict):
 
     def __neg__(self):
         return -1 * self
-
 
     # Override the default behavior, if a key is not present
     # do not initialize it to 0.
@@ -278,7 +277,6 @@ class Composition(defaultdict):
             kwa = kw_given.pop()
             getattr(self, '_from_' + kwa)(kwargs[kwa],
                                           mass_data if kwa == 'formula' else mol_comp)
-
         # can't build from kwargs
         elif args:
             if isinstance(args[0], dict):
