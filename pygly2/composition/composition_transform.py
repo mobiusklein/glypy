@@ -23,7 +23,7 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1),
             position=site, child_loss=Composition(H=1), child_position=1)
-    for subst in monosaccharide_obj.substituents():
+    for p, subst in monosaccharide_obj.substituents():
         if subst.name in derivatizable_substituents:
             subst.add_substituent(substituent.clone(), position=2, child_position=1)
     reducing_end_pos = monosaccharide_obj.reducing_end

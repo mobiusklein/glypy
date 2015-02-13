@@ -1,5 +1,12 @@
 # Adapted from https://github.com/llimllib/pymag-trees/blob/master/buchheim.py
 
+special_case_stems = {'fuc', 'xyl'}
+
+
+def childer(tree):
+    return [child for child in tree if len(set(child.tree.stem) & special_case_stems) < 1]
+
+
 def buchheim(tree):
     dt = firstwalk(tree)
     min = second_walk(dt)

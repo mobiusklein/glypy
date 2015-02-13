@@ -31,21 +31,46 @@ wiki_masses = {
 
 #: Not common in any way other than
 #: reused in many tests
-common_glycan = '''
+common_glycan = '''   
 RES
-1b:x-dglc-HEX-x:x
-2b:b-dglc-HEX-1:5
+1b:b-dglc-HEX-1:5
+2b:b-dgal-HEX-1:5
 3b:b-dglc-HEX-1:5
-4b:b-dglc-HEX-1:5
-5b:b-dglc-HEX-1:5
-6b:b-dglc-HEX-1:5
+4s:n-acetyl
+5b:a-lgal-HEX-1:5|6:d
+6b:b-dgal-HEX-1:5
 7b:b-dglc-HEX-1:5
+8s:n-acetyl
+9b:a-lgal-HEX-1:5|6:d
+10b:b-dgal-HEX-1:5
 LIN
-1:1o(6+1)2d
+1:1o(4+1)2d
 2:2o(3+1)3d
-3:2o(6+1)4d
-4:4o(6+1)5d
-5:5o(3+1)6d'''
+3:3d(2+1)4n
+4:3o(3+1)5d
+5:3o(4+1)6d
+6:6o(3+1)7d
+7:7d(2+1)8n
+8:7o(3+1)9d
+9:7o(4+1)10d'''
+
+
+class NamedStructureTests(unittest.TestCase):
+    def test_accessors(self):
+        self.assertEqual(named_structures.monosaccharides.Fucose,
+                         named_structures.monosaccharides["Fucose"])
+        self.assertNotEqual(named_structures.monosaccharides.Man,
+                            named_structures.monosaccharides.Hex)
+        self.assertEqual(named_structures.glycans["N-Linked Core"],
+                         named_structures.glycans["N-Linked Core"])
+
+
+class StructureCompositionTests(unittest.TestCase):
+    def test_missing_composition(self):
+        import warnings
+        warnings.filterwarnings('ignore')
+        self.assertEqual({}, structure_composition.monosaccharide_composition['hexadodecose'])
+        warnings.filterwarnings('always')
 
 
 class MonosaccharideTests(unittest.TestCase):
@@ -127,8 +152,16 @@ class MonosaccharideTests(unittest.TestCase):
                     ping = True
             self.assertAlmostEqual(structure.mass(), ref.mass() + mass_delta)
             for site in open_sites:
-                structure.drop_substiuent(site, substituent.Substituent('methyl'))
+                structure.drop_substituent(site, substituent.Substituent('methyl'))
             self.assertAlmostEqual(structure.mass(), ref.mass())
+
+    def test_validate_drop_substituents(self):
+        structure = named_structures.monosaccharides['Hex']
+        self.assertRaises(IndexError, lambda: structure.drop_substituent(99))
+        self.assertRaises(IndexError, lambda: structure.drop_substituent(4))
+        self.assertRaises(IndexError, lambda: structure.add_substituent(
+            "n-acetyl", 3, max_occupancy=4).add_substituent(
+            "methyl", 3, max_occupancy=4).drop_substituent(3, "n-glycolyl"))
 
     def test_add_remove_monosaccharides(self):
         for name, mass in wiki_masses.items():
@@ -145,6 +178,15 @@ class MonosaccharideTests(unittest.TestCase):
                 structure.drop_monosaccharide(site)
             self.assertAlmostEqual(glycan.Glycan(structure).mass(), ref.mass())
 
+    def test_validate_drop_monosacharide(self):
+        structure = named_structures.monosaccharides['Hex']
+        self.assertRaises(IndexError, lambda: structure.drop_monosaccharide(99))
+        self.assertRaises(ValueError, lambda: structure.drop_monosaccharide(4))
+        self.assertRaises(ValueError, lambda: structure.add_monosaccharide(
+            named_structures.monosaccharides["Hex"], 3, max_occupancy=4).add_monosaccharide(
+            named_structures.monosaccharides["Hex"], 3, max_occupancy=4).drop_monosaccharide(3))
+
+
 
 class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
@@ -157,16 +199,38 @@ class GlycanTests(unittest.TestCase):
         for glycan in glycoct.read(self._file_path):
             dup = glycan.clone()
             self.assertEqual(glycan, dup)
-            fragments = list(dup.fragments('ZCBY', 3))
+            list(dup.fragments('ZCBY', 3))
 
             self.assertEqual(glycan, dup)
+
+    def test_fragments_mass(self):
+        glycan = glycoct.loads(common_glycan).next()
+        frags = list(glycan.fragments('ZCBY', 1))
+        import json
+        frags_ref = json.load(open('test_data/fragments-example.json'))
+        container = multimap.MultiMap()
+        for frag in frags_ref:
+            container[frag['kind']] = frag['mass']
+
+        def almost_equal(a, b):
+            e = 0.0001
+            return (a - e) <= b <= (a + e)
+
+        for frag in frags:
+            kind = frag[0]
+            mass = frag[-1]
+            candidates = container[kind] + container[kind[::-1]]
+            if len(candidates) == 0:
+                raise AssertionError("No candidates found for {}".format(frag))
+            res = (any(almost_equal(mass, x) for x in candidates))
+            if not res:
+                raise AssertionError("{} found no matches in {}".format(frag, candidates))
 
     def test_clone(self):
         glycan = glycoct.loads(common_glycan).next()
         ref = glycan.clone()
-        glycan.reducing_end = 1        
+        glycan.reducing_end = 1
         self.assertTrue(glycan != ref)
-
 
     def test_indexing(self):
         glycan = glycoct.loads(common_glycan).next()
@@ -210,13 +274,43 @@ class GlycanTests(unittest.TestCase):
         glycan[-3].add_monosaccharide(named_structures.monosaccharides['Hex'], 4).add_substituent('methyl', 5)
         glycan.reindex()
         ref = glycan.clone()
-        self.assertEqual(glycan[-3], ref[-3])
+        self.assertEqual(glycan[-1], ref[-1])
         glycan.reindex(method=rev_sort_dfs)
-        self.assertNotEqual(glycan[-3], ref[-3])
+        self.assertNotEqual(glycan[-1], ref[-1])
 
 
 class SubstituentTests(unittest.TestCase):
-    pass
+    def test_substituent_substituent(self):
+        parent = substituent.Substituent("n-acetyl")
+        pmass = parent.mass()
+        child = substituent.Substituent("methyl")
+        cmass = child.mass()
+
+        parent.add_substituent(child, 2)
+        self.assertAlmostEqual(parent.mass(), (pmass + cmass - Composition(H=2).mass))
+        self.assertEqual(parent.total_composition(), parent.composition + child.composition)
+        self.assertEqual(parent.children().next()[1], child)
+        self.assertEqual(child.parents().next()[1], parent)
+        parent.drop_substiuent(2)
+        self.assertAlmostEqual(parent.mass(), pmass)
+
+    def test_equality(self):
+        sub_1 = substituent.Substituent("n-acetyl")
+        sub_2 = substituent.Substituent("n-acetyl")
+        self.assertEqual(sub_1, sub_2)
+        parent = named_structures.monosaccharides['Hex']
+        parent.add_substituent(sub_1, 3)
+        self.assertNotEqual(sub_1, sub_2)
+
+    def test_clone(self):
+        parent = substituent.Substituent("n-acetyl")
+        child = substituent.Substituent("methyl")
+
+        parent.add_substituent(child, 2)
+
+        dup = parent.clone()
+        self.assertEqual(parent, dup)
+        self.assertNotEqual(child, child.clone())
 
 
 class MultiMapTests(unittest.TestCase):
@@ -229,14 +323,11 @@ class MultiMapTests(unittest.TestCase):
         self.assertTrue(Counter(mm.values()) == Counter({1: 1, 3: 2}))
 
 
-
-
 class CompositionTests(unittest.TestCase):
 
     def test_derivativize_bare(self):
-        permethylated_reduced_mass = 1286.6718
+        permethylated_reduced_mass = 1716.9033
         glycan = glycoct.loads(common_glycan).next()
-        ref = glycan.clone()
         glycan.reducing_end = 1
         composition_transform.derivatize(glycan, 'methyl')
         self.assertAlmostEqual(glycan.mass(), permethylated_reduced_mass, 3)

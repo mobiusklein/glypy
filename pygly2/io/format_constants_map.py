@@ -5,7 +5,7 @@ anomer_map = {
     'a': constants.Anomer.alpha,
     'b': constants.Anomer.beta,
     'o': constants.Anomer.uncyclized,
-    'x': constants.Anomer.missing
+    'x': constants.Anomer.x
 }
 
 superclass_map = {k.upper(): v for k, v in constants.SuperClass}

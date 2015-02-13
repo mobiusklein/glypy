@@ -1,1 +1,1 @@
-__all__ = ["synonyms"]
+__all__ = ["synonyms", "identity"]

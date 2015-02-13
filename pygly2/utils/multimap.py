@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 class MultiMap(object):
     '''Implements a simple MultiMap data structure on top of a dictionary of lists'''
     def __init__(self, **kwargs):
@@ -69,10 +70,14 @@ class MultiMap(object):
         return repr(self.contents)
 
     def __eq__(self, other):
-        return self.contents == other.contents
+        for a, b in zip(self.items(), other.items()):
+            if a != b:
+                return False
+        return True
 
     def __ne__(self, other):
         return self.contents != other.contents
+
 
 class OrderedMultiMap(MultiMap):
     '''
@@ -99,7 +104,7 @@ class OrderedMultiMap(MultiMap):
     keys = __iter__
 
     def items(self):
-        ''' 
+        '''
         As in :class:`MultiMap`, but items are yielded in the order their keys were
         first added.
         '''
@@ -119,5 +124,3 @@ class OrderedMultiMap(MultiMap):
 
     def __repr__(self):
         return ''.join((repr(self.key_order), '\n', repr(self.contents)))
-
-

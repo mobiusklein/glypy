@@ -1,8 +1,7 @@
 __all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop']
 
-
 import gzip
-
+import enum
 try:  # pragma: no cover
     from lxml import etree as ET
 except ImportError:  # pragma: no cover
@@ -18,9 +17,6 @@ except:  # pragma: no cover
         from StringIO import StringIO
     except:
         from io import StringIO
-
-
-import enum
 
 
 def opener(obj, mode='r'):
@@ -67,6 +63,7 @@ def make_counter(start=1, label=""):
         The next number in the count progression.
     '''
     start = [start]
+
     def count_up():
         ret_val = start[0]
         start[0] += 1
@@ -80,3 +77,7 @@ def identity(x):   # pragma: no cover
 
 def nullop(*args, **kwargs):   # pragma: no cover
     pass
+
+
+def chrinc(a='a'):
+    return chr(ord(a) + 1)

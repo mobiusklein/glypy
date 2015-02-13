@@ -110,6 +110,7 @@ class Monosaccharide(SaccharideBase):
             composition = get_standard_composition(self)
         self.composition = composition
         self._reducing_end = None
+        self.__graph__ = None
 
     @property
     def anomer(self):
@@ -135,7 +136,7 @@ class Monosaccharide(SaccharideBase):
         else:
             if value not in Configuration and value is not None:
                 raise Exception(value)
-            self._configuration = Configuration[value]
+            self._configuration = (Configuration[value],)
 
     @property
     def stem(self):
@@ -151,7 +152,7 @@ class Monosaccharide(SaccharideBase):
         else:
             if value not in Stem and value is not None:
                 raise Exception(value)
-            self._stem = Stem[value]
+            self._stem = (Stem[value],)
 
     @property
     def superclass(self):
@@ -414,7 +415,7 @@ class Monosaccharide(SaccharideBase):
              parent_loss=parent_loss, child_loss=child_loss)
         return self
 
-    def drop_substiuent(self, position, substituent=None, refund=True):
+    def drop_substituent(self, position, substituent=None, refund=True):
         if position > self.superclass.value:
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
@@ -572,7 +573,6 @@ class Monosaccharide(SaccharideBase):
         Test for equality of all scalar-ish features that do not
         require recursively comparing links which in turn compare their
         connected units.
-
         '''
         flat = (self.anomer == other.anomer) and\
             (self.ring_start == other.ring_start) and\
@@ -611,7 +611,7 @@ class Monosaccharide(SaccharideBase):
     def __ne__(self, other):
         return not (self == other)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return self.to_glycoct()
 
     def mass(self, substituents=True, average=False, charge=0, mass_data=None):
@@ -657,7 +657,7 @@ class Monosaccharide(SaccharideBase):
         :class:`~pygly2.composition.Composition`
         '''
         comp = self.composition
-        for sub in self.substituents():
+        for p, sub in self.substituents():
             comp = comp + sub.total_composition()
         return comp
 
@@ -683,13 +683,11 @@ class Monosaccharide(SaccharideBase):
 
     def substituents(self):
         '''
-        Returns an iterator over all substituents attached
-        to :obj:`self` by a :class:`~.link.Link` object stored in :attr:`self.substituent_links`
-        .
-
+        Returns an iterator over all substituents attached1
+        to :obj:`self` by a :class:`~.link.Link` object stored in :attr:`~.substituent_links`
         '''
         for pos, link in self.substituent_links.items():
-            yield link.to(self)
+            yield pos, link.to(self)
 
     def order(self):
         return len(list(self.children())) + len(list(self.substituents()))

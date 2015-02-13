@@ -6,8 +6,9 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import matplotlib
 
-from pygly2.structure import Modification
+from pygly2.structure import Modification, Monosaccharide
 from pygly2.utils.enum import Enum
+from pygly2.io.nomenclature import identity
 
 
 class ResidueShape(Enum):
@@ -31,9 +32,9 @@ def residue_shape(monosaccharide):
     if any(mod == Modification.a for p, mod in monosaccharide.modifications.items()):
         return resolve_acid_shape(monosaccharide)
     if "hex" in [monosaccharide.superclass]:
-        if any(sub.name == 'n_acetyl' for sub in monosaccharide.substituents()):
+        if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueShape.square
-        elif any(sub.name == 'amino' for sub in monosaccharide.substituents()):
+        elif any(sub.name == 'amino' for p, sub in monosaccharide.substituents()):
             return ResidueShape.bisected_square
         elif any(mod == Modification.d for p, mod in monosaccharide.modifications.items()):
             return ResidueShape.triangle
@@ -48,9 +49,9 @@ def residue_shape(monosaccharide):
 
 def resolve_acid_shape(monosaccharide):
     if ('gro' in monosaccharide.stem) and ('gal' in monosaccharide.stem):
-        if any(sub.name == 'n_acetyl' for sub in monosaccharide.substituents()):
+        if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueShape.diamond
-        elif any(sub.name == 'n_glycolyl' for sub in monosaccharide.substituents()):
+        elif any(sub.name == 'n_glycolyl' for p, sub in monosaccharide.substituents()):
             return ResidueShape.diamond
         else:
             return ResidueShape.diamond
@@ -90,9 +91,9 @@ def residue_color(monosaccharide):
 
 def resolve_acid_color(monosaccharide):
     if ('gro' in monosaccharide.stem) and ('gal' in monosaccharide.stem):
-        if any(sub.name == 'n_acetyl' for sub in monosaccharide.substituents()):
+        if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueColor.neuac
-        elif any(sub.name == 'n_glycolyl' for sub in monosaccharide.substituents()):
+        elif any(sub.name == 'n_glycolyl' for p, sub in monosaccharide.substituents()):
             return ResidueColor.neugc
         else:
             return ResidueColor.kdn
@@ -115,7 +116,6 @@ def get_symbol(monosaccharide):
 def draw(monosaccharide, x, y, ax, scale=0.1):
     shape, color = get_symbol(monosaccharide)
     drawer = draw_map.get(shape)
-    print(shape, draw_square)
     if drawer is None:
         raise Exception("Don't know how to draw {}".format(shape))
     drawer(ax, x, y, color, scale=scale)

@@ -7,11 +7,13 @@ def omit_slice(seq, i):
         return seq[1:]
     return seq[:i] + seq[i+1:]
 
+
 class SynonymIndex(dict):
     def __init__(self, data):
         for group in data:
             for i, name in enumerate(group):
                 self[name] = omit_slice(group, i)
+
 
 class MonosaccharideSynonymIndex(SynonymIndex):
     def __init__(self, stream=None):

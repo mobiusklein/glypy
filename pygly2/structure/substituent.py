@@ -55,12 +55,6 @@ class Substituent(SubstituentBase):
     Represents a non-saccharide molecule commonly found bound to saccharide units.
     '''
 
-    @classmethod
-    def from_enum(cls, val):
-        enum_item = SubstituentEnum[val.replace("-", "_")]
-        name = enum_item.name
-        return cls(name)
-
     def __init__(self, name, links=None, composition=None):
         if links is None:
             links = OrderedMultiMap()
@@ -106,6 +100,7 @@ class Substituent(SubstituentBase):
         Link(parent=self, child=substitent,
              parent_position=position, child_position=child_position,
              parent_loss=parent_loss, child_loss=child_loss)
+        return self
 
     def drop_substiuent(self, position, substituent=None, refund=True):
         link_obj = None
@@ -117,6 +112,7 @@ class Substituent(SubstituentBase):
             raise IndexError("No matching substituent found at {position}".format(position=position))
 
         link_obj.break_link(refund=refund)
+        return self
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''

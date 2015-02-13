@@ -1,4 +1,4 @@
-from ..utils.enum import EnumMeta, Enum
+from ..utils.enum import Enum
 
 
 class SuperClass(Enum):
@@ -7,9 +7,6 @@ class SuperClass(Enum):
 
     Is an |Enum|
     '''
-
-    #__metaclass__ = EnumMeta
-    
     tri = 3
     tet = 4
     pen = 5
@@ -17,8 +14,8 @@ class SuperClass(Enum):
     hep = 7
     oct = 8
     non = 9
-    missing = None
-    x = missing
+    x = None
+    #missing = None
 
 
 class Stem(Enum):
@@ -27,7 +24,6 @@ class Stem(Enum):
 
     Is an |Enum|
     '''
-    #__metaclass__ = EnumMeta
     gro = 1
     ery = 2
     rib = 3
@@ -44,8 +40,8 @@ class Stem(Enum):
     gal = 14
     tal = 15
     thr = 16
-    missing = None
-    x = missing
+    x = None
+    #missing = None
 
 
 class Configuration(Enum):
@@ -56,8 +52,8 @@ class Configuration(Enum):
     '''
     d = 1
     l = 2
-    missing = None
-    x = missing
+    x = None
+    #missing = None
 
 
 class Modification(Enum):
@@ -92,5 +88,5 @@ class Anomer(Enum):
     alpha = 1
     beta = 2
     uncyclized = 3
-    missing = None
-    x = missing
+    x = None
+    #missing = None

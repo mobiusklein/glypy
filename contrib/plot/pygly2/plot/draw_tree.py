@@ -10,7 +10,6 @@ nomenclature_map = {
     "cfg": cfg_symbols
 }
 
-
 class DrawTree(object):
     def __init__(self, tree, parent=None, depth=0, number=1):
         self.x = -1.
@@ -131,7 +130,7 @@ def sign(x, zero_dir=-1):
     return zero_dir
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None):
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=None):
     root = tree
     if isinstance(tree, Glycan):
         root = tree.root
@@ -142,15 +141,17 @@ def plot(tree, orientation='h', at=(1, 1), ax=None):
     if ax is None:
         fig, ax = plt.subplots()
         at = (0, 0)
+        center = True
     dtree.draw(orientation, at=at, ax=ax)
-    if fig is not None:
+    if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)
-        print(xmin, xmax, ymin, ymax)
+        # print(xmin, xmax, ymin, ymax)
         if orientation in {'h', 'horizontal'}:
             ax.set_xlim(-1 * (abs(xmin) + 2) if xmin < 1 else xmin - 2, (1 * abs(xmax) + 2))
             ax.set_ylim(-1 * (abs(ymin) + 2) if ymin < 1 else ymin - 2, (1 * abs(ymax) + 2))
         elif orientation in {'v', 'vertical'}:
             ax.set_xlim(xmin - sign(xmin, 1) * 2, xmax + 2)
             ax.set_ylim(ymin - sign(ymin, 1) * 2, ymax + 2)
-        fig.tight_layout()
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
     return (dtree, ax)
