@@ -1,8 +1,9 @@
-import pdb
+import operator
+import random
 import logging
 import itertools
 from functools import partial
-from collections import deque, defaultdict, Callable
+from collections import deque, defaultdict, namedtuple, Callable
 
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
@@ -10,7 +11,6 @@ from ..utils import make_counter, identity, StringIO, chrinc
 from ..composition import Composition
 
 logger = logging.getLogger("Glycan")
-# logger.setLevel("DEBUG")
 
 fragment_shift = {
     "B": Composition(O=1, H=2),
@@ -19,9 +19,21 @@ fragment_shift = {
     "Z": Composition(H=2, O=1),
 }
 
+fragment_direction = {
+    "B": -1,
+    "C": -1,
+    "Y": 1,
+    "Z": 1
+}
+
+MAIN_BRANCH_SYM = '-'
+
+Fragment = namedtuple("Fragment", ("kind", "link_ids", "included_nodes", "mass"))
+DisjointTrees = namedtuple("DisjointTrees", ("parent_tree", "parent_include_nodes",
+                                             "child_tree", "child_include_nodes", "link_ids"))
+
 
 class Glycan(SaccharideBase):
-
     '''
     Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
 
@@ -29,15 +41,16 @@ class Glycan(SaccharideBase):
     ----------
     root: |Monosaccharide|
         The first monosaccharide unit of the glycan, and the reducing end if present.
-    index: :class:`list`
+    index: |list|
         A list of the |Monosaccharide| instances in `self` in the order they are encountered
         by traversal by `traversal_methods[index_method]`
-    link_index: :class:`list`
+    link_index: |list|
         A list of the |Link| connecting the |Monosaccharide| instances in `self` in the order they
         are encountered by traversal by `traversal_methods[index_method]`
     reducing_end: |int| or |None|
         The index of the reducing end on :attr:`root`.
-
+    branch_lengths: |dict|
+        A dictionary mapping branch symbols to their lengths
     '''
     traversal_methods = {}
 
@@ -56,6 +69,7 @@ class Glycan(SaccharideBase):
         self.root = graph_root
         self.index = []
         self.link_index = []
+        self.branch_lengths = {}
         if index_method is not None:
             self.reindex(index_method)
         if reducing_end is not None:
@@ -78,7 +92,6 @@ class Glycan(SaccharideBase):
             index.append(node)
         for node in index:
             node.id = i
-            node.__graph__ = self
             i += 1
 
         link_index = []
@@ -92,21 +105,36 @@ class Glycan(SaccharideBase):
 
         self.index = index
         self.link_index = link_index
+
+        self.label_branches()
+
         return self
 
     def deindex(self):
+        '''
+        When combining two Glycan structures, very often their component ids will
+        overlap, making it impossible to differentiate between a cycle and the new
+        graph. This function mangles all of the node and link ids so that they are
+        distinct from the pre-existing nodes.
+        '''
+        base = random.randint(1, 100000)
         for node in self.index:
+            node.id += base
             node.id *= -1
         for link in self.link_index:
+            link.id += base
             link.id *= -1
+        return self
+
+    def reroot(self):
+        self.root = sorted(self, key=operator.attrgetter('id'))[0]
+        self.reindex()
         return self
 
     def __getitem__(self, ix, method='dfs'):
         '''
         Alias for :attr:`index.__getitem__`
         '''
-        if not isinstance(ix, (int, slice)):
-            raise TypeError("Residue indices must be integers")
         if self.index is None:
             self.reindex(method=method)
         return self.index[ix]
@@ -131,12 +159,35 @@ class Glycan(SaccharideBase):
         self.root.reducing_end = value
 
     def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
+        '''
+        Make a depth-first traversal of the glycan graph. Children are explored in descending bond-order.
+
+        This is the default traversal method for all |Glycan|s. :meth:`~.dfs` is an alias of this method.
+        Both names can be used to specify this strategy to :meth:`~._get_traversal_method`.
+
+        Parameters
+        ----------
+        from_node: |None| or |Monosaccharide|
+            If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
+            from the given node.
+        apply_fn: `function`
+            A function applied to each node on arrival. If this function returns a non-None value,
+            the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
+        visited: :class:`set` or |None|
+            A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
+
+        Returns
+        -------
+        generator
+
+        See also
+        --------
+        :meth:`~.breadth_first_traversal`
+        '''
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
             node = node_stack.pop()
-            if node.id in visited:
-                continue
             visited.add(node.id)
             res = apply_fn(node)
             if res is not None:
@@ -150,12 +201,35 @@ class Glycan(SaccharideBase):
     traversal_methods['depth_first_traversal'] = "dfs"
 
     def breadth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
+        '''
+        Make a breadth-first traversal of the glycan graph. Children are explored in descending bond-order.
+
+        :meth:`~.bfs` is an alias of this method.
+        Both names can be used to specify this strategy to :meth:`~._get_traversal_method`.
+
+        Parameters
+        ----------
+        from_node: |None| or |Monosaccharide|
+            If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
+            from the given node.
+        apply_fn: `function`
+            A function applied to each node on arrival. If this function returns a non-None value,
+            the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
+        visited: :class:`set` or |None|
+            A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
+
+        Returns
+        -------
+        generator
+
+        See also
+        --------
+        :meth:`~.depth_first_traversal`
+        '''
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
             node = node_queue.popleft()
-            if node.id in visited:
-                continue
             visited.add(node.id)
             res = apply_fn(node)
             if res is not None:
@@ -185,13 +259,38 @@ class Glycan(SaccharideBase):
         return self.iternodes()
 
     def iternodes(self, from_node=None, apply_fn=identity, method='dfs', visited=None):
+        '''
+        Generic iterator over nodes. :meth:`Glycan.__iter__` is an alias of this method
+
+        Parameters
+        ----------
+        from_node: |None| or |Monosaccharide|
+            If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
+            from the given node.
+        apply_fn: `function`
+            A function applied to each node on arrival. If this function returns a non-None value,
+            the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
+        method: |str| or `function`
+            Traversal method to use. See :meth:`._get_traversal_method`
+        visited: :class:`set` or |None|
+            A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
+
+        Returns
+        -------
+        generator
+
+        See also
+        --------
+        :meth:`~.depth_first_traversal`
+        :meth:`~.breadth_first_traversal`
+        :meth:`~._get_traversal_method`
+        '''
         traversal = self._get_traversal_method(method)
         return traversal(from_node=from_node, apply_fn=apply_fn, visited=visited)
 
-    def iterlinks(self, substituents=False, method='dfs', visited=None, alert_branches=False):
+    def iterlinks(self, substituents=False, method='dfs', visited=None):
         traversal = self._get_traversal_method(method)
         links_visited = set()
-        current_branch = None
 
         def links(obj):
             if substituents:
@@ -217,6 +316,56 @@ class Glycan(SaccharideBase):
                     yield obj
 
         return itertools.chain.from_iterable(traversal(apply_fn=is_leaf, visited=visited))
+
+    def label_branches(self):
+        '''
+        Labels each branch point with an alphabetical symbol. Also computes and stores each branch's
+        length and stores it in :attr:`branch_lengths`
+        '''
+        last_branch_label = MAIN_BRANCH_SYM
+        self.branch_lengths = {MAIN_BRANCH_SYM: 0}
+
+        def get_parent_link(node):
+            try:
+                return node.links[node.parents().next()[0]][0].label[0]
+            except StopIteration:
+                return MAIN_BRANCH_SYM
+
+        for node in self:
+            links = []
+            for pos, link in node.links.items():
+                if link.is_child(node):
+                    continue
+                links.append(link)
+            if len(links) == 1:
+                label_key = get_parent_link(node)
+                self.branch_lengths[label_key] += 1
+                label = "{}{}".format(label_key, self.branch_lengths[label_key])
+                links[0].label = label
+            else:
+                last_label_key = label_key = get_parent_link(node)
+                count = self.branch_lengths[last_label_key]
+                for link in links:
+                    last_branch_label = chrinc(last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
+                    new_label_key = last_branch_label
+                    self.branch_lengths[new_label_key] = count + 1
+                    label = "{}{}".format(new_label_key, self.branch_lengths[new_label_key])
+                    link.label = label
+        self.branch_lengths["-"] = max(self.branch_lengths.values())
+
+    def count_branches(self):
+        '''
+        Count the number of branches in the Glycan tree
+
+        Returns
+        -------
+        |int|
+        '''
+        count = 0
+        for node in self:
+            if len(node.links) > 2:
+                count += 2 if count == 0 else 1
+        return count
 
     def to_glycoct(self, buffer=None, close=False):
         '''
@@ -287,7 +436,7 @@ class Glycan(SaccharideBase):
 
         if is_stringio:
             return buffer.getvalue()
-        else:
+        else:  # pragma: no cover
             if close:
                 buffer.close()
             return buffer
@@ -317,7 +466,15 @@ class Glycan(SaccharideBase):
         return sum(node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
 
     def clone(self, index_method='dfs'):
+        '''
+        Create a copy of `self`, indexed using `index_method`, a *traversal method*  or |None|.
+
+        Returns
+        -------
+        |Glycan|
+        '''
         clone_root = self.root.clone()
+        clone_root.id = self.root.id
         node_stack = [(clone_root, self.root)]
         visited = set()
         while(len(node_stack) > 0):
@@ -325,37 +482,58 @@ class Glycan(SaccharideBase):
             if ref.id in visited:
                 continue
             visited.add(ref.id)
-            for pos, link in ref.links.items():
-                child = link.to(ref)
-                if child.id in visited:
+            links = sorted([link for pos, link in ref.links.items()], key=lambda x: x[ref].order())
+            for link in links:
+                terminal = link.to(ref)
+                if terminal.id in visited:
                     continue
-                clone_child = child.clone()
-                clone_child.id = child.id
-                link.clone(clone, clone_child)
-                node_stack.append((clone_child, child))
+                clone_terminal = terminal.clone()
+                clone_terminal.id = terminal.id
+                if link.is_child(terminal):
+                    link.clone(clone, clone_terminal)
+                else:
+                    link.clone(clone_terminal, clone)
+
+                node_stack.append((clone_terminal, terminal))
         return Glycan(clone_root, index_method=index_method)
 
     def __eq__(self, other):
-        if (other is None):
+        '''
+        Two glycans are considered equal if they are topologically equal.
+
+        Parameters
+        ----------
+        self, other: Glycan
+
+        Returns
+        -------
+        |bool|
+
+        See also
+        --------
+        :func:`~pygly2.structure.Monosaccharide.topological_equality`
+        '''
+        if other is None:
             return False
-        traversal = zip(self.dfs(), other.dfs())
-        for a, b in traversal:
-            if a != b:
-                return False
-        return True
+        elif not isinstance(other, Glycan):
+            return False
+        return self.root.topological_equality(other.root)
 
     def __ne__(self, other):
         return not self == other
 
-    def fragments(self, kind=('B', 'Y'), max_cleavages=1, average=False, charge=0, mass_data=None, structures=False, min_cleavages=1):
+    def fragments(self, kind=('B', 'Y'), max_cleavages=1, average=False, charge=0, mass_data=None,
+                  structures=False, min_cleavages=1):
         '''
         Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
         created by removing one or more monosaccharide-monosaccharide bond.
 
         .. note::
-            Does not copy the structure, though it does mutate the structure but reverses the effect so there should be no side-effects.
-            If an error should occur during iteration, there is a chance that the glycan structure may become corrupted. Efforts have been
-            taken to prevent such corruption from happening, but as the library develops, new errors may not yet be anticipated.
+            While generating fragments, the glycan structure is being permuted. All of the
+            changes being made are reversed during the generation process, and the glycan is
+            returned to the same state it was in when :meth:`~.fragments` was called by the end
+            of the generator. Do not attempt to use the glycan structure for other things while
+            fragmenting it. If you must, copy it first with :meth:`~.clone`.
 
         Does not produce cross-ring cleavages.
 
@@ -363,7 +541,7 @@ class Glycan(SaccharideBase):
         ----------
 
         kind: `sequence`
-            Any `iterable` or `sequence` of characters corresponding to glycan fragment nomenclature
+            Any `iterable` or `sequence` of characters corresponding to B/C/Y/Z
             as published by :title-reference:`Domon and Costello`
         max_cleavages: |int|
             The maximum number of bonds to break per fragment
@@ -382,18 +560,18 @@ class Glycan(SaccharideBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
+        results_container = DisjointTrees if structures else Fragment
         for i in range(min_cleavages, max_cleavages + 1):
             for frag in self.break_links(i, kind, average, charge, mass_data, structures):
-                yield frag
+                    yield results_container(*frag)
 
     def break_links(self, n_links=0, kind=('B', 'Y'), average=False, charge=0, mass_data=None, structures=False):
-        if n_links < 0:
-            raise StopIteration
-        try:
-            n_links -= 1
-            for pos, link in self.iterlinks():
-                parent, child = link.break_link()
-                link.refund()
+        if n_links < 0:  # pragma: no cover
+            raise ValueError("Cannot break a negative number of Links")
+        n_links -= 1
+        for pos, link in self.iterlinks():
+            try:
+                parent, child = link.break_link(refund=True)
                 break_id = link.id
                 logger.debug("Breaking %d", break_id)
                 parent_tree = Glycan(graph_root=parent, index_method=None)
@@ -418,33 +596,15 @@ class Glycan(SaccharideBase):
                                 "Received child tree from %r", c_link_ids)
                             yield c_parent, parent_include, c_child, child_include, c_link_ids + [break_id]
                     else:
-                        parent_include = [n.id for n in parent_tree]
-                        child_include = [n.id for n in child_tree]
-
-                        # The disjoint trees are rooted at the nodes linked by the
-                        # masked Link object. One of the trees may contain the true
-                        # root node, and if it does, it makes more sense to the viewer
-                        # to root that tree at the true root.
-                        if 1 in parent_include:
-                            root = ([node for node in parent_tree if node.id == 1])
-                            if len(root) > 0:
-                                parent_tree.root = root[0]
-
-                        elif 1 in child_include:
-                            print(child_include)
-                            root = ([node for node in child_tree if node.id == 1])
-                            if len(root) > 0:
-                                child_tree.root = root[0]
+                        parent_include = [n.id for n in parent_tree.dfs()]
+                        child_include = [n.id for n in child_tree.dfs()]
 
                         # Copy the trees so that when the Link object is unmasked the copies returned
                         # to the user are not suddenly joined again.
-                        parent_clone = parent_tree.clone(None)
-                        child_clone = child_tree.clone(None)
+                        parent_clone = parent_tree.clone(index_method=None).reroot()
+                        child_clone = child_tree.clone(index_method=None).reroot()
                         yield (parent_clone, parent_include, child_clone, child_include, [break_id])
 
-                    # Unmask the Link and apply its composition shifts
-                    logger.debug("Reapplying %d", break_id)
-                    link.apply()
                 elif n_links > 0:
                     parent_frags = list(parent_tree.break_links(
                         n_links, kind=kind, average=average, charge=charge, mass_data=mass_data))
@@ -472,9 +632,6 @@ class Glycan(SaccharideBase):
                         for ion_type, link_ids, include, mass in child_frags:
                             yield ion_type + 'C', include, link_ids + [break_id], mass - offset
 
-                    # Unmask the Link and apply its composition shifts
-                    logger.debug("Reapplying %d", break_id)
-                    link.apply()
                 else:
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
@@ -504,18 +661,30 @@ class Glycan(SaccharideBase):
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield ('Z', [break_id], parent_include, z_mass)
 
-                    # Unmask the Link and apply its composition shifts
-                    logger.debug("Reapplying %d", break_id)
-                    link.apply()
-        except Exception, e:
-            link.apply()
-            raise e
+            except Exception, e:  # pragma: no cover
+                link.apply()
+                raise e
+            finally:
+                # Unmask the Link and apply its composition shifts
+                logger.debug("Reapplying %d", break_id)
+                link.apply()
 
-    def are_adjascent_links(self, link_a, link_b):
-        for adj_link in link_a.parent.links.values():
-            if adj_link.id == link_b.id:
-                return True
-        for adj_link in link_a.child.links.values():
-            if adj_link.id == link_b.id:
-                return True
-        return False
+    def name_fragment(self, fragment):
+        '''
+        Attempt to assign a full name to a fragment based on the branch and position relative to
+        the reducing end along side B/C/Y/Z, according to :title-reference:`Domon and Costello`
+        '''
+        if fragment.kind not in fragment_direction:
+            raise ValueError("Cannot determine fragment orientation, {}".format(fragment))
+        if fragment_direction[fragment.kind] > 0:
+            link = self.link_index[fragment.link_ids[0] - 1]
+            label = link.label
+            fragment_name = "{}{}".format(fragment.kind, label.replace(MAIN_BRANCH_SYM, ""))
+        else:
+            link = self.link_index[fragment.link_ids[0] - 1]
+            label = link.label
+            label_key = label[0]
+            distance = int(label[1:])
+            inverted_distance = self.branch_lengths[label_key] - (distance - 1)
+            fragment_name = "{}{}{}".format(fragment.kind, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
+        return fragment_name

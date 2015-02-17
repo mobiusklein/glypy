@@ -320,50 +320,11 @@ std_mol_comp.update({
     '-OH': Composition({'O': 1, 'H': 1}),
 
     # Glycans
-    'HEX':    Composition({'H': 12, 'C': 6, 'O': 6}),
-    'PEN':    Composition({'H': 10, 'C': 5, 'O': 5}),
-
-    # Special Glycans on hold
+    'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
+    'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
     'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
     'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
     'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
-
-    # Core Modifications
-    'n-acetyl': Composition({'H': 3, 'C': 2, 'N': 1}),
-    'methyl': Composition({'H': 3, 'C': 1}),
-    'carboxyl': Composition({'H': 1, 'C': 1, 'O': 2}),
-    'alditol': Composition({'H': 3, 'C': 1, 'O': 1}),
-
-    # Acetyl
-    "acetyl": Composition(formula="Br"),
-    "bromo": Composition(formula="Cl"),
-    "chloro": Composition(formula="F"),
-    "ethyl": Composition(formula="NH"),
-    "ethanolamine": Composition(formula="I"),
-    "flouro": Composition(formula="COCH3"),
-    "formyl": Composition(formula="CH2CH3"),
-    "glycolyl": Composition(formula="CH2NHCH2OH"),
-    "hydroxymethyl": Composition(formula="CHO"),
-    "imino": Composition(formula="COCH2OH"),
-    "iodo": Composition(formula="CH2OH"),
-    "(r)-lactate": Composition(formula="CH3CHCOOH"),
-    "(s)-lactate": Composition(formula="CH3CHCOOH"),
-    "methyl": Composition(formula="CH3"),
-    "n": Composition(formula="NH2"),
-    "n-acetyl": Composition(formula="NHCOCH3"),
-    "n-alanine": Composition(formula="NHCOCHNH2CH3"),
-    "n-dimethyl": Composition(formula="N(CH3)2"),
-    "n-formyl": Composition(formula="NHCHO"),
-    "n-glycolyl": Composition(formula="NCOCH2OH"),
-    "n-methyl": Composition(formula="NHCH3"),
-    "n-succinate": Composition(formula="NCOCH2CH2COOH"),
-    "n-sulfate": Composition(formula="NHSO3H"),
-    "n-triflouroacetyl": Composition(formula="NHCOCF3"),
-    "nitrat": Composition(formula="NO2"),
-    "phospate": Composition(formula="PO3H2"),
-    "pyruvate": Composition(formula="COCOCH3"),
-    "sulfate": Composition(formula="SO3H"),
-    "thio": Composition(formula="SH"),
 })
 
 std_ion_comp = {

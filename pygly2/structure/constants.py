@@ -15,11 +15,10 @@ class SuperClass(Enum):
     oct = 8
     non = 9
     x = None
-    #missing = None
 
 
 class Stem(Enum):
-    '''Corresponds to the bond formation pattern between the carbon atoms in the 
+    '''Corresponds to the bond formation pattern between the carbon atoms in the
     carbohydrate backbone of the |Monosaccharide|
 
     Is an |Enum|
@@ -41,7 +40,6 @@ class Stem(Enum):
     tal = 15
     thr = 16
     x = None
-    #missing = None
 
 
 class Configuration(Enum):
@@ -53,14 +51,13 @@ class Configuration(Enum):
     d = 1
     l = 2
     x = None
-    #missing = None
 
 
 class Modification(Enum):
     '''
-    Corresponds to discrete composition shifts of the |Monosaccharide| which 
+    Corresponds to discrete composition shifts of the |Monosaccharide| which
     are simple enough to not constitute a distinct object to represent like |Substituent|.
-    
+
     Is an |Enum|
     '''
     d = 1
@@ -89,4 +86,3 @@ class Anomer(Enum):
     beta = 2
     uncyclized = 3
     x = None
-    #missing = None

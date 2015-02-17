@@ -110,7 +110,6 @@ class Monosaccharide(SaccharideBase):
             composition = get_standard_composition(self)
         self.composition = composition
         self._reducing_end = None
-        self.__graph__ = None
 
     @property
     def anomer(self):
@@ -244,7 +243,7 @@ class Monosaccharide(SaccharideBase):
             raise IndexError("Index out of bounds")
         pos = self.reducing_end
         if pos is not None:
-            self.drop_modification(pos, ReducingEnd, refund=True)
+            self.drop_modification(pos, ReducingEnd)
         self.add_modification(ReducingEnd, value)
 
     def open_attachment_sites(self, max_occupancy=0):
@@ -441,13 +440,13 @@ class Monosaccharide(SaccharideBase):
                            child_position=-1,
                            parent_loss=None, child_loss=None):
         '''
-        Adds a |Monosaccharide| and associated |Link| to :attr:`links` at the site given by 
-        ``position``. This new monosaccharide 
+        Adds a |Monosaccharide| and associated |Link| to :attr:`links` at the site given by
+        ``position``.
 
         Parameters
         ----------
         monosaccharide: |Monosaccharide|
-            The monosaccharide to add. 
+            The monosaccharide to add.
         position: |int| or 'x'
             The location to add the |Monosaccharide| link to :attr:`links`. Defaults to -1
         child_position: |int|
@@ -586,6 +585,34 @@ class Monosaccharide(SaccharideBase):
             self.total_composition() == other.total_composition()
         return flat
 
+    def topological_equality(self, other):
+        '''
+        Performs equality testing between two monosaccharides where
+        the exact ordering of child links does not have match between
+        the input |Monosaccharide|s, so long as an exact match of the
+        subtrees is found
+
+        Returns
+        -------
+        '''
+        if self._flat_equality(other):
+            taken_b = set()
+            for a_pos, a_child in self.children():
+                matched = False
+                for b_pos, b_child in other.children():
+                    if (b_pos, b_child.id) in taken_b:
+                        continue
+                    if a_child.topological_equality(b_child):
+                        matched = True
+                        taken_b.add((b_pos, b_child.id))
+                        break
+                if not matched and len(list(self.children())) > 0:
+                    return False
+            if len(taken_b) != len(list(other.children())):
+                return False
+            return True
+        return False
+
     def __eq__(self, other):
         '''
         Test for equality between :class:`Monosaccharide` instances.
@@ -649,7 +676,7 @@ class Monosaccharide(SaccharideBase):
 
     def total_composition(self):
         '''
-        Computes the sum of the composition of ``self`` and each of its linked 
+        Computes the sum of the composition of ``self`` and each of its linked
         :class:`~pygly2.structure.substituent.Substituent`s
 
         Returns
@@ -663,7 +690,7 @@ class Monosaccharide(SaccharideBase):
 
     def children(self):
         '''
-        Returns an iterator over the :class:`Monosaccharide` instancess which are considered 
+        Returns an iterator over the :class:`Monosaccharide` instancess which are considered
         the descendants of `self`.  Alias for `__iter__`
         '''
         for pos, link in self.links.items():
@@ -673,7 +700,7 @@ class Monosaccharide(SaccharideBase):
 
     def parents(self):
         '''
-        Returns an iterator over the :class:`Monosaccharide` instances which are considered 
+        Returns an iterator over the :class:`Monosaccharide` instances which are considered
         the ancestors of `self`.
         '''
         for pos, link in self.links.items():

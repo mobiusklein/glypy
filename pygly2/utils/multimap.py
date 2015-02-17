@@ -1,5 +1,10 @@
+import logging
+logger = logging.getLogger(__name__)
 from collections import defaultdict
+from functools import partial
+from itertools import izip_longest
 
+from . import identity
 
 class MultiMap(object):
     '''Implements a simple MultiMap data structure on top of a dictionary of lists'''
@@ -66,17 +71,17 @@ class MultiMap(object):
         '''
         return sum(len(self[k]) for k in self)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return repr(self.contents)
 
     def __eq__(self, other):
-        for a, b in zip(self.items(), other.items()):
+        for a, b in izip_longest(self.items(), other.items()):
             if a != b:
                 return False
         return True
 
     def __ne__(self, other):
-        return self.contents != other.contents
+        return not self == other
 
 
 class OrderedMultiMap(MultiMap):
@@ -117,10 +122,5 @@ class OrderedMultiMap(MultiMap):
             self.key_order.append(key)
         self.contents[key].append(value)
 
-    def pop(self, key, value):
-        rv = super(OrderedMultiMap, self).pop(key, value)
-        if rv == 0:
-            self.key_order.pop(self.key_order.index(key))
-
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return ''.join((repr(self.key_order), '\n', repr(self.contents)))

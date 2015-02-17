@@ -1,4 +1,4 @@
-__all__ = ["composition", "io", "structure", "utils"]
+__all__ = ["composition", "io", "structure", "utils", 'algorithms']
 
 from .structure.named_structures import monosaccharides, glycans
 from .structure import Glycan, Monosaccharide, Substituent, Link

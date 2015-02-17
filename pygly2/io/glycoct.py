@@ -6,7 +6,6 @@ logger = logging.getLogger(__name__)
 
 from ..utils import opener, StringIO
 from ..utils.multimap import OrderedMultiMap
-from ..composition import Composition
 from ..structure import monosaccharide, substituent, link, constants, glycan
 from .format_constants_map import anomer_map, superclass_map, link_replacement_composition_map
 

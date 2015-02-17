@@ -1,20 +1,32 @@
 import matplotlib.pyplot as plt
 
 from pygly2.structure import Glycan
+from pygly2.io.nomenclature import identity
 
 from .buchheim import buchheim
-import cfg_symbols
+from . import cfg_symbols
 
 
 nomenclature_map = {
     "cfg": cfg_symbols
 }
 
+special_cases = ["Fuc", "Xyl"]
+
+
+def is_special_case(node):
+    for case in special_cases:
+        if identity.is_a(node, case):
+            return True
+    return False
+
+
 class DrawTree(object):
     def __init__(self, tree, parent=None, depth=0, number=1):
         self.x = -1.
         self.y = depth
         self.tree = tree
+        self.mask_special_cases = True
         self.children = [DrawTree(c, self, depth+1, i+1)
                          for i, c
                          in enumerate(ch for p, ch in tree.children())]
@@ -34,6 +46,32 @@ class DrawTree(object):
         print(self.x, self.y)
         for child in self:
             child.check()
+
+    @property
+    def children(self):
+        if self.mask_special_cases:
+            return [child for child in self._children if not (is_special_case(child.tree) and len(child.children) == 0)]
+        else:
+            return self._children
+
+    @children.setter
+    def children(self, value):
+        self._children = value
+
+    def fix_special_cases(self, offset=0.5):
+        n = 0
+        self.mask_special_cases = False
+        for child in self.children:
+            if is_special_case(child.tree):
+                if n == 0:
+                    child.y = self.y
+                    child.x = self.x + offset
+                elif n == 1:
+                    child.y = self.y
+                    child.x = self.x - offset
+                else:
+                    raise Exception("Don't know how to handle more than two special case child nodes.")
+            child.fix_special_cases(offset)
 
     def draw(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature="cfg", **kwargs):
         if isinstance(symbol_nomenclature, basestring):
@@ -136,6 +174,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=None):
         root = tree.root
     dtree = DrawTree(root)
     buchheim(dtree)
+    dtree.fix_special_cases()
     dtree.scale()
     fig = None
     if ax is None:

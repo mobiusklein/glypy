@@ -1,7 +1,7 @@
 import unittest
 import json
 import logging
-
+import cPickle
 #logging.basicConfig(level="DEBUG")
 
 import pygly2
@@ -10,6 +10,9 @@ from pygly2.structure import monosaccharide, constants, substituent, glycan, lin
 from pygly2.io import glycoct
 from pygly2.utils import enum, StringIO, identity, nullop, multimap
 from pygly2.composition import Composition, composition_transform, composition
+
+
+monosaccharides = named_structures.monosaccharides
 
 
 class GlycoCTParserTests(unittest.TestCase):
@@ -31,7 +34,7 @@ wiki_masses = {
 
 #: Not common in any way other than
 #: reused in many tests
-common_glycan = '''   
+common_glycan = '''
 RES
 1b:b-dglc-HEX-1:5
 2b:b-dgal-HEX-1:5
@@ -53,6 +56,37 @@ LIN
 7:7d(2+1)8n
 8:7o(3+1)9d
 9:7o(4+1)10d'''
+
+branchy_glycan = '''
+RES
+1b:x-dglc-HEX-x:x
+2s:n-acetyl
+3b:b-dman-HEX-1:5
+4b:a-dman-HEX-1:5
+5b:b-dglc-HEX-1:5
+6s:n-acetyl
+7b:b-dgal-HEX-1:5
+8b:b-dglc-HEX-1:5
+9s:n-acetyl
+10b:b-dgal-HEX-1:5
+11b:a-dman-HEX-1:5
+12b:b-dglc-HEX-1:5
+13s:n-acetyl
+14b:b-dgal-HEX-1:5
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3o(3+1)11d
+4:3o(6+1)4d
+5:4o(2+1)8d
+6:4o(6+1)5d
+7:5d(2+1)6n
+8:5o(4+1)7d
+9:8d(2+1)9n
+10:8o(4+1)10d
+11:11o(2+1)12d
+12:12d(2+1)13n
+13:12o(4+1)14d'''
 
 
 class NamedStructureTests(unittest.TestCase):
@@ -186,26 +220,57 @@ class MonosaccharideTests(unittest.TestCase):
             named_structures.monosaccharides["Hex"], 3, max_occupancy=4).add_monosaccharide(
             named_structures.monosaccharides["Hex"], 3, max_occupancy=4).drop_monosaccharide(3))
 
+    def test_validate_enums(self):
+        structure = named_structures.monosaccharides['Hex']
+        def t():
+            structure.anomer = 5
+        self.assertRaises(Exception, t)
+        def t():
+            structure.stem = "gibberish"
+        self.assertRaises(Exception, t)
+        def t():
+            structure.superclass = "monose"
+        self.assertRaises(Exception, t)
+        def t():
+            structure.configuration = 'not-real'
+        self.assertRaises(Exception, t)
+
+    def test_validate_reducing_end(self):
+        structure = named_structures.monosaccharides['Hex']
+        structure.reducing_end = 1
+        structure.reducing_end = 3
+
+        def t():
+            structure.reducing_end = -1
+        self.assertRaises(ValueError, t)
+
+        def t():
+            structure.reducing_end = 99
+        self.assertRaises(IndexError, t)
 
 
 class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
     def test_from_glycoct(self):
-        for glycan in glycoct.read(self._file_path):
-            self.assertAlmostEqual(glycan.mass(), iter(glycoct.loads(glycan.to_glycoct())).next().mass())
+        for structure in glycoct.read(self._file_path):
+            self.assertEqual(structure, glycoct.loads(structure.to_glycoct()).next())
 
     def test_fragments_preserve(self):
-        for glycan in glycoct.read(self._file_path):
-            dup = glycan.clone()
-            self.assertEqual(glycan, dup)
+        for structure in glycoct.read(self._file_path):
+            dup = structure.clone()
+            self.assertEqual(structure, dup)
             list(dup.fragments('ZCBY', 3))
 
-            self.assertEqual(glycan, dup)
+            self.assertEqual(structure, dup)
+
+    def test_branch_counts(self):
+        structure = glycoct.loads(branchy_glycan).next()
+        self.assertEqual(structure.count_branches(), 3)
 
     def test_fragments_mass(self):
-        glycan = glycoct.loads(common_glycan).next()
-        frags = list(glycan.fragments('ZCBY', 1))
+        structure = glycoct.loads(common_glycan).next()
+        frags = list(structure.fragments('ZCBY', 1))
         import json
         frags_ref = json.load(open('test_data/fragments-example.json'))
         container = multimap.MultiMap()
@@ -217,6 +282,7 @@ class GlycanTests(unittest.TestCase):
             return (a - e) <= b <= (a + e)
 
         for frag in frags:
+            structure.name_fragment(frag)
             kind = frag[0]
             mass = frag[-1]
             candidates = container[kind] + container[kind[::-1]]
@@ -226,36 +292,65 @@ class GlycanTests(unittest.TestCase):
             if not res:
                 raise AssertionError("{} found no matches in {}".format(frag, candidates))
 
+    def test_disjoint_subtrees(self):
+        structure = glycoct.loads(common_glycan).next()
+        f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
+        for tree in structure.fragments("BY", 3, structures=True):
+            ref = cPickle.load(f)
+            self.assertEqual(tree.link_ids, ref.link_ids)
+            self.assertEqual(tree.parent_tree, ref.parent_tree)
+
+    def test_reducing_end(self):
+        structure = glycoct.loads(common_glycan).next()
+        self.assertEqual(structure.reducing_end, None)
+        structure.reducing_end = 1
+        self.assertEqual(structure.reducing_end, 1)
+
     def test_clone(self):
-        glycan = glycoct.loads(common_glycan).next()
-        ref = glycan.clone()
-        glycan.reducing_end = 1
-        self.assertTrue(glycan != ref)
+        structure = glycoct.loads(common_glycan).next()
+        ref = structure.clone()
+        structure.reducing_end = 1
+        self.assertTrue(structure != ref)
 
     def test_indexing(self):
-        glycan = glycoct.loads(common_glycan).next()
-        ref = glycan.clone()
-        for i, node in enumerate(glycan.index):
+        structure = glycoct.loads(common_glycan).next()
+        ref = structure.clone()
+        for i, node in enumerate(structure.index):
             self.assertEqual(node.id, ref[i].id)
-        glycan.deindex()
-        for i, node in enumerate(glycan.index):
+        structure.deindex()
+        for i, node in enumerate(structure.index):
             self.assertNotEqual(node.id, ref[i].id)
-        self.assertRaises(TypeError, lambda: node["1"])
+        structure.index = None
+        self.assertEqual(structure[0], structure.root)
+
 
     def test_traversal(self):
-        glycan = glycoct.loads(common_glycan).next()
-        glycan[-1].add_monosaccharide(named_structures.monosaccharides['NeuGc'])
-        glycan.reindex(method='dfs')
-        ref = glycan.clone()
-        self.assertEqual(glycan[-1], ref[-1])
-        glycan.reindex(method='bfs')
-        self.assertNotEqual(glycan[-1], ref[-1])
+        structure = glycoct.loads(common_glycan).next()
+        structure[-1].add_monosaccharide(named_structures.monosaccharides['NeuGc'])
+        structure.reindex(method='dfs')
+        ref = structure.clone()
+        self.assertEqual(structure[-1], ref[-1])
+        structure.reindex(method='bfs')
+        self.assertNotEqual(structure[-1], ref[-1])
+
+    def test_traversal_by_name(self):
+        structure = glycoct.loads(common_glycan).next()
+        structure[-1].add_monosaccharide(named_structures.monosaccharides['NeuGc'])
+        structure.reindex(method='dfs')
+        ref = structure.clone()
+        self.assertEqual(structure, ref)
+        structure.reindex(method='depth_first_traversal')
+        self.assertEqual(structure, ref)
+        self.assertRaises(AttributeError, lambda: structure.reindex(method='not_real_traversal'))
 
     def test_leaves(self):
-        glycan = glycoct.loads(common_glycan).next()
-        leaves = list(glycan.leaves())
+        structure = glycoct.loads(common_glycan).next()
+        leaves = list(structure.leaves())
         for node in leaves:
             self.assertTrue(len(list(node.children())) == 0)
+        leaves = list(structure.leaves(bidirectional=True))
+        for node in leaves:
+            self.assertTrue(len(list(node.children())) == 0 or node == structure.root)
 
     def test_custom_traversal_method(self):
         def rev_sort_dfs(self, visited=None, from_node=None, *args, **kwargs):
@@ -270,13 +365,33 @@ class GlycanTests(unittest.TestCase):
                 node_stack.extend(reversed(list(terminal for pos, link in node.links.items()
                                   for terminal in link if terminal.id not in visited and
                                   len(link.child.substituent_links) < 1)))
-        glycan = glycoct.loads(common_glycan).next()
-        glycan[-3].add_monosaccharide(named_structures.monosaccharides['Hex'], 4).add_substituent('methyl', 5)
-        glycan.reindex()
-        ref = glycan.clone()
-        self.assertEqual(glycan[-1], ref[-1])
-        glycan.reindex(method=rev_sort_dfs)
-        self.assertNotEqual(glycan[-1], ref[-1])
+        structure = glycoct.loads(common_glycan).next()
+        structure[-3].add_monosaccharide(named_structures.monosaccharides['Hex'], 4).add_substituent('methyl', 5)
+        structure.reindex()
+        ref = structure.clone()
+        self.assertEqual(structure[-1], ref[-1])
+        structure.reindex(method=rev_sort_dfs)
+        self.assertNotEqual(structure[-1], ref[-1])
+
+    def test_topological_equality(self):
+        base = glycoct.loads(branchy_glycan).next()
+        a = base.clone()
+        b = base.clone()
+        c = base.clone()
+        self.assertEqual(base, b)
+        self.assertEqual(a, b)
+        list(a.leaves())[0].add_monosaccharide(monosaccharides["NeuGc"])
+        list(b.leaves())[1].add_monosaccharide(monosaccharides["NeuGc"])
+        list(c.leaves())[2].add_monosaccharide(monosaccharides["NeuGc"])
+        d = base.clone()
+        d_children = list(d.leaves())
+        d_children[0].add_monosaccharide(monosaccharides["NeuGc"])
+        d_children[1].add_monosaccharide(monosaccharides["NeuGc"])
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(a, base)
+        self.assertNotEqual(a, d)
+        self.assertNotEqual(b, d)
 
 
 class SubstituentTests(unittest.TestCase):
@@ -322,6 +437,17 @@ class MultiMapTests(unittest.TestCase):
         self.assertTrue(set(mm.items()) == {('a', 1), ('a', 3), ('b', 3)})
         self.assertTrue(Counter(mm.values()) == Counter({1: 1, 3: 2}))
 
+    def test_ordered_multimap(self):
+        mm = multimap.MultiMap(a=1, b=3)
+        mm['a'] = 3
+        omm = multimap.OrderedMultiMap(a=1, b=3)
+        omm['a'] = 3
+        self.assertEqual(mm, omm)
+        omm['c'] = 1
+        self.assertNotEqual(mm, omm)
+        self.assertNotEqual(omm, mm)
+        self.assertFalse('c' in mm)
+
 
 class CompositionTests(unittest.TestCase):
 
@@ -334,6 +460,7 @@ class CompositionTests(unittest.TestCase):
 
     def test_composition_equality(self):
         self.assertEqual(Composition("H2O"), Composition("H2O"))
+        self.assertEqual(Composition("H2O"), Composition("(H2O)"))
 
     def test_composition_substraction(self):
         self.assertEqual(Composition("NH2O") - Composition("N"), Composition("H2O"))
@@ -341,11 +468,39 @@ class CompositionTests(unittest.TestCase):
     def test_isotope_parsing(self):
         self.assertFalse(Composition("O[18]") == Composition("O"))
         self.assertAlmostEqual(Composition("O[18]").mass, 17.999, 3)
+        self.assertRaises(composition.ChemicalCompositionError, lambda: Composition("O[18.5]"))
 
     def test_inits(self):
-        composition.debug = True
         self.assertEqual(Composition(O=1, H=2), Composition(formula='H2O'))
-        composition.debug = False
+        self.assertEqual(Composition(O=1, H=2), Composition("OH2"))
+        self.assertRaises(composition.ChemicalCompositionError, lambda: Composition("O2.2"))
+
+    def test_operators(self):
+        case = Composition("H2O")
+        self.assertEqual(case + {'O': 1}, Composition("H2O2"))
+        self.assertEqual({'O': 1} + case, Composition("H2O2"))
+
+        self.assertEqual(case - {'O': 1}, Composition("H2"))
+        self.assertEqual({'O': 1, "H": 4} - case, Composition("H2"))
+
+        self.assertEqual(case * 3, Composition("H6O3"))
+        self.assertEqual(case * -1, -case)
+        self.assertRaises(composition.ChemicalCompositionError, lambda: case * 5.2)
+
+    def test_massing(self):
+        case = Composition("H2O")
+        mono_mass = case.calc_mass()
+        avg_mass = case.calc_mass(average=True)
+        protonated = case + {"H+": 1}
+        prot_mass = protonated.calc_mass()
+        self.assertNotEqual(mono_mass, avg_mass)
+        self.assertAlmostEqual(mono_mass, 18.0105, 3)
+        self.assertAlmostEqual(avg_mass, 18.01528, 3)
+        self.assertNotEqual(mono_mass, prot_mass)
+        self.assertAlmostEqual(prot_mass, 19.01784, 3)
+        self.assertAlmostEqual(case.calc_mass(charge=1), 19.01784, 3)
+        self.assertRaises(composition.ChemicalCompositionError, lambda: protonated.calc_mass(charge=1))
+
 
 class ConstantTests(unittest.TestCase):
     def test_translate(self):
@@ -359,6 +514,7 @@ class ConstantTests(unittest.TestCase):
         self.assertNotEqual(constants.Modification.d, constants.Stem[constants.Modification.d.value])
         self.assertRaises(KeyError, lambda: constants.SuperClass[1])
 
+
 class LinkTests(unittest.TestCase):
     def test_link_equality(self):
         parent = named_structures.monosaccharides['Hex']
@@ -368,7 +524,7 @@ class LinkTests(unittest.TestCase):
         link_2 = link.Link(child, other, parent_position=6, child_position=3, parent_loss='H', child_loss='OH')
         self.assertEqual(link_1, link_1)
         self.assertNotEqual(link_1, link_2)
-        self.assertFalse(link_1 == None)
+        self.assertFalse(link_1 is None)
 
     def test_loss_composition(self):
         parent = named_structures.monosaccharides['Hex']
@@ -402,7 +558,6 @@ class LinkTests(unittest.TestCase):
         self.assertEqual(link_1.to(parent), child)
         self.assertEqual(link_1.to(child), parent)
         self.assertRaises(KeyError, lambda: link_1.to(1))
-
 
 if __name__ == '__main__':
     unittest.main()

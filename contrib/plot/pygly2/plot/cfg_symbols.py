@@ -10,6 +10,8 @@ from pygly2.structure import Modification, Monosaccharide
 from pygly2.utils.enum import Enum
 from pygly2.io.nomenclature import identity
 
+GENERIC = -1
+
 
 class ResidueShape(Enum):
     circle = 1
@@ -22,6 +24,7 @@ class ResidueShape(Enum):
     left_bisected_diamond = 8
     right_bisected_diamond = 9
     bottom_bisected_diamond = 10
+    generic = 11
 
 
 class UnknownShapeException(Exception):
@@ -78,6 +81,7 @@ class ResidueColor(Enum):
     idoa = 'tan'
     gala = 'yellow'
     mana = 'green'
+    generic = 'white'
 
 
 def residue_color(monosaccharide):
@@ -114,7 +118,11 @@ def get_symbol(monosaccharide):
 
 
 def draw(monosaccharide, x, y, ax, scale=0.1):
-    shape, color = get_symbol(monosaccharide)
+    try:
+        shape, color = get_symbol(monosaccharide)
+    except:
+        shape = GENERIC
+        color = identity.identify(monosaccharide)
     drawer = draw_map.get(shape)
     if drawer is None:
         raise Exception("Don't know how to draw {}".format(shape))
@@ -310,3 +318,18 @@ def draw_star(ax, x, y, color, scale=0.1):
     ax.add_patch(patch)
 unit_star = Path.unit_regular_star(5, 0.3)
 draw_map[ResidueShape.star] = draw_star
+
+
+def draw_generic(ax, x, y, name, scale=0.1):
+    path = Path(unit_hexagon.vertices * scale, unit_hexagon.codes)
+    trans = matplotlib.transforms.Affine2D().translate(x, y)
+    t_path = path.transformed(trans)
+    patch = patches.PathPatch(t_path, facecolor="white", lw=1, zorder=2)
+    ax.add_patch(patch)
+    ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)
+unit_hexagon = Path.unit_regular_polygon(6)
+draw_map[GENERIC] = draw_generic
+
+
+def draw_text(ax, x, y, text, scale=0.1):
+    ax.text(x, y, text, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)

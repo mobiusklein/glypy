@@ -55,7 +55,7 @@ def search_substructure(glycan_obj):
     matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
     for m in matches:
         yield m
-    for page_id in xrange(1, last_page):
+    for page_id in range(1, last_page):
         get_more = session.post(_get_more_results_url, data={"page": page_id})
         get_more.raise_for_status()
         tree = etree.fromstring(get_more.content)

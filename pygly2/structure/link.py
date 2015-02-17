@@ -6,6 +6,7 @@ from .base import SaccharideBase, SubstituentBase
 default_parent_loss = Composition(O=1, H=1)
 default_child_loss = Composition(H=1)
 
+
 class Link(object):
     '''
     Represents the linkage between two residues.
@@ -13,7 +14,7 @@ class Link(object):
     Attributes
     ----------
     parent: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
-    child: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`     
+    child: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
     '''
     def __init__(self, parent, child, parent_position=-1, child_position=-1,
                  parent_loss=None, child_loss=None, id=None, **kwargs):
@@ -30,7 +31,7 @@ class Link(object):
         self.parent_loss = parent_loss
         self.child_loss = child_loss
         self.id = id or uuid4().int
-
+        self.label = None
         self.data = kwargs
 
         self.apply()
@@ -118,7 +119,8 @@ class Link(object):
         return id(mol) == id(self.child)
 
     def clone(self, parent, child):
-        return Link(parent, child, parent_position=self.parent_position,
+        return Link(parent, child,
+                    parent_position=self.parent_position,
                     child_position=self.child_position,
                     parent_loss=self.parent_loss,
                     child_loss=self.child_loss,
@@ -173,9 +175,10 @@ class Link(object):
             self.parent.substituent_links[self.parent_position] = self
         else:
             self.parent.links[self.parent_position] = self
-        
+            sorted(self.parent.links[self.parent_position], key=lambda x: x.child.order())
+
         self.child.links[self.child_position] = self
-        
+
         if refund:
             self.refund()
 
@@ -189,7 +192,7 @@ class Link(object):
 
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()
-        rep = "({parent}){parent_loss}({parent_position}+{child_position}){child_loss}({child})"
+        rep = "({parent.id}){parent_loss}({parent_position}+{child_position}){child_loss}({child.id})"
         return rep.format(
             parent=self.parent,
             parent_loss=parent_loss_str,

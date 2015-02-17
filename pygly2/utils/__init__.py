@@ -1,7 +1,7 @@
-__all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop']
-
+__all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop', "multimap"]
+import textwrap
 import gzip
-import enum
+
 try:  # pragma: no cover
     from lxml import etree as ET
 except ImportError:  # pragma: no cover
@@ -22,7 +22,7 @@ except:  # pragma: no cover
 def opener(obj, mode='r'):
     '''
     Try to use `obj` to access a file-object. If `obj` is a string, assume
-    it denotes a path to a file, and open that file in the specified mode. 
+    it denotes a path to a file, and open that file in the specified mode.
     If `obj` has an attribute `read`, assume it
     itself is a file-like object and return it.
 
@@ -79,5 +79,29 @@ def nullop(*args, **kwargs):   # pragma: no cover
     pass
 
 
-def chrinc(a='a'):
-    return chr(ord(a) + 1)
+def chrinc(a='a', i=1):
+    return chr(ord(a) + i)
+
+
+def makestruct(name, fields):
+    '''
+    A convenience function for defining named container objects that are optimized
+    for named accessor lookup, unlike `namedtuple`. If the named container does not
+    require any special logic and won't be extended, the resulting structure is best for
+    storing and accessing the data.
+    '''
+    template = ('''
+class {name}(object):
+    __slots__ = {fields!r}
+    def __init__(self, {args}):
+        {self_fields} = {args}
+    def __getitem__(self, idx):
+        return getattr(self, fields[idx])
+    ''').format(
+        name=name,
+        fields=fields,
+        args=','.join(fields),
+        self_fields=','.join('self.' + f for f in fields))
+    d = {'fields': fields}
+    exec(template, d)
+    return d[name]

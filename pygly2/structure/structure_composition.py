@@ -3,6 +3,7 @@ import warnings
 
 do_warn = True
 
+
 class CompositionIndex(dict):
     def __getitem__(self, key):
         try:
@@ -97,19 +98,56 @@ _substituent_compositions = {
     },
     "n_glycolyl": {
         "C": 2,
-        "H": 4,
-        "O": 1,
+        "H": 5,
+        "O": 2,
         "N": 1
-    }, 
+    },
     "phosphate": {
-        'P': 1, 
-        'O': 3, 
+        'P': 1,
+        'O': 3,
         'H': 3
     },
-    "acetyl": {'H': 4, 'C': 2, 'O': 1},
-    "pyruvate": {'H': 2, 'C': 3, 'O': 2},
-    "methyl": {'H': 4, 'C': 1},
-    "n_sulfate": {'S': 1, 'O': 2, 'N': 1}
+    "acetyl": {
+        'H': 4,
+        'C': 2,
+        'O': 1
+    },
+    "methyl": {
+        'H': 4,
+        'C': 1
+    },
+    "n_sulfate": {
+        "H": 3,
+        'S': 1,
+        'O': 3,
+        'N': 1
+    },
+    "nitrate": {
+        "N": 1,
+        "O": 3
+    },
+    "iodo": {
+        "I": 1,
+        "H": 1,
+    },
+    "flouro": Composition("FH"),
+    "imino": Composition("NH2"),
+    "chloro": Composition("ClH"),
+    "formyl": Composition("CHOH"),
+    "bromo": Composition("BrH"),
+    "pyruvate": Composition("COCOCH3H"),
+    "n_alanine": {
+      "C": 3,
+      "H": 8,
+      "N": 2,
+      "O": 1
+    },
+    "n_dimethyl": Composition("N(CH3)2H"),
+    "n_formyl": Composition("NHCHOH"),
+    "n_methyl": Composition("NHCH3H"),
+    "n_succinate": Composition("NCOCH2CH2COOHH"),
+    "n_trifluoroacetyl": Composition("NHCOCF3H"),
+    "thio": Composition("SHH")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

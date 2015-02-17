@@ -64,8 +64,7 @@
     "GlcNAc", 
     "GlcNA", 
     "GlcNac", 
-    "LinearCode:GN", 
-    "HexNAc"
+    "LinearCode:GN"
   ], 
   [
     "(6S)GlcNAc", 
@@ -153,7 +152,6 @@
     "LinearCode:AS"
   ], 
   [
-    "Hex", 
     "LinearCode:M", 
     "bdMan", 
     "Man", 
