@@ -7,7 +7,7 @@ from collections import deque, defaultdict, namedtuple, Callable
 
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
-from ..utils import make_counter, identity, StringIO, chrinc
+from ..utils import make_counter, identity, StringIO, chrinc, makestruct
 from ..composition import Composition
 
 logger = logging.getLogger("Glycan")

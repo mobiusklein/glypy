@@ -53,7 +53,7 @@ def exhaustive_subtree_comparison(a, b, min_size=2):
     max_observed = min_size
 
     for parent_tree, parent_include, child_tree, child_include, link_ids in b.fragments(
-            max_cleavages=max_order(b), structures=True):
+            max_cleavages=max_order(b) + 1, structures=True):
         if len(parent_include) > min_size:
             subtrees_look_up.append(SubtreeRecord(parent_tree, parent_include, link_ids))
         if len(child_include) > min_size:
@@ -65,16 +65,17 @@ def exhaustive_subtree_comparison(a, b, min_size=2):
         if len(a_index) == len(tree.include) and a == tree.subtree:
             yield SubtreeMatchRecord(a.clone(), [list(a_index), tree.include], [[], tree.link_ids])
             max_observed = len(a_index)
-    for tree in a.fragments(max_cleavages=max_order(a), structures=True):
-        for subtree in subtrees_look_up:
-            if len(tree.parent_include_nodes) >= max_observed:
+    for tree in a.fragments(max_cleavages=max_order(a) + 1, structures=True):
+        if len(tree.parent_include_nodes) >= max_observed:
+            for subtree in subtrees_look_up:
                 if len(tree.parent_include_nodes) == len(subtree.include) and tree.parent_tree == subtree.subtree:
                     max_observed = len(subtree.include)
                     yield SubtreeMatchRecord(tree.parent_tree,
                                              [tree.parent_include_nodes, subtree.include],
                                              [tree.link_ids, subtree.link_ids])
 
-            if len(tree.child_include_nodes) >= max_observed:
+        if len(tree.child_include_nodes) >= max_observed:
+            for subtree in subtrees_look_up:
                 if len(tree.child_include_nodes) == len(subtree.include) and tree.child_tree == subtree.subtree:
                     max_observed = len(subtree.include)
                     yield SubtreeMatchRecord(tree.child_tree,
