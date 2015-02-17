@@ -182,7 +182,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :meth:`~.breadth_first_traversal`
+        Glycan.breadth_first_traversal
         '''
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
@@ -224,7 +224,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :meth:`~.depth_first_traversal`
+        Glycan.depth_first_traversal
         '''
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
@@ -281,9 +281,9 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :meth:`~.depth_first_traversal`
-        :meth:`~.breadth_first_traversal`
-        :meth:`~._get_traversal_method`
+        depth_first_traversal
+        breadth_first_traversal
+        _get_traversal_method
         '''
         traversal = self._get_traversal_method(method)
         return traversal(from_node=from_node, apply_fn=apply_fn, visited=visited)
@@ -511,7 +511,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :func:`~pygly2.structure.Monosaccharide.topological_equality`
+        :meth:`pygly2.structure.Monosaccharide.topological_equality`
         '''
         if other is None:
             return False
