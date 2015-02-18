@@ -4,12 +4,13 @@ from .synonyms import monosaccharides as monosaccharide_synonyms
 
 
 def get_preferred_name(name, selector=min, key=len):
-    preferred_name = selector(monosaccharide_synonyms[name], key=key)
+    preferred_name = selector(monosaccharide_synonyms.get(name, [name]) + [name], key=key)
     return preferred_name
 
 
-def is_a(node, target, tolerance=0):
-    '''Perform a semi-fuzzy match between `node` and `target` where node'''
+def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True):
+    '''Perform a semi-fuzzy match between `node` and `target` where node is the unqualified
+    residue queried and target is the known residue to be matched against'''
     if isinstance(target, basestring):
         target = named_structures.monosaccharides[target]
     res = 0
@@ -20,37 +21,41 @@ def is_a(node, target, tolerance=0):
     qs += 1
     res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
     qs += 1
-    node_mods = list(node.modifications.values())
-    for pos, mod in target.modifications.items():
-        check = (mod in node_mods)
-        res += check
-        if check:
-            node_mods.pop(node_mods.index(mod))
-        qs += 1
-    qs += len(node_mods)
-    node_subs = list(node for p, node in node.substituents())
-    for pos, sub in target.substituents():
-        check = (sub in node_subs)
-        res += check
-        if check:
-            node_subs.pop(node_subs.index(sub))
-        qs += 1
-    qs += len(node_subs)
-    return (res - qs) >= tolerance
+    if include_modifications:
+        node_mods = list(node.modifications.values())
+        for pos, mod in target.modifications.items():
+            check = (mod in node_mods)
+            res += check
+            if check:
+                node_mods.pop(node_mods.index(mod))
+            qs += 1
+        qs += len(node_mods)
+    if include_substituents:
+        node_subs = list(node for p, node in node.substituents())
+        for pos, sub in target.substituents():
+            check = (sub in node_subs)
+            res += check
+            if check:
+                node_subs.pop(node_subs.index(sub))
+            qs += 1
+        qs += len(node_subs)
+    return (qs - res) <= tolerance
 
 
-def identify(node, blacklist=None):
+def identify(node, blacklist=None, tolerance=0, include_modifications=True, include_substituents=True):
     if blacklist is None:
-        blacklist = ["Hex", "Hexose"]
+        blacklist = ["Hex"]
     for name, structure in named_structures.monosaccharides.items():
         if name in blacklist:
             continue
-        if is_a(node, structure):
+        if is_a(node, structure, tolerance, include_modifications, include_substituents):
             return get_preferred_name(name)
     for name in blacklist:
-        if is_a(node, named_structures.monosaccharides[name]):
+        if is_a(node, named_structures.monosaccharides[name], include_modifications, include_substituents):
             return get_preferred_name(name)
-    raise IdentifyException("Could not identify {}" % node)
+    if tolerance < 4:
+        return identify(node, blacklist, tolerance=tolerance + 1)
+    raise IdentifyException("Could not identify {}".format(node))
 
 
 class IdentifyException(Exception):
