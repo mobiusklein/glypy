@@ -1,4 +1,5 @@
 import operator
+methodcaller = operator.methodcaller
 import random
 import logging
 import itertools
@@ -193,7 +194,7 @@ class Glycan(SaccharideBase):
             if res is not None:
                 yield res
             node_stack.extend(sorted((terminal for pos, link in node.links.items()
-                                      for terminal in link if terminal.id not in visited), key=Monosaccharide.order))
+                                      for terminal in link if terminal.id not in visited), key=methodcaller("order")))
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -235,7 +236,7 @@ class Glycan(SaccharideBase):
             if res is not None:
                 yield res
             node_queue.extend(sorted((terminal for pos, link in node.links.items()
-                                      for terminal in link if terminal.id not in visited), key=Monosaccharide.order))
+                                      for terminal in link if terminal.id not in visited), key=methodcaller("order")))
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal

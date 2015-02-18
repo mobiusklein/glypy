@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from .base import SubstituentBase
 from .structure_composition import substituent_compositions
 from .link import Link
@@ -55,7 +57,7 @@ class Substituent(SubstituentBase):
     Represents a non-saccharide molecule commonly found bound to saccharide units.
     '''
 
-    def __init__(self, name, links=None, composition=None):
+    def __init__(self, name, links=None, composition=None, id=None):
         if links is None:
             links = OrderedMultiMap()
         self.name = name
@@ -63,6 +65,7 @@ class Substituent(SubstituentBase):
         if composition is None:
             composition = substituent_compositions[self.name]
         self.composition = composition
+        self.id = id or uuid4().int
 
     @property
     def name(self):
@@ -142,7 +145,7 @@ class Substituent(SubstituentBase):
             mass += child.mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
-    def clone(self):
+    def clone(self, prop_id=True):
         substituent = Substituent(self.name)
         for pos, link in self.links.items():
             if link.is_child(self):
@@ -151,7 +154,11 @@ class Substituent(SubstituentBase):
             dup = sub.clone()
             Link(substituent, dup, link.parent_position, link.child_position,
                  link.parent_loss, link.child_loss)
+            substituent.id = self.id if prop_id else uuid4().int
         return substituent
+
+    def order(self):
+        return len(self.links)
 
     def total_composition(self):
         '''
