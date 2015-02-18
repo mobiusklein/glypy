@@ -51,6 +51,11 @@ _monosaccharide_compositions = {
         "C": 9,
         "H": 18,
         "O": 9
+    },
+    "dec": {
+        "C": 10,
+        "H": 20,
+        "O": 10
     }
 }
 

@@ -145,7 +145,11 @@ class GlycoCT(object):
         residue_dict["modifications"] = modifications
 
         conf_stem = residue_dict.pop("conf_stem")
-        config, stem = zip(*conf_stem_pattern.findall(conf_stem))
+        if conf_stem is not None:
+            config, stem = zip(*conf_stem_pattern.findall(conf_stem))
+        else:
+            config = ('x',)
+            stem = ('x',)
         residue_dict['stem'] = stem
         residue_dict['configuration'] = config
 
