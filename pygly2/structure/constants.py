@@ -7,6 +7,7 @@ class SuperClass(Enum):
 
     Is an |Enum|
     '''
+    sug = 2
     tri = 3
     tet = 4
     pen = 5
@@ -21,6 +22,10 @@ class SuperClass(Enum):
     s14 = 14
     s15 = 15
     s16 = 16
+    s17 = 17
+    s18 = 18
+    s19 = 19
+    s20 = 20
     x = None
 
 

@@ -17,6 +17,11 @@ class CompositionIndex(dict):
 
 # Monosaccharide Residue Compositions
 _monosaccharide_compositions = {
+    "sug": {
+        "C": 2,
+        "H": 4,
+        "O": 2
+    },
     "tri": {
         "C": 3,
         "H": 6,
@@ -62,7 +67,11 @@ _monosaccharide_compositions = {
     "s13": Composition("H2CO") * 13,
     "s14": Composition("H2CO") * 14,
     "s15": Composition("H2CO") * 15,
-    "s16": Composition("H2CO") * 16
+    "s16": Composition("H2CO") * 16,
+    "s17": Composition("H2CO") * 17,
+    "s18": Composition("H2CO") * 18,
+    "s19": Composition("H2CO") * 19,
+    "s20": Composition("H2CO") * 20
 }
 
 monosaccharide_composition = CompositionIndex(_monosaccharide_compositions)
