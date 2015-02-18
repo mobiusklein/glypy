@@ -163,7 +163,7 @@ class Monosaccharide(SaccharideBase):
             raise Exception(value)
         self._superclass = SuperClass[value]
 
-    def clone(self):
+    def clone(self, prop_id=False):
         '''
         Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
         with the same data. All mutable data structures are duplicated and distinct from the original.
@@ -185,7 +185,8 @@ class Monosaccharide(SaccharideBase):
             ring_start=self.ring_start,
             ring_end=self.ring_end,
             modifications=modifications,
-            anomer=self.anomer)
+            anomer=self.anomer,
+            id=self.id if prop_id else None)
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
             dup = sub.clone()

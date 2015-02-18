@@ -1,5 +1,11 @@
 import functools
 from ...structure import named_structures
+from .synonyms import monosaccharides as monosaccharide_synonyms
+
+
+def get_preferred_name(name, selector=min, key=len):
+    preferred_name = selector(monosaccharide_synonyms[name], key=key)
+    return preferred_name
 
 
 def is_a(node, target, tolerance=0):
@@ -40,10 +46,10 @@ def identify(node, blacklist=None):
         if name in blacklist:
             continue
         if is_a(node, structure):
-            return name
+            return get_preferred_name(name)
     for name in blacklist:
         if is_a(node, named_structures.monosaccharides[name]):
-            return name
+            return get_preferred_name(name)
     raise IdentifyException("Could not identify {}" % node)
 
 

@@ -367,6 +367,14 @@ class Glycan(SaccharideBase):
                 count += 2 if count == 0 else 1
         return count
 
+    def order(self):
+        count = 0
+        for node in self:
+            count += 1
+        return count
+
+    __len__ = order
+
     def to_glycoct(self, buffer=None, close=False):
         '''
         Serialize the |Glycan| graph object into condensed GlycoCT, using
@@ -473,7 +481,7 @@ class Glycan(SaccharideBase):
         -------
         |Glycan|
         '''
-        clone_root = self.root.clone()
+        clone_root = self.root.clone(prop_id=True)
         clone_root.id = self.root.id
         node_stack = [(clone_root, self.root)]
         visited = set()
@@ -487,7 +495,7 @@ class Glycan(SaccharideBase):
                 terminal = link.to(ref)
                 if terminal.id in visited:
                     continue
-                clone_terminal = terminal.clone()
+                clone_terminal = terminal.clone(prop_id=True)
                 clone_terminal.id = terminal.id
                 if link.is_child(terminal):
                     link.clone(clone, clone_terminal)
@@ -661,6 +669,51 @@ class Glycan(SaccharideBase):
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield ('Z', [break_id], parent_include, z_mass)
 
+            except Exception, e:  # pragma: no cover
+                link.apply()
+                raise e
+            finally:
+                # Unmask the Link and apply its composition shifts
+                logger.debug("Reapplying %d", break_id)
+                link.apply()
+
+    def substructures(self, max_cleavages=1, min_cleavages=1, min_size=2):
+        results_container = DisjointTrees
+        for frag in self.break_links_subtrees(max_cleavages, min_size=min_size):
+            yield results_container(*frag)
+
+    def break_links_subtrees(self, n_links, min_size):
+        if n_links < 0:  # pragma: no cover
+            raise ValueError("Cannot break a negative number of Links")
+        n_links -= 1
+        for pos, link in self.iterlinks():
+            try:
+                parent, child = link.break_link(refund=True)
+                break_id = link.id
+                logger.debug("Breaking %d", break_id)
+
+                parent_tree = Glycan(graph_root=parent, index_method=None)
+                child_tree = Glycan(graph_root=child, index_method=None)
+                parent_include = [n.id for n in parent_tree.dfs()]
+                child_include = [n.id for n in child_tree.dfs()]
+
+                # Copy the trees so that when the Link object is unmasked the copies returned
+                # to the user are not suddenly joined again.
+                parent_clone = parent_tree.clone(index_method=None).reroot()
+                child_clone = child_tree.clone(index_method=None).reroot()
+                if parent_clone.order() > min_size or child_clone.order() > min_size:
+                    yield (parent_clone, parent_include, child_clone, child_include, [break_id])
+                if n_links > 0:
+                    logger.debug("%d more links to break", n_links)
+                    if parent_tree.order() > min_size:
+                        for p_parent, parent_include, p_child, child_include, p_link_ids in parent_tree.break_links_subtrees(
+                                n_links, min_size=min_size):
+                            yield p_parent, parent_include, p_child, child_include, p_link_ids + [break_id]
+
+                    if child_tree.order() > min_size:
+                        for c_parent, parent_include, c_child, child_include, c_link_ids in child_tree.break_links_subtrees(
+                                n_links, min_size=min_size):
+                            yield c_parent, parent_include, c_child, child_include, c_link_ids + [break_id]
             except Exception, e:  # pragma: no cover
                 link.apply()
                 raise e
