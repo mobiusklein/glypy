@@ -14,6 +14,13 @@ class SuperClass(Enum):
     hep = 7
     oct = 8
     non = 9
+    dec = 10
+    s11 = 11
+    s12 = 12
+    s13 = 13
+    s14 = 14
+    s15 = 15
+    s16 = 16
     x = None
 
 
