@@ -1,5 +1,5 @@
 import functools
-from ...structure import named_structures
+from ...structure import named_structures, Monosaccharide, Substituent
 from .synonyms import monosaccharides as monosaccharide_synonyms
 
 
@@ -11,34 +11,41 @@ def get_preferred_name(name, selector=min, key=len):
 def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True):
     '''Perform a semi-fuzzy match between `node` and `target` where node is the unqualified
     residue queried and target is the known residue to be matched against'''
-    if isinstance(target, basestring):
-        target = named_structures.monosaccharides[target]
     res = 0
     qs = 0
-    res += (node.superclass == target.superclass) or (target.superclass.value is None)
-    qs += 1
-    res += (node.stem == target.stem) or (target.stem[0].value is None)
-    qs += 1
-    res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
-    qs += 1
-    if include_modifications:
-        node_mods = list(node.modifications.values())
-        for pos, mod in target.modifications.items():
-            check = (mod in node_mods)
-            res += check
-            if check:
-                node_mods.pop(node_mods.index(mod))
+    if isinstance(target, basestring):
+        target = named_structures.monosaccharides[target]
+    elif isinstance(node, Substituent):
+        if isinstance(target, Substituent):
+            return False
+        else:
+            res += node.name == target.name
             qs += 1
-        qs += len(node_mods)
-    if include_substituents:
-        node_subs = list(node for p, node in node.substituents())
-        for pos, sub in target.substituents():
-            check = (sub in node_subs)
-            res += check
-            if check:
-                node_subs.pop(node_subs.index(sub))
-            qs += 1
-        qs += len(node_subs)
+    else:
+        res += (node.superclass == target.superclass) or (target.superclass.value is None)
+        qs += 1
+        res += (node.stem == target.stem) or (target.stem[0].value is None)
+        qs += 1
+        res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
+        qs += 1
+        if include_modifications:
+            node_mods = list(node.modifications.values())
+            for pos, mod in target.modifications.items():
+                check = (mod in node_mods)
+                res += check
+                if check:
+                    node_mods.pop(node_mods.index(mod))
+                qs += 1
+            qs += len(node_mods)
+        if include_substituents:
+            node_subs = list(node for p, node in node.substituents())
+            for pos, sub in target.substituents():
+                check = (sub in node_subs)
+                res += check
+                if check:
+                    node_subs.pop(node_subs.index(sub))
+                qs += 1
+            qs += len(node_subs)
     return (qs - res) <= tolerance
 
 
