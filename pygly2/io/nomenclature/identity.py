@@ -16,7 +16,7 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
     if isinstance(target, basestring):
         target = named_structures.monosaccharides[target]
     elif isinstance(node, Substituent):
-        if isinstance(target, Substituent):
+        if not isinstance(target, Substituent):
             return False
         else:
             res += node.name == target.name
