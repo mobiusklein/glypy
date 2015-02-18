@@ -327,7 +327,11 @@ class Glycan(SaccharideBase):
 
         def get_parent_link(node):
             try:
-                return node.links[node.parents().next()[0]][0].label[0]
+                label = node.links[node.parents().next()[0]][0].label
+                if label is None:
+                    return MAIN_BRANCH_SYM
+                else:
+                    return label[0]
             except StopIteration:
                 return MAIN_BRANCH_SYM
 

@@ -56,7 +56,13 @@ _monosaccharide_compositions = {
         "C": 10,
         "H": 20,
         "O": 10
-    }
+    },
+    "s11": Composition("H2CO") * 11,
+    "s12": Composition("H2CO") * 12,
+    "s13": Composition("H2CO") * 13,
+    "s14": Composition("H2CO") * 14,
+    "s15": Composition("H2CO") * 15,
+    "s16": Composition("H2CO") * 16
 }
 
 monosaccharide_composition = CompositionIndex(_monosaccharide_compositions)
