@@ -217,13 +217,14 @@ class Composition(defaultdict):
                 self[elem] += cnt
 
     def _from_dict(self, comp):
-        for isotope_string, num_atoms in comp.items():
-            element_name, isotope_num = _parse_isotope_string(
-                isotope_string)
+        # for isotope_string, num_atoms in comp.items():
+        #     element_name, isotope_num = _parse_isotope_string(
+        #         isotope_string)
 
-            # Remove explicitly undefined isotopes (e.g. X[0]).
-            self[_make_isotope_string(element_name, isotope_num)] = (
-                num_atoms)
+        #     # Remove explicitly undefined isotopes (e.g. X[0]).
+        #     self[_make_isotope_string(element_name, isotope_num)] = (
+        #         num_atoms)
+        self.update(comp)
 
     def calc_mass(self, *args, **kwargs):
         kwargs["composition"] = self

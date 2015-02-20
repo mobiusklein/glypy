@@ -9,8 +9,7 @@ from ..utils import enum
 from ..utils.multimap import OrderedMultiMap
 
 
-class SubstituentEnum(object):
-    __metaclass__ = enum.EnumMeta
+class SubstituentEnum(enum.Enum):
     acetyl = 6
     amino = 3
     anhydro = 8

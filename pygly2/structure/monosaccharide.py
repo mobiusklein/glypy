@@ -1,5 +1,4 @@
 from uuid import uuid4
-from copy import deepcopy
 from itertools import chain
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, ReducingEnd
@@ -32,7 +31,7 @@ def get_standard_composition(monosaccharide):
     '''
     base = monosaccharide_composition[monosaccharide.superclass]
     for mod_pos, mod_val in monosaccharide.modifications.items():
-        base = base + modification_compositions[mod_val]
+        base = base + modification_compositions[mod_val](mod_pos)
     return base
 
 
@@ -100,8 +99,7 @@ class Monosaccharide(SaccharideBase):
         self.superclass = superclass
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.modifications = OrderedMultiMap(
-        ) if modifications is None else modifications
+        self.modifications = OrderedMultiMap() if modifications is None else modifications
         self.links = OrderedMultiMap() if links is None else links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
@@ -117,8 +115,6 @@ class Monosaccharide(SaccharideBase):
 
     @anomer.setter
     def anomer(self, value):
-        if value not in Anomer and value is not None:
-            raise Exception(value)
         self._anomer = Anomer[value]
 
     @property
@@ -128,13 +124,8 @@ class Monosaccharide(SaccharideBase):
     @configuration.setter
     def configuration(self, value):
         if isinstance(value, (list, tuple)):
-            for v in value:
-                if v not in Configuration:
-                    raise Exception(v)
             self._configuration = tuple(Configuration[v] for v in value)
         else:
-            if value not in Configuration and value is not None:
-                raise Exception(value)
             self._configuration = (Configuration[value],)
 
     @property
@@ -144,9 +135,6 @@ class Monosaccharide(SaccharideBase):
     @stem.setter
     def stem(self, value):
         if isinstance(value, (list, tuple)):
-            for v in value:
-                if v not in Stem:
-                    raise Exception(v)
             self._stem = tuple(Stem[v] for v in value)
         else:
             if value not in Stem and value is not None:
@@ -177,7 +165,9 @@ class Monosaccharide(SaccharideBase):
         :class:`Monosaccharide`
 
         '''
-        modifications = deepcopy(self.modifications)
+        modifications = OrderedMultiMap()
+        for k, v in self.modifications.items():
+            modifications[k] = Modification[v]
         monosaccharide = Monosaccharide(
             superclass=self.superclass,
             stem=self.stem,
@@ -195,43 +185,27 @@ class Monosaccharide(SaccharideBase):
 
         return monosaccharide
 
-    @property
-    def ring_start(self):
-        return self._ring_start
+    # @property
+    # def ring_start(self):
+    #     return self._ring_start
 
-    @ring_start.setter
-    def ring_start(self, value):
-        self._ring_start = value
+    # @ring_start.setter
+    # def ring_start(self, value):
+    #     self._ring_start = value
 
-    @property
-    def ring_end(self):
-        return self._ring_end
+    # @property
+    # def ring_end(self):
+    #     return self._ring_end
 
-    @ring_end.setter
-    def ring_end(self, value):
-        self._ring_end = value
-
-    @property
-    def modifications(self):
-        return self._modifications
-
-    @modifications.setter
-    def modifications(self, value):
-        self._modifications = value
-
-    @property
-    def links(self):
-        return self._links
-
-    @links.setter
-    def links(self, value):
-        self._links = value
+    # @ring_end.setter
+    # def ring_end(self, value):
+    #     self._ring_end = value
 
     @property
     def reducing_end(self):
         if self._reducing_end is None:
             for pos, mod in self.modifications.items():
-                if mod == ReducingEnd:
+                if mod == ReducingEnd or mod == Modification.aldi:
                     self._reducing_end = pos
                     break
         return self._reducing_end
@@ -359,7 +333,7 @@ class Monosaccharide(SaccharideBase):
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
         self.composition = self.composition + \
-            modification_compositions[modification]
+            modification_compositions[modification](position)
         self.modifications[position] = Modification[modification]
         return self
 
@@ -368,7 +342,7 @@ class Monosaccharide(SaccharideBase):
             raise IndexError("Index out of bounds")
         self.modifications.pop(position, modification)
         self.composition = self.composition - \
-            modification_compositions[modification]
+            modification_compositions[modification](position)
         return self
 
     def add_substituent(self, substituent, position=-1, max_occupancy=0,
@@ -568,7 +542,7 @@ class Monosaccharide(SaccharideBase):
         else:
             return [res, lin, monosaccharide_index]
 
-    def _flat_equality(self, other):
+    def _flat_equality(self, other, lengths=True):
         '''
         Test for equality of all scalar-ish features that do not
         require recursively comparing links which in turn compare their
@@ -580,13 +554,15 @@ class Monosaccharide(SaccharideBase):
             (self.superclass == other.superclass) and\
             (self.modifications) == (other.modifications) and\
             (self.configuration) == (other.configuration) and\
-            (self.stem) == (other.stem) and\
-            len(self.links) == len(other.links) and\
-            len(self.substituent_links) == len(other.substituent_links) and\
-            self.total_composition() == other.total_composition()
+            (self.stem) == (other.stem)
+        if lengths:
+            flat = flat and\
+                len(self.links) == len(other.links) and\
+                len(self.substituent_links) == len(other.substituent_links) and\
+                self.total_composition() == other.total_composition()
         return flat
 
-    def topological_equality(self, other):
+    def topological_equality(self, other, substituents=True):
         '''
         Performs equality testing between two monosaccharides where
         the exact ordering of child links does not have match between
@@ -595,24 +571,47 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
+        |bool|
         '''
-        if self._flat_equality(other):
+        if self._flat_equality(other) and (not substituents or self._match_substituents(other)):
             taken_b = set()
-            for a_pos, a_child in self.children():
+            b_children = list(other.children())
+            a_children = list(self.children())
+            for a_pos, a_child in a_children:
                 matched = False
-                for b_pos, b_child in other.children():
+                for b_pos, b_child in b_children:
                     if (b_pos, b_child.id) in taken_b:
                         continue
-                    if a_child.topological_equality(b_child):
+                    if a_child.topological_equality(b_child, substituents=substituents):
                         matched = True
                         taken_b.add((b_pos, b_child.id))
                         break
-                if not matched and len(list(self.children())) > 0:
+                if not matched and len(a_children) > 0:
                     return False
-            if len(taken_b) != len(list(other.children())):
+            if len(taken_b) != len(b_children):
                 return False
             return True
         return False
+
+    def _match_substituents(self, other):
+        taken_b = set()
+        b_substituents = list(other.substituents())
+        cntr = 0
+        for a_pos, a_substituent in self.substituents():
+            matched = False
+            cntr += 1
+            for b_pos, b_substituent in b_substituents:
+                if b_pos in taken_b:
+                    continue
+                if b_substituent == a_substituent:
+                    matched = True
+                    taken_b.add(b_pos)
+                    break
+            if not matched and cntr > 0:
+                return False
+        if len(taken_b) != len(b_substituents):
+            return False
+        return True
 
     def __eq__(self, other):
         '''
@@ -718,7 +717,7 @@ class Monosaccharide(SaccharideBase):
             yield pos, link.to(self)
 
     def order(self):
-        return len(list(self.children())) + len(list(self.substituents()))
+        return len(list(self.children())) + len(self.substituent_links)
 
     def __iter__(self):
         return self.children()

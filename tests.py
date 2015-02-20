@@ -3,25 +3,33 @@ import json
 import logging
 import cPickle
 #logging.basicConfig(level="DEBUG")
-
 import pygly2
-
 from pygly2.structure import monosaccharide, constants, substituent, glycan, link, named_structures, structure_composition
 from pygly2.io import glycoct
 from pygly2.utils import enum, StringIO, identity, nullop, multimap
 from pygly2.composition import Composition, composition_transform, composition
+from pygly2.algorithms import subtree_search
 
-
+import sys
+import pdb
+import functools
+import traceback
+def debug_on(*exceptions):
+    if not exceptions:
+        exceptions = (AssertionError, )
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except exceptions:
+                info = sys.exc_info()
+                traceback.print_exception(*info) 
+                pdb.post_mortem(info[2])
+        return wrapper
+    return decorator
 monosaccharides = named_structures.monosaccharides
-
-
-class GlycoCTParserTests(unittest.TestCase):
-    _file_path = "./test_data/glycoct.txt"
-
-    def test_parse_file(self):
-        for g in glycoct.read(self._file_path):
-            self.assertTrue(isinstance(g, glycan.Glycan))
-
+glycans = named_structures.glycans
 
 # monosaccharide_masses = json.load(open("./test_data/monosaccharide_masses.json"))
 monosaccharide_structures = json.load(open("./pygly2/structure/data/monosaccharides.json"))
@@ -87,6 +95,57 @@ LIN
 11:11o(2+1)12d
 12:12d(2+1)13n
 13:12o(4+1)14d'''
+
+broad_n_glycan = '''
+RES
+1b:b-dglc-HEX-1:5
+2s:n-acetyl
+3b:b-dglc-HEX-1:5
+4s:n-acetyl
+5b:b-dman-HEX-1:5
+6b:a-dman-HEX-1:5
+7b:b-dglc-HEX-1:5
+8s:n-acetyl
+9b:b-dgal-HEX-1:5
+10b:a-lgal-HEX-1:5|6:d
+11b:b-dglc-HEX-1:5
+12s:n-acetyl
+13b:b-dgal-HEX-1:5
+14b:a-dman-HEX-1:5
+15b:b-dglc-HEX-1:5
+16s:n-acetyl
+17b:b-dgal-HEX-1:5
+18b:b-dglc-HEX-1:5
+19s:n-acetyl
+20b:b-dgal-HEX-1:5
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3d(2+1)4n
+4:3o(4+1)5d
+5:5o(3+1)14d
+6:5o(6+1)6d
+7:6o(2+1)11d
+8:6o(6+1)7d
+9:7d(2+1)8n
+10:7o(3+1)10d
+11:7o(4+1)9d
+12:11d(2+1)12n
+13:11o(4+1)13d
+14:14o(2+1)18d
+15:14o(4+1)15d
+16:15d(2+1)16n
+17:15o(4+1)17d
+18:18d(2+1)19n
+19:18o(4+1)20d'''
+
+
+class GlycoCTParserTests(unittest.TestCase):
+    _file_path = "./test_data/glycoct.txt"
+
+    def test_parse_file(self):
+        for g in glycoct.read(self._file_path):
+            self.assertTrue(isinstance(g, glycan.Glycan))
 
 
 class NamedStructureTests(unittest.TestCase):
@@ -159,13 +218,13 @@ class MonosaccharideTests(unittest.TestCase):
             self.assertAlmostEqual(ref.mass(), structure.mass())
             open_sites, unknowns = structure.open_attachment_sites()
             n_sites = len(open_sites)
-            comp_delta = n_sites * structure_composition.modification_compositions[constants.Modification.aldi]
+            comp_delta = n_sites * structure_composition.modification_compositions[constants.Modification.d]()
             for site in open_sites:
-                structure.add_modification(constants.Modification.aldi, site)
+                structure.add_modification(constants.Modification.d, site)
             self.assertEqual(structure.total_composition(), ref.total_composition() + comp_delta)
             self.assertEqual([], structure.open_attachment_sites()[0])
             for site in open_sites:
-                structure.drop_modification(site, constants.Modification.aldi)
+                structure.drop_modification(site, constants.Modification.d)
             self.assertEqual(structure.total_composition(), ref.total_composition())
 
     def test_add_remove_substituents(self):
@@ -292,6 +351,8 @@ class GlycanTests(unittest.TestCase):
             if not res:
                 raise AssertionError("{} found no matches in {}".format(frag, candidates))
 
+    @debug_on()
+    @unittest.skip("Outdated pickle")
     def test_disjoint_subtrees(self):
         structure = glycoct.loads(common_glycan).next()
         f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
@@ -322,7 +383,6 @@ class GlycanTests(unittest.TestCase):
             self.assertNotEqual(node.id, ref[i].id)
         structure.index = None
         self.assertEqual(structure[0], structure.root)
-
 
     def test_traversal(self):
         structure = glycoct.loads(common_glycan).next()
@@ -392,6 +452,13 @@ class GlycanTests(unittest.TestCase):
         self.assertNotEqual(a, base)
         self.assertNotEqual(a, d)
         self.assertNotEqual(b, d)
+
+    def test_substructures_gen(self):
+        structure = glycoct.loads(broad_n_glycan).next()
+        ref = structure.clone()
+        for substructure in structure.substructures(max_cleavages=2):
+            pass
+        self.assertEqual(structure, ref)
 
 
 class SubstituentTests(unittest.TestCase):
@@ -558,6 +625,21 @@ class LinkTests(unittest.TestCase):
         self.assertEqual(link_1.to(parent), child)
         self.assertEqual(link_1.to(child), parent)
         self.assertRaises(KeyError, lambda: link_1.to(1))
+
+
+class SubtreeSearchTests(unittest.TestCase):
+    def test_subtree_inclusion(self):
+        core = glycans['N-Linked Core']
+        tree = glycoct.loads(broad_n_glycan).next()
+        self.assertTrue(subtree_search.subtree_of(core, tree))
+        self.assertTrue(subtree_search.subtree_of(tree, core) is None)
+
+    @unittest.skip("Too long")
+    def test_exhaustive_subtrees(self):
+        core = glycans['N-Linked Core']
+        tree = glycoct.loads(branchy_glycan).next()
+        for match_rec in subtree_search.exhaustive_subtrees(core, tree):
+            print(match_rec)
 
 if __name__ == '__main__':
     unittest.main()

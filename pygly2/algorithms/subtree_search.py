@@ -53,7 +53,7 @@ def exhaustive_subtree_comparison(a, b, min_size=2):
     max_observed = min_size
 
     for parent_tree, parent_include, child_tree, child_include, link_ids in b.fragments(
-            max_cleavages=max_order(b) + 1, structures=True):
+            max_cleavages=b.order(), structures=True):
         if len(parent_include) > min_size:
             subtrees_look_up.append(SubtreeRecord(parent_tree, parent_include, link_ids))
         if len(child_include) > min_size:
@@ -65,7 +65,7 @@ def exhaustive_subtree_comparison(a, b, min_size=2):
         if len(a_index) == len(tree.include) and a == tree.subtree:
             yield SubtreeMatchRecord(a.clone(), [list(a_index), tree.include], [[], tree.link_ids])
             max_observed = len(a_index)
-    for tree in a.fragments(max_cleavages=max_order(a) + 1, structures=True):
+    for tree in a.fragments(max_cleavages=a.order(), structures=True):
         if len(tree.parent_include_nodes) >= max_observed:
             for subtree in subtrees_look_up:
                 if len(tree.parent_include_nodes) == len(subtree.include) and tree.parent_tree == subtree.subtree:
@@ -81,3 +81,61 @@ def exhaustive_subtree_comparison(a, b, min_size=2):
                     yield SubtreeMatchRecord(tree.child_tree,
                                              [tree.child_include_nodes, subtree.include],
                                              [tree.link_ids, subtree.link_ids])
+
+
+def substituent_inclusion(self, other):
+    taken_b = set()
+    b_substituents = list(other.substituents())
+    cntr = 0
+    for a_pos, a_substituent in self.substituents():
+        matched = False
+        cntr += 1
+        for b_pos, b_substituent in b_substituents:
+            if b_pos in taken_b:
+                continue
+            if b_substituent == a_substituent:
+                matched = True
+                taken_b.add(b_pos)
+                break
+        if not matched and cntr > 0:
+            return False
+    return True
+
+
+def topological_inclusion(self, other, substituents=True):
+    '''
+    Performs equality testing between two monosaccharides where
+    the exact ordering of child links does not have match between
+    the input |Monosaccharide|s, so long as an `a` is included in `b`
+
+    Returns
+    -------
+    |bool|
+    '''
+    if self._flat_equality(other, lengths=False) and (not substituents or substituent_inclusion(self, other)):
+        taken_b = set()
+        for a_pos, a_child in self.children():
+            matched = False
+            for b_pos, b_child in other.children():
+                if (b_pos, b_child.id) in taken_b:
+                    continue
+                if topological_inclusion(a_child, b_child, substituents=substituents):
+                    matched = True
+                    taken_b.add((b_pos, b_child.id))
+                    break
+            if not matched and len(list(self.children())) > 0:
+                return False
+        return True
+    return False
+
+
+def subtree_of(subtree, tree):
+    for node in tree:
+        if topological_inclusion(subtree.root, node):
+            return node.id
+    return None
+
+
+class BalancedSequence(object):
+    def __init__(self, tree):
+        self.sequence = []

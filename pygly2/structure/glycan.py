@@ -1,16 +1,16 @@
 import operator
-methodcaller = operator.methodcaller
 import random
 import logging
 import itertools
 from functools import partial
 from collections import deque, defaultdict, namedtuple, Callable
-
+from uuid import uuid4
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
 from ..utils import make_counter, identity, StringIO, chrinc, makestruct
 from ..composition import Composition
 
+methodcaller = operator.methodcaller
 logger = logging.getLogger("Glycan")
 
 fragment_shift = {
@@ -86,6 +86,7 @@ class Glycan(SaccharideBase):
         in :attr:`index` and |Link| in :attr:`link_index`.
 
         '''
+        self.deindex()
         traversal = self._get_traversal_method(method)
         index = []
         i = 1
@@ -118,13 +119,14 @@ class Glycan(SaccharideBase):
         graph. This function mangles all of the node and link ids so that they are
         distinct from the pre-existing nodes.
         '''
-        base = random.randint(1, 100000)
-        for node in self.index:
-            node.id += base
-            node.id *= -1
-        for link in self.link_index:
-            link.id += base
-            link.id *= -1
+        if self.index is not None and len(self.index) > 0:
+            base = uuid4().int
+            for node in self.index:
+                node.id += base
+                node.id *= -1
+            for link in self.link_index:
+                link.id += base
+                link.id *= -1
         return self
 
     def reroot(self):
@@ -244,12 +246,12 @@ class Glycan(SaccharideBase):
     traversal_methods['breadth_first_traversal'] = "bfs"
 
     def _get_traversal_method(self, method):
-        if isinstance(method, Callable):
-            return partial(method, self)
         if method == 'dfs':
             return self.dfs
         elif method == 'bfs':
             return self.bfs
+        elif isinstance(method, Callable):
+            return partial(method, self)
         traversal = self.traversal_methods.get(method, None)
         if traversal is None:
             raise AttributeError("Unknown traversal method: {}".format(method))
@@ -495,7 +497,7 @@ class Glycan(SaccharideBase):
             if ref.id in visited:
                 continue
             visited.add(ref.id)
-            links = sorted([link for pos, link in ref.links.items()], key=lambda x: x[ref].order())
+            links = [link for pos, link in ref.links.items()]
             for link in links:
                 terminal = link.to(ref)
                 if terminal.id in visited:

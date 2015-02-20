@@ -16,7 +16,7 @@ special_cases = ["Fuc", "Xyl"]
 
 def is_special_case(node):
     for case in special_cases:
-        if identity.is_a(node, case):
+        if identity.is_a(node, case) and len(list(node.children())) == 0:
             return True
     return False
 

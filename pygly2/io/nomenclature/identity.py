@@ -15,13 +15,15 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
     qs = 0
     if isinstance(target, basestring):
         target = named_structures.monosaccharides[target]
-    elif isinstance(node, Substituent):
+    if isinstance(node, Substituent):
         if not isinstance(target, Substituent):
             return False
         else:
             res += node.name == target.name
             qs += 1
     else:
+        if not isinstance(target, Monosaccharide):
+            return False
         res += (node.superclass == target.superclass) or (target.superclass.value is None)
         qs += 1
         res += (node.stem == target.stem) or (target.stem[0].value is None)

@@ -1,6 +1,8 @@
 from ..structure import Substituent
 from ..structure import Glycan
 from ..structure import Monosaccharide
+from ..structure import Modification
+
 from .composition import Composition
 
 
@@ -17,6 +19,7 @@ def derivatize(saccharide, substituent):
     elif isinstance(saccharide, Monosaccharide):
         derivatize_monosaccharide(saccharide, substituent)
 
+
 def derivatize_monosaccharide(monosaccharide_obj, substituent):
     open_sites, unknowns = monosaccharide_obj.open_attachment_sites()
     for site in open_sites[unknowns:]:
@@ -31,6 +34,16 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
             position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+    if Modification.a in list(monosaccharide_obj.modifications.values()):
+        monosaccharide_obj.add_substituent(
+            substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
+            position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+        if Modification.a in monosaccharide_obj.modifications[1]:
+            monosaccharide_obj.add_substituent(
+                substituent.clone(), parent_loss=Composition(H=1), max_occupancy=4,
+                position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+
+        
 
 
 

@@ -1,7 +1,5 @@
 __all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop', "multimap"]
-import textwrap
 import gzip
-
 try:  # pragma: no cover
     from lxml import etree as ET
 except ImportError:  # pragma: no cover
