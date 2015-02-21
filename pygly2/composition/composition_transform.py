@@ -27,13 +27,14 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
             substituent.clone(), parent_loss=Composition(H=1),
             position=site, child_loss=Composition(H=1), child_position=1)
     for p, subst in monosaccharide_obj.substituents():
-        if subst.name in derivatizable_substituents:
+        if subst.is_nh_derivatizable and substituent.can_nh_derivatize:
             subst.add_substituent(substituent.clone(), position=2, child_position=1)
     reducing_end_pos = monosaccharide_obj.reducing_end
     if reducing_end_pos is not None:
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
             position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+
     if Modification.a in list(monosaccharide_obj.modifications.values()):
         monosaccharide_obj.add_substituent(
             substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
@@ -42,15 +43,6 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
             monosaccharide_obj.add_substituent(
                 substituent.clone(), parent_loss=Composition(H=1), max_occupancy=4,
                 position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
-
-        
-
-
-
-derivatizable_substituents = {
-    "n_acetyl",
-    "n_glycolyl",
-}
 
 
 # WIP

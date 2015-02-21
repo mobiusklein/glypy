@@ -5,50 +5,56 @@ from ..composition.structure_composition import substituent_compositions
 from .link import Link
 
 from ..composition import Composition, calculate_mass
-from ..utils import enum
+from ..utils import make_struct
 from ..utils.multimap import OrderedMultiMap
 
 
-class SubstituentEnum(enum.Enum):
-    acetyl = 6
-    amino = 3
-    anhydro = 8
-    bromo = 19
-    chloro = 22
-    diphosphoethanolamine = 14
-    ethanolamine = 30
-    ethyl = 23
-    fluoro = 18
-    formyl = 16
-    glycolyl = 20
-    hydroxymethyl = 34
-    iodo = 29
-    lactone = 36
-    methyl = 10
-    n_acetyl = 1
-    n_amidino = 28
-    n_formyl = 25
-    n_glycolyl = 5
-    n_methyl = 11
-    n_succinate = 12
-    n_sulfate = 7
-    ndimethyl = 21
-    phosphate = 9
-    phosphocholine = 39
-    phosphoethanolamine = 4
-    pyrophosphate = 15
-    pyruvate = 13
-    r_carboxyethyl = 37
-    r_lactate = 32
-    r_pyruvate = 27
-    s_carboxyethyl = 38
-    s_lactate = 31
-    s_pyruvate = 26
-    succinate = 24
-    sulfate = 2
-    thio = 17
-    triphosphate = 35
-    x_lactate = 33
+DerivatizePathway = make_struct("DerivatizePathway", ("can_nh_derivatize", "is_nh_derivatizable"))
+
+
+derivatize_info = {
+    "acetyl": DerivatizePathway(True, False),
+    "amino": DerivatizePathway(True, False),
+    "anhydro": DerivatizePathway(True, False),
+    "bromo": DerivatizePathway(True, False),
+    "chloro": DerivatizePathway(True, False),
+    "diphosphoethanolamine": DerivatizePathway(True, False),
+    "ethanolamine": DerivatizePathway(True, False),
+    "ethyl": DerivatizePathway(True, False),
+    "fluoro": DerivatizePathway(True, False),
+    "formyl": DerivatizePathway(True, False),
+    "glycolyl": DerivatizePathway(True, False),
+    "hydroxymethyl": DerivatizePathway(True, False),
+    "iodo": DerivatizePathway(True, False),
+    "lactone": DerivatizePathway(True, False),
+    "methyl": DerivatizePathway(True, False),
+    "phosphocholine": DerivatizePathway(True, False),
+    "phosphoethanolamine": DerivatizePathway(True, False),
+    "pyrophosphate": DerivatizePathway(True, False),
+    "succinate": DerivatizePathway(True, False),
+    "sulfate": DerivatizePathway(True, False),
+    "thio": DerivatizePathway(True, False),
+    "triphosphate": DerivatizePathway(True, False),
+    "phosphate": DerivatizePathway(True, False),
+    "pyruvate": DerivatizePathway(True, False),
+
+    "x_lactate": DerivatizePathway(True, False),
+    "r_carboxyethyl": DerivatizePathway(True, False),
+    "r_lactate": DerivatizePathway(True, False),
+    "r_pyruvate": DerivatizePathway(True, False),
+    "s_carboxyethyl": DerivatizePathway(True, False),
+    "s_lactate": DerivatizePathway(True, False),
+    "s_pyruvate": DerivatizePathway(True, False),
+
+    "n_acetyl": DerivatizePathway(True, True),
+    "n_amidino": DerivatizePathway(True, True),
+    "n_formyl": DerivatizePathway(True, True),
+    "n_glycolyl": DerivatizePathway(True, True),
+    "n_methyl": DerivatizePathway(True, True),
+    "n_succinate": DerivatizePathway(True, True),
+    "n_sulfate": DerivatizePathway(True, True),
+    "n_dimethyl": DerivatizePathway(True, True),
+}
 
 
 class Substituent(SubstituentBase):
@@ -192,3 +198,11 @@ class Substituent(SubstituentBase):
             if link.is_parent(self):
                 continue
             yield (pos, link.parent)
+
+    @property
+    def can_nh_derivatize(self):
+        return derivatize_info[self.name].can_nh_derivatize
+
+    @property
+    def is_nh_derivatizable(self):
+        return derivatize_info[self.name].is_nh_derivatizable
