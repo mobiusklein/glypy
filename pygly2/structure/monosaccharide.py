@@ -4,14 +4,14 @@ from itertools import chain
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, ReducingEnd
 from .substituent import Substituent
 from .link import Link
-from .structure_composition import monosaccharide_composition
-from .structure_composition import modification_compositions
 from .base import SaccharideBase
 
 from ..io.format_constants_map import anomer_map, superclass_map
 from ..utils import invert_dict, make_counter, StringIO
 from ..utils.multimap import OrderedMultiMap
 from ..composition import Composition, calculate_mass
+from ..composition.structure_composition import monosaccharide_composition
+from ..composition.structure_composition import modification_compositions
 
 anomer_map = invert_dict(anomer_map)
 superclass_map = invert_dict(superclass_map)

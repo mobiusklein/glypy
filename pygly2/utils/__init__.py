@@ -81,9 +81,9 @@ def chrinc(a='a', i=1):
     return chr(ord(a) + i)
 
 
-def makestruct(name, fields):
+def make_struct(name, fields):
     '''
-    A convenience function for defining named container objects that are optimized
+    A convenience function for defining plain-old-data objects that are optimized
     for named accessor lookup, unlike `namedtuple`. If the named container does not
     require any special logic and won't be extended, the resulting structure is best for
     storing and accessing the data.
@@ -95,6 +95,19 @@ class {name}(object):
         {self_fields} = {args}
     def __getitem__(self, idx):
         return getattr(self, fields[idx])
+    def __repr__(self):
+        rep = "<{name}"
+        for f in {fields!r}:
+            rep += " " + f + "=" + str(getattr(self, f))
+        rep += ">"
+        return rep
+    def __eq__(self, other):
+        for f in {fields!r}:
+            if getattr(self, f) != getattr(other, f):
+                return False
+        return True
+    def __ne__(self, other):
+        return not self == other
     ''').format(
         name=name,
         fields=fields,

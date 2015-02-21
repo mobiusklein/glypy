@@ -1,8 +1,8 @@
 import logging
-from pygly2.utils import makestruct
+from pygly2.utils import make_struct
 logger = logging.getLogger(__name__)
 
-SubtreeRecord = makestruct("SubtreeRecord", ("subtree", "include", "link_ids"))
+SubtreeRecord = make_struct("SubtreeRecord", ("subtree", "include", "link_ids"))
 
 
 class SubtreeMatchRecord(object):

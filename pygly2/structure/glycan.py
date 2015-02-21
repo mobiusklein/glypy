@@ -7,7 +7,7 @@ from collections import deque, defaultdict, namedtuple, Callable
 from uuid import uuid4
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
-from ..utils import make_counter, identity, StringIO, chrinc, makestruct
+from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
 
 methodcaller = operator.methodcaller

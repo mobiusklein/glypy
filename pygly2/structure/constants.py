@@ -82,10 +82,9 @@ class Modification(Enum):
     geminal = 8
     _reserve = 9
     _cleave = 10
-    _reduce = 11
 
-#: An alias for :attr:`Modification._reduce`
-ReducingEnd = Modification._reduce
+#: An alias for :attr:`Modification.aldi`
+ReducingEnd = Modification.aldi
 
 
 class Anomer(Enum):

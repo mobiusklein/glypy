@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from .base import SubstituentBase
-from .structure_composition import substituent_compositions
+from ..composition.structure_composition import substituent_compositions
 from .link import Link
 
 from ..composition import Composition, calculate_mass
