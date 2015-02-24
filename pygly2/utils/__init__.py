@@ -4,7 +4,7 @@ import gzip
 
 try: # pragma: no cover
     import cPickle as pickle
-except:
+except:  # pragma: no cover
     import pickle
 try:  # pragma: no cover
     from lxml import etree as ET
@@ -89,7 +89,7 @@ def chrinc(a='a', i=1):
 
 def make_struct(name, fields):
     '''
-    A convenience function for defining plain-old-data objects that are optimized
+    A convenience function for defining plain-old-data (POD) objects that are optimized
     for named accessor lookup, unlike `namedtuple`. If the named container does not
     require any special logic and won't be extended, the resulting structure is best for
     storing and accessing the data.
@@ -126,9 +126,9 @@ class {name}(object):
     d = {'fields': fields}
     exec(template, d)
     result = d[name]
-    # Patch the class to support pickling
+    # Patch the class to support pickling, as is done for namedtuple
     try:
         result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
-    except (AttributeError, ValueError):
+    except (AttributeError, ValueError):  # pragma: no cover
         pass
     return result

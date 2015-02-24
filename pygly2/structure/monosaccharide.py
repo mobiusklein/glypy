@@ -562,10 +562,27 @@ class Monosaccharide(SaccharideBase):
                 self.total_composition() == other.total_composition()
         return flat
 
+    def exact_ordering_equality(self, other, substituents=True):
+        if self._flat_equality(other):
+            if substituents:
+                for a_sub, b_sub in zip(self.substituents(), other.substituents()):
+                    if a_sub != b_sub:
+                        return False
+            for a_mod, b_mod in zip(self.modifications.items(), other.modifications.items()):
+                if a_mod != b_mod:
+                    return False
+            for a_child, b_child in zip(self.children(), other.children()):
+                if a_child[0] != b_child[0]:
+                    return False
+                if not a_child[1].exact_ordering_equality(b_child[1], substituents=substituents):
+                    return False
+            return True
+        return False
+
     def topological_equality(self, other, substituents=True):
         '''
         Performs equality testing between two monosaccharides where
-        the exact ordering of child links does not have match between
+        the exact ordering of child links does not have to match between
         the input |Monosaccharide|s, so long as an exact match of the
         subtrees is found
 
@@ -594,6 +611,10 @@ class Monosaccharide(SaccharideBase):
         return False
 
     def _match_substituents(self, other):
+        '''
+        Helper method for matching substituents in an order-independent
+        fashion. Used by :meth:`topological_equality`
+        '''
         taken_b = set()
         b_substituents = list(other.substituents())
         cntr = 0
@@ -623,7 +644,7 @@ class Monosaccharide(SaccharideBase):
         if not isinstance(other, Monosaccharide):
             raise TypeError(
                 "Cannot compare non-Monosaccharide to Monosaccharide")
-        return self.topological_equality(other)
+        return self.exact_ordering_equality(other)
 
     def __ne__(self, other):
         return not (self == other)
@@ -633,7 +654,7 @@ class Monosaccharide(SaccharideBase):
 
     def mass(self, substituents=True, average=False, charge=0, mass_data=None):
         '''
-        Calculates the total mass of ``self``. If ``substituents=True`` it will include 
+        Calculates the total mass of ``self``. If ``substituents=True`` it will include
         the masses of its substituents.
 
         Parameters

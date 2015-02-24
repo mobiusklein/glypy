@@ -52,17 +52,48 @@ def topological_inclusion(self, other, substituents=True):  # pragma: no cover
     return False
 
 
+def exact_ordering_inclusion(self, other, substituents=True):
+    if self._flat_equality(other, lengths=False):
+        if substituents:
+            for a_sub, b_sub in itertools.izip_longest(self.substituents(), other.substituents()):
+                if b_sub is None:
+                    return False
+                if a_sub is None:
+                    break
+                if a_sub != b_sub:
+                    return False
+        for a_mod, b_mod in itertools.izip_longest(self.modifications.items(), other.modifications.items()):
+            if b_mod is None:
+                return False
+            if a_mod is None:
+                break
+            if a_mod != b_mod:
+                return False
+        for a_child, b_child in itertools.izip_longest(self.children(), other.children()):
+            if b_child is None:
+                return False
+            if a_child is None:
+                break
+            if a_child[0] == b_child[0]:
+                if not exact_ordering_inclusion(a_child[1], b_child[1], substituents=substituents):
+                    return False
+            else:
+                return False
+        return True
+    return False
+
+
 def subtree_of(subtree, tree):
     for node in tree:
-        if topological_inclusion(subtree.root, node):
+        if exact_ordering_inclusion(subtree.root, node):
             return node.id
     return None
 
 
 def edit_distance(seq_a, seq_b, exact=False):  # pragma: no cover
-    comparator = topological_inclusion
+    comparator = exact_ordering_inclusion
     if exact:
-        comparator = Monosaccharide.topological_equality
+        comparator = Monosaccharide.exact_ordering_equality
     previous = range(len(seq_b) + 1)
     for i, new_pos in enumerate(seq_a):
         current = [i + 1]
