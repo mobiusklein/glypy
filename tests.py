@@ -1,22 +1,27 @@
-import unittest
-import json
-import logging
-import cPickle
-#logging.basicConfig(level="DEBUG")
-import pygly2
-from pygly2.structure import monosaccharide, constants, substituent, glycan, link, named_structures, structure_composition
-from pygly2.io import glycoct
-from pygly2.utils import enum, StringIO, identity, nullop, multimap
-from pygly2.composition import Composition, composition_transform, composition
-from pygly2.algorithms import subtree_search
-
 import sys
 import pdb
 import functools
 import traceback
+import unittest
+import json
+import logging
+import pygly2
+from pygly2.structure import constants, substituent, glycan, link, named_structures, structure_composition
+from pygly2.io import glycoct
+from pygly2.io.nomenclature import identity, synonyms
+from pygly2.utils import StringIO, identity as ident_op, multimap, pickle
+from pygly2.composition import Composition, composition_transform, composition
+from pygly2.algorithms import subtree_search
+
+Substituent = pygly2.Substituent
+#logging.basicConfig(level="DEBUG")
+
+
 def debug_on(*exceptions):
     if not exceptions:
         exceptions = (AssertionError, )
+
+
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -24,7 +29,7 @@ def debug_on(*exceptions):
                 return f(*args, **kwargs)
             except exceptions:
                 info = sys.exc_info()
-                traceback.print_exception(*info) 
+                traceback.print_exception(*info)
                 pdb.post_mortem(info[2])
         return wrapper
     return decorator
@@ -352,12 +357,11 @@ class GlycanTests(unittest.TestCase):
                 raise AssertionError("{} found no matches in {}".format(frag, candidates))
 
     @debug_on()
-    @unittest.skip("Outdated pickle")
     def test_disjoint_subtrees(self):
         structure = glycoct.loads(common_glycan).next()
         f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
-        for tree in structure.fragments("BY", 3, structures=True):
-            ref = cPickle.load(f)
+        for tree in structure.substructures(3):
+            ref = pickle.load(f)
             self.assertEqual(tree.link_ids, ref.link_ids)
             self.assertEqual(tree.parent_tree, ref.parent_tree)
 
@@ -607,11 +611,11 @@ class LinkTests(unittest.TestCase):
         child = named_structures.monosaccharides['Hex']
 
         link_1 = link.Link(parent, child, parent_position=3, child_position=3, parent_loss='H', child_loss='OH')
-        link_1.break_link(refund=True, reorient_fn=identity)
+        link_1.break_link(refund=True, reorient_fn=ident_op)
         self.assertTrue(len(parent.links[3]) == 0)
         self.assertTrue(len(child.links[3]) == 0)
 
-        link_1.reconnect(refund=True, reorient_fn=identity)
+        link_1.reconnect(refund=True, reorient_fn=ident_op)
         self.assertTrue(len(parent.links[3]) == 1)
         self.assertTrue(len(child.links[3]) == 1)
 
@@ -634,12 +638,42 @@ class SubtreeSearchTests(unittest.TestCase):
         self.assertTrue(subtree_search.subtree_of(core, tree))
         self.assertTrue(subtree_search.subtree_of(tree, core) is None)
 
-    @unittest.skip("Too long")
-    def test_exhaustive_subtrees(self):
+    def test_maximum_common_subtree(self):
         core = glycans['N-Linked Core']
         tree = glycoct.loads(branchy_glycan).next()
-        for match_rec in subtree_search.exhaustive_subtrees(core, tree):
-            print(match_rec)
+        res = subtree_search.maximum_common_subgraph(core, tree)
+        self.assertEqual(res.score, 6)
+
+
+class IdentifyTests(unittest.TestCase):
+    def test_is_a_predicate(self):
+        for name, monosaccharide in monosaccharides.items():
+            self.assertTrue(identity.is_a(monosaccharide, name))
+
+    def test_identify_as(self):
+        for name, monosaccharide in monosaccharides.items():
+            if monosaccharide == monosaccharides.Hex:
+                continue
+            pref_name = identity.identify(monosaccharide)
+            if not (name == pref_name or name in synonyms.monosaccharides[pref_name]):
+                raise AssertionError("{}".format((name, pref_name, synonyms.monosaccharides[pref_name])))
+
+    def test_identify_substituents(self):
+        self.assertTrue(identity.is_a(Substituent("n-acetyl"), Substituent('n-acetyl')))
+        self.assertFalse(identity.is_a(Substituent('methyl'), Substituent('n-acetyl')))
+        self.assertFalse(identity.is_a(monosaccharides.Man, Substituent('n-acetyl')))
+        self.assertFalse(identity.is_a(Substituent('n-acetyl'), monosaccharides.Man))
+
+    def test_magic_predicate(self):
+        self.assertTrue(identity.is_Man(monosaccharides.Man))
+
+    def test_get_preferred_name(self):
+        self.assertTrue(identity.get_preferred_name('bdMan') == 'Man')
+
+    def test_identify_failure(self):
+        # Will fail because Hex is blacklisted
+        self.assertRaises(identity.IdentifyException, lambda: identity.identify(monosaccharides.Hex))
+
 
 if __name__ == '__main__':
     unittest.main()

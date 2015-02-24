@@ -1,3 +1,4 @@
+import re
 import matplotlib.pyplot as plt
 
 from pygly2.structure import Glycan
@@ -11,14 +12,35 @@ nomenclature_map = {
     "cfg": cfg_symbols
 }
 
+#: :data:`special_cases` contains a list of names for
+#: special case monosaccharides
 special_cases = ["Fuc", "Xyl"]
 
 
 def is_special_case(node):
+    '''
+    Check to see if `node` is a special case which requires a different layout
+    scheme. See `special_cases`
+    '''
     for case in special_cases:
         if identity.is_a(node, case) and len(list(node.children())) == 0:
             return True
     return False
+
+
+def sign(x, zero_dir=-1):
+    '''Return 1 if x > 0, -1 if x < 0, and `zero_dir` otherwise'''
+    if x > 0:
+        return 1
+    if x < 0:
+        return -1
+    return zero_dir
+
+
+def make_gid(s):
+    '''Formats a string to use kebab-case and sanitize illegal characters'''
+    s = str(s)
+    return re.sub(r'[\s\|\(\):]', '-', s)
 
 
 class DrawTree(object):
@@ -93,22 +115,104 @@ class DrawTree(object):
         return x, y
 
     def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None, **kwargs):
+        '''
+        Draw the edges linking parent nodes to child nodes. Also draws the parent outlink position
+        and the child anomer symbol
+        Parameters
+        ----------
+        orientation: |str|
+            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
+            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
+            Defaults to `h`
+        at: :class:`tuple`
+            The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
+        ax: :class:`matplotlib.axes.Axis`
+            A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
+            an axis is not provided, a new figure will be created and used.
+        symbol_nomenclature: |str|
+            A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
+            is |None|, `cfg` will be used.
+        '''
         if ax is None:
             fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
         for child in self:
-            cx, cy = child.draw_branches(orientation, at, ax=ax, **kwargs)
+            cx, cy = child.draw_branches(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
             ax.plot((x, cx), (y, cy), color='black', zorder=1)
+            self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
+                                          symbol_nomenclature=symbol_nomenclature,
+                                          child=child, **kwargs)
         return x, y
 
     def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None, **kwargs):
+        '''
+        Draw the symbol representing the individual monosaccharide and its substituents.
+
+        Parameters
+        ----------
+        orientation: |str|
+            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
+            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
+            Defaults to `h`
+        at: :class:`tuple`
+            The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
+        ax: :class:`matplotlib.axes.Axis`
+            A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
+            an axis is not provided, a new figure will be created and used.
+        symbol_nomenclature: |str|
+            A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
+            is |None|, `cfg` will be used.
+        '''
         if ax is None:
             fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
-        # ax.scatter(x, y, s=150, zorder=2)
-        symbol_nomenclature.draw(self.tree, x, y, ax, **kwargs)
+        residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, **kwargs)
+        for i, res_el in enumerate(residue_elements):
+            res_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id)))
+        for i, sub_el in enumerate(substituent_elements):
+            sub_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i)))
         for child in self:
             child.draw_nodes(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+
+    def draw_linkage_annotations(self, orientation='h', at=(0, 0), ax=None,
+                                 symbol_nomenclature=None, child=None, **kwargs):
+        '''
+        Draw the parent outlink position and the child anomer symbol
+
+        Parameters
+        ----------
+        orientation: |str|
+            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
+            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
+            Defaults to `h`
+        at: :class:`tuple`
+            The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
+        ax: :class:`matplotlib.axes.Axis`
+            A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
+            an axis is not provided, a new figure will be created and used.
+        symbol_nomenclature: |str|
+            A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
+            is |None|, `cfg` will be used.
+        child: :class:`DrawTree`
+            The child node to draw relative to.
+        '''
+        sx, sy = self.coords(orientation, at)
+        cx, cy = child.coords(orientation, at)
+
+        position_x = ((sx * 0.6 + cx * 0.4)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
+        position_y = ((sy * 0.6 + cy * 0.4)) + (sign(sy) if cy <= sy else -sign(sy)) * 0.07
+        position_num = -1
+        for pos, link in self.tree.links.items():
+            if link.is_child(child.tree):
+                position_num = pos
+                break
+        symbol_nomenclature.draw_text(ax=ax, x=position_x, y=position_y, text=str(position_num))
+        anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
+        anomer_y = ((sy * 0.2 + cy * 0.8)) + (sign(sy) if cy <= sy else -sign(sy)) * 0.07
+        if child.tree.anomer == 'alpha':
+            symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\alpha$', scale=0.13)
+        elif child.tree.anomer == 'beta':
+            symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\beta$', scale=0.13)
 
     def left(self):
         return self.thread or len(self.children) and self.children[0]
@@ -153,22 +257,34 @@ class DrawTree(object):
             xmin, xmax, ymin, ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax)
         return xmin, xmax, ymin, ymax
 
-    def scale(self, factor=0.5):
+    def scale(self, factor=0.65):
+        '''Scale all existing edge lengths by `factor`, defaults to `0.65`'''
         self.x *= factor
         self.y *= factor
         for child in self:
             child.scale(factor)
 
 
-def sign(x, zero_dir=-1):
-    if x > 0:
-        return 1
-    if x < 0:
-        return -1
-    return zero_dir
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=False):
+    '''
+    Draw the parent outlink position and the child anomer symbol
 
-
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=None):
+    Parameters
+    ----------
+    tree: |Glycan| or |Monosaccharide|
+        The saccharide structure to draw.
+    orientation: |str|
+        A string corresponding to `h` or `horizontal` will draw the glycan horizontally
+        from right to left. `v` or `vertical` will draw the glycan from bottom to top.
+        Defaults to `h`
+    at: :class:`tuple`
+        The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
+    ax: :class:`matplotlib.axes.Axis`
+        A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
+        an axis is not provided, a new figure will be created and used.
+    center: |bool|
+        Should the plot limits be centered around this glycan?
+    '''
     root = tree
     if isinstance(tree, Glycan):
         root = tree.root

@@ -1,5 +1,6 @@
 import re
 import logging
+import warnings
 from ..utils import opener, StringIO, enum
 from ..utils.multimap import OrderedMultiMap
 from ..structure import monosaccharide, substituent, link, constants, glycan
@@ -41,8 +42,8 @@ link_pattern = re.compile(
     r'''(?P<doc_index>\d+)?:
     (?P<parent_residue_index>\d+)
     (?P<parent_atom_replaced>[odhnx])
-    \((?P<parent_attachment_position>-?\d+)[\+\-]
-        (?P<child_attachment_position>-?\d+)\)
+    \((?P<parent_attachment_position>-?[0-9\-\|]+)[\+\-]
+        (?P<child_attachment_position>-?[0-9\-\|]+)\)
     (?P<child_residue_index>\d+)
     (?P<child_atom_replaced>[odhnx])
         ''', re.VERBOSE)
@@ -64,11 +65,16 @@ def parse_link(line):
     id = link_dict['doc_index']
     parent_residue_index = link_dict['parent_residue_index']
     child_residue_index = link_dict['child_residue_index']
+    if "|" in link_dict["parent_attachment_position"]:
+        warnings.warn("%s has ambiguity, using only the first option" % link_dict["parent_attachment_position"])
     parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
-    parent_attachment_position = int(link_dict["parent_attachment_position"])
+    parent_attachment_position = int(link_dict["parent_attachment_position"].split("|")[0])
+
+    if "|" in link_dict["child_attachment_position"]:
+        warnings.warn("%s has ambiguity, using only the first option" % link_dict["child_attachment_position"])
 
     child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
-    child_attachment_position = int(link_dict["child_attachment_position"])
+    child_attachment_position = int(link_dict["child_attachment_position"].split("|")[0])
     return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
             child_residue_index, child_atom_replaced, child_attachment_position)
 

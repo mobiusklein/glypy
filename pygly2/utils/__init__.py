@@ -1,5 +1,11 @@
 __all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop', "multimap"]
+import sys
 import gzip
+
+try: # pragma: no cover
+    import cPickle as pickle
+except:
+    import pickle
 try:  # pragma: no cover
     from lxml import etree as ET
 except ImportError:  # pragma: no cover
@@ -95,6 +101,10 @@ class {name}(object):
         {self_fields} = {args}
     def __getitem__(self, idx):
         return getattr(self, fields[idx])
+    def __getstate__(self):
+        return ({self_fields})
+    def __setstate__(self, state):
+        {self_fields} = state
     def __repr__(self):
         rep = "<{name}"
         for f in {fields!r}:
@@ -115,4 +125,10 @@ class {name}(object):
         self_fields=','.join('self.' + f for f in fields))
     d = {'fields': fields}
     exec(template, d)
-    return d[name]
+    result = d[name]
+    # Patch the class to support pickling
+    try:
+        result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
+    except (AttributeError, ValueError):
+        pass
+    return result

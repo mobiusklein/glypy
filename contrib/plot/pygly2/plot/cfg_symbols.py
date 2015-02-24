@@ -1,4 +1,6 @@
+import logging
 from functools import partial
+from collections import Counter
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,11 +8,12 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import matplotlib
 
-from pygly2.structure import Modification, Monosaccharide
+from pygly2.structure import Modification
 from pygly2.utils.enum import Enum
 from pygly2.io.nomenclature import identity
 
 GENERIC = -1
+logger = logging.getLogger(__name__)
 
 
 class ResidueShape(Enum):
@@ -29,6 +32,31 @@ class ResidueShape(Enum):
 
 class UnknownShapeException(Exception):
     pass
+
+
+def get_relevant_substituents(residue):
+    try:
+        shape = residue_shape(residue)
+        substituents = list(sub.name for p, sub in residue.substituents())
+        if shape == ResidueShape.square:
+            substituents.pop(substituents.index("n_acetyl"))
+        elif shape == ResidueShape.bisected_square:
+            substituents.pop(substituents.index("amino"))
+        elif shape == ResidueShape.diamond:
+            color = residue_color(residue)
+            if color == ResidueColor.neuac:
+                substituents.pop(substituents.index("n_acetyl"))
+            elif color == ResidueColor.neugc:
+                substituents.pop(substituents.index("n_glycolyl"))
+        relevant_substituents = Counter(substituents)
+        buffer = []
+        for p, sub in residue.substituents():
+            if relevant_substituents[sub.name] > 0:
+                buffer.append((p, sub.name))
+                relevant_substituents[sub.name] -= 1
+        return buffer
+    except UnknownShapeException:
+        return list((p, sub.name) for p, sub in residue.substituents())
 
 
 def residue_shape(monosaccharide):
@@ -122,11 +150,30 @@ def draw(monosaccharide, x, y, ax, scale=0.1):
         shape, color = get_symbol(monosaccharide)
     except:
         shape = GENERIC
-        color = identity.identify(monosaccharide)
+        try:
+            abbrev = identity.identify(monosaccharide)
+        except identity.IdentifyException:
+            abbrev = monosaccharide.superclass.name.lower().capitalize()
     drawer = draw_map.get(shape)
     if drawer is None:
         raise Exception("Don't know how to draw {}".format(shape))
-    drawer(ax, x, y, color, scale=scale)
+
+    res = None
+    if shape == GENERIC:
+        res = drawer(ax, x, y, abbrev, n_points=monosaccharide.superclass.value, scale=scale)
+    else:
+        res = drawer(ax, x, y, color, scale=scale)
+    substituents = get_relevant_substituents(monosaccharide)
+
+    subs = []
+    sub_x = x - 0.15
+    sub_y = y - 0.15
+    for pos, subst_name in substituents:
+        sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name))
+        sub_x += 0.15
+        subs.append(sub_t)
+    return (res, subs)
+
 draw_map = {}
 
 
@@ -135,7 +182,8 @@ def draw_circle(ax, x, y, color, scale=0.1):
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
+    return (a,)
 draw_map[ResidueShape.circle] = draw_circle
 unit_circle = Path.unit_circle()
 
@@ -161,7 +209,8 @@ def draw_square(ax, x, y, color, scale=0.1):
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
+    return (a,)
 draw_map[ResidueShape.square] = draw_square
 unit_rectangle = Path.unit_rectangle()
 
@@ -171,7 +220,8 @@ def draw_triangle(ax, x, y, color, scale=0.1):
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
+    return (a,)
 draw_map[ResidueShape.triangle] = draw_triangle
 unit_triangle = Path.unit_regular_polygon(3)
 
@@ -206,9 +256,10 @@ def draw_bisected_square(ax, x, y, color, scale=0.1):
         matplotlib.transforms.Affine2D().translate(x, y))
 
     patch = patches.PathPatch(lower_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
     patch = patches.PathPatch(upper_path, facecolor="white", lw=1, zorder=2)
-    ax.add_patch(patch)
+    b = ax.add_patch(patch)
+    return a, b
 draw_map[ResidueShape.bisected_square] = draw_bisected_square
 
 
@@ -217,7 +268,8 @@ def draw_diamond(ax, x, y, color, scale=0.1):
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = (ax.add_patch(patch),)
+    return (a,)
 draw_map[ResidueShape.diamond] = draw_diamond
 unit_diamond = Path.unit_regular_polygon(4)
 
@@ -259,9 +311,10 @@ def draw_vertical_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
         top_color = 'white'
         bottom_color = color.value
     patch = patches.PathPatch(lower_path, facecolor=bottom_color, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
     patch = patches.PathPatch(upper_path, facecolor=top_color, lw=1, zorder=2)
-    ax.add_patch(patch)
+    b = ax.add_patch(patch)
+    return a, b
 draw_map[ResidueShape.top_bisected_diamond] = partial(draw_vertical_bisected_diamond, side='top')
 draw_map[ResidueShape.bottom_bisected_diamond] = partial(draw_vertical_bisected_diamond, side='bottom')
 
@@ -302,9 +355,10 @@ def draw_horizontal_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
         matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
 
     patch = patches.PathPatch(left_path, facecolor=left_color, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
     patch = patches.PathPatch(right_path, facecolor=right_color, lw=1, zorder=2)
-    ax.add_patch(patch)
+    b = ax.add_patch(patch)
+    return a, b
 
 draw_map[ResidueShape.right_bisected_diamond] = partial(draw_horizontal_bisected_diamond, side='right')
 draw_map[ResidueShape.left_bisected_diamond] = partial(draw_horizontal_bisected_diamond, side='left')
@@ -315,21 +369,29 @@ def draw_star(ax, x, y, color, scale=0.1):
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
-    ax.add_patch(patch)
+    a = ax.add_patch(patch)
+    return (a,)
 unit_star = Path.unit_regular_star(5, 0.3)
 draw_map[ResidueShape.star] = draw_star
 
 
-def draw_generic(ax, x, y, name, scale=0.1):
-    path = Path(unit_hexagon.vertices * scale, unit_hexagon.codes)
+def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
+    unit_polygon = Path.unit_regular_polygon(n_points)
+    path = Path(unit_polygon.vertices * scale, unit_polygon.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor="white", lw=1, zorder=2)
-    ax.add_patch(patch)
-    ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)
-unit_hexagon = Path.unit_regular_polygon(6)
+    a = ax.add_patch(patch)
+    ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=84 * scale)
+    return (a,)
 draw_map[GENERIC] = draw_generic
 
 
 def draw_text(ax, x, y, text, scale=0.1):
-    ax.text(x, y, text, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)
+    a = ax.text(x=x, y=y, s=text, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)
+    return (a,)
+
+
+def format_text(text):
+    label = ''.join([token.capitalize()[:2] for token in text.split('_', 1)])
+    return label

@@ -623,23 +623,13 @@ class Monosaccharide(SaccharideBase):
         if not isinstance(other, Monosaccharide):
             raise TypeError(
                 "Cannot compare non-Monosaccharide to Monosaccharide")
-        flat = self._flat_equality(other)
-        if flat:
-            for i in self.links:
-                for j, link in enumerate(self.links[i]):
-                    if not link.child._flat_equality(other.links[i][j].child):
-                        return False
-            for i in self.substituent_links:
-                for j, link in enumerate(self.substituent_links[i]):
-                    if not link.child == other.substituent_links[i][j].child:
-                        return False
-        return flat
+        return self.topological_equality(other)
 
     def __ne__(self, other):
         return not (self == other)
 
     def __repr__(self):  # pragma: no cover
-        return self.to_glycoct()
+        return self.to_glycoct().replace("\n", ' ')
 
     def mass(self, substituents=True, average=False, charge=0, mass_data=None):
         '''

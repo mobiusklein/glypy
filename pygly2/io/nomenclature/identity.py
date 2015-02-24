@@ -1,5 +1,6 @@
 import functools
 from ...structure import named_structures, Monosaccharide, Substituent
+from ...algorithms.similarity import monosaccharide_similarity
 from .synonyms import monosaccharides as monosaccharide_synonyms
 
 
@@ -24,30 +25,8 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
     else:
         if not isinstance(target, Monosaccharide):
             return False
-        res += (node.superclass == target.superclass) or (target.superclass.value is None)
-        qs += 1
-        res += (node.stem == target.stem) or (target.stem[0].value is None)
-        qs += 1
-        res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
-        qs += 1
-        if include_modifications:
-            node_mods = list(node.modifications.values())
-            for pos, mod in target.modifications.items():
-                check = (mod in node_mods)
-                res += check
-                if check:
-                    node_mods.pop(node_mods.index(mod))
-                qs += 1
-            qs += len(node_mods)
-        if include_substituents:
-            node_subs = list(node for p, node in node.substituents())
-            for pos, sub in target.substituents():
-                check = (sub in node_subs)
-                res += check
-                if check:
-                    node_subs.pop(node_subs.index(sub))
-                qs += 1
-            qs += len(node_subs)
+        res, qs = monosaccharide_similarity(node, target, include_modifications=include_modifications,
+                                            include_substituents=include_substituents, include_children=False)
     return (qs - res) <= tolerance
 
 
@@ -59,11 +38,8 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
             continue
         if is_a(node, structure, tolerance, include_modifications, include_substituents):
             return get_preferred_name(name)
-    for name in blacklist:
-        if is_a(node, named_structures.monosaccharides[name], include_modifications, include_substituents):
-            return get_preferred_name(name)
-    if tolerance < 4:
-        return identify(node, blacklist, tolerance=tolerance + 1)
+    # if tolerance < 4:
+    #     return identify(node, blacklist, tolerance=tolerance + 1)
     raise IdentifyException("Could not identify {}".format(node))
 
 

@@ -1,9 +1,8 @@
 import operator
-import random
 import logging
 import itertools
 from functools import partial
-from collections import deque, defaultdict, namedtuple, Callable
+from collections import deque, defaultdict, Callable
 from uuid import uuid4
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide
@@ -29,12 +28,26 @@ fragment_direction = {
 
 MAIN_BRANCH_SYM = '-'
 
-Fragment = namedtuple("Fragment", ("kind", "link_ids", "included_nodes", "mass"))
-DisjointTrees = namedtuple("DisjointTrees", ("parent_tree", "parent_include_nodes",
-                                             "child_tree", "child_include_nodes", "link_ids"))
+Fragment = make_struct("Fragment", ("kind", "link_ids", "included_nodes", "mass"))
+DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
+                                              "child_tree", "child_include_nodes", "link_ids"))
 
 
 class Glycan(SaccharideBase):
+    @staticmethod
+    def subtree_from(tree, ix):
+        '''
+        Create a new |Glycan| starting from index `ix` in |Glycan| `tree`.
+
+        See also
+        --------
+        Glycan.clone
+        '''
+        node = tree[ix]
+        parents = {node.id for p, node in node.parents()}
+        subtree = Glycan(root=node, index_method=None).clone(index_method=None, visited=parents)
+        return subtree
+
     '''
     Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
 
@@ -55,19 +68,19 @@ class Glycan(SaccharideBase):
     '''
     traversal_methods = {}
 
-    def __init__(self, graph_root=None, reducing_end=None, index_method='dfs'):
+    def __init__(self, root=None, reducing_end=None, index_method='dfs'):
         '''
         Constructs a new Glycan from the set of |Monosaccharide|
-        rooted at `graph_root`.
+        rooted at `root`.
 
         If `reducing_end` is not |None|, it is set as the reducing end.
 
         If index_method is not |None|, the graph is indexed by the default search method
         given by `traversal_methods[index_method]`
         '''
-        if graph_root is None:
-            graph_root = Monosaccharide()
-        self.root = graph_root
+        if root is None:
+            root = Monosaccharide()
+        self.root = root
         self.index = []
         self.link_index = []
         self.branch_lengths = {}
@@ -480,7 +493,7 @@ class Glycan(SaccharideBase):
         '''
         return sum(node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
 
-    def clone(self, index_method='dfs'):
+    def clone(self, index_method='dfs', visited=None):
         '''
         Create a copy of `self`, indexed using `index_method`, a *traversal method*  or |None|.
 
@@ -491,7 +504,7 @@ class Glycan(SaccharideBase):
         clone_root = self.root.clone(prop_id=True)
         clone_root.id = self.root.id
         node_stack = [(clone_root, self.root)]
-        visited = set()
+        visited = set() if visited is None else visited
         while(len(node_stack) > 0):
             clone, ref = node_stack.pop()
             if ref.id in visited:
@@ -538,7 +551,7 @@ class Glycan(SaccharideBase):
         return not self == other
 
     def fragments(self, kind=('B', 'Y'), max_cleavages=1, average=False, charge=0, mass_data=None,
-                  structures=False, min_cleavages=1):
+                  min_cleavages=1):
         '''
         Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
         created by removing one or more monosaccharide-monosaccharide bond.
@@ -568,19 +581,16 @@ class Glycan(SaccharideBase):
         mass_data: |dict|, optional, defaults to |None|
             If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
-        structures: |bool| optional, defaults to |False|
-            If `structures` is |True|, then instead of yielding fragment masses, yield disjoint subtrees formed by
-            breaking a glycosidic bond.
         See also
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
-        results_container = DisjointTrees if structures else Fragment
+        results_container = Fragment
         for i in range(min_cleavages, max_cleavages + 1):
-            for frag in self.break_links(i, kind, average, charge, mass_data, structures):
+            for frag in self.break_links(i, kind, average, charge, mass_data):
                     yield results_container(*frag)
 
-    def break_links(self, n_links=0, kind=('B', 'Y'), average=False, charge=0, mass_data=None, structures=False):
+    def break_links(self, n_links=0, kind=('B', 'Y'), average=False, charge=0, mass_data=None):
         if n_links < 0:  # pragma: no cover
             raise ValueError("Cannot break a negative number of Links")
         n_links -= 1
@@ -589,38 +599,9 @@ class Glycan(SaccharideBase):
                 parent, child = link.break_link(refund=True)
                 break_id = link.id
                 logger.debug("Breaking %d", break_id)
-                parent_tree = Glycan(graph_root=parent, index_method=None)
-                child_tree = Glycan(graph_root=child, index_method=None)
-                if structures:
-                    if n_links > 0:
-                        logger.debug("%d more links to break", n_links)
-
-                        logger.debug("Breaking parent tree which contains %r", [
-                                     l.id for p, l in parent_tree.iterlinks()])
-                        for p_parent, parent_include, p_child, child_include, p_link_ids in parent_tree.break_links(
-                                n_links, kind=kind, structures=structures):
-                            logger.debug(
-                                "Received parent tree from %r", p_link_ids)
-                            yield p_parent, parent_include, p_child, child_include, p_link_ids + [break_id]
-
-                        logger.debug("Breaking child tree which contains %r", [
-                                     l.id for p, l in child_tree.iterlinks()])
-                        for c_parent, parent_include, c_child, child_include, c_link_ids in child_tree.break_links(
-                                n_links, kind=kind, structures=structures):
-                            logger.debug(
-                                "Received child tree from %r", c_link_ids)
-                            yield c_parent, parent_include, c_child, child_include, c_link_ids + [break_id]
-                    else:
-                        parent_include = [n.id for n in parent_tree.dfs()]
-                        child_include = [n.id for n in child_tree.dfs()]
-
-                        # Copy the trees so that when the Link object is unmasked the copies returned
-                        # to the user are not suddenly joined again.
-                        parent_clone = parent_tree.clone(index_method=None).reroot()
-                        child_clone = child_tree.clone(index_method=None).reroot()
-                        yield (parent_clone, parent_include, child_clone, child_include, [break_id])
-
-                elif n_links > 0:
+                parent_tree = Glycan(root=parent, index_method=None)
+                child_tree = Glycan(root=child, index_method=None)
+                if n_links > 0:
                     parent_frags = list(parent_tree.break_links(
                         n_links, kind=kind, average=average, charge=charge, mass_data=mass_data))
                     child_frags = list(child_tree.break_links(
@@ -699,8 +680,8 @@ class Glycan(SaccharideBase):
                 break_id = link.id
                 logger.debug("Breaking %d", break_id)
 
-                parent_tree = Glycan(graph_root=parent, index_method=None)
-                child_tree = Glycan(graph_root=child, index_method=None)
+                parent_tree = Glycan(root=parent, index_method=None)
+                child_tree = Glycan(root=child, index_method=None)
                 parent_include = [n.id for n in parent_tree.dfs()]
                 child_include = [n.id for n in child_tree.dfs()]
 
