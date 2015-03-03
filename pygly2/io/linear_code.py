@@ -2,7 +2,9 @@
 A module for operating on GlycoMinds Linear Code
 
 Assumes that the structure's root is the right-most residue, as shown in 
-:title-reference:`A Novel Linear Code® Nomenclature for Complex Carbohydrates, Banin et al.`.
+:title-reference:`A Novel Linear Code Nomenclature for Complex Carbohydrates, Banin et al.`.
+
+Currently does not handle the sigils indicating deviation from the common forms.
 '''
 
 import re
@@ -251,7 +253,7 @@ def to_linear_code(structure):
     if isinstance(structure, Monosaccharide):
         return monosaccharide_to_linear_code(structure)
     else:
-        return ''.join(list(glycan_to_linear_code(glycan=structure)))
+        return ''.join(list(glycan_to_linear_code(structure)))
 
 
 class LinearCodeException(Exception):
@@ -360,4 +362,8 @@ def parse_linear_code(text):
     else:
         return res.root
 
+#: Common alias
+dumps = to_linear_code
 
+#: Common alias
+loads = parse_linear_code

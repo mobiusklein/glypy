@@ -7,7 +7,7 @@ import json
 import logging
 import pygly2
 from pygly2.structure import constants, substituent, glycan, link, named_structures, structure_composition
-from pygly2.io import glycoct
+from pygly2.io import glycoct, linear_code
 from pygly2.io.nomenclature import identity, synonyms
 from pygly2.utils import StringIO, identity as ident_op, multimap, pickle
 from pygly2.composition import Composition, composition_transform, composition
@@ -733,6 +733,15 @@ class IdentifyTests(unittest.TestCase):
         # Will fail because Hex is blacklisted
         self.assertRaises(
             identity.IdentifyException, lambda: identity.identify(monosaccharides.Hex))
+
+
+class LinearCodeTests(unittest.TestCase):
+
+    def test_translate(self):
+        broad = glycoct.loads(broad_n_glycan).next()
+        dup = linear_code.loads(linear_code.dumps(broad))
+        self.assertEqual(broad, dup)
+
 
 
 if __name__ == '__main__':
