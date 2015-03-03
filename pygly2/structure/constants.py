@@ -97,3 +97,18 @@ class Anomer(Enum):
     beta = 2
     uncyclized = 3
     x = None
+
+
+class RingType(Enum):
+    '''
+    Corresponds to the type of ring structure of this |Monosaccharide|. Pyranose rings are 
+    five-member rings including one Oxygen and Furanose rings are four member rings including
+    one Oxygen.
+
+    Is an |Enum|
+    '''
+    pyranose = 1
+    furanose = 2
+    open = 3
+    x = None
+

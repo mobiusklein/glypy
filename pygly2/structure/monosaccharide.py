@@ -1,7 +1,7 @@
 from uuid import uuid4
 from itertools import chain
 
-from .constants import Anomer, Configuration, Stem, SuperClass, Modification, ReducingEnd
+from .constants import Anomer, Configuration, Stem, SuperClass, Modification, ReducingEnd, RingType
 from .substituent import Substituent
 from .link import Link
 from .base import SaccharideBase
@@ -214,6 +214,20 @@ class Monosaccharide(SaccharideBase):
     # @ring_end.setter
     # def ring_end(self, value):
     #     self._ring_end = value
+
+    @property
+    def ring_type(self):
+        try:
+            diff = self.ring_end - self.ring_start
+            if diff == 4:
+                return RingType.pyranose
+            elif diff == 3:
+                return RingType.furanose
+            elif diff == 0:
+                return RingType.open
+        except TypeError:
+            return RingType.x
+
 
     @property
     def reducing_end(self):

@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, deque
 
 from pygly2.io import format_constants_map
 from pygly2.io.nomenclature import identity
@@ -7,7 +7,7 @@ from pygly2.utils import invert_dict
 
 Stem = constants.Stem
 Configuration = constants.Configuration
-monosaccharide_factory = named_structures.monosaccharides
+monosaccharide_factory = {k: v for k, v in named_structures.monosaccharides.items()}
 
 monosaccharides_to = OrderedDict((
     ("Glc", 'G'),
@@ -58,9 +58,10 @@ anomer_map_to = invert_dict(anomer_map_from)
 
 
 def get_relevant_substituents(residue):
-    positions = list(p for p, sub in residue.substituents())
-    substituents = list(sub.name for p, sub in residue.substituents())
-    if identity.is_a(residue, "HexNAc") or identity.is_a(residue, "NeuAc"):
+    positions = [p for p, sub in residue.substituents()]
+    substituents = [sub.name for p, sub in residue.substituents()]
+    if identity.is_a(residue, monosaccharide_factory["HexNAc"]) or\
+       identity.is_a(residue, monosaccharide_factory["NeuAc"]):
         i = substituents.index("n_acetyl")
         substituents.pop(i)
         positions.pop(i)
@@ -90,7 +91,7 @@ def monosaccharide_to_linearcode(monosaccharide, max_tolerance=3):
         for k, v in monosaccharides_to.items():
             if k not in monosaccharide_factory:
                 continue
-            if identity.is_a(monosaccharide, k, tolerance=tolerance):
+            if identity.is_a(monosaccharide, monosaccharide_factory[k], tolerance=tolerance):
                 residue_sym = v
                 substituents_sym =  [(substituent_to_linearcode(*s)) for s in get_relevant_substituents(monosaccharide)]
                 if len(substituents_sym) > 0:
@@ -113,11 +114,12 @@ def priority(sym):
 
 def glycan_to_linearcode(glycan=None, monosaccharide=None, max_tolerance=3):
     stack = [(1, glycan.root if glycan is not None else monosaccharide)]
+    outstack = deque()
     while(len(stack) > 0):
         outedge_pos, node = stack.pop()
         if outedge_pos in {1, -1}:
             outedge_pos = ''
-        yield str(outedge_pos) + monosaccharide_to_linearcode(node, max_tolerance=max_tolerance)
+        outstack.appendleft(monosaccharide_to_linearcode(node, max_tolerance=max_tolerance) + str(outedge_pos))
         children = []
         for pos, child in node.children():
             rank = priority(child)
@@ -129,12 +131,13 @@ def glycan_to_linearcode(glycan=None, monosaccharide=None, max_tolerance=3):
                     branch=''.join(glycan_to_linearcode(monosaccharide=child, max_tolerance=max_tolerance)),
                     attach_pos=pos
                     )
-                yield branch
+                outstack.appendleft(branch)
             pos, child, rank = children[-1]
             stack.append((pos, child))
         elif len(children) == 1:
             pos, child, rank = children[0]
             stack.append((pos, child))
+    return outstack
 
 
 
@@ -143,3 +146,7 @@ def to_linearcode(structure):
         return monosaccharide_to_linearcode(structure)
     else:
         return ''.join(list(glycan_to_linearcode(glycan=structure)))
+
+
+def tokenize_linearcode(txt):
+    i = 0
