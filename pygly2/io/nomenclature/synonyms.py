@@ -21,4 +21,5 @@ class MonosaccharideSynonymIndex(SynonymIndex):
             stream = pkg_resources.resource_stream(__name__, "data/monosaccharide_synonyms.json")
         super(MonosaccharideSynonymIndex, self).__init__(json.load(stream))
 
+#: A mapping of monosaccharide names to their synonyms
 monosaccharides = MonosaccharideSynonymIndex()

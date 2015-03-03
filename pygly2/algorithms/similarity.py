@@ -4,7 +4,39 @@ from collections import defaultdict
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False):
-    '''A heuristic for measuring similarity between monosaccharide instances'''
+    '''
+    A heuristic for measuring similarity between monosaccharide instances
+
+    Compares:
+        1. ring_start and ring_end
+        2. superclass
+        3. configuration
+        4. stem
+        5. anomer
+        6. If `include_modifications`, each modification
+        7. If `include_substituents`, each substituent
+        8. If `include_children`, each child |Monosaccharide|
+
+    Parameters
+    ----------
+    node: Monosaccharide
+        Object to compare with
+    target: Monosaccharide
+        Object to compare against
+    include_substituents: bool
+        Include substituents in comparison (Defaults |True|)
+    include_modifications: bool
+        Include modifications in comparison (Defaults |True|)
+    include_children: bool
+        Include children in comparison (Defaults |False|)
+
+    Returns
+    -------
+    res: int
+        Number of actual matching traits
+    qs: int
+        Number of expected matching traits assuming perfect equality
+    '''
     res = 0
     qs = 0
     res += (node.anomer == target.anomer) or (target.anomer.value is None)

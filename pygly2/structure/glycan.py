@@ -181,13 +181,13 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        from_node: |None| or |Monosaccharide|
+        from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
         apply_fn: `function`
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
-        visited: :class:`set` or |None|
+        visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
         Returns
@@ -223,13 +223,13 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        from_node: |None| or |Monosaccharide|
+        from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
         apply_fn: `function`
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
-        visited: :class:`set` or |None|
+        visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
         Returns
@@ -278,15 +278,15 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        from_node: |None| or |Monosaccharide|
+        from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
         apply_fn: `function`
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
-        method: |str| or `function`
+        method: str or `function`
             Traversal method to use. See :meth:`._get_traversal_method`
-        visited: :class:`set` or |None|
+        visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
         Returns
@@ -380,7 +380,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        |int|
+        int
         '''
         count = 0
         for node in self:
@@ -404,10 +404,10 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        buffer: `file-like` or |None|
+        buffer: `file-like` or None
             The stream to write the serialized structure to. If |None|, uses an instance
             of `StringIO`
-        close: |bool|
+        close: bool
             Whether or not to close the stream in `buffer` after writing is done
 
         Returns
@@ -479,14 +479,19 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        average: |bool|, optional, defaults to |False|
+        average: bool, optional, defaults to False
             Whether or not to use the average isotopic composition when calculating masses.
             When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: |int|, optional, defaults to 0
+        charge: int, optional, defaults to 0
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: |dict|, optional, defaults to |None|
+        mass_data: dict, optional, defaults to None
             If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
+
+
+        Returns
+        -------
+        float
 
         See also
         --------
@@ -500,7 +505,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        |Glycan|
+        Glycan
         '''
         clone_root = self.root.clone(prop_id=True)
         clone_root.id = self.root.id
@@ -536,7 +541,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        |bool|
+        bool
 
         See also
         --------
@@ -574,12 +579,12 @@ class Glycan(SaccharideBase):
             as published by :title-reference:`Domon and Costello`
         max_cleavages: |int|
             The maximum number of bonds to break per fragment
-        average: |bool|, optional, defaults to |False|
+        average: bool, optional, defaults to `False`
             Whether or not to use the average isotopic composition when calculating masses.
             When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: |int|, optional, defaults to 0
+        charge: int, optional, defaults to 0
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: |dict|, optional, defaults to |None|
+        mass_data: dict, optional, defaults to `None`
             If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
         See also

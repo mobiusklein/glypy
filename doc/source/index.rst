@@ -9,7 +9,7 @@ Welcome to pygly2's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    structure/constants
    structure/monosaccharide
@@ -21,8 +21,12 @@ Contents:
    utils
    
    io/glycoct
+   io/linear_code
+   io/nomenclature/identity
+   io/nomenclature/synonyms
 
    algorithms/subtree_search
+   algorithms/similarity
 
 
 Indices and tables
