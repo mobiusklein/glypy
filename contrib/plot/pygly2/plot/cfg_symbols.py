@@ -54,7 +54,7 @@ def get_relevant_substituents(residue, shape=None):
     '''
     
     shape = residue_shape(residue) if shape is None else shape
-    if shape != ResidueShape.generic
+    if shape != ResidueShape.generic:
         substituents = list(sub.name for p, sub in residue.substituents())
         if shape == ResidueShape.square:
             substituents.pop(substituents.index("n_acetyl"))

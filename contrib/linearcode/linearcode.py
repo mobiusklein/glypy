@@ -1,13 +1,14 @@
+import re
 from collections import OrderedDict, deque
 
 from pygly2.io import format_constants_map
 from pygly2.io.nomenclature import identity
-from pygly2.structure import constants, named_structures, Monosaccharide, Glycan
+from pygly2.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
 from pygly2.utils import invert_dict
 
 Stem = constants.Stem
 Configuration = constants.Configuration
-monosaccharide_factory = {k: v for k, v in named_structures.monosaccharides.items()}
+monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.items()}
 
 monosaccharides_to = OrderedDict((
     ("Glc", 'G'),
@@ -60,8 +61,8 @@ anomer_map_to = invert_dict(anomer_map_from)
 def get_relevant_substituents(residue):
     positions = [p for p, sub in residue.substituents()]
     substituents = [sub.name for p, sub in residue.substituents()]
-    if identity.is_a(residue, monosaccharide_factory["HexNAc"]) or\
-       identity.is_a(residue, monosaccharide_factory["NeuAc"]):
+    if identity.is_a(residue, monosaccharide_reference["HexNAc"]) or\
+       identity.is_a(residue, monosaccharide_reference["NeuAc"]):
         i = substituents.index("n_acetyl")
         substituents.pop(i)
         positions.pop(i)
@@ -89,9 +90,9 @@ def monosaccharide_to_linearcode(monosaccharide, max_tolerance=3):
     tolerance = 0
     while tolerance <= max_tolerance:
         for k, v in monosaccharides_to.items():
-            if k not in monosaccharide_factory:
+            if k not in monosaccharide_reference:
                 continue
-            if identity.is_a(monosaccharide, monosaccharide_factory[k], tolerance=tolerance):
+            if identity.is_a(monosaccharide, monosaccharide_reference[k], tolerance=tolerance):
                 residue_sym = v
                 substituents_sym =  [(substituent_to_linearcode(*s)) for s in get_relevant_substituents(monosaccharide)]
                 if len(substituents_sym) > 0:
@@ -148,5 +149,72 @@ def to_linearcode(structure):
         return ''.join(list(glycan_to_linearcode(glycan=structure)))
 
 
-def tokenize_linearcode(txt):
-    i = 0
+class LinearCodeException(Exception):
+    pass
+
+
+def monosaccharide_from_linearcode(residue_str, parent=None):
+    base_type, anomer, outedge, substituents = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?", residue_str).groups()
+    base = named_structures.monosaccharides[monosaccharides_from[base_type]]
+    base.anomer = anomer_map_from[anomer]
+    if substituents is not None:
+        for subst_str in substituents[1:-1]:
+            pos, name = re.search(r'(\d*)(.+)', subst_str).groups()
+            subst_object = Substituent(name)
+            try:
+                pos = int(pos)
+            except:
+                pos = -1
+            base.add_substituent(subst_object, position=pos)
+    try:
+        outedge = int(outedge)
+    except:
+        outedge = -1
+
+    if parent is not None:
+        parent.add_monosaccharide(base, position=outedge, child_position=1)
+
+    return base, outedge
+
+
+def tokenize_linearcode(text):
+
+    last_outedge = None
+    root = None
+    last_residue = None
+    branch_stack = []
+    while len(text) > 0:
+        # If starting a new branch
+        if text[-1] == ')':
+            branch_stack.append((last_residue, root, last_outedge))
+            root = None
+            last_residue = None
+            last_outedge = None
+            text = text[:-1]
+        # If ending a branch
+        elif text[-1] == '(':
+            try:
+                branch_parent, old_root, old_last_outedge = branch_stack.pop()
+                branch_parent.add_monosaccharide(root, position=last_outedge, child_position=1)
+                root = old_root
+                last_residue = branch_parent
+                last_outedge = old_last_outedge
+                text = text[:-1]
+            except IndexError:
+                raise LinearCodeException("Bad branching at {}".format(len(text)))
+        # Parsing a residue
+        else:
+            match = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?$", text)
+            if match:
+                next_residue, outedge = monosaccharide_from_linearcode(text[match.start() : match.end()], last_residue)
+                if root is None:
+                    last_outedge = outedge
+                    root = next_residue
+                last_residue = next_residue
+                text = text[:match.start()]
+            else:
+                raise LinearCodeException("Could not identify residue at {}".format(len(text)))
+
+    return Glycan(root)
+
+

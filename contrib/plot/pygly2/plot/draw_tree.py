@@ -271,7 +271,7 @@ class DrawTree(object):
             child.scale(factor)
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=False):
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -303,7 +303,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False):
         fig, ax = plt.subplots()
         at = (0, 0)
         center = True
-    dtree.draw(orientation, at=at, ax=ax)
+    dtree.draw(orientation, at=at, ax=ax, scale=scale)
     if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)
         # print(xmin, xmax, ymin, ymax)
