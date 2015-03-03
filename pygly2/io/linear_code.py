@@ -1,3 +1,10 @@
+'''
+A module for operating on GlycoMinds Linear Code
+
+Assumes that the structure's root is the right-most residue, as shown in 
+:title-reference:`A Novel Linear Code® Nomenclature for Complex Carbohydrates, Banin et al.`.
+'''
+
 import re
 from collections import OrderedDict, deque
 
@@ -8,8 +15,11 @@ from pygly2.utils import invert_dict
 
 Stem = constants.Stem
 Configuration = constants.Configuration
+
+#: A static copy of monosaccharide names to structures for copy-free comparison
 monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.items()}
 
+#: A mapping from common monosaccharide names to their symbol, ordered by priority
 monosaccharides_to = OrderedDict((
     ("Glc", 'G'),
     ("Gal", 'A'),
@@ -34,8 +44,10 @@ monosaccharides_to = OrderedDict((
     ("Fru", "E")
 ))
 
+#: A mapping from symbol to common monosaccharide name
 monosaccharides_from = invert_dict(dict(monosaccharides_to))
 
+#: A mapping from common substituent names to symbol
 substituents_to = {
     'amino': 'Q',
     'ethanolominephosphate': 'PE',
@@ -51,6 +63,7 @@ substituents_to = {
     '2-aminoethylphosphonic acid': 'EP'
 }
 
+#: A mapping from symbol to common substituent names
 substituents_from = invert_dict(substituents_to)
 
 
@@ -59,6 +72,10 @@ anomer_map_to = invert_dict(anomer_map_from)
 
 
 def get_relevant_substituents(residue):
+    '''
+    Retrieve the set of substituents not implicitly included
+    in the base type's symbol name.
+    '''
     positions = [p for p, sub in residue.substituents()]
     substituents = [sub.name for p, sub in residue.substituents()]
     if identity.is_a(residue, monosaccharide_reference["HexNAc"]) or\
@@ -72,10 +89,30 @@ def get_relevant_substituents(residue):
         positions.pop(i)
     return zip(substituents, positions)
 
-def substituent_to_linearcode(substituent, position=None):
+
+def substituent_to_linear_code(substituent, position=None):
+    '''
+    Translate a |Substituent| to Linear Code. Include's the substituent's
+    position if it is known.
+
+    Parameters
+    ----------
+    substituents: |Substituent| or |str|
+        The structure or the name to translate
+    position:
+        The position of the structure to try including
+
+    Returns
+    -------
+    str
+
+    Raises
+    ------
+    KeyError:
+        When an unknown symbol is encountered
+    '''
     symbol = None
     try:
-
         symbol = substituents_to[substituent.name]
     except:
         symbol = substituents_to[substituent]
@@ -86,7 +123,34 @@ def substituent_to_linearcode(substituent, position=None):
     else:
         return symbol
 
-def monosaccharide_to_linearcode(monosaccharide, max_tolerance=3):
+
+def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
+    '''
+    Perform iteratively permissive attempts to translate `monosaccharide` into
+    a nomenclature symbol.
+
+    .. note::
+        Uses a multi-pass approach. Could alternatively do a single pass
+        and keep the best match.
+
+    Parameters
+    ----------
+    monosaccharide: |Monosaccharide|
+        The residue to be translated
+    max_tolerance: |int|
+        The maximum error tolerance to allow while looking for a match
+
+    Returns
+    -------
+    str
+
+    Raises
+    ------
+    ValueError:
+        When no suitable translation can be found
+    KeyError:
+        When an unknown symbol is encountered
+    '''
     tolerance = 0
     while tolerance <= max_tolerance:
         for k, v in monosaccharides_to.items():
@@ -94,17 +158,29 @@ def monosaccharide_to_linearcode(monosaccharide, max_tolerance=3):
                 continue
             if identity.is_a(monosaccharide, monosaccharide_reference[k], tolerance=tolerance):
                 residue_sym = v
-                substituents_sym =  [(substituent_to_linearcode(*s)) for s in get_relevant_substituents(monosaccharide)]
+                substituents_sym =  [(substituent_to_linear_code(*s)) for s in get_relevant_substituents(monosaccharide)]
                 if len(substituents_sym) > 0:
                     residue_sym = residue_sym + '[{}]'.format(', '.join(substituents_sym))
                 residue_sym = residue_sym + anomer_map_to[monosaccharide.anomer]
                 return residue_sym
 
         tolerance += 1
-    raise ValueError("Cannot map {} to LinearCode".format(monosaccharide))
+    raise ValueError("Cannot map {} to Linear Code".format(monosaccharide))
 
 
 def priority(sym):
+    '''
+    Calculate the branching priority for a given symbol or |Monosaccharide|.
+    Used when deciding when a residue is considered branch or backbone.
+
+    Parameters
+    ----------
+    sym: str or |Monosaccharide|
+
+    Returns
+    -------
+    int
+    '''
     i = 0
     for key, value in monosaccharides_to.items():
         i += 1
@@ -113,14 +189,32 @@ def priority(sym):
     return -1
 
 
-def glycan_to_linearcode(glycan=None, monosaccharide=None, max_tolerance=3):
-    stack = [(1, glycan.root if glycan is not None else monosaccharide)]
+def glycan_to_linear_code(structure=None, max_tolerance=3):
+    '''
+    Translate a |Glycan| structure into Linear Code. Called from :func:`to_linear_code`.
+    Recursively operates on branches.
+
+    Parameters
+    ----------
+    structure: |Glycan| or |Monosaccharide|
+        The glycan to be translated. Translation starts from `glycan.root` if `structure`
+        is a |Glycan|.
+    max_tolerance: |int|
+        The maximum amount of deviance to allow when translating |Monosaccharide| objects
+        into nomenclature symbols
+    
+    Returns
+    -------
+    deque
+    '''
+    base = structure.root if isinstance(structure, Glycan) else structure
+    stack = [(1, base)]
     outstack = deque()
     while(len(stack) > 0):
         outedge_pos, node = stack.pop()
         if outedge_pos in {1, -1}:
             outedge_pos = ''
-        outstack.appendleft(monosaccharide_to_linearcode(node, max_tolerance=max_tolerance) + str(outedge_pos))
+        outstack.appendleft(monosaccharide_to_linear_code(node, max_tolerance=max_tolerance) + str(outedge_pos))
         children = []
         for pos, child in node.children():
             rank = priority(child)
@@ -129,7 +223,7 @@ def glycan_to_linearcode(glycan=None, monosaccharide=None, max_tolerance=3):
             ordered_children = sorted(children, key=lambda x: x[2])
             for pos, child, rank in ordered_children[:-1]:
                 branch = '({branch}{attach_pos})'.format(
-                    branch=''.join(glycan_to_linearcode(monosaccharide=child, max_tolerance=max_tolerance)),
+                    branch=''.join(glycan_to_linear_code(child, max_tolerance=max_tolerance)),
                     attach_pos=pos
                     )
                 outstack.appendleft(branch)
@@ -142,23 +236,40 @@ def glycan_to_linearcode(glycan=None, monosaccharide=None, max_tolerance=3):
 
 
 
-def to_linearcode(structure):
+def to_linear_code(structure):
+    '''
+    Translates `structure` to Linear Code. 
+
+    Parameters
+    ----------
+    structure: |Monosaccharide| or |Glycan|
+
+    Returns
+    -------
+    str
+    '''
     if isinstance(structure, Monosaccharide):
-        return monosaccharide_to_linearcode(structure)
+        return monosaccharide_to_linear_code(structure)
     else:
-        return ''.join(list(glycan_to_linearcode(glycan=structure)))
+        return ''.join(list(glycan_to_linear_code(glycan=structure)))
 
 
 class LinearCodeException(Exception):
     pass
 
 
-def monosaccharide_from_linearcode(residue_str, parent=None):
+def monosaccharide_from_linear_code(residue_str, parent=None):
+    '''
+    Helper function for :func:`parse_linear_code`. Given a residue string
+    of the form "(base_type)(anomer)(outedge?)([substituents]?)", construct
+    a |Monosaccharide| object. If `parent` is not |None|, connect the 
+    resulting |Monosaccharide| to `parent` at `outedge`.
+    '''
     base_type, anomer, outedge, substituents = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?", residue_str).groups()
     base = named_structures.monosaccharides[monosaccharides_from[base_type]]
     base.anomer = anomer_map_from[anomer]
     if substituents is not None:
-        for subst_str in substituents[1:-1]:
+        for subst_str in substituents[1:-1].split(','):
             pos, name = re.search(r'(\d*)(.+)', subst_str).groups()
             subst_object = Substituent(name)
             try:
@@ -177,8 +288,36 @@ def monosaccharide_from_linearcode(residue_str, parent=None):
     return base, outedge
 
 
-def tokenize_linearcode(text):
+def parse_linear_code(text):
+    '''
+    Parse the character string `text`, extracting GlycoMinds Linear Code-format
+    carbohydrate structures, converting them into a |Glycan| object.
 
+    .. note:: Assumes that the structure's root is the right-most residue
+
+    Supports only *concrete* structures.
+
+    Parameters
+    ----------
+    text: |str|
+        The string to be parsed
+
+    Returns
+    -------
+    Glycan
+
+    Raises
+    ------
+    LinearCodeException:
+        When an error is encountered while parsing resulting from malformed syntax
+        or structure
+
+    ValueError:
+        When a symbol is encountered for which no suitable translation could be found
+
+    KeyError:
+        When an unknown symbol is encountered
+    '''
     last_outedge = None
     root = None
     last_residue = None
@@ -206,7 +345,7 @@ def tokenize_linearcode(text):
         else:
             match = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?$", text)
             if match:
-                next_residue, outedge = monosaccharide_from_linearcode(text[match.start() : match.end()], last_residue)
+                next_residue, outedge = monosaccharide_from_linear_code(text[match.start() : match.end()], last_residue)
                 if root is None:
                     last_outedge = outedge
                     root = next_residue
@@ -215,6 +354,10 @@ def tokenize_linearcode(text):
             else:
                 raise LinearCodeException("Could not identify residue at {}".format(len(text)))
 
-    return Glycan(root)
+    res = Glycan(root)
+    if len(res) > 1:
+        return res
+    else:
+        return res.root
 
 

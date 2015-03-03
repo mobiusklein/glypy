@@ -56,3 +56,10 @@ def resolve_special_base_type(residue):
             return "Neu"
     else:
         raise ValueError("Could not resolve special base_type for {}".format(residue))
+
+
+def to_iupac(structure):
+    if isinstance(structure, Monosaccharide):
+        return monosaccharides_to_iupac(structure)
+    else:
+        raise NotImplementedError("Non-monosaccharide translations not supported yet.")
