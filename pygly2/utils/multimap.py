@@ -75,6 +75,8 @@ class MultiMap(object):
         return repr(self.contents)
 
     def __eq__(self, other):
+        if other is None:
+            return False
         for a, b in izip_longest(self.items(), other.items()):
             if a != b:
                 return False
@@ -83,6 +85,15 @@ class MultiMap(object):
     def __ne__(self, other):
         return not self == other
 
+    def update(self, mapping):
+        for k, v in mapping.items():
+            self[k] = v
+
+    def has_value(self, value):
+        for v in self.values():
+            if v == value:
+                return True
+        return False
 
 class OrderedMultiMap(MultiMap):
     '''

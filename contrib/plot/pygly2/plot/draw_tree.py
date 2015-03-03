@@ -168,9 +168,15 @@ class DrawTree(object):
         x, y = self.coords(orientation, at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, **kwargs)
         for i, res_el in enumerate(residue_elements):
-            res_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id)))
+            if isinstance(res_el, tuple):
+                [el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id))) for el in res_el]
+            else:
+                res_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id)))
         for i, sub_el in enumerate(substituent_elements):
-            sub_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i)))
+            if isinstance(sub_el, tuple):
+                [el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i))) for el in sub_el]
+            else:
+                sub_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i)))
         for child in self:
             child.draw_nodes(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
 

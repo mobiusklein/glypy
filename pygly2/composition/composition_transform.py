@@ -18,6 +18,7 @@ def derivatize(saccharide, substituent):
             derivatize(node, substituent)
     elif isinstance(saccharide, Monosaccharide):
         derivatize_monosaccharide(saccharide, substituent)
+    return saccharide
 
 
 def derivatize_monosaccharide(monosaccharide_obj, substituent):
@@ -35,14 +36,15 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
             substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
             position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
 
-    if Modification.a in list(monosaccharide_obj.modifications.values()):
-        monosaccharide_obj.add_substituent(
-            substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
-            position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
-        if Modification.a in monosaccharide_obj.modifications[1]:
+    for pos, mod in monosaccharide_obj.modifications.items():
+        if mod == Modification.a:
             monosaccharide_obj.add_substituent(
-                substituent.clone(), parent_loss=Composition(H=1), max_occupancy=4,
-                position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+                substituent.clone(), position=pos, parent_loss=Composition(H=1), max_occupancy=3,
+                child_loss=Composition(H=1), child_position=1)
+            if pos == reducing_end_pos:
+                monosaccharide_obj.add_substituent(
+                    substituent.clone(), position=reducing_end_pos, parent_loss=Composition(H=1), max_occupancy=4,
+                    child_loss=Composition(H=1), child_position=1)
 
 
 # WIP

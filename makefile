@@ -1,11 +1,11 @@
-all: test sphinx
+all: test docs
 
 
 test:
 	coverage run tests.py
 	coverage html -d test_reports
 
-sphinx:
+docs:
 	make -f Makefile clean -C doc html
 
 develop:

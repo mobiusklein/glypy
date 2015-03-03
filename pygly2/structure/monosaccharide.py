@@ -7,7 +7,7 @@ from .link import Link
 from .base import SaccharideBase
 
 from ..io.format_constants_map import anomer_map, superclass_map
-from ..utils import invert_dict, make_counter, StringIO
+from ..utils import invert_dict, make_counter, StringIO, identity as ident_op
 from ..utils.multimap import OrderedMultiMap
 from ..composition import Composition, calculate_mass
 from ..composition.structure_composition import monosaccharide_composition
@@ -33,6 +33,19 @@ def get_standard_composition(monosaccharide):
     for mod_pos, mod_val in monosaccharide.modifications.items():
         base = base + modification_compositions[mod_val](mod_pos)
     return base
+
+
+def traverse(monosaccharide, visited=None, apply_fn=ident_op):
+    if visited is None:
+        visited = set()
+    yield apply_fn(monosaccharide)
+    visited.add(monosaccharide.id)
+    for p, link in monosaccharide.links.items():
+        child = link[monosaccharide]
+        if child.id in visited:
+            continue
+        for grandchild in traverse(child, visited=visited, apply_fn=apply_fn):
+            yield grandchild
 
 
 class Monosaccharide(SaccharideBase):
@@ -99,7 +112,8 @@ class Monosaccharide(SaccharideBase):
         self.superclass = superclass
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.modifications = OrderedMultiMap() if modifications is None else modifications
+        self.modifications = OrderedMultiMap(
+        ) if modifications is None else modifications
         self.links = OrderedMultiMap() if links is None else links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
@@ -294,7 +308,7 @@ class Monosaccharide(SaccharideBase):
 
         '''
 
-        if position > self.superclass.value or (position < 1 and position not in {'x', -1, None}):
+        if (position > self.superclass.value) or (position < 1 and position not in {'x', -1, None}):
             raise IndexError("Index out of bounds")
         # The unknown position is always available
         if position in {-1, 'x'}:
@@ -517,7 +531,7 @@ class Monosaccharide(SaccharideBase):
         # The complete monosaccharide residue line
         residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
                                               superclass=superclass, modifications=modifications,
-                                              ring_start=self.ring_start, ring_end=self.ring_end)
+                                              ring_start=self.ring_start or 'x', ring_end=self.ring_end or 'x')
         res = [residue_str]
         lin = []
         # Construct the substituent lines
@@ -642,8 +656,7 @@ class Monosaccharide(SaccharideBase):
         if (other is None):
             return False
         if not isinstance(other, Monosaccharide):
-            raise TypeError(
-                "Cannot compare non-Monosaccharide to Monosaccharide")
+            return False
         return self.exact_ordering_equality(other)
 
     def __ne__(self, other):

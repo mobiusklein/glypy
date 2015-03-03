@@ -19,8 +19,10 @@ Contents:
    
    composition
    utils
+   
    io/glycoct
 
+   algorithms/subtree_search
 
 
 Indices and tables

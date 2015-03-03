@@ -28,25 +28,13 @@ fragment_direction = {
 
 MAIN_BRANCH_SYM = '-'
 
-Fragment = make_struct("Fragment", ("kind", "link_ids", "included_nodes", "mass"))
+Fragment = make_struct(
+    "Fragment", ("kind", "link_ids", "included_nodes", "mass"))
 DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
                                               "child_tree", "child_include_nodes", "link_ids"))
 
 
 class Glycan(SaccharideBase):
-    @staticmethod
-    def subtree_from(tree, ix):
-        '''
-        Create a new |Glycan| starting from index `ix` in |Glycan| `tree`.
-
-        See also
-        --------
-        Glycan.clone
-        '''
-        node = tree[ix]
-        parents = {node.id for p, node in node.parents()}
-        subtree = Glycan(root=node, index_method=None).clone(index_method=None, visited=parents)
-        return subtree
 
     '''
     Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
@@ -66,6 +54,16 @@ class Glycan(SaccharideBase):
     branch_lengths: |dict|
         A dictionary mapping branch symbols to their lengths
     '''
+
+    @classmethod
+    def subtree_from(cls, tree, node):
+        if isinstance(node, int):
+            node = tree[node]
+        parents = {node.id for p, node in node.parents()}
+        subtree = cls(root=node, index_method=None).clone(
+            index_method=None, visited=parents)
+        return subtree
+
     traversal_methods = {}
 
     def __init__(self, root=None, reducing_end=None, index_method='dfs'):
@@ -360,16 +358,19 @@ class Glycan(SaccharideBase):
             if len(links) == 1:
                 label_key = get_parent_link(node)
                 self.branch_lengths[label_key] += 1
-                label = "{}{}".format(label_key, self.branch_lengths[label_key])
+                label = "{}{}".format(
+                    label_key, self.branch_lengths[label_key])
                 links[0].label = label
             else:
                 last_label_key = label_key = get_parent_link(node)
                 count = self.branch_lengths[last_label_key]
                 for link in links:
-                    last_branch_label = chrinc(last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
+                    last_branch_label = chrinc(
+                        last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
                     new_label_key = last_branch_label
                     self.branch_lengths[new_label_key] = count + 1
-                    label = "{}{}".format(new_label_key, self.branch_lengths[new_label_key])
+                    label = "{}{}".format(
+                        new_label_key, self.branch_lengths[new_label_key])
                     link.label = label
         self.branch_lengths["-"] = max(self.branch_lengths.values())
 
@@ -588,7 +589,7 @@ class Glycan(SaccharideBase):
         results_container = Fragment
         for i in range(min_cleavages, max_cleavages + 1):
             for frag in self.break_links(i, kind, average, charge, mass_data):
-                    yield results_container(*frag)
+                yield results_container(*frag)
 
     def break_links(self, n_links=0, kind=('B', 'Y'), average=False, charge=0, mass_data=None):
         if n_links < 0:  # pragma: no cover
@@ -716,16 +717,19 @@ class Glycan(SaccharideBase):
         the reducing end along side B/C/Y/Z, according to :title-reference:`Domon and Costello`
         '''
         if fragment.kind not in fragment_direction:
-            raise ValueError("Cannot determine fragment orientation, {}".format(fragment))
+            raise ValueError(
+                "Cannot determine fragment orientation, {}".format(fragment))
         if fragment_direction[fragment.kind] > 0:
             link = self.link_index[fragment.link_ids[0] - 1]
             label = link.label
-            fragment_name = "{}{}".format(fragment.kind, label.replace(MAIN_BRANCH_SYM, ""))
+            fragment_name = "{}{}".format(
+                fragment.kind, label.replace(MAIN_BRANCH_SYM, ""))
         else:
             link = self.link_index[fragment.link_ids[0] - 1]
             label = link.label
             label_key = label[0]
             distance = int(label[1:])
             inverted_distance = self.branch_lengths[label_key] - (distance - 1)
-            fragment_name = "{}{}{}".format(fragment.kind, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
+            fragment_name = "{}{}{}".format(
+                fragment.kind, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
         return fragment_name

@@ -8,6 +8,7 @@ default_child_loss = Composition(H=1)
 
 
 class Link(object):
+
     '''
     Represents the linkage between two residues.
 
@@ -16,8 +17,9 @@ class Link(object):
     parent: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
     child: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
     '''
+
     def __init__(self, parent, child, parent_position=-1, child_position=-1,
-                 parent_loss=None, child_loss=None, id=None, **kwargs):
+                 parent_loss=None, child_loss=None, id=None, attach=True):
 
         if isinstance(parent_loss, basestring):
             parent_loss = Composition(formula=parent_loss)
@@ -32,9 +34,9 @@ class Link(object):
         self.child_loss = child_loss
         self.id = id or uuid4().int
         self.label = None
-        self.data = kwargs
 
-        self.apply()
+        if attach:
+            self.apply()
 
     def apply(self):
         '''
@@ -50,8 +52,10 @@ class Link(object):
 
         '''
 
-        self.parent.composition = self.parent.composition - (self.parent_loss or default_parent_loss)
-        self.child.composition = self.child.composition - (self.child_loss or default_child_loss)
+        self.parent.composition = self.parent.composition - \
+            (self.parent_loss or default_parent_loss)
+        self.child.composition = self.child.composition - \
+            (self.child_loss or default_child_loss)
         if self.is_substituent_link():
             self.parent.substituent_links[self.parent_position] = self
         else:
@@ -124,7 +128,7 @@ class Link(object):
                     child_position=self.child_position,
                     parent_loss=self.parent_loss,
                     child_loss=self.child_loss,
-                    id=self.id, **self.data)
+                    id=self.id)
 
     def __eq__(self, other):
         if (other is None):
@@ -175,7 +179,8 @@ class Link(object):
             self.parent.substituent_links[self.parent_position] = self
         else:
             self.parent.links[self.parent_position] = self
-            sorted(self.parent.links[self.parent_position], key=lambda x: x.child.order())
+            sorted(
+                self.parent.links[self.parent_position], key=lambda x: x.child.order())
 
         self.child.links[self.child_position] = self
 
@@ -187,8 +192,10 @@ class Link(object):
         Returns the lost elemental composition caused by :meth:`apply`. Adds back :attr:`parent_loss`
         and :attr:`child_loss` to the :attr:`composition` of :attr:`parent` and :attr:`child` respectively
         '''
-        self.parent.composition = self.parent.composition + (self.parent_loss or default_parent_loss)
-        self.child.composition = self.child.composition + (self.child_loss or default_child_loss)
+        self.parent.composition = self.parent.composition + \
+            (self.parent_loss or default_parent_loss)
+        self.child.composition = self.child.composition + \
+            (self.child_loss or default_child_loss)
 
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()

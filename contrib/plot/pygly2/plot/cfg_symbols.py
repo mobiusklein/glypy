@@ -34,9 +34,27 @@ class UnknownShapeException(Exception):
     pass
 
 
-def get_relevant_substituents(residue):
-    try:
-        shape = residue_shape(residue)
+def get_relevant_substituents(residue, shape=None):
+    '''
+    Given the shape for a residue, determine which of its substituents must
+    be explicitly drawn.  Calls :func:`residue_shape` if `shape` is not 
+    provided.
+
+    Parameters
+    ----------
+    residue: |Monosaccharide|
+        The monosaccharide residue being rendered
+    shape: ResidueShape or |None|
+        The shape enum being used to represent `residue`. Defaults to None.
+        If `shape` is |None|, it is calculated by :func:`residue_shape`.
+
+    Returns
+    -------
+    |list| of |Substituent|s
+    '''
+    
+    shape = residue_shape(residue) if shape is None else shape
+    if shape != ResidueShape.generic
         substituents = list(sub.name for p, sub in residue.substituents())
         if shape == ResidueShape.square:
             substituents.pop(substituents.index("n_acetyl"))
@@ -55,11 +73,25 @@ def get_relevant_substituents(residue):
                 buffer.append((p, sub.name))
                 relevant_substituents[sub.name] -= 1
         return buffer
-    except UnknownShapeException:
-        return list((p, sub.name) for p, sub in residue.substituents())
+    
+    return list((p, sub.name) for p, sub in residue.substituents())
 
 
 def residue_shape(monosaccharide):
+    '''
+    Determine which shape to use to represent `monosaccharide` under the CFG
+    symbol nomenclature.
+
+    Parameters
+    ----------
+    monosaccharide: |Monosaccharide|
+        The residue to be rendered
+
+    Returns
+    -------
+    ResidueShape.EnumValue
+
+    '''
     if any(mod == Modification.a for p, mod in monosaccharide.modifications.items()):
         return resolve_acid_shape(monosaccharide)
     if "hex" in [monosaccharide.superclass]:
@@ -75,10 +107,13 @@ def residue_shape(monosaccharide):
         if 'xyl' in monosaccharide.stem:
             return ResidueShape.star
     else:
-        raise UnknownShapeException(monosaccharide)
+        return ResidueShape.generic
 
 
 def resolve_acid_shape(monosaccharide):
+    '''
+    Resolve the special case in :func:`residue_shape` for acidic residues
+    '''
     if ('gro' in monosaccharide.stem) and ('gal' in monosaccharide.stem):
         if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueShape.diamond
@@ -113,6 +148,20 @@ class ResidueColor(Enum):
 
 
 def residue_color(monosaccharide):
+    '''
+    Determine which color to use to represent `monosaccharide` under the CFG
+    symbol nomenclature.
+
+    Parameters
+    ----------
+    monosaccharide: |Monosaccharide|
+        The residue to be rendered
+
+    Returns
+    -------
+    ResidueColor.EnumValue
+
+    '''
     if any(mod == Modification.a for p, mod in monosaccharide.modifications.items()):
             return resolve_acid_color(monosaccharide)
     if "hex" in [monosaccharide.superclass]:
@@ -122,6 +171,9 @@ def residue_color(monosaccharide):
 
 
 def resolve_acid_color(monosaccharide):
+    '''
+    Resolve the special case in :func:`residue_color` for acidic residues
+    '''
     if ('gro' in monosaccharide.stem) and ('gal' in monosaccharide.stem):
         if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueColor.neuac
@@ -140,16 +192,23 @@ def resolve_acid_color(monosaccharide):
 
 
 def get_symbol(monosaccharide):
-    col = residue_color(monosaccharide)
+    '''
+    Convenience function to retrieve the shape and color of `monosaccharide`
+    '''
     shp = residue_shape(monosaccharide)
+    col = residue_color(monosaccharide)
     return shp, col
 
 
 def draw(monosaccharide, x, y, ax, scale=0.1):
-    try:
-        shape, color = get_symbol(monosaccharide)
-    except:
-        shape = GENERIC
+    '''
+    Renders `monosaccharide` at the given `(x, y)` coordinates on the `matplotlib.Axis`
+    `ax` provided. Determines the shape to use by :func:`residue_shape` and color by 
+    :func:`residue_color`. The shape value is used to select the specialized draw_* function
+    '''
+    abbrev = None
+    shape, color = get_symbol(monosaccharide)
+    if shape == ResidueShape.generic:
         try:
             abbrev = identity.identify(monosaccharide)
         except identity.IdentifyException:
@@ -159,7 +218,7 @@ def draw(monosaccharide, x, y, ax, scale=0.1):
         raise Exception("Don't know how to draw {}".format(shape))
 
     res = None
-    if shape == GENERIC:
+    if shape == ResidueShape.generic:
         res = drawer(ax, x, y, abbrev, n_points=monosaccharide.superclass.value, scale=scale)
     else:
         res = drawer(ax, x, y, color, scale=scale)
@@ -384,7 +443,7 @@ def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
     a = ax.add_patch(patch)
     ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=84 * scale)
     return (a,)
-draw_map[GENERIC] = draw_generic
+draw_map[ResidueShape.generic] = draw_generic
 
 
 def draw_text(ax, x, y, text, scale=0.1):
