@@ -111,15 +111,6 @@ class Composition(defaultdict):
     def copy(self):
         return Composition(self)
 
-    # def _from_parsed_sequence(self, parsed_sequence, **kwargs):
-    #     raise NotImplementedError()
-
-    # def _from_split_sequence(self, split_sequence, **kwargs):
-    #     raise NotImplementedError()
-
-    # def _from_sequence(self, sequence, **kwargs):
-    #     raise NotImplementedError()
-
     def _from_formula(self, formula, mass_data):
         if '(' in formula:
             return self._from_formula_parens(formula, mass_data)

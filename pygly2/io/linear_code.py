@@ -70,6 +70,7 @@ substituents_from = invert_dict(substituents_to)
 
 
 anomer_map_from = dict(format_constants_map.anomer_map)
+anomer_map_from['?'] = anomer_map_from.pop('x')
 anomer_map_to = invert_dict(anomer_map_from)
 
 

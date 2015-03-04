@@ -1,10 +1,11 @@
 import pygly2
-from pygly2.structure import monosaccharide, constants
+from pygly2.structure import Monosaccharide, constants
 from pygly2.io import format_constants_map
 from pygly2.utils import invert_dict
 
 
 anomer_map_from = dict(format_constants_map.anomer_map)
+anomer_map_from['?'] = anomer_map_from.pop('x')
 anomer_map_to = invert_dict(anomer_map_from)
 
 
@@ -60,6 +61,6 @@ def resolve_special_base_type(residue):
 
 def to_iupac(structure):
     if isinstance(structure, Monosaccharide):
-        return monosaccharides_to_iupac(structure)
+        return monosaccharide_to_iupac(structure)
     else:
         raise NotImplementedError("Non-monosaccharide translations not supported yet.")

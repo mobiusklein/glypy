@@ -31,7 +31,7 @@ class StructureIndex(dict):
 
     def __dir__(self):
         return list(self.__dict__) + list(k for k in self
-                                          if (not k[0].isdigit()) and (not re.search(r"[:,-\s\(\)\[\]]", k)))
+                                          if (not k[0].isdigit()) and (not re.search(r"[:,\-\s\(\)\[\]]", k)))
 
     def __repr__(self):  # pragma: no cover
         rep = StringIO()
