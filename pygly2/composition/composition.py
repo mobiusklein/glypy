@@ -1,5 +1,5 @@
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
-
+import re
 from collections import defaultdict
 from .mass_dict import nist_mass
 
@@ -10,7 +10,9 @@ class ChemicalCompositionError(Exception):
 
 # Forward Declaration
 std_mol_comp = {}
-
+_atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
+_formula = r'^({})*$'.format(_atom)
+formula_pattern = re.compile(_formula)
 
 def _make_isotope_string(element_name, isotope_num):
     """Form a string label for an isotope."""
@@ -119,6 +121,17 @@ class Composition(defaultdict):
     #     raise NotImplementedError()
 
     def _from_formula(self, formula, mass_data):
+        if '(' in formula:
+            return self._from_formula_parens(formula, mass_data)
+        if not formula_pattern.match(formula):
+            raise ChemicalCompositionError('Invalid formula: ' + formula)
+        for elem, isotope, number in re.findall(_atom, formula):
+            if not elem in mass_data:
+                raise ChemicalCompositionError('Unknown chemical element: ' + elem)
+            self[_make_isotope_string(elem, int(isotope) if isotope else 0)
+                    ] += int(number) if number else 1
+
+    def _from_formula_parens(self, formula, mass_data):
         # Parsing a formula backwards.
         prev_chem_symbol_start = len(formula)
         i = len(formula) - 1
@@ -156,16 +169,16 @@ class Composition(defaultdict):
 
                     # Read isotope number if specified, else it is undefined (=0).
                     if formula[i] == ']':
-                        bra_pos = formula.rfind('[', 0, i)
-                        if bra_pos == -1:
+                        brace_pos = formula.rfind('[', 0, i)
+                        if brace_pos == -1:
                             raise ChemicalCompositionError(
                                 'Badly-formed isotope number: %s' % formula)
                         try:
-                            isotope_num = int(formula[bra_pos + 1:i])
+                            isotope_num = int(formula[brace_pos + 1:i])
                         except ValueError:
                             raise ChemicalCompositionError(
                                 'Badly-formed isotope number: %s' % formula)
-                        i = bra_pos - 1
+                        i = brace_pos - 1
                     else:
                         isotope_num = 0
 
