@@ -18,7 +18,7 @@ from pygly2.utils import invert_dict
 Stem = constants.Stem
 Configuration = constants.Configuration
 
-#: A static copy of monosaccharide names to structures for copy-free comparison
+# A static copy of monosaccharide names to structures for copy-free comparison
 monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.items()}
 
 #: A mapping from common monosaccharide names to their symbol, ordered by priority
@@ -81,12 +81,12 @@ def get_relevant_substituents(residue):
     '''
     positions = [p for p, sub in residue.substituents()]
     substituents = [sub.name for p, sub in residue.substituents()]
-    if identity.is_a(residue, monosaccharide_reference["HexNAc"]) or\
-       identity.is_a(residue, monosaccharide_reference["NeuAc"]):
+    if identity.is_a(residue, monosaccharide_reference["HexNAc"], exact=False) or\
+       identity.is_a(residue, monosaccharide_reference["NeuAc"], exact=False):
         i = substituents.index("n_acetyl")
         substituents.pop(i)
         positions.pop(i)
-    elif identity.is_a(residue, "NeuGc"):
+    elif identity.is_a(residue, monosaccharide_reference["NeuGc"], exact=False):
         i = substituents.index("n_glycolyl")
         substituents.pop(i)
         positions.pop(i)
@@ -100,7 +100,7 @@ def substituent_to_linear_code(substituent, position=None):
 
     Parameters
     ----------
-    substituents: |Substituent| or |str|
+    substituents: Substituent or str
         The structure or the name to translate
     position:
         The position of the structure to try including
@@ -138,9 +138,9 @@ def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
 
     Parameters
     ----------
-    monosaccharide: |Monosaccharide|
+    monosaccharide: Monosaccharide
         The residue to be translated
-    max_tolerance: |int|
+    max_tolerance: int
         The maximum error tolerance to allow while looking for a match
 
     Returns
@@ -178,7 +178,7 @@ def priority(sym):
 
     Parameters
     ----------
-    sym: str or |Monosaccharide|
+    sym: str or Monosaccharide
 
     Returns
     -------
@@ -199,13 +199,13 @@ def glycan_to_linear_code(structure=None, max_tolerance=3):
 
     Parameters
     ----------
-    structure: |Glycan| or |Monosaccharide|
+    structure: Glycan or Monosaccharide
         The glycan to be translated. Translation starts from `glycan.root` if `structure`
         is a |Glycan|.
-    max_tolerance: |int|
+    max_tolerance: int
         The maximum amount of deviance to allow when translating |Monosaccharide| objects
         into nomenclature symbols
-    
+
     Returns
     -------
     deque
@@ -230,7 +230,7 @@ def glycan_to_linear_code(structure=None, max_tolerance=3):
                     attach_pos=pos
                     )
                 outstack.appendleft(branch)
-            pos, child, rank = children[-1]
+            pos, child, rank = ordered_children[-1]
             stack.append((pos, child))
         elif len(children) == 1:
             pos, child, rank = children[0]
@@ -238,14 +238,13 @@ def glycan_to_linear_code(structure=None, max_tolerance=3):
     return outstack
 
 
-
 def to_linear_code(structure):
     '''
-    Translates `structure` to Linear Code. 
+    Translates `structure` to Linear Code.
 
     Parameters
     ----------
-    structure: |Monosaccharide| or |Glycan|
+    structure: Monosaccharide or Glycan
 
     Returns
     -------
@@ -302,7 +301,7 @@ def parse_linear_code(text):
 
     Parameters
     ----------
-    text: |str|
+    text: str
         The string to be parsed
 
     Returns
@@ -363,8 +362,8 @@ def parse_linear_code(text):
     else:
         return res.root
 
-#: Common alias
+#: Common alias for :func:`to_linear_code`
 dumps = to_linear_code
 
-#: Common alias
+#: Common alias for :func:`parse_linear_code`
 loads = parse_linear_code

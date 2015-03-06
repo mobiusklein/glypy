@@ -26,7 +26,7 @@ def get_preferred_name(name, selector=min, key=len):
     return preferred_name
 
 
-def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True):
+def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True, exact=True):
     '''
     Perform a semi-fuzzy match between `node` and `target` where node is the unqualified
     residue queried and target is the known residue to be matched against
@@ -44,6 +44,8 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
         Whether or not to include modifications in comparison. Defaults to |True|
     include_substituents: bool
         Whether or not to include substituents in comparison. Defaults to |True|
+    exact: bool
+        Whether or not to penalize for unmatched attachments. Defaults to |True|
 
     Returns
     -------
@@ -64,7 +66,8 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
         if not isinstance(target, Monosaccharide):
             return False
         res, qs = monosaccharide_similarity(node, target, include_modifications=include_modifications,
-                                            include_substituents=include_substituents, include_children=False)
+                                            include_substituents=include_substituents,
+                                            include_children=False, exact=exact)
     return (qs - res) <= tolerance
 
 
@@ -114,36 +117,3 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
 
 class IdentifyException(Exception):
     pass
-
-
-class WrappedQuery(object):
-    '''
-    A little python sorcery to conveniently dynamically generate identity methods
-    at run-time. Once a predicate is made, it is cached to save time. This object
-    is substituted for the module in `sys.modules`, allowing us to override normal behavior
-    like `:func:getattr`. Also can fall back to the real module directly by accessing :attr:`module`
-    '''
-    def __init__(self, module):
-        self._module = module
-
-    def __getattr__(self, name):
-        try:
-            return object.__getattr__(self, name)
-        except AttributeError:
-            try:
-                partial_fn = functools.partial(is_a, target=named_structures.monosaccharides[name.replace('is_', "")])
-                setattr(self, name, partial_fn)
-                return partial_fn
-            except:
-                return getattr(self._module, name)
-
-    def is_a(self, node, target, tolerance=0):
-        return is_a(node, target, tolerance)
-
-    def identify(self, node, blacklist=None):
-        return identify(node, blacklist)
-
-if __name__ != '__main__':
-    import sys
-    self = sys.modules[__name__]
-    sys.modules[__name__] = WrappedQuery(self)

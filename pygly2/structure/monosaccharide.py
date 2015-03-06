@@ -24,10 +24,12 @@ def get_standard_composition(monosaccharide):
     Parameters
     ----------
     monosaccharide: Monosaccharide
+        The |Monosaccharide| object to read attributes from
 
     Returns
     -------
-    Composition
+    Composition:
+        The baseline composition from `monosaccharide.superclass` + `monosaccharide.modifications`
     '''
     base = monosaccharide_composition[monosaccharide.superclass]
     for mod_pos, mod_val in monosaccharide.modifications.items():
@@ -272,8 +274,10 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        list : The positions open for binding
-        :class:`int` : The number of bound but unknown locations on the backbone.
+        list:
+            The positions open for binding
+        int:
+            The number of bound but unknown locations on the backbone.
         '''
         slots = [0] * self.superclass.value
         unknowns = 0
@@ -309,16 +313,18 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        position: :class:`int`
+        position: int
             The position to check for occupancy. Passing -1 checks for undetermined attachments.
 
         Returns
         -------
-        :class:`int`: The number of occupants at ``position``
+        int
+            The number of occupants at ``position``
 
         Raises
         ------
-        IndexError: When the position is less than 1 or exceeds the limits of the carbohydrate backbone's size.
+        IndexError:
+            When the position is less than 1 or exceeds the limits of the carbohydrate backbone's size.
 
         '''
 
@@ -342,12 +348,12 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        position: |int| or 'x'
+        position: int or 'x'
             The location to add the :class:`~.constants.Modification` to.
-        modification: |str| or Modification
+        modification: str or Modification
             The modification to add. If passed a |str|, it will be 
             translated into an instance of :class:`~pygly2.structure.constants.Modification`
-        max_occupancy: |int|, optional
+        max_occupancy: int, optional
             The maximum number of items acceptable at `position`. defaults to :const:`1`
 
         Raises
@@ -377,24 +383,24 @@ class Monosaccharide(SaccharideBase):
                         child_position=1, parent_loss=None, child_loss=None):
         '''
         Adds a :class:`~pygly2.structure.substituent.Substituent` and associated :class:`~pygly2.structure.link.Link`
-        to :attr:`substituent_links` at the site given by ``position``. This new substituent is included when calculating mass
-        with substituents included
+        to :attr:`substituent_links` at the site given by ``position``. This new substituent is included when
+        calculating mass with substituents included
 
         Parameters
         ----------
-        substituent: |str| or |Substituent|
-            The substituent to add. If passed a |str|, it will be 
+        substituent: str or Substituent
+            The substituent to add. If passed a |str|, it will be
             translated into an instance of |Substituent|
-        position: |int| or 'x'
+        position: int or 'x'
             The location to add the |Substituent| link to :attr:`substituent_links`. Defaults to -1
-        child_position: |int|
+        child_position: int
             The location to add the link to in `substituent`'s :attr:`links`. Defaults to -1. Substituent
             indices are currently not checked.
-        max_occupancy: |int|, optional
+        max_occupancy: int, optional
             The maximum number of items acceptable at ``position``. Defaults to :const:`1`
-        parent_loss: |Composition|
+        parent_loss: Composition or str
             The elemental composition removed from ``self``
-        child_loss: |Composition|
+        child_loss: Composition or str
             The elemental composition removed from ``substituent``
 
         Raises
@@ -448,17 +454,17 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        monosaccharide: |Monosaccharide|
+        monosaccharide: Monosaccharide
             The monosaccharide to add.
-        position: |int| or 'x'
+        position: int or 'x'
             The location to add the |Monosaccharide| link to :attr:`links`. Defaults to -1
-        child_position: |int|
+        child_position: int
             The location to add the link to in `monosaccharide`'s :attr:`links`. Defaults to -1.
-        max_occupancy: |int|, optional
+        max_occupancy: int, optional
             The maximum number of items acceptable at ``position``. Defaults to :const:`1`
-        parent_loss: |Composition|
+        parent_loss: Composition or str
             The elemental composition removed from ``self``
-        child_loss: |Composition|
+        child_loss: Composition or str
             The elemental composition removed from ``monosaccharide``
 
         Raises
@@ -517,7 +523,7 @@ class Monosaccharide(SaccharideBase):
             A function to yield index numbers for the *RES* section. If not provided, defaults to :func:`~pygly2.utils.make_counter`
         lin_index : function, optional
             A function to yield index numbers for the *LIN* section. If not provided, defaults to :func:`~pygly2.utils.make_counter`
-        complete : |bool|, optional
+        complete : bool, optional
             Format the object completely, returning a self-contained condensed GlycoCT string. Defaults to :const:`True`
 
         Returns
@@ -754,8 +760,20 @@ class Monosaccharide(SaccharideBase):
         for pos, link in self.substituent_links.items():
             yield pos, link.to(self)
 
-    def order(self):
-        return len(list(self.children())) + len(self.substituent_links)
+    def order(self, include_substituents=False):
+        '''
+        Return the "graph theory" order of this residue
+
+        Parameters
+        ----------
+        include_substituents: bool
+            Include the number of substituent_links in order calculations. Defaults to |False|
+
+        Returns
+        -------
+        int
+        '''
+        return len(list(self.children())) + (len(self.substituent_links) if include_substituents else 0)
 
     def __iter__(self):
         return self.children()

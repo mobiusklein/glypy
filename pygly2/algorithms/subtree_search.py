@@ -33,7 +33,7 @@ def topological_inclusion(self, other, substituents=True):  # pragma: no cover
 
     Returns
     -------
-    |bool|
+    bool
     '''
     if self._flat_equality(other, lengths=False) and (not substituents or substituent_inclusion(self, other)):
         taken_b = set()
@@ -96,12 +96,12 @@ def subtree_of(subtree, tree, exact=True):
 
     Parameters
     ----------
-    subtree: |Glycan|
+    subtree: Glycan
         The structure to search for. The search attempts to match the complete structure of subtree.
-    tree: |Glycan|
+    tree: Glycan
         The sturcture to search in. The search iterates over each residue in `tree` and calls a comparator
         function, comparing the `subtree` to the substructure rooted at that residue.
-    exact: |bool|
+    exact: bool
         If |True|, use :func:`exact_ordering_inclusion` to compare nodes. Otherwise use :func:`topological_inclusion`.
 
     Returns

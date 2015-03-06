@@ -166,7 +166,8 @@ class DrawTree(object):
         if ax is None:
             fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
-        residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, **kwargs)
+        residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
+                                                                          orientation=orientation, **kwargs)
         for i, res_el in enumerate(residue_elements):
             if isinstance(res_el, tuple):
                 [el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id))) for el in res_el]

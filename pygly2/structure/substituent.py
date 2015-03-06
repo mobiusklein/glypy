@@ -9,7 +9,13 @@ from ..utils import make_struct
 from ..utils.multimap import OrderedMultiMap
 
 
-DerivatizePathway = make_struct("DerivatizePathway", ("can_nh_derivatize", "is_nh_derivatizable"))
+class DerivatizePathway(object):
+    def __init__(self, can_nh_derivatize, is_nh_derivatizable):
+        self.can_nh_derivatize = can_nh_derivatize
+        self.is_nh_derivatizable = is_nh_derivatizable
+
+    def __repr__(self):
+        return "<DerivatizePathway {}>".format(self.__dict__)
 
 
 derivatize_info = {
@@ -78,6 +84,16 @@ class Substituent(SubstituentBase):
 
     @name.setter
     def name(self, value):
+        '''
+        Translate the name of the substituent from the common dash-separated notation
+        to a valid identifier, replacing - with _.
+        
+        Parameters
+        ----------
+        value: str
+            The name being set
+        
+        '''
         self._name = value.replace("-", "_")
 
     def to_glycoct(self):
@@ -93,14 +109,60 @@ class Substituent(SubstituentBase):
         return not self == other
 
     def is_occupied(self, position):
+        '''
+        Check to see if `position` is occupied. Unlike |Monosaccharide|, |Substituent| objects
+        can only have two attachment sites at this time.
+
+        Parameters
+        ----------
+        position: int
+
+        Returns
+        -------
+        int:
+            Number of links at `position`
+
+        Raises
+        ------
+        IndexError:
+            If `position` > 2 or < 1
+        '''
         if position > 2 or position < 1:
             raise IndexError("Position out of range")
         return len(self.links[position])
 
-    def add_substituent(self, substitent, position=-1, max_occupancy=1,
-                        child_position=-1, parent_loss=None, child_loss=None):
+    def add_substituent(self, substitent, position=2, max_occupancy=1,
+                        child_position=1, parent_loss=None, child_loss=None):
+        '''
+        Adds a :class:`~pygly2.structure.substituent.Substituent` and associated :class:`~pygly2.structure.link.Link`
+        to :attr:`links` at the site given by ``position``. This new substituent is included when calculating mass
+        with substituents included
+
+        Parameters
+        ----------
+        substituent: str or Substituent
+            The substituent to add. If passed a |str|, it will be 
+            translated into an instance of |Substituent|
+        position: int or 'x'
+            The location to add the |Substituent| link to :attr:`links`. Defaults to 2
+        child_position: int
+            The location to add the link to in `substituent`'s :attr:`links`. Defaults to 1. Substituent
+            indices are currently not checked.
+        max_occupancy: int, optional
+            The maximum number of items acceptable at ``position``. Defaults to :const:`1`
+        parent_loss: Composition or str
+            The elemental composition removed from ``self``
+        child_loss: Composition or str
+            The elemental composition removed from ``substituent``
+
+        Raises
+        ------
+        ValueError:
+            ``position`` is occupied by more than ``max_occupancy`` elements
+        '''
+           
         if self.is_occupied(position) > max_occupancy:
-            raise IndexError("Site is already occupied")
+            raise ValueError("Site is already occupied")
         if parent_loss is None:
             parent_loss = Composition(H=1)
         if child_loss is None:
@@ -151,6 +213,24 @@ class Substituent(SubstituentBase):
         return mass
 
     def clone(self, prop_id=True):
+        '''
+        Duplicates this |Substituent| object, recursively copying all children
+        as well.
+        
+        Parameters
+        ----------
+        prop_id: bool
+            Whether or not to propagate :attr:`id` to the clone.
+        
+        
+        Returns
+        -------
+        Substituent
+
+        See Also
+        --------
+        :meth:`.structure.Monosaccharide.clone`
+        '''
         substituent = Substituent(self.name)
         for pos, link in self.links.items():
             if link.is_child(self):
@@ -191,7 +271,7 @@ class Substituent(SubstituentBase):
 
     def parents(self):
         '''
-        Returns an iterator over the :class:`Monosaccharide`s which are considered
+        Returns an iterator over the objects which are considered
         the ancestors of ``self``.
         '''
         for pos, link in self.links.items():
@@ -201,8 +281,24 @@ class Substituent(SubstituentBase):
 
     @property
     def can_nh_derivatize(self):
+        '''
+        Check :data:`derivatize_info` to see if this substituent type
+        can be derivatized an N-H terminal.
+
+        Returns
+        -------
+        bool
+        '''
         return derivatize_info[self.name].can_nh_derivatize
 
     @property
     def is_nh_derivatizable(self):
+        '''
+        Check :data:`derivatize_info` to see if this substituent type
+        derivatizes an N-H terminal.
+
+        Returns
+        -------
+        bool
+        '''
         return derivatize_info[self.name].is_nh_derivatizable

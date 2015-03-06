@@ -37,7 +37,7 @@ class UnknownShapeException(Exception):
 def get_relevant_substituents(residue, shape=None):
     '''
     Given the shape for a residue, determine which of its substituents must
-    be explicitly drawn.  Calls :func:`residue_shape` if `shape` is not 
+    be explicitly drawn.  Calls :func:`residue_shape` if `shape` is not
     provided.
 
     Parameters
@@ -52,7 +52,7 @@ def get_relevant_substituents(residue, shape=None):
     -------
     |list| of |Substituent|s
     '''
-    
+
     shape = residue_shape(residue) if shape is None else shape
     if shape != ResidueShape.generic:
         substituents = list(sub.name for p, sub in residue.substituents())
@@ -73,7 +73,7 @@ def get_relevant_substituents(residue, shape=None):
                 buffer.append((p, sub.name))
                 relevant_substituents[sub.name] -= 1
         return buffer
-    
+
     return list((p, sub.name) for p, sub in residue.substituents())
 
 
@@ -200,10 +200,10 @@ def get_symbol(monosaccharide):
     return shp, col
 
 
-def draw(monosaccharide, x, y, ax, scale=0.1):
+def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     '''
     Renders `monosaccharide` at the given `(x, y)` coordinates on the `matplotlib.Axis`
-    `ax` provided. Determines the shape to use by :func:`residue_shape` and color by 
+    `ax` provided. Determines the shape to use by :func:`residue_shape` and color by
     :func:`residue_color`. The shape value is used to select the specialized draw_* function
     '''
     abbrev = None
@@ -224,9 +224,11 @@ def draw(monosaccharide, x, y, ax, scale=0.1):
         res = drawer(ax, x, y, color, scale=scale)
     substituents = get_relevant_substituents(monosaccharide)
 
+    # Render substituents along the bottom of the monosaccharide
     subs = []
-    sub_x = x - 0.15
-    sub_y = y - 0.15
+    sub_x = x - (0.15 * (len(substituents) - 1))
+    print(x, sub_x)
+    sub_y = y - 0.18
     for pos, subst_name in substituents:
         sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name))
         sub_x += 0.15

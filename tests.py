@@ -12,6 +12,7 @@ from pygly2.io.nomenclature import identity, synonyms
 from pygly2.utils import StringIO, identity as ident_op, multimap, pickle
 from pygly2.composition import Composition, composition_transform, composition
 from pygly2.algorithms import subtree_search
+from pygly2.algorithms import similarity
 
 Substituent = pygly2.Substituent
 # logging.basicConfig(level="DEBUG")
@@ -143,6 +144,103 @@ LIN
 17:15o(4+1)17d
 18:18d(2+1)19n
 19:18o(4+1)20d'''
+
+sulfated_glycan = '''
+RES
+1b:o-dgal-HEX-0:0|1:aldi
+2b:b-dglc-HEX-1:5
+3s:n-acetyl
+4b:b-dgal-HEX-1:5
+5b:b-dglc-HEX-1:5
+6s:n-acetyl
+7b:b-dgal-HEX-1:5
+8b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+9s:n-acetyl
+10s:sulfate
+11s:sulfate
+12s:sulfate
+LIN
+1:1o(3+1)2d
+2:2d(2+1)3n
+3:2o(4+1)4d
+4:4o(3+1)5d
+5:5d(2+1)6n
+6:5o(4+1)7d
+7:7o(6+2)8d
+8:8d(5+1)9n
+9:5o(6+1)10n
+10:4o(6+1)11n
+11:2o(6+1)12n
+'''
+
+complex_glycan = '''
+RES
+1b:x-dglc-HEX-1:5
+2s:n-acetyl
+3b:b-dglc-HEX-1:5
+4s:n-acetyl
+5b:b-dman-HEX-1:5
+6b:a-dman-HEX-1:5
+7b:b-dglc-HEX-1:5
+8s:n-acetyl
+9b:a-lgal-HEX-1:5|6:d
+10b:b-dgal-HEX-1:5
+11b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+12s:n-glycolyl
+13b:b-dglc-HEX-1:5
+14s:n-acetyl
+15b:b-dgal-HEX-1:5
+16s:n-acetyl
+17b:b-dglc-HEX-1:5
+18s:n-acetyl
+19b:a-dman-HEX-1:5
+20b:b-dglc-HEX-1:5
+21s:n-acetyl
+22b:a-lgal-HEX-1:5|6:d
+23b:b-dgal-HEX-1:5
+24b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+25s:n-glycolyl
+26b:b-dglc-HEX-1:5
+27s:n-acetyl
+28b:a-lgal-HEX-1:5|6:d
+29b:b-dgal-HEX-1:5
+30b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+31s:n-acetyl
+32b:a-lgal-HEX-1:5|6:d
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3d(2+1)4n
+4:3o(4+1)5d
+5:5o(3+1)6d
+6:6o(2+1)7d
+7:7d(2+1)8n
+8:7o(3+1)9d
+9:7o(4+1)10d
+10:10o(3|6+2)11d
+11:11d(5+1)12n
+12:6o(4+1)13d
+13:13d(2+1)14n
+14:13o(4+1)15d
+15:15d(2+1)16n
+16:5o(4+1)17d
+17:17d(2+1)18n
+18:5o(6+1)19d
+19:19o(2+1)20d
+20:20d(2+1)21n
+21:20o(3+1)22d
+22:20o(4+1)23d
+23:23o(3|6+2)24d
+24:24d(5+1)25n
+25:19o(6+1)26d
+26:26d(2+1)27n
+27:26o(3+1)28d
+28:26o(4+1)29d
+29:29o(3|6+2)30d
+30:30d(5+1)31n
+31:1o(6+1)32d
+'''
+
 
 
 class GlycoCTParserTests(unittest.TestCase):
@@ -481,11 +579,11 @@ class GlycanTests(unittest.TestCase):
         d_children = list(d.leaves())
         d_children[0].add_monosaccharide(monosaccharides["NeuGc"])
         d_children[1].add_monosaccharide(monosaccharides["NeuGc"])
-        self.assertEqual(a, b)
-        self.assertNotEqual(a, c)
-        self.assertNotEqual(a, base)
-        self.assertNotEqual(a, d)
-        self.assertNotEqual(b, d)
+        self.assertTrue(a.topological_equality(b))
+        self.assertFalse(a.topological_equality(c))
+        self.assertFalse(a.topological_equality(base))
+        self.assertFalse(a.topological_equality(d))
+        self.assertFalse(b.topological_equality(d))
 
     def test_substructures_gen(self):
         structure = glycoct.loads(broad_n_glycan).next()
@@ -723,9 +821,6 @@ class IdentifyTests(unittest.TestCase):
         self.assertFalse(
             identity.is_a(Substituent('n-acetyl'), monosaccharides.Man))
 
-    def test_magic_predicate(self):
-        self.assertTrue(identity.is_Man(monosaccharides.Man))
-
     def test_get_preferred_name(self):
         self.assertTrue(identity.get_preferred_name('bdMan') == 'Man')
 
@@ -743,6 +838,25 @@ class LinearCodeTests(unittest.TestCase):
         self.assertEqual(broad, dup)
 
 
+class SimilarityTests(unittest.TestCase):
+
+    def test_deep_similarity(self):
+        branchy = glycoct.loads(branchy_glycan).next()
+        broad = glycoct.loads(broad_n_glycan).next()
+        ref = broad.clone()
+        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (5, 5))
+        self.assertEqual(
+            similarity.monosaccharide_similarity(branchy.root, branchy.root, include_children=True),
+            (26, 26))
+        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, broad.root), (4, 5))
+        self.assertEqual(
+            similarity.monosaccharide_similarity(branchy.root, broad.root, include_children=True),
+            (7, 10))
+        self.assertEqual(
+            similarity.monosaccharide_similarity(broad.root, branchy.root, include_children=True),
+            (11, 14))
+        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (54, 54))
+        self.assertEqual(ref, broad)
 
 if __name__ == '__main__':
     unittest.main()

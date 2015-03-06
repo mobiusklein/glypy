@@ -10,16 +10,53 @@ default_child_loss = Composition(H=1)
 class Link(object):
 
     '''
-    Represents the linkage between two residues.
+    Represents the linkage between two molecules, described as an edge in a graph with optional
+    directedness semantics.
 
     Attributes
     ----------
     parent: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
     child: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
+    parent_position: int
+        Position of link on :attr:`parent`
+    child_position: int
+        position of link on :attr:`child`
+    parent_loss: |Composition|
+        Elemental composition lost from the :attr:`parent` when forming this bond
+    child_loss: |Composition|
+        Elemental composition lost from the :attr:`child` when forming this bond
+
     '''
 
     def __init__(self, parent, child, parent_position=-1, child_position=-1,
                  parent_loss=None, child_loss=None, id=None, attach=True):
+        '''
+        Defines a bond between `parent` and `child` between the molecule positions specified.
+        The bond may represent a partial loss of elemental composition from the parent and/or child
+        molecules.
+
+        Instantiating the |Link| object will automatically attach it to its endpoints, mutating them
+        unless `attach=False`. If not attached on instantiation, the bond can be realized by calling
+        :meth:`Link.apply()` at a later time.
+
+        Parameters
+        ----------
+        parent: Monosaccharide or Substituent
+        child: Monosaccharide or Substituent
+        parent_position: int
+            The position on the parent to attach to Defaults to -1
+        child_position: int
+            The position on the child to attach to. Defaults to -1
+        parent_loss: Composition or str
+            The elemental composition deducted from the parent when the bond is applied
+        child_loss: Composition or str
+            The elemental composition deducted from the child when the bond is applied
+        id: int
+            A locally unique identifier within a graph. If |None|, uuid4 is used to generate one. Defaults to |None|
+        attach: bool
+            Whether to immediately attach the |Link| object to the `parent` and `child` molecules on instantiation
+            by using :meth:`Link.apply`
+        '''
 
         if isinstance(parent_loss, basestring):
             parent_loss = Composition(formula=parent_loss)
@@ -63,6 +100,23 @@ class Link(object):
         self.child.links[self.child_position] = self
 
     def to(self, mol):
+        '''
+        Traverse the link from `mol` to its adjacent node. If `mol` is not `self.parent` or 
+        `self.child`, instead raises an error. :meth:`__getitem__` is an alias of `to`
+
+        Parameters
+        ----------
+        mol: Monosaccharide or Substituent
+
+        Returns
+        -------
+        Monosaccharide or Substituent
+
+        Raises
+        ------
+        KeyError:
+            If `mol` is not the parent or child of this |Link|
+        '''
         hmol = id(mol)
         if hmol == id(self.parent):
             return self.child
@@ -96,6 +150,16 @@ class Link(object):
         return parent_loss_str, child_loss_str
 
     def to_glycoct(self, ix, parent_ix, child_ix):
+        '''
+        Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
+        the textual indices of its parent and child lines.
+
+        See also
+        --------
+        :meth:`pygly2.structure.monosaccharide.Monosaccharide.to_glycoct`
+        :meth:`pygly2.structure.glycan.Glycan.to_glycoct`
+        '''
+
         parent_loss_str, child_loss_str = self._glycoct_sigils()
         rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
         return rep.format(
@@ -107,22 +171,56 @@ class Link(object):
             child_loss=child_loss_str,
             child_position=self.child_position)
 
+    #: Alias for :meth:`to`
     __getitem__ = to
 
     def __iter__(self):
+        '''
+        Yields the `parent` node, then the `child` node
+        '''
         yield self.parent
         yield self.child
 
     def is_substituent_link(self):
+        '''
+        If :attr:`child` is a |Substituent| and :attr:`parent` is a |Monosaccharide|, then `self` is a *substituent_link*
+
+        Returns
+        -------
+        bool
+        '''
         return isinstance(self.child, SubstituentBase) and isinstance(self.parent, SaccharideBase)
 
     def is_parent(self, mol):
+        '''
+        Test `mol` for :func:`id` equality with :attr:`parent`
+
+        Returns
+        -------
+        bool
+        '''
         return id(mol) == id(self.parent)
 
     def is_child(self, mol):
+        '''
+        Test `mol` for :func:`id` equality with :attr:`child`
+
+        Returns
+        -------
+        bool
+        '''
         return id(mol) == id(self.child)
 
     def clone(self, parent, child):
+        '''
+        Given two new objects `parent` and `child`, duplicate all other information in `self`,
+        creating a new `Link` object between `parent` and `child` with the same properties as
+        `self`.
+
+        Returns
+        -------
+        Link
+        '''
         return Link(parent, child,
                     parent_position=self.parent_position,
                     child_position=self.child_position,
@@ -131,6 +229,9 @@ class Link(object):
                     id=self.id)
 
     def __eq__(self, other):
+        '''
+        Performs deep equality testing between `self` and `other`
+        '''
         if (other is None):
             return False
         res = (self.parent == other.parent)
@@ -173,6 +274,19 @@ class Link(object):
         return (self.parent, self.child)
 
     def reconnect(self, refund=False, reorient_fn=None):
+        '''
+        The opposite of :meth:`Link.break_link`, add `self` to the appropriate places on
+        :attr:`parent` and :attr:`child`
+        
+        Parameters
+        ----------
+        refund: bool
+            Should :meth:`Link.refund` be called? Defaults to |False|
+        reorient_fn: function
+            A function to be applied prior to reconnecting the bond. Defaults to |None|. If |None| is
+            passed, no action is taken
+        
+        '''
         if reorient_fn is not None:
             reorient_fn(self)
         if self.is_substituent_link():

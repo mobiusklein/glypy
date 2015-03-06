@@ -184,7 +184,7 @@ class Glycan(SaccharideBase):
         from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
-        apply_fn: `function`
+        apply_fn: function
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
         visited: set or None
@@ -226,7 +226,7 @@ class Glycan(SaccharideBase):
         from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
-        apply_fn: `function`
+        apply_fn: function
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
         visited: set or None
@@ -281,7 +281,7 @@ class Glycan(SaccharideBase):
         from_node: None or Monosaccharide
             If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
             from the given node.
-        apply_fn: `function`
+        apply_fn: function
             A function applied to each node on arrival. If this function returns a non-None value,
             the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
         method: str or `function`
@@ -533,6 +533,28 @@ class Glycan(SaccharideBase):
 
     def __eq__(self, other):
         '''
+        Two glycans are considered equal if they are identically ordered nodes.
+
+        Parameters
+        ----------
+        self, other: Glycan
+
+        Returns
+        -------
+        bool
+
+        See also
+        --------
+        :meth:`pygly2.structure.Monosaccharide.exact_ordering_equality`
+        '''
+        if other is None:
+            return False
+        elif not isinstance(other, Glycan):
+            return False
+        return self.root.exact_ordering_equality(other.root)
+
+    def topological_equality(self, other):
+        '''
         Two glycans are considered equal if they are topologically equal.
 
         Parameters
@@ -547,10 +569,6 @@ class Glycan(SaccharideBase):
         --------
         :meth:`pygly2.structure.Monosaccharide.topological_equality`
         '''
-        if other is None:
-            return False
-        elif not isinstance(other, Glycan):
-            return False
         return self.root.topological_equality(other.root)
 
     def __ne__(self, other):
@@ -662,10 +680,6 @@ class Glycan(SaccharideBase):
                         z_mass = parent_tree.mass(
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield ('Z', [break_id], parent_include, z_mass)
-
-            except Exception, e:  # pragma: no cover
-                link.apply()
-                raise e
             finally:
                 # Unmask the Link and apply its composition shifts
                 logger.debug("Reapplying %d", break_id)
@@ -708,9 +722,6 @@ class Glycan(SaccharideBase):
                         for c_parent, parent_include, c_child, child_include, c_link_ids in child_tree.break_links_subtrees(
                                 n_links, min_size=min_size):
                             yield c_parent, parent_include, c_child, child_include, c_link_ids + [break_id]
-            except Exception, e:  # pragma: no cover
-                link.apply()
-                raise e
             finally:
                 # Unmask the Link and apply its composition shifts
                 logger.debug("Reapplying %d", break_id)

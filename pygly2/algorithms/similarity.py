@@ -3,7 +3,8 @@ from collections import defaultdict
 
 
 def monosaccharide_similarity(node, target, include_substituents=True,
-                              include_modifications=True, include_children=False):
+                              include_modifications=True, include_children=False,
+                              exact=True):
     '''
     A heuristic for measuring similarity between monosaccharide instances
 
@@ -29,6 +30,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         Include modifications in comparison (Defaults |True|)
     include_children: bool
         Include children in comparison (Defaults |False|)
+    exact: bool
+        Penalize for having unmatched attachments (Defaults |True|)
 
     Returns
     -------
@@ -37,6 +40,7 @@ def monosaccharide_similarity(node, target, include_substituents=True,
     qs: int
         Number of expected matching traits assuming perfect equality
     '''
+
     res = 0
     qs = 0
     res += (node.anomer == target.anomer) or (target.anomer.value is None)
@@ -51,29 +55,30 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         node_mods = list(node.modifications.values())
         for pos, mod in target.modifications.items():
             check = (mod in node_mods)
-            res += check
             if check:
+                res += 1
                 node_mods.pop(node_mods.index(mod))
             qs += 1
-        qs += len(node_mods)
+        qs += len(node_mods) if exact else 0
     if include_substituents:
         node_subs = list(node for p, node in node.substituents())
         for pos, sub in target.substituents():
             check = (sub in node_subs)
-            res += check
             if check:
+                res += 1
                 node_subs.pop(node_subs.index(sub))
             qs += 1
-        qs += len(node_subs)
+        qs += len(node_subs) if exact else 0
     if include_children:
         node_children = list(child for p, child in node.children())
         match_index = dict()
         for p, target_child in target.children():
             for node_child in node_children:
                 c_res, c_qs = monosaccharide_similarity(
-                    node_child, target_child, include_substituents, include_modifications,
-                    include_children)
-                match_index[target_child.id, target_child.id] = (c_res, c_qs)
+                    node_child, target_child, include_substituents=include_substituents,
+                    include_modifications=include_modifications, include_children=include_children)
+                match_index[node_child.id, target_child.id] = (c_res, c_qs)
+
         assignments = optimal_assignment(match_index, operator.sub)
         for ix in assignments:
             a_res, a_qs = match_index[ix]
@@ -102,27 +107,6 @@ def optimal_assignment(assignments, score_fn):
             best_score = current_score
             best_mapping = assignment
     return best_mapping
-
-
-# def build_unique_index(options_a, options_b, depth=0):
-#     next_current = [()]
-#     set_options_b = set(options_b)
-#     partial_solutions = set()
-#     while depth < len(options_a):
-#         for current in next_current:
-#             if len(current) > 0:
-#                 current_a, current_b = map(set, (zip(*current)))
-#             else:
-#                 current_b = set()
-#             components = set()
-#             a = options_a[depth]
-#             for b in set_options_b - current_b:
-#                 components.add((current + ((a, b),)))
-#             partial_solutions.update(components)
-#         depth += 1
-#         next_current = partial_solutions
-#         partial_solutions = set()
-#     return list(next_current)
 
 
 def build_unique_index_pairs(pairs):
