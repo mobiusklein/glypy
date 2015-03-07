@@ -1,4 +1,3 @@
-__all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop', "multimap"]
 import sys
 import gzip
 
@@ -21,6 +20,9 @@ except:  # pragma: no cover
         from StringIO import StringIO
     except:
         from io import StringIO
+
+
+__all__ = ["enum", 'opener', 'make_counter', 'invert_dict', 'identity', 'nullop', "multimap"]
 
 
 def opener(obj, mode='r'):

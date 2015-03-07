@@ -73,3 +73,20 @@ def run_tests(test_cases=None):
                 if "%0.4f" % v[kind].permethylated_mass != "%0.4f" % target_d_permethylated[kind].mass():
                     print('p', k, v[kind], target_d_permethylated[kind])
                     print("------------------------")
+
+
+def single_test(target, reference):
+        test = reference
+        target = target
+        for k, v in test.items():
+            target_d = {t.kind: t for t in ring_shape.crossring_fragments(target, k[0], k[1])}
+            target_d_permethylated = {t.kind: t for t in ring_shape.crossring_fragments(
+                derivatize(target.clone(), "methyl"), k[0], k[1])}
+            for kind in {"A", "X"}:
+                if "%0.4f" % v[kind].mass != "%0.4f" % target_d[kind].mass():
+                    print(k, v[kind], target_d[kind])
+                    print("------------------------")
+
+                if "%0.4f" % v[kind].permethylated_mass != "%0.4f" % target_d_permethylated[kind].mass():
+                    print('p', k, v[kind], target_d_permethylated[kind])
+                    print("------------------------")

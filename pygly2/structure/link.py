@@ -101,7 +101,7 @@ class Link(object):
 
     def to(self, mol):
         '''
-        Traverse the link from `mol` to its adjacent node. If `mol` is not `self.parent` or 
+        Traverse the link from `mol` to its adjacent node. If `mol` is not `self.parent` or
         `self.child`, instead raises an error. :meth:`__getitem__` is an alias of `to`
 
         Parameters
@@ -135,7 +135,8 @@ class Link(object):
             child_loss_str = 'o'
             parent_loss_str = 'd'
 
-        if self.child_loss == Composition(H=1) and isinstance(self.child, SubstituentBase):
+        if self.child_loss == Composition(
+                H=1) and isinstance(self.child, SubstituentBase):
             child_loss_str = "n"
             if self.parent_loss == Composition(O=1, H=1):
                 parent_loss_str = "d"
@@ -189,7 +190,8 @@ class Link(object):
         -------
         bool
         '''
-        return isinstance(self.child, SubstituentBase) and isinstance(self.parent, SaccharideBase)
+        return isinstance(self.child, SubstituentBase) and isinstance(
+            self.parent, SaccharideBase)
 
     def is_parent(self, mol):
         '''
@@ -232,7 +234,7 @@ class Link(object):
         '''
         Performs deep equality testing between `self` and `other`
         '''
-        if (other is None):
+        if (other is None or not isinstance(other, Link)):
             return False
         res = (self.parent == other.parent)
         if res:
@@ -277,7 +279,7 @@ class Link(object):
         '''
         The opposite of :meth:`Link.break_link`, add `self` to the appropriate places on
         :attr:`parent` and :attr:`child`
-        
+
         Parameters
         ----------
         refund: bool
@@ -285,7 +287,7 @@ class Link(object):
         reorient_fn: function
             A function to be applied prior to reconnecting the bond. Defaults to |None|. If |None| is
             passed, no action is taken
-        
+
         '''
         if reorient_fn is not None:
             reorient_fn(self)

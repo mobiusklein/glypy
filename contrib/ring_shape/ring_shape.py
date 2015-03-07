@@ -7,6 +7,7 @@ from pygly2.utils.multimap import OrderedMultiMap
 SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
 
+
 class CrossRingFragment(Monosaccharide):
 
     def __init__(self, composition, cleave_1, cleave_2, contains, kind,
@@ -25,21 +26,14 @@ class CrossRingFragment(Monosaccharide):
         return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.mass())
 
-# https://code.google.com/p/eurocarb/source/browse/trunk/application/GlycanBuilder/ringfragments/Cross-ring-data.xml?r=383
-# for validation
-
 
 def crossring_fragments(monosaccharide, c1, c2):
-    # if c1 < monosaccharide.ring_start or c2 > monosaccharide.ring_end:
-    #     raise IndexError("Cannot cross-ring cleave outside the ring")
     c1_segment, c1_include, c2_segment, c2_include = cleave_ring(
         monosaccharide, c1, c2)
 
     c1_fragment = pack_fragment(c1_segment, c1, c2, c1_include, monosaccharide)
     c2_fragment = pack_fragment(c2_segment, c1, c2, c2_include, monosaccharide)
 
-    # If the ring_end is cleaved, then the O component of
-    # the ring should go with the X ion
     ring_start = monosaccharide.ring_start
     ring_end = monosaccharide.ring_end
 
@@ -55,9 +49,9 @@ def crossring_fragments(monosaccharide, c1, c2):
         a_fragment = c1_fragment
         a_fragment.kind = "A"
 
-
-
-    if ring_end == c2:
+    # If the ring_end is cleaved, then the O component of
+    # the ring should go with the X ion
+    if ring_end - (ring_start - 1) == c2:
         c1_fragment.composition = Composition(c1_fragment.composition) - {"O": 1}
         c2_fragment.composition = Composition(c2_fragment.composition) + {"O": 1}
 
@@ -100,12 +94,14 @@ def pack_fragment(fragment_parts, c1, c2, include, monosaccharide):
         subst = link[monosaccharide]
         link.clone(fragment_object, subst.clone())
 
+    edges = {node.id for node in monosaccharide.links.values()}
     for pos, link in fragment_data['links'].items():
-        subtree = Glycan.subtree_from(link[monosaccharide])
+        subtree = Glycan(link[monosaccharide], index_method=None).clone(
+            visited=edges - {link[monosaccharide].id}, index_method=None)
         if link.is_parent(monosaccharide):
-            link.clone(fragment_object, subtree)
+            link.clone(fragment_object, subtree.root)
         else:
-            link.clone(subtree, fragment_object)
+            link.clone(subtree.root, fragment_object)
     return fragment_object
 
 
@@ -140,13 +136,13 @@ def cleave_ring(monosaccharide, c1, c2):
     ring_start = monosaccharide.ring_start
     ring_end = monosaccharide.ring_end
     c1_segment, c1_include, c2_segment, c2_include = slice_ring(
-        linear[:ring_end], c1, c2, ring_start)
+        linear[ring_start - 1: ring_end], c1, c2, ring_start)
 
     if ring_start in c1_include and ring_start - 1 not in c1_include and ring_start != 1:
-        c1_segment = linear[:ring_start] + c1_segment
+        c1_segment = linear[:ring_start-1] + c1_segment
         c1_include = list(i + 1 for i in range(ring_start + 1)) + c1_include
     elif ring_start in c2_include and ring_start - 1 not in c2_include and ring_start != 1:
-        c2_segment = linear[:ring_start] + c2_segment
+        c2_segment = linear[:ring_start-1] + c2_segment
         c2_include = list(i + 1 for i in range(ring_start + 1)) + c2_include
 
     if ring_end in c2_include:

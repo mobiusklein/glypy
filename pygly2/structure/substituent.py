@@ -10,6 +10,7 @@ from ..utils.multimap import OrderedMultiMap
 
 
 class DerivatizePathway(object):
+
     def __init__(self, can_nh_derivatize, is_nh_derivatizable):
         self.can_nh_derivatize = can_nh_derivatize
         self.is_nh_derivatizable = is_nh_derivatizable
@@ -64,6 +65,7 @@ derivatize_info = {
 
 
 class Substituent(SubstituentBase):
+
     '''
     Represents a non-saccharide molecule commonly found bound to saccharide units.
     '''
@@ -87,12 +89,12 @@ class Substituent(SubstituentBase):
         '''
         Translate the name of the substituent from the common dash-separated notation
         to a valid identifier, replacing - with _.
-        
+
         Parameters
         ----------
         value: str
             The name being set
-        
+
         '''
         self._name = value.replace("-", "_")
 
@@ -141,7 +143,7 @@ class Substituent(SubstituentBase):
         Parameters
         ----------
         substituent: str or Substituent
-            The substituent to add. If passed a |str|, it will be 
+            The substituent to add. If passed a |str|, it will be
             translated into an instance of |Substituent|
         position: int or 'x'
             The location to add the |Substituent| link to :attr:`links`. Defaults to 2
@@ -160,7 +162,7 @@ class Substituent(SubstituentBase):
         ValueError:
             ``position`` is occupied by more than ``max_occupancy`` elements
         '''
-           
+
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
         if parent_loss is None:
@@ -179,7 +181,8 @@ class Substituent(SubstituentBase):
                 link_obj = substituent_link
                 break
         if link_obj is None:
-            raise IndexError("No matching substituent found at {position}".format(position=position))
+            raise IndexError(
+                "No matching substituent found at {position}".format(position=position))
 
         link_obj.break_link(refund=refund)
         return self
@@ -207,22 +210,24 @@ class Substituent(SubstituentBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
-        mass = calculate_mass(self.composition, average=average, charge=charge, mass_data=mass_data)
+        mass = calculate_mass(
+            self.composition, average=average, charge=charge, mass_data=mass_data)
         for link_pos, child in self.children():
-            mass += child.mass(average=average, charge=charge, mass_data=mass_data)
+            mass += child.mass(average=average,
+                               charge=charge, mass_data=mass_data)
         return mass
 
     def clone(self, prop_id=True):
         '''
         Duplicates this |Substituent| object, recursively copying all children
         as well.
-        
+
         Parameters
         ----------
         prop_id: bool
             Whether or not to propagate :attr:`id` to the clone.
-        
-        
+
+
         Returns
         -------
         Substituent

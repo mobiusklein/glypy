@@ -50,6 +50,42 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
             yield grandchild
 
 
+def graph_clone(monosaccharide, visited=None):
+    clone_root = monosaccharide.clone(prop_id=True)
+    node_stack = [(clone_root, monosaccharide)]
+    visited = set() if visited is None else visited
+    while(len(node_stack) > 0):
+        clone, ref = node_stack.pop()
+        if ref.id in visited:
+            continue
+        visited.add(ref.id)
+        links = [link for pos, link in ref.links.items()]
+        for link in links:
+            terminal = link.to(ref)
+            if terminal.id in visited:
+                continue
+            clone_terminal = terminal.clone(prop_id=True)
+            clone_terminal.id = terminal.id
+            if link.is_child(terminal):
+                link.clone(clone, clone_terminal)
+            else:
+                link.clone(clone_terminal, clone)
+
+            node_stack.append((clone_terminal, terminal))
+    return clone_root
+
+
+def release(monosaccharide):
+    return [link.break_link(refund=True) for link in monosaccharide.links.values()]
+
+
+def toggle(monosaccharide):
+    links = release(monosaccharide)
+    yield True
+    [link.apply() for link in links]
+    yield False
+
+
 class Monosaccharide(SaccharideBase):
 
     '''
@@ -230,7 +266,6 @@ class Monosaccharide(SaccharideBase):
         except TypeError:
             return RingType.x
 
-
     @property
     def reducing_end(self):
         if self._reducing_end is None:
@@ -250,6 +285,13 @@ class Monosaccharide(SaccharideBase):
         if pos is not None:
             self.drop_modification(pos, ReducingEnd)
         self.add_modification(ReducingEnd, value)
+
+    def __getitem__(self, pos):
+        return {
+            'modifications': self.modifications[pos],
+            'substituent_links': self.substituent_links[pos],
+            'links': self.links[pos]
+            }
 
     def open_attachment_sites(self, max_occupancy=0):
         '''
@@ -284,14 +326,16 @@ class Monosaccharide(SaccharideBase):
         for pos, obj in chain(self.modifications.items(),
                               self.links.items(),
                               self.substituent_links.items()):
+            if Modification.keto == obj or Modification.aldi == obj:
+                continue
             if pos in {-1, 'x'}:
                 unknowns += 1
             else:
                 slots[pos - 1] += 1
 
-        reducing_end = self.reducing_end
-        if reducing_end is not None:
-            slots[reducing_end - 1] -= 1
+        # reducing_end = self.reducing_end
+        # if reducing_end is not None:
+        #     slots[reducing_end - 1] -= 1
 
         open_slots = []
         can_determine_positions = unknowns > 0 or (self.ring_end in {-1, 'x'})
@@ -336,8 +380,11 @@ class Monosaccharide(SaccharideBase):
         n_occupants = len(self.links[position]) +\
             len(self.modifications[position]) +\
             len(self.substituent_links[position])
-        if position == self.reducing_end:
+        if Modification.keto in self.modifications[position] or\
+           Modification.aldi in self.modifications[position]:
             n_occupants -= 1
+        # if position == self.reducing_end:
+        #     n_occupants -= 1
         return n_occupants
 
     def add_modification(self, modification, position, max_occupancy=0):
@@ -351,7 +398,7 @@ class Monosaccharide(SaccharideBase):
         position: int or 'x'
             The location to add the :class:`~.constants.Modification` to.
         modification: str or Modification
-            The modification to add. If passed a |str|, it will be 
+            The modification to add. If passed a |str|, it will be
             translated into an instance of :class:`~pygly2.structure.constants.Modification`
         max_occupancy: int, optional
             The maximum number of items acceptable at `position`. defaults to :const:`1`
@@ -760,14 +807,14 @@ class Monosaccharide(SaccharideBase):
         for pos, link in self.substituent_links.items():
             yield pos, link.to(self)
 
-    def order(self, include_substituents=False):
+    def order(self, include_substituents=True):
         '''
         Return the "graph theory" order of this residue
 
         Parameters
         ----------
         include_substituents: bool
-            Include the number of substituent_links in order calculations. Defaults to |False|
+            Include the number of substituent_links in order calculations. Defaults to |True|
 
         Returns
         -------

@@ -99,7 +99,7 @@ def resolve_special_base_type(residue):
     return None
 
 
-def glycan_to_iupac(structure=None, attach=''):
+def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-', open_branch='[', close_branch=']'):
     '''
     Translate a |Glycan| structure into IUPAC Three Letter Code.
     Recursively operates on branches.
@@ -109,32 +109,47 @@ def glycan_to_iupac(structure=None, attach=''):
     structure: Glycan or Monosaccharide
         The glycan to be translated. Translation starts from `glycan.root` if `structure`
         is a |Glycan|.
-    max_tolerance: int
-        The maximum amount of deviance to allow when translating |Monosaccharide| objects
-        into nomenclature symbols
+    attach: int
+        The point from the structure tree is attached to its parent. Used for recursively
+        handling branches. Defaults to |None|.
+    open_edge: str
+        The token at the start of an edge. Defaults to the more verbose IUPAC '-('
+    close_edge: str
+        The token at the end of an edge. Defaults to the more verbose IUPAC ')-'
+    open_branch: str
+        The token at the start of a branch. Defaults to '['
+    close_branch: str
+        The token at the end of a branch. Defaults to ']'
 
     Returns
     -------
     deque
     '''
     base = structure.root if isinstance(structure, Glycan) else structure
-    stack = [(attach, base)]
+    stack = [(1, base)]
     outstack = deque()
     while(len(stack) > 0):
         outedge_pos, node = stack.pop()
         if outedge_pos in {None, -1}:
             outedge_pos = ''
-        link = "({outedge_pos}-{attach})".format(outedge_pos=outedge_pos, attach=attach)
-        if attach == "":
+        link = "{oe}{outedge_pos}-{attach}{ce}".format(
+            outedge_pos=outedge_pos, attach=attach, oe=open_edge, ce=close_edge)
+        if attach is None:
             link = ""
+        elif attach != 1 and link[-1] == '-':
+            link = link[:-1]
         outstack.appendleft('{node}{link}'.format(node=monosaccharide_to_iupac(node), link=link))
         attach = 1
         children = list(node.children())
         if len(children) > 1:
             for pos, child in children[:-1]:
-                branch = '({branch})'.format(
-                    branch=''.join(glycan_to_iupac(child, pos)),
-                    attach_pos=pos
+                branch = '{ob}{branch}{cb}'.format(
+                    branch=''.join(glycan_to_iupac(child, pos,
+                                                   open_edge=open_edge, close_edge=close_edge,
+                                                   open_branch=open_branch, close_branch=close_branch)),
+                    attach_pos=pos,
+                    ob=open_branch,
+                    cb=close_branch
                 )
                 outstack.appendleft(branch)
             pos, child = children[-1]

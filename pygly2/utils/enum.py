@@ -1,9 +1,10 @@
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
-    def __init__(self, group, name, value):
+    def __init__(self, group, name, value, other_names=None):
         self.name = intern(name)
         self.value = value
+        self.names = {name} | (other_names or set())
         self.group = group.__name__ if isinstance(group, EnumMeta) else group
 
     def __hash__(self):
@@ -16,16 +17,16 @@ class EnumValue(object):
         if isinstance(other, EnumValue):
             if self.group != other.group:
                 return False
-            return self.value == other.value or self.name == other.value
-        return self.value == other or self.name == other
+            return self.value == other.value or self.names == other.names
+        return self.value == other or other in self.names
 
     def __ne__(self, other):
         if isinstance(other, EnumValue) and self.group != other.group:
             return True
-        return self.name != other or self.value != other
+        return other not in self.names or self.value != other
 
     def __repr__(self):  # pragma: no cover
-        return "<{group} {name}:{value}>".format(**self.__dict__)
+        return "<{group} {_names}:{value}>".format(_names='|'.join(self.names), **self.__dict__)
 
 
 class EnumMeta(type):
@@ -45,7 +46,7 @@ class EnumMeta(type):
 
         1. Avoids ``stringly-typing`` the library. Comparison of strings is a slippery slope
            to raw magic strings littering the codebase.
-        2. Richer comparison behavior allows these same names to be used in different modes with the 
+        2. Richer comparison behavior allows these same names to be used in different modes with the
            same symbol.
         3. Namespacing of EnumValue objects makes it easier to avoid accidental name collisions
            when comparing EnumValues instead of magic strings.
@@ -70,7 +71,11 @@ class EnumMeta(type):
         return self.translate(k)
 
     def __setattr__(self, k, v):
-        super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
+        if isinstance(v, EnumValue):
+            v.names.add(k)
+            super(EnumMeta, self).__setattr__(k, v)
+        else:
+            super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
 
     def __setitem__(self, k, v):
         self.__setattr__(k, v)
@@ -79,10 +84,8 @@ class EnumMeta(type):
         '''
         Attempt to translate the input object ``k`` into a data member of the Enum.
 
-        If ``k`` is a :class:`str`, it will be converted to lower case.
-
         First try to find an element of ``self`` by hashing it against member names.
-        
+
         Then try to find an element of ``self`` by searching for a member in self that
         is value-equal to ``k``
 
@@ -98,10 +101,7 @@ class EnumMeta(type):
         :class:`EnumValue`
 
         '''
-        try:
-            k = k.lower()
-        except:
-            pass
+
         if k in self.__dict__:
             return self.__dict__[k]
         elif k in self:

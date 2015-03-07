@@ -5,7 +5,7 @@ from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
 from .base import SaccharideBase
-from .monosaccharide import Monosaccharide
+from .monosaccharide import Monosaccharide, graph_clone
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
 
@@ -56,12 +56,12 @@ class Glycan(SaccharideBase):
     '''
 
     @classmethod
-    def subtree_from(cls, tree, node):
+    def subtree_from(cls, tree, node, visited=None):
         if isinstance(node, int):
             node = tree[node]
-        parents = {node.id for p, node in node.parents()}
+        visited = {node.id for p, node in node.parents()} if visited is None else visited
         subtree = cls(root=node, index_method=None).clone(
-            index_method=None, visited=parents)
+            index_method=None, visited=visited)
         return subtree
 
     traversal_methods = {}

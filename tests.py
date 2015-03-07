@@ -715,8 +715,6 @@ class ConstantTests(unittest.TestCase):
     def test_translate(self):
         self.assertTrue(
             constants.Modification.d == constants.Modification['d'])
-        self.assertTrue(
-            constants.Modification.d == constants.Modification['D'])
         self.assertTrue(constants.Modification.d == constants.Modification[
                         constants.Modification.d.value])
 
