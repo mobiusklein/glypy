@@ -76,13 +76,13 @@ def graph_clone(monosaccharide, visited=None):
 
 
 def release(monosaccharide):
-    return [link.break_link(refund=True) for link in monosaccharide.links.values()]
+    return [(link, link.break_link(refund=True)) for link in monosaccharide.links.values()]
 
 
 def toggle(monosaccharide):
     links = release(monosaccharide)
     yield True
-    [link.apply() for link in links]
+    [link.apply() for link, termini in links]
     yield False
 
 

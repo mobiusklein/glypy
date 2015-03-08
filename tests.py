@@ -509,7 +509,7 @@ class GlycanTests(unittest.TestCase):
         for i, node in enumerate(structure.index):
             self.assertNotEqual(node.id, ref[i].id)
         structure.index = None
-        self.assertEqual(structure[0], structure.root)
+        self.assertRaises(IndexError, lambda: structure[0])
 
     def test_traversal(self):
         structure = glycoct.loads(common_glycan).next()

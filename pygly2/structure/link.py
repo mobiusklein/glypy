@@ -126,6 +126,9 @@ class Link(object):
             raise KeyError("Could not find connection for {0}".format(mol))
 
     def _glycoct_sigils(self):
+        '''
+        Helper method for determining which GlycoCT symbols and losses to present
+        '''
         parent_loss_str = 'x'
         child_loss_str = 'x'
         if self.child_loss == Composition(O=1, H=1):
@@ -213,7 +216,7 @@ class Link(object):
         '''
         return id(mol) == id(self.child)
 
-    def clone(self, parent, child):
+    def clone(self, parent, child, prop_id=True, attach=True):
         '''
         Given two new objects `parent` and `child`, duplicate all other information in `self`,
         creating a new `Link` object between `parent` and `child` with the same properties as
@@ -228,7 +231,8 @@ class Link(object):
                     child_position=self.child_position,
                     parent_loss=self.parent_loss,
                     child_loss=self.child_loss,
-                    id=self.id)
+                    id=self.id if prop_id else uuid4().int,
+                    attach=attach)
 
     def __eq__(self, other):
         '''
@@ -312,6 +316,14 @@ class Link(object):
             (self.parent_loss or default_parent_loss)
         self.child.composition = self.child.composition + \
             (self.child_loss or default_child_loss)
+
+    def is_attached(self):
+        if self.is_substituent_link():
+            parent = self in self.parent.substituent_links[self.parent_position]
+        else:
+            parent = self in self.parent.links[self.parent_position]
+        child = self in self.child.links[self.child_position]
+        return parent and child
 
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()

@@ -219,7 +219,7 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
 
     res = None
     if shape == ResidueShape.generic:
-        res = drawer(ax, x, y, abbrev, n_points=monosaccharide.superclass.value, scale=scale)
+        res = drawer(ax, x, y, abbrev, n_points=monosaccharide.superclass.value or 1, scale=scale)
     else:
         res = drawer(ax, x, y, color, scale=scale)
     substituents = get_relevant_substituents(monosaccharide)

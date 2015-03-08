@@ -4,8 +4,10 @@ import itertools
 from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
+
 from .base import SaccharideBase
 from .monosaccharide import Monosaccharide, graph_clone
+from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
 
@@ -59,7 +61,9 @@ class Glycan(SaccharideBase):
     def subtree_from(cls, tree, node, visited=None):
         if isinstance(node, int):
             node = tree[node]
-        visited = {node.id for p, node in node.parents()} if visited is None else visited
+        visited = {
+            node.id for p,
+            node in node.parents()} if visited is None else visited
         subtree = cls(root=node, index_method=None).clone(
             index_method=None, visited=visited)
         return subtree
@@ -145,13 +149,21 @@ class Glycan(SaccharideBase):
         self.reindex()
         return self
 
-    def __getitem__(self, ix, method='dfs'):
+    def __getitem__(self, ix):
         '''
         Alias for :attr:`index.__getitem__`
         '''
-        if self.index is None:
-            self.reindex(method=method)
-        return self.index[ix]
+        if self.index is not None:
+            return self.index[ix]
+        else:
+            raise IndexError("Tried to access the index of an unindexed Glycan.")
+
+    def get(self, ix):
+        for node in self:
+            if node.id == ix:
+                return node
+        else:
+            raise IndexError("Could not find a node with the given id {}".format(ix))
 
     @property
     def root(self):
@@ -172,7 +184,8 @@ class Glycan(SaccharideBase):
     def reducing_end(self, value):
         self.root.reducing_end = value
 
-    def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
+    def depth_first_traversal(
+            self, from_node=None, apply_fn=identity, visited=None):
         '''
         Make a depth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
@@ -214,7 +227,8 @@ class Glycan(SaccharideBase):
     traversal_methods['dfs'] = "dfs"
     traversal_methods['depth_first_traversal'] = "dfs"
 
-    def breadth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
+    def breadth_first_traversal(
+            self, from_node=None, apply_fn=identity, visited=None):
         '''
         Make a breadth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
@@ -272,7 +286,8 @@ class Glycan(SaccharideBase):
     def __iter__(self):
         return self.iternodes()
 
-    def iternodes(self, from_node=None, apply_fn=identity, method='dfs', visited=None):
+    def iternodes(
+            self, from_node=None, apply_fn=identity, method='dfs', visited=None):
         '''
         Generic iterator over nodes. :meth:`Glycan.__iter__` is an alias of this method
 
@@ -300,7 +315,8 @@ class Glycan(SaccharideBase):
         _get_traversal_method
         '''
         traversal = self._get_traversal_method(method)
-        return traversal(from_node=from_node, apply_fn=apply_fn, visited=visited)
+        return traversal(
+            from_node=from_node, apply_fn=apply_fn, visited=visited)
 
     def iterlinks(self, substituents=False, method='dfs', visited=None):
         traversal = self._get_traversal_method(method)
@@ -316,7 +332,8 @@ class Glycan(SaccharideBase):
                 links_visited.add(link.id)
                 yield (pos, link)
 
-        return itertools.chain.from_iterable(traversal(apply_fn=links, visited=visited))
+        return itertools.chain.from_iterable(
+            traversal(apply_fn=links, visited=visited))
 
     def leaves(self, bidirectional=False, method='dfs', visited=None):
         traversal = self._get_traversal_method(method)
@@ -329,7 +346,8 @@ class Glycan(SaccharideBase):
                 if len(list(obj.children())) == 0:
                     yield obj
 
-        return itertools.chain.from_iterable(traversal(apply_fn=is_leaf, visited=visited))
+        return itertools.chain.from_iterable(
+            traversal(apply_fn=is_leaf, visited=visited))
 
     def label_branches(self):
         '''
@@ -497,7 +515,8 @@ class Glycan(SaccharideBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
-        return sum(node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
+        return sum(
+            node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
 
     def clone(self, index_method='dfs', visited=None):
         '''
@@ -507,28 +526,7 @@ class Glycan(SaccharideBase):
         -------
         Glycan
         '''
-        clone_root = self.root.clone(prop_id=True)
-        clone_root.id = self.root.id
-        node_stack = [(clone_root, self.root)]
-        visited = set() if visited is None else visited
-        while(len(node_stack) > 0):
-            clone, ref = node_stack.pop()
-            if ref.id in visited:
-                continue
-            visited.add(ref.id)
-            links = [link for pos, link in ref.links.items()]
-            for link in links:
-                terminal = link.to(ref)
-                if terminal.id in visited:
-                    continue
-                clone_terminal = terminal.clone(prop_id=True)
-                clone_terminal.id = terminal.id
-                if link.is_child(terminal):
-                    link.clone(clone, clone_terminal)
-                else:
-                    link.clone(clone_terminal, clone)
-
-                node_stack.append((clone_terminal, terminal))
+        clone_root = graph_clone(self.root, visited=visited)
         return Glycan(clone_root, index_method=index_method)
 
     def __eq__(self, other):
@@ -614,10 +612,12 @@ class Glycan(SaccharideBase):
             for frag in self.break_links(i, kind, average, charge, mass_data):
                 yield results_container(*frag)
 
-    def break_links(self, n_links=0, kind=('B', 'Y'), average=False, charge=0, mass_data=None):
+    def break_links(self, n_links=0, kind=(
+            'B', 'Y'), average=False, charge=0, mass_data=None):
         if n_links < 0:  # pragma: no cover
             raise ValueError("Cannot break a negative number of Links")
         n_links -= 1
+        kind = set(kind)
         for pos, link in self.iterlinks():
             try:
                 parent, child = link.break_link(refund=True)
@@ -631,55 +631,50 @@ class Glycan(SaccharideBase):
                     child_frags = list(child_tree.break_links(
                         n_links, kind=kind, average=average, charge=charge, mass_data=mass_data))
 
-                    if 'Y' in kind:
-                        offset = fragment_shift['Y'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
+                    for k in (kind) & set("YZ"):
+                        offset = fragment_shift[k].calc_mass(
+                            average=average, mass_data=mass_data)
                         for ion_type, link_ids, include, mass in parent_frags:
-                            yield ion_type + 'Y',  link_ids + [break_id], include, mass - offset
-                    if 'Z' in kind:
-                        offset = fragment_shift['Z'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        for ion_type, link_ids, include, mass in parent_frags:
-                            yield ion_type + 'Z', link_ids + [break_id], include, mass - offset
-                    if 'B' in kind:
-                        offset = fragment_shift['B'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
+                            yield ion_type + k, link_ids + [break_id], include, mass - offset
+
+                    for k in (kind) & set("BC"):
+                        offset = fragment_shift[k].calc_mass(
+                            average=average, mass_data=mass_data)
                         for ion_type, link_ids, include, mass in child_frags:
-                            yield ion_type + 'B', link_ids + [break_id], include, mass - offset
-                    if 'C' in kind:
-                        offset = fragment_shift['C'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        for ion_type, link_ids, include, mass in child_frags:
-                            yield ion_type + 'C', include, link_ids + [break_id], mass - offset
+                            yield ion_type + k, link_ids + [break_id], include, mass - offset
 
                 else:
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
 
-                    if 'Y' in kind:
-                        offset = fragment_shift['Y'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        y_mass = parent_tree.mass(
+                    for k in (kind) & set("YZ"):
+                        offset = fragment_shift[k].calc_mass(
+                            average=average, mass_data=mass_data)
+                        mass = parent_tree.mass(
                             average=average, charge=charge, mass_data=mass_data) - offset
-                        yield ('Y', [break_id], parent_include, y_mass)
-                    if 'B' in kind:
-                        offset = fragment_shift['B'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        b_mass = child_tree.mass(
+                        yield (k, [break_id], parent_include, mass)
+
+                    for k in (kind) & set("BC"):
+                        offset = fragment_shift[k].calc_mass(
+                            average=average, mass_data=mass_data)
+                        mass = child_tree.mass(
                             average=average, charge=charge, mass_data=mass_data) - offset
-                        yield 'B', [break_id], child_include, b_mass
-                    if "C" in kind:
-                        offset = fragment_shift['C'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        c_mass = child_tree.mass(
-                            average=average, charge=charge, mass_data=mass_data) - offset
-                        yield 'C', [break_id], child_include, c_mass
-                    if 'Z' in kind:
-                        offset = fragment_shift['Z'].calc_mass(
-                            average=average, charge=charge, mass_data=mass_data)
-                        z_mass = parent_tree.mass(
-                            average=average, charge=charge, mass_data=mass_data) - offset
-                        yield ('Z', [break_id], parent_include, z_mass)
+                        yield (k, [break_id], child_include, mass)
+
+                    if len((kind) & set("AX")) > 0:
+                        link.apply()
+                        try:
+                            for c1, c2 in enumerate_cleavage_pairs(child):
+                                a_fragment, x_fragment = crossring_fragments(child, c1, c2)
+                                if "A" in kind:
+                                    yield '{},{}A'.format(c1, c2), [child.id],\
+                                           a_fragment.include, a_fragment.graph_mass()
+                                if "X" in kind:
+                                    yield '{},{}X'.format(c1, c2), [child.id],\
+                                          x_fragment.include, x_fragment.graph_mass()
+                        finally:
+                            link.break_link(refund=True)
+
             finally:
                 # Unmask the Link and apply its composition shifts
                 logger.debug("Reapplying %d", break_id)
@@ -687,7 +682,8 @@ class Glycan(SaccharideBase):
 
     def substructures(self, max_cleavages=1, min_cleavages=1, min_size=2):
         results_container = DisjointTrees
-        for frag in self.break_links_subtrees(max_cleavages, min_size=min_size):
+        for frag in self.break_links_subtrees(
+                max_cleavages, min_size=min_size):
             yield results_container(*frag)
 
     def break_links_subtrees(self, n_links, min_size):
@@ -709,7 +705,8 @@ class Glycan(SaccharideBase):
                 # to the user are not suddenly joined again.
                 parent_clone = parent_tree.clone(index_method=None).reroot()
                 child_clone = child_tree.clone(index_method=None).reroot()
-                if parent_clone.order() > min_size or child_clone.order() > min_size:
+                if parent_clone.order(
+                ) > min_size or child_clone.order() > min_size:
                     yield (parent_clone, parent_include, child_clone, child_include, [break_id])
                 if n_links > 0:
                     logger.debug("%d more links to break", n_links)

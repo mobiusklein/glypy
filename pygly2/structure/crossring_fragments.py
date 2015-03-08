@@ -1,9 +1,12 @@
 import itertools
-from pygly2 import Composition
-from pygly2.structure import structure_composition, Monosaccharide, monosaccharide, constants
-from pygly2.utils.multimap import OrderedMultiMap
 
+from . import structure_composition, monosaccharide, constants
+from ..composition import Composition
+from ..utils.multimap import OrderedMultiMap
+
+Monosaccharide = monosaccharide.Monosaccharide
 graph_clone = monosaccharide.graph_clone
+traverse = monosaccharide.traverse
 SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
 
@@ -36,6 +39,10 @@ class CrossRingFragment(Monosaccharide):
     def __repr__(self):
         return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.mass())
+
+    def graph_mass(self, average=False, charge=0, mass_data=None):
+        return sum(
+            node.mass(average=average, charge=charge, mass_data=mass_data) for node in traverse(self))
 
 
 def crossring_fragments(monosaccharide, c1, c2, attach=True):
