@@ -6,7 +6,7 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
-from .monosaccharide import Monosaccharide, graph_clone
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
@@ -585,8 +585,6 @@ class Glycan(SaccharideBase):
             of the generator. Do not attempt to use the glycan structure for other things while
             fragmenting it. If you must, copy it first with :meth:`~.clone`.
 
-        Does not produce cross-ring cleavages.
-
         Parameters
         ----------
 
@@ -665,13 +663,26 @@ class Glycan(SaccharideBase):
                         link.apply()
                         try:
                             for c1, c2 in enumerate_cleavage_pairs(child):
-                                a_fragment, x_fragment = crossring_fragments(child, c1, c2)
+                                a_fragment, x_fragment = crossring_fragments(child, c1, c2, copy=False)
+                                child_link_mask = residue_toggle(child)
+                                child_link_mask.next()
                                 if "A" in kind:
+                                    a_tree = Glycan(a_fragment, index_method=None)
+                                    a_include = [n.id for n in a_tree]
                                     yield '{},{}A'.format(c1, c2), [child.id],\
-                                           a_fragment.include, a_fragment.graph_mass()
+                                        a_include, a_tree.mass(
+                                            average=average, charge=charge, mass_data=mass_data)
+                                a_fragment.release()
+
                                 if "X" in kind:
+                                    x_tree = Glycan(x_fragment, index_method=None)
+                                    x_include = [n.id for n in x_tree]
                                     yield '{},{}X'.format(c1, c2), [child.id],\
-                                          x_fragment.include, x_fragment.graph_mass()
+                                        x_include, x_tree.mass(
+                                            average=average, charge=charge, mass_data=mass_data)
+                                x_fragment.release()
+
+                                child_link_mask.next()
                         finally:
                             link.break_link(refund=True)
 

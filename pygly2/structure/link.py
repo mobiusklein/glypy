@@ -344,3 +344,22 @@ def glycocidic_bond(parent, child, parent_position, child_position):
                 parent_loss=Composition(formula="H"),
                 child_loss=Composition(formula="OH"))
     return link
+
+
+class LinkMaskContext(object):
+    def __init__(self, residue, attach=False):
+        self.residue = residue
+        self.links = [link for link in residue.links.values()]
+        self.attach = attach
+
+    def __enter__(self):
+        self.mask() if not self.attach else self.unmask()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.mask() if self.attach else self.unmask()
+
+    def mask(self):
+        [link.break_link(refund=True) for link in self.links]
+
+    def unmask(self):
+        [link.apply() for link in self.links]

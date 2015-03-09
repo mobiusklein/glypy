@@ -5,7 +5,7 @@ class EnumValue(object):
         self.name = intern(name)
         self.value = value
         self.names = {name} | (other_names or set())
-        self.group = group.__name__ if isinstance(group, EnumMeta) else group
+        self.group = group
 
     def __hash__(self):
         return hash(self.name)
@@ -26,7 +26,25 @@ class EnumValue(object):
         return other not in self.names or self.value != other
 
     def __repr__(self):  # pragma: no cover
-        return "<{group} {_names}:{value}>".format(_names='|'.join(self.names), **self.__dict__)
+        return "<{group_name} {names}:{value}>".format(names='|'.join(self.names),
+                                                       group_name=self.group.__name__,
+                                                       value=self.value)
+
+    def add_name(self, name):
+        if name not in self.group:
+            self.names.add(name)
+            self.group[name] = self
+        else:
+            raise KeyError("{} already exists in {}".format(name, self.group))
+
+    def resolve(self, mapping):
+        for name in self.names:
+            try:
+                if name in mapping:
+                    return mapping[name]
+            except KeyError:
+                pass
+        raise KeyError("Could not resolve {} against {}".format(self, mapping))
 
 
 class EnumMeta(type):
@@ -54,10 +72,11 @@ class EnumMeta(type):
     '''
 
     def __new__(cls, name, parents, attrs):
+        enum_type = type.__new__(cls, name, parents, {})
         for label, value in attrs.items():
-            attrs[label] = EnumValue(name, label, value)
+            setattr(enum_type, label, EnumValue(enum_type, label, value))
 
-        return type.__new__(cls, name, parents, attrs)
+        return enum_type
 
     def __iter__(self):
         for attr, val in self.__dict__.items():
@@ -78,7 +97,7 @@ class EnumMeta(type):
             super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
 
     def __setitem__(self, k, v):
-        self.__setattr__(k, v)
+        setattr(self, k, v)
 
     def translate(self, k):
         '''

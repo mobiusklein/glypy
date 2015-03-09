@@ -45,12 +45,12 @@ class CrossRingFragment(Monosaccharide):
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in traverse(self))
 
 
-def crossring_fragments(monosaccharide, c1, c2, attach=True):
+def crossring_fragments(monosaccharide, c1, c2, attach=True, copy=True):
     c1_segment, c1_include, c2_segment, c2_include = cleave_ring(
         monosaccharide, c1, c2)
 
-    c1_fragment = pack_fragment(c1_segment, c1, c2, c1_include, monosaccharide, attach=attach)
-    c2_fragment = pack_fragment(c2_segment, c1, c2, c2_include, monosaccharide, attach=attach)
+    c1_fragment = pack_fragment(c1_segment, c1, c2, c1_include, monosaccharide, attach=attach, copy=copy)
+    c2_fragment = pack_fragment(c2_segment, c1, c2, c2_include, monosaccharide, attach=attach, copy=copy)
 
     ring_start = monosaccharide.ring_start
     ring_end = monosaccharide.ring_end
@@ -76,14 +76,14 @@ def crossring_fragments(monosaccharide, c1, c2, attach=True):
     return a_fragment, x_fragment
 
 
-def enumerate_cleavage_pairs(monosaccharide):
-    ring_size = (monosaccharide.ring_end - monosaccharide.ring_start) + 2
+def enumerate_cleavage_pairs(residue):
+    ring_size = (residue.ring_end - residue.ring_start) + 2
     for c1, c2 in itertools.combinations(range(0, ring_size), 2):
-        if c2 - c1 > 1:
+        if (c2 - c1 > 1) and ((c2 - c1) + 1 != ring_size):
             yield c1, c2
 
 
-def pack_fragment(fragment_parts, c1, c2, include, monosaccharide, attach=True):
+def pack_fragment(fragment_parts, c1, c2, include, residue, attach=True, copy=True):
     fragment_data = {
         "composition": sum((c['backbone'] for c in fragment_parts), {}),
         "modifications": OrderedMultiMap(),
@@ -99,8 +99,8 @@ def pack_fragment(fragment_parts, c1, c2, include, monosaccharide, attach=True):
 
     fragment_object = CrossRingFragment(
         fragment_data['composition'], c1, c2, fragment_data['contains'],
-        '?', fragment_data['modifications'], stem=monosaccharide.stem,
-        configuration=monosaccharide.configuration, id=monosaccharide.id
+        '?', fragment_data['modifications'], stem=residue.stem,
+        configuration=residue.configuration, id=residue.id
     )
 
     composition_shift = Composition()
@@ -109,15 +109,17 @@ def pack_fragment(fragment_parts, c1, c2, include, monosaccharide, attach=True):
     fragment_object.composition = fragment_object.composition + composition_shift
 
     for pos, link in fragment_data['substituent_links'].items():
-        subst = link[monosaccharide]
+        subst = link[residue]
         link.clone(fragment_object, subst.clone())
 
     links = []
-    edges = {node.id for node in monosaccharide.links.values()}
+    edges = {node[residue].id for node in residue.links.values()}
     for pos, link in fragment_data['links'].items():
-        subtree = graph_clone(link[monosaccharide], visited=edges - {link[monosaccharide].id})
-        # subtree = link[monosaccharide]
-        if link.is_parent(monosaccharide):
+        if copy:
+            subtree = graph_clone(link[residue], visited=edges - {link[residue].id})
+        else:
+            subtree = link[residue]
+        if link.is_parent(residue):
             links.append(link.clone(fragment_object, subtree, attach=attach))
         else:
             links.append(link.clone(subtree, fragment_object, attach=attach))
@@ -125,8 +127,8 @@ def pack_fragment(fragment_parts, c1, c2, include, monosaccharide, attach=True):
     return fragment_object
 
 
-def unroll_ring(monosaccharide):
-    ring_size = monosaccharide.superclass.value
+def unroll_ring(residue):
+    ring_size = residue.superclass.value
     nodes = [None for i in range(ring_size)]
     for i in range(ring_size):
         segment = {
@@ -136,13 +138,13 @@ def unroll_ring(monosaccharide):
             "substituent_links": OrderedMultiMap(),
             "links": OrderedMultiMap()
         }
-        for mod in (monosaccharide.modifications[i + 1]):
+        for mod in (residue.modifications[i + 1]):
             segment['modifications'][i + 1] = mod
 
-        for sub_link in monosaccharide.substituent_links[i + 1]:
+        for sub_link in residue.substituent_links[i + 1]:
             segment['substituent_links'][i + 1] = sub_link
 
-        for glyco_link in monosaccharide.links[i + 1]:
+        for glyco_link in residue.links[i + 1]:
             segment['links'][i + 1] = glyco_link
 
         nodes[i] = segment
@@ -150,10 +152,10 @@ def unroll_ring(monosaccharide):
     return nodes
 
 
-def cleave_ring(monosaccharide, c1, c2):
-    linear = unroll_ring(monosaccharide)
-    ring_start = monosaccharide.ring_start
-    ring_end = monosaccharide.ring_end
+def cleave_ring(residue, c1, c2):
+    linear = unroll_ring(residue)
+    ring_start = residue.ring_start
+    ring_end = residue.ring_end
     c1_segment, c1_include, c2_segment, c2_include = slice_ring(
         linear[ring_start - 1: ring_end], c1, c2)
 

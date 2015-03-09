@@ -43,6 +43,22 @@ def make_gid(s):
     return re.sub(r'[\s\|\(\):]', '-', s)
 
 
+def breadth_first_traversal(tree):
+    yield tree
+    for child in tree:
+        for descend in breadth_first_traversal(child):
+            yield descend
+
+
+def enumerate_tree(tree, ax):
+    nodes = list(breadth_first_traversal(tree))
+    for node in nodes:
+        x, y = node.coords('h')
+        ax.text(x, y + 0.2, node.tree.id, color='red')
+    # Update the plot
+    ax.get_figure().canvas.draw()
+
+
 class DrawTree(object):
     def __init__(self, tree, parent=None, depth=0, number=1):
         self.x = -1.
@@ -95,13 +111,13 @@ class DrawTree(object):
                     raise Exception("Don't know how to handle more than two special case child nodes.")
             child.fix_special_cases(offset)
 
-    def draw(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature="cfg", **kwargs):
+    def draw(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
         if isinstance(symbol_nomenclature, basestring):
             symbol_nomenclature = nomenclature_map[symbol_nomenclature]
         if ax is None:
             fig, ax = plt.subplots()
-        self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
-        self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+        self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
+        self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
 
     def coords(self, orientation="h", at=(0, 0)):
         if orientation in {"h", "horizontal"}:
@@ -114,7 +130,16 @@ class DrawTree(object):
             raise Exception("Unknown Orientation: {}".format(orientation))
         return x, y
 
-    def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None, **kwargs):
+    def map_coords(self, orientation, x, y):
+        if orientation in {"h", "horizontal"}:
+            x = -y
+            y = x
+        elif orientation in {'v', "vertical"}:
+            x = x
+            y = y
+        return x, y
+
+    def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None, label=True, **kwargs):
         '''
         Draw the edges linking parent nodes to child nodes. Also draws the parent outlink position
         and the child anomer symbol
@@ -137,14 +162,17 @@ class DrawTree(object):
             fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
         for child in self:
-            cx, cy = child.draw_branches(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+            cx, cy = child.draw_branches(orientation, at, ax=ax,
+                                         symbol_nomenclature=symbol_nomenclature,
+                                         label=label, **kwargs)
             ax.plot((x, cx), (y, cy), color='black', zorder=1)
-            self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
-                                          symbol_nomenclature=symbol_nomenclature,
-                                          child=child, **kwargs)
+            if label:
+                self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
+                                              symbol_nomenclature=symbol_nomenclature,
+                                              child=child, **kwargs)
         return x, y
 
-    def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None, **kwargs):
+    def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None, label=True, **kwargs):
         '''
         Draw the symbol representing the individual monosaccharide and its substituents.
 
