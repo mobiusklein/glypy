@@ -407,6 +407,13 @@ class Glycan(SaccharideBase):
         return count
 
     def order(self):
+        '''
+        The number of nodes in the graph. :meth:`__len__` is an alias of this
+
+        Returns
+        -------
+        int
+        '''
         count = 0
         for node in self:
             count += 1
@@ -589,7 +596,7 @@ class Glycan(SaccharideBase):
         ----------
 
         kind: `sequence`
-            Any `iterable` or `sequence` of characters corresponding to B/C/Y/Z
+            Any `iterable` or `sequence` of characters corresponding to A/B/C/X/Y/Z
             as published by :title-reference:`Domon and Costello`
         max_cleavages: |int|
             The maximum number of bonds to break per fragment
@@ -611,19 +618,59 @@ class Glycan(SaccharideBase):
                 yield results_container(*frag)
 
     def break_links(self, n_links=0, kind=(
-            'B', 'Y'), average=False, charge=0, mass_data=None):
+            'B', 'Y'), average=False, charge=0, mass_data=None, visited=None):
+        '''
+        A recursive co-routine that generates all `kind` fragments of a glycan graph to a
+        depth of `n_links`. If `n_links` > 1, then internal fragments are generated. Called by
+        :meth:`.fragments`
+
+        Parameters
+        ----------
+        n_links: int
+            The number of bonds remaining to break for each fragment generated
+        kind: sequence of strings
+            An iterable containing any entries of "ABCXYZ", which select the Domon and Costello
+            fragment types to generate.
+        average: bool
+            Generate masses based on average isotopic composition? Defaults to |False|
+        charge: int
+            Generate m/z instead of neutral mass where this value is z, z != 0. Defaults to 0
+            which results in theoretical neutral mass
+        mass_data: dict
+            If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise
+            the contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information
+        visited: set
+            A set of link ids to not visit by :meth:`iterlinks`. If |None| will be the empty set.
+
+        Yields
+        ------
+            ion_type: str
+                The string identifying the types of cleavages involved in creating this fragment
+            link_ids: list
+                A list of the link ids and crossring-cleaved residue ids involved in creating
+                this fragment
+            include: list
+                A list of the |Monosaccharide| id values included in this fragment
+            mass: float
+                The mass or m/z of the fragment
+
+        '''
         if n_links < 0:  # pragma: no cover
             raise ValueError("Cannot break a negative number of Links")
         n_links -= 1
         kind = set(kind)
-        for pos, link in self.iterlinks():
+        for pos, link in self.iterlinks(visited=visited):
             try:
                 parent, child = link.break_link(refund=True)
                 break_id = link.id
                 logger.debug("Breaking %d", break_id)
                 parent_tree = Glycan(root=parent, index_method=None)
                 child_tree = Glycan(root=child, index_method=None)
+
+                # If there are more cleavages to make,
                 if n_links > 0:
+                    # Recursively call :meth:`break_link` with the decremented `n_links` counter,
+                    # and propagate all other parameters.
                     parent_frags = list(parent_tree.break_links(
                         n_links, kind=kind, average=average, charge=charge, mass_data=mass_data))
                     child_frags = list(child_tree.break_links(
@@ -641,6 +688,42 @@ class Glycan(SaccharideBase):
                         for ion_type, link_ids, include, mass in child_frags:
                             yield ion_type + k, link_ids + [break_id], include, mass - offset
 
+                    # If generating crossring cleavages
+                    if len((kind) & set("AX")) > 0:
+                        # Re-apply the broken link temporarily
+                        link.apply()
+                        try:
+                            # For each pair of cleavage sites available
+                            for c1, c2 in enumerate_cleavage_pairs(child):
+                                # Generate both A and X fragments of the child residue
+                                a_fragment, x_fragment = crossring_fragments(child, c1, c2, copy=False)
+                                # Mask the child residue so that only its fragments are bound
+                                # to the glycan graph
+                                child_link_mask = residue_toggle(child)
+                                child_link_mask.next()
+                                if "A" in kind:
+                                    a_tree = Glycan(a_fragment, index_method=None)
+                                    # Recursively generate fragments from crossring cleavage-bound subtree
+                                    for ion_type, link_ids, include, mass in a_tree.break_links(
+                                            n_links, kind=kind, average=average, charge=charge, mass_data=mass_data):
+                                        yield ion_type + '{},{}A'.format(c1, c2), link_ids + [child.id], include, mass
+                                # Remove all links connecting subtrees through A fragment.
+                                a_fragment.release()
+
+                                if "X" in kind:
+                                    x_tree = Glycan(x_fragment, index_method=None)
+                                    # Recursively generate fragments from crossring cleavage-bound subtree
+                                    for ion_type, link_ids, include, mass in x_tree.break_links(
+                                            n_links, kind=kind, average=average, charge=charge, mass_data=mass_data):
+                                        yield ion_type + '{},{}X'.format(c1, c2), link_ids + [child.id], include, mass
+                                # Remove all links connecting subtrees trough the X fragment.
+                                x_fragment.release()
+
+                                # Unmask the original residue, re-connecting all of its subtrees
+                                child_link_mask.next()
+                        finally:
+                            # Re-break the link for release in the later `finally` block
+                            link.break_link(refund=True)
                 else:
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
@@ -660,26 +743,37 @@ class Glycan(SaccharideBase):
                         yield (k, [break_id], child_include, mass)
 
                     if len((kind) & set("AX")) > 0:
+                        # Re-apply the broken link temporarily
                         link.apply()
                         try:
+                            # For each pair of cleavage sites available
                             for c1, c2 in enumerate_cleavage_pairs(child):
+                                # Generate crossring fragments
                                 a_fragment, x_fragment = crossring_fragments(child, c1, c2, copy=False)
+                                # Mask child residue, connecting subtrees only through the
+                                # fragments
                                 child_link_mask = residue_toggle(child)
                                 child_link_mask.next()
                                 if "A" in kind:
                                     a_tree = Glycan(a_fragment, index_method=None)
                                     a_include = [n.id for n in a_tree]
-                                    yield '{},{}A'.format(c1, c2), [child.id],\
-                                        a_include, a_tree.mass(
-                                            average=average, charge=charge, mass_data=mass_data)
+                                    # Only yield crossring fragments that include more than
+                                    # the fragment residue itself
+                                    if len(a_include) > 1:
+                                        yield '{},{}A'.format(c1, c2), [child.id],\
+                                            a_include, a_tree.mass(
+                                                average=average, charge=charge, mass_data=mass_data)
                                 a_fragment.release()
 
                                 if "X" in kind:
                                     x_tree = Glycan(x_fragment, index_method=None)
                                     x_include = [n.id for n in x_tree]
-                                    yield '{},{}X'.format(c1, c2), [child.id],\
-                                        x_include, x_tree.mass(
-                                            average=average, charge=charge, mass_data=mass_data)
+                                    # Only yield crossring fragments that include more than
+                                    # the fragment residue itself
+                                    if len(x_include) > 1:
+                                        yield '{},{}X'.format(c1, c2), [child.id],\
+                                            x_include, x_tree.mass(
+                                                average=average, charge=charge, mass_data=mass_data)
                                 x_fragment.release()
 
                                 child_link_mask.next()

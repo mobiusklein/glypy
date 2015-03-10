@@ -4,18 +4,19 @@ import functools
 import traceback
 import unittest
 import json
-import logging
+from collections import defaultdict
 import pygly2
-from pygly2.structure import constants, substituent, glycan, link, named_structures, structure_composition
+from pygly2.structure import constants, substituent, glycan
+from pygly2.structure import link, named_structures, structure_composition
+from pygly2.structure import crossring_fragments
 from pygly2.io import glycoct, linear_code
 from pygly2.io.nomenclature import identity, synonyms
-from pygly2.utils import StringIO, identity as ident_op, multimap, pickle
+from pygly2.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
 from pygly2.composition import Composition, composition_transform, composition
 from pygly2.algorithms import subtree_search
 from pygly2.algorithms import similarity
 
 Substituent = pygly2.Substituent
-# logging.basicConfig(level="DEBUG")
 
 
 def debug_on(*exceptions):
@@ -240,7 +241,6 @@ LIN
 30:30d(5+1)31n
 31:1o(6+1)32d
 '''
-
 
 
 class GlycoCTParserTests(unittest.TestCase):
@@ -479,14 +479,23 @@ class GlycanTests(unittest.TestCase):
                 raise AssertionError(
                     "{} found no matches in {}".format(frag, candidates))
 
-    @debug_on()
     def test_disjoint_subtrees(self):
         structure = glycoct.loads(common_glycan).next()
         f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
+        refs = {}
+        while True:
+            try:
+                for ref in pickle.load(f):
+                    refs[tuple(ref.link_ids)] = ref
+            except EOFError:
+                break
         for tree in structure.substructures(3):
-            ref = pickle.load(f)
-            self.assertEqual(tree.link_ids, ref.link_ids)
-            self.assertEqual(tree.parent_tree, ref.parent_tree)
+            ref = refs[tuple(tree.link_ids)]
+            link_id_eq = tree.link_ids == ref.link_ids
+            parent_tree_eq = tree.parent_tree == ref.parent_tree
+            if not parent_tree_eq or not link_id_eq:
+                raise AssertionError("DisjointTrees did not match")
+                self.assertEqual(list(tree.parent_tree), list(ref.parent_tree))
 
     def test_reducing_end(self):
         structure = glycoct.loads(common_glycan).next()
@@ -585,12 +594,102 @@ class GlycanTests(unittest.TestCase):
         self.assertFalse(a.topological_equality(d))
         self.assertFalse(b.topological_equality(d))
 
-    def test_substructures_gen(self):
+    def test_substructures_does_not_mutate(self):
         structure = glycoct.loads(broad_n_glycan).next()
         ref = structure.clone()
         for substructure in structure.substructures(max_cleavages=2):
             pass
         self.assertEqual(structure, ref)
+
+    def test_crossring(self):
+        structure = glycoct.loads(branchy_glycan).next()
+        frag_data = {
+            '0,2A': 485.174,
+            '0,2X': 1317.470,
+            '0,3A': 455.163,
+            '0,3X': 1347.481,
+            '0,4A': 425.153,
+            '0,4X': 1377.491,
+            '1,3A': 425.153,
+            '1,3X': 1377.491,
+            '1,4A': 455.163,
+            '1,4X': 1347.481,
+            '1,5A': 864.322,
+            '1,5X': 938.322,
+            '2,4X': 1742.623,
+            '2,5A': 469.179,
+            '2,5X': 1333.465,
+            '3,5A': 439.168,
+            '3,5X': 1363.4769
+        }
+        for fragment in structure.fragments("AX"):
+            if fragment.link_ids == [3]:
+                self.assertAlmostEqual(frag_data[fragment.kind], fragment.mass, 2)
+
+
+class CrossRingTests(unittest.TestCase):
+    def test_unroll_ring(self):
+        linear = crossring_fragments.unroll_ring(monosaccharides.GlcNAc)
+        for i in range(len(linear)):
+            self.assertEqual(linear[i]['backbone'], Composition("CH2O"))
+            if i == 1:
+                self.assertTrue(len(linear[i]['substituent_links']) > 0)
+
+    class FragmentRecord(object):
+        def __init__(self, name, mass, permethylated_mass, cleave_1, cleave_2, kind):
+            self.name = name
+            self.mass = float(mass)
+            self.permethylated_mass = float(permethylated_mass)
+            self.cleave_1 = int(cleave_1)
+            self.cleave_2 = int(cleave_2)
+            self.kind = kind
+            self.composition = {}
+
+        def __repr__(self):
+            return "FragmentRecord({name} {mass})".format(**self.__dict__)
+
+    def load_all(self):
+        tree = ET.parse('./test_data/Cross-ring-data.xml')
+        sugars = {}
+        by_name = {}
+        for cls in tree.iterfind(".//class"):
+            sugar_class = {}
+            for case in cls.iterfind(".//sugar"):
+                isomers = [tag.attrib['abbr'] for tag in case.findall(".//isomer")]
+                frags = defaultdict(dict)
+                for frag in case.iterfind(".//fragment"):
+                    data = [frag.attrib[n] for n in ["name", "mass_mono", "mass_pm_mono", "cleav1", "cleav2", "type"]]
+                    rec = self.FragmentRecord(*data)
+                    rec.composition = dict(map(
+                        lambda x: (x.attrib['element'], x.attrib['count']), frag.findall(".//composition")))
+                    frags[rec.cleave_1, rec.cleave_2][rec.kind] = rec
+                sugar_class[case.attrib['subclass']] = frags
+                for name in isomers:
+                    by_name[name] = frags
+            sugars[cls.attrib['name']] = sugar_class
+        return by_name
+
+    def test_monosacchide_crossring(self):
+        test_cases = [
+            'Glc',
+            "GlcNAc",
+            "Xyl",
+            'GalA',
+            'Fuc',
+            'IdoA',
+            "KDN"
+        ]
+        store = self.load_all()
+        for case in test_cases:
+            test = store[case]
+            target = monosaccharides[case]
+            for k, v in test.items():
+                target_d = {t.kind: t for t in crossring_fragments.crossring_fragments(target, k[0], k[1])}
+                target_d_permethylated = {t.kind: t for t in crossring_fragments.crossring_fragments(
+                    composition_transform.derivatize(target.clone(), "methyl"), k[0], k[1])}
+                for kind in {"A", "X"}:
+                    self.assertAlmostEqual(v[kind].mass, target_d[kind].mass(), 3)
+                    self.assertAlmostEqual(v[kind].permethylated_mass, target_d_permethylated[kind].mass(), 3)
 
 
 class SubstituentTests(unittest.TestCase):
@@ -725,6 +824,49 @@ class ConstantTests(unittest.TestCase):
         self.assertNotEqual(
             constants.Modification.d, constants.Stem[constants.Modification.d.value])
         self.assertRaises(KeyError, lambda: constants.SuperClass[1])
+        self.assertNotEqual(constants.Modification.d, constants.Modification.a)
+
+    def test_multiname(self):
+        Modification = constants.Modification
+        self.assertTrue(Modification.d == 'd')
+        self.assertFalse(Modification.d == 'Deoxidation')
+        # Add new name to existing EnumValue
+        Modification.d.add_name("Deoxidation")
+        self.assertTrue(Modification.d == 'Deoxidation')
+
+        # Add new name to class by re-using EnumValue
+        self.assertFalse(Modification.d == "deoxy")
+        Modification.deoxy = Modification.d
+        self.assertTrue(Modification.d == "deoxy")
+        self.assertEqual(Modification.deoxy, Modification.Deoxidation)
+
+        # Add new name to class and EnumValue by interpolating value
+        self.assertFalse(Modification.deoxy == 'deoxy2')
+        Modification.deoxy2 = Modification.d.value
+        self.assertTrue(Modification.deoxy == 'deoxy2')
+        self.assertRaises(KeyError, lambda: Modification.d.add_name('a'))
+
+    def test_wrap_value(self):
+        constants.Modification.not_a_real_modification = -5
+        self.assertTrue(isinstance(constants.Modification.not_a_real_modification, enum.EnumValue))
+        self.assertEqual(constants.Modification.not_a_real_modification.resolve(
+            constants.Modification), -5)
+
+    def test_resolve_failure(self):
+        mapping = {'d': 5}
+        self.assertTrue(constants.Modification.d.resolve(mapping) == 5)
+        self.assertRaises(KeyError, lambda: constants.Modification.aldi.resolve(mapping))
+
+    def test_instantiate_error(self):
+        self.assertRaises(Exception, enum.Enum)
+
+    def test_crossclass_inequality(self):
+        class E1(enum.Enum):
+            A = 1
+
+        class E2(enum.Enum):
+            A = 1
+        self.assertNotEqual(E1.A, E2.A)
 
 
 class LinkTests(unittest.TestCase):
@@ -834,6 +976,19 @@ class LinearCodeTests(unittest.TestCase):
         broad = glycoct.loads(broad_n_glycan).next()
         dup = linear_code.loads(linear_code.dumps(broad))
         self.assertEqual(broad, dup)
+
+        # linear code doesn't know about modifications or
+        # ring shape
+        sulfated = glycoct.loads(sulfated_glycan).next()
+        sulfated.root.drop_modification(1, 'aldi')
+        sulfated.root.ring_start = 1
+        sulfated.root.ring_end = 5
+        dup = linear_code.loads(linear_code.dumps(sulfated))
+        self.assertEqual(dup, sulfated)
+
+        sulfated = glycoct.loads(sulfated_glycan).next()
+        dup = linear_code.loads(linear_code.dumps(sulfated))
+        self.assertNotEqual(sulfated, dup)
 
 
 class SimilarityTests(unittest.TestCase):

@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid4
 from itertools import chain
 
@@ -15,6 +16,9 @@ from ..composition.structure_composition import modification_compositions
 
 anomer_map = invert_dict(anomer_map)
 superclass_map = invert_dict(superclass_map)
+
+logger = logging.getLogger(__name__)
+logger.setLevel("DEBUG")
 
 
 def get_standard_composition(monosaccharide):
@@ -38,6 +42,24 @@ def get_standard_composition(monosaccharide):
 
 
 def traverse(monosaccharide, visited=None, apply_fn=ident_op):
+    '''
+    A low-level depth-first traversal method for unwrapped residue
+    graphs
+
+    Parameters
+    ----------
+    monosaccharide: Monosaccharide
+        Residue to start traversing from
+    visited: set or None
+        The collection of node ids to ignore, having already visited them. If |None|, it defaults
+        to the empty set.
+    apply_fn: function
+        Function to apply to each residue before yielding them
+
+    Yields
+    -------
+    Monosaccharide
+    '''
     if visited is None:
         visited = set()
     yield apply_fn(monosaccharide)
@@ -51,6 +73,22 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
 
 
 def graph_clone(monosaccharide, visited=None):
+    '''
+    Low-level depth-first duplication method for unwrapped residue graphs
+
+    Parameters
+    ----------
+    residue: Monosaccharide
+        The root of the graph to clone
+    visited: set or None
+        The collection of node ids to ignore, having already visited them. If |None|, it defaults
+        to the empty set.
+
+    Returns
+    -------
+    Monosaccharide:
+        The root of a newly duplicated and identical residue graph
+    '''
     clone_root = monosaccharide.clone(prop_id=True)
     node_stack = [(clone_root, monosaccharide)]
     visited = set() if visited is None else visited
@@ -76,10 +114,18 @@ def graph_clone(monosaccharide, visited=None):
 
 
 def release(monosaccharide):
+    '''
+    Break all monosaccharide-monosaccharide links on `monosaccharide`, returning
+    them as a list. Breaking is done with `refund=True`
+    '''
     return [(link, link.break_link(refund=True)) for link in monosaccharide.links.values()]
 
 
 def toggle(monosaccharide):
+    '''
+    A simple generator for declaratively masking and masking a residue's links. The
+    first iteration masks all links. The second unmasks them. Calls :func:`release`
+    '''
     links = release(monosaccharide)
     yield True
     [link.apply() for link, termini in links]
@@ -237,22 +283,6 @@ class Monosaccharide(SaccharideBase):
 
         return monosaccharide
 
-    # @property
-    # def ring_start(self):
-    #     return self._ring_start
-
-    # @ring_start.setter
-    # def ring_start(self, value):
-    #     self._ring_start = value
-
-    # @property
-    # def ring_end(self):
-    #     return self._ring_end
-
-    # @ring_end.setter
-    # def ring_end(self, value):
-    #     self._ring_end = value
-
     @property
     def ring_type(self):
         try:
@@ -270,7 +300,7 @@ class Monosaccharide(SaccharideBase):
     def reducing_end(self):
         if self._reducing_end is None:
             for pos, mod in self.modifications.items():
-                if mod == ReducingEnd or mod == Modification.aldi:
+                if mod == ReducingEnd:
                     self._reducing_end = pos
                     break
         return self._reducing_end

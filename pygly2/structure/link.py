@@ -187,7 +187,8 @@ class Link(object):
 
     def is_substituent_link(self):
         '''
-        If :attr:`child` is a |Substituent| and :attr:`parent` is a |Monosaccharide|, then `self` is a *substituent_link*
+        If :attr:`child` is a |Substituent| and :attr:`parent` is a |Monosaccharide|, then `self`
+        is a *substituent_link*
 
         Returns
         -------
@@ -318,6 +319,14 @@ class Link(object):
             (self.child_loss or default_child_loss)
 
     def is_attached(self):
+        '''
+        Test to see if `self` is present in :attr:`parent` and :attr:`child` link structures.
+        Presences indicates the link is attached.
+
+        Returns
+        -------
+        bool
+        '''
         if self.is_substituent_link():
             parent = self in self.parent.substituent_links[self.parent_position]
         else:
@@ -346,7 +355,10 @@ def glycocidic_bond(parent, child, parent_position, child_position):
     return link
 
 
-class LinkMaskContext(object):
+class LinkMaskContext(object):  # pragma: no cover
+    '''
+    A context manager for masking and unmasking |Link| objects on a residue
+    '''
     def __init__(self, residue, attach=False):
         self.residue = residue
         self.links = [link for link in residue.links.values()]

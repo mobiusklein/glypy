@@ -103,7 +103,6 @@ _modification_compositions = {
         "H": 2
     }),
     "keto": CompositionRule({"H": -2}),
-    "_reduce": CompositionRule({"H": 2}),
 }
 
 modification_compositions = CompositionIndex(_modification_compositions)

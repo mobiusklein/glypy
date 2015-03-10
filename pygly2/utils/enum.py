@@ -10,7 +10,7 @@ class EnumValue(object):
     def __hash__(self):
         return hash(self.name)
 
-    def __index__(self):
+    def __index__(self):  # pragma: no cover
         return self.value
 
     def __eq__(self, other):
@@ -42,7 +42,7 @@ class EnumValue(object):
             try:
                 if name in mapping:
                     return mapping[name]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 pass
         raise KeyError("Could not resolve {} against {}".format(self, mapping))
 
@@ -72,9 +72,10 @@ class EnumMeta(type):
     '''
 
     def __new__(cls, name, parents, attrs):
-        enum_type = type.__new__(cls, name, parents, {})
+        enum_type = type.__new__(cls, name, parents, attrs)
         for label, value in attrs.items():
-            setattr(enum_type, label, EnumValue(enum_type, label, value))
+            if not label.startswith("__") or label == "mro":
+                setattr(enum_type, label, EnumValue(enum_type, label, value))
 
         return enum_type
 
@@ -94,7 +95,11 @@ class EnumMeta(type):
             v.names.add(k)
             super(EnumMeta, self).__setattr__(k, v)
         else:
-            super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
+            name = self.name(v)
+            if name is not None:
+                self[name].add_name(k)
+            else:
+                super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
 
     def __setitem__(self, k, v):
         setattr(self, k, v)

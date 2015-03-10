@@ -1,7 +1,7 @@
 '''
 A module for operating on GlycoMinds Linear Code
 
-Assumes that the structure's root is the right-most residue, as shown in 
+Assumes that the structure's root is the right-most residue, as shown in
 :title-reference:`A Novel Linear Code Nomenclature for Complex Carbohydrates, Banin et al.`.
 
 Currently does not handle the sigils indicating deviation from the common forms.
@@ -264,16 +264,16 @@ def monosaccharide_from_linear_code(residue_str, parent=None):
     '''
     Helper function for :func:`parse_linear_code`. Given a residue string
     of the form "(base_type)(anomer)(outedge?)([substituents]?)", construct
-    a |Monosaccharide| object. If `parent` is not |None|, connect the 
+    a |Monosaccharide| object. If `parent` is not |None|, connect the
     resulting |Monosaccharide| to `parent` at `outedge`.
     '''
-    base_type, anomer, outedge, substituents = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?", residue_str).groups()
+    base_type, substituents, anomer, outedge = re.search(r"([A-Z]+)(\[.*?\])?(.)(.)?", residue_str).groups()
     base = named_structures.monosaccharides[monosaccharides_from[base_type]]
     base.anomer = anomer_map_from[anomer]
     if substituents is not None:
         for subst_str in substituents[1:-1].split(','):
             pos, name = re.search(r'(\d*)(.+)', subst_str).groups()
-            subst_object = Substituent(name)
+            subst_object = Substituent(substituents_from[name])
             try:
                 pos = int(pos)
             except:
@@ -285,7 +285,7 @@ def monosaccharide_from_linear_code(residue_str, parent=None):
         outedge = -1
 
     if parent is not None:
-        parent.add_monosaccharide(base, position=outedge, child_position=1)
+        parent.add_monosaccharide(base, position=outedge, child_position=min(base.open_attachment_sites()[0]))
 
     return base, outedge
 
@@ -345,16 +345,16 @@ def parse_linear_code(text):
                 raise LinearCodeException("Bad branching at {}".format(len(text)))
         # Parsing a residue
         else:
-            match = re.search(r"([A-Z]+)(.)(.)?(\[.*\])?$", text)
+            match = re.search(r"([A-Z]+?)(\[[^\]]*?\])?(.)(.)?$", text)
             if match:
-                next_residue, outedge = monosaccharide_from_linear_code(text[match.start() : match.end()], last_residue)
+                next_residue, outedge = monosaccharide_from_linear_code(text[match.start(): match.end()], last_residue)
                 if root is None:
                     last_outedge = outedge
                     root = next_residue
                 last_residue = next_residue
                 text = text[:match.start()]
             else:
-                raise LinearCodeException("Could not identify residue at {}".format(len(text)))
+                raise LinearCodeException("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
 
     res = Glycan(root)
     if len(res) > 1:

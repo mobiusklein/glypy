@@ -86,7 +86,7 @@ class Reader(object):
         return not ''.join(self._str).strip()
 
 
-class NumpyDocString(object):
+class NumpyDocString(collections.Mapping):
     def __init__(self, docstring, config={}):
         docstring = textwrap.dedent(docstring).split('\n')
 
@@ -97,6 +97,7 @@ class NumpyDocString(object):
             'Extended Summary': [],
             'Parameters': [],
             'Returns': [],
+            'Yields': [],
             'Raises': [],
             'Warns': [],
             'Other Parameters': [],
@@ -112,14 +113,20 @@ class NumpyDocString(object):
 
         self._parse()
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         return self._parsed_data[key]
 
-    def __setitem__(self,key,val):
+    def __setitem__(self, key, val):
         if key not in self._parsed_data:
             warn("Unknown section %s" % key)
         else:
             self._parsed_data[key] = val
+
+    def __iter__(self):
+        return iter(self._parsed_data)
+
+    def __len__(self):
+        return len(self._parsed_data)
 
     def _is_at_section(self):
         self._doc.seek_next_non_empty_line()
@@ -288,11 +295,22 @@ class NumpyDocString(object):
         self._doc.reset()
         self._parse_summary()
 
-        for (section,content) in self._read_sections():
+        sections = list(self._read_sections())
+        section_names = set([section for section, content in sections])
+
+        has_returns = 'Returns' in section_names
+        has_yields = 'Yields' in section_names
+        # We could do more tests, but we are not. Arbitrarily.
+        if has_returns and has_yields:
+            msg = 'Docstring contains both a Returns and Yields section.'
+            raise ValueError(msg)
+
+        for (section, content) in sections:
             if not section.startswith('..'):
                 section = ' '.join([s.capitalize() for s in section.split(' ')])
-            if section in ('Parameters', 'Returns', 'Raises', 'Warns',
-                           'Other Parameters', 'Attributes', 'Methods'):
+            if section in ('Parameters', 'Returns', 'Yields', 'Raises',
+                           'Warns', 'Other Parameters', 'Attributes',
+                           'Methods'):
                 self[section] = self._parse_param_list(content)
             elif section.startswith('.. index::'):
                 self['index'] = self._parse_index(section, content)
@@ -391,8 +409,8 @@ class NumpyDocString(object):
         out += self._str_signature()
         out += self._str_summary()
         out += self._str_extended_summary()
-        for param_list in ('Parameters', 'Returns', 'Other Parameters',
-                           'Raises', 'Warns'):
+        for param_list in ('Parameters', 'Returns', 'Yields',
+                           'Other Parameters', 'Raises', 'Warns'):
             out += self._str_param_list(param_list)
         out += self._str_section('Warnings')
         out += self._str_see_also(func_role)

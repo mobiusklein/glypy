@@ -300,25 +300,26 @@ class DrawTree(object):
             child.scale(factor)
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1):
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1, label=False):
     '''
     Draw the parent outlink position and the child anomer symbol
 
     Parameters
     ----------
-    tree: |Glycan| or |Monosaccharide|
+    tree: Glycan or Monosaccharide
         The saccharide structure to draw.
-    orientation: |str|
+    orientation: str
         A string corresponding to `h` or `horizontal` will draw the glycan horizontally
         from right to left. `v` or `vertical` will draw the glycan from bottom to top.
         Defaults to `h`
-    at: :class:`tuple`
+    at: tuple
         The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
     ax: :class:`matplotlib.axes.Axis`
         A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
         an axis is not provided, a new figure will be created and used.
-    center: |bool|
-        Should the plot limits be centered around this glycan?
+    center: bool
+        Should the plot limits be centered around this glycan? Defaults to |False| but will be
+        be set to |True| if `ax` is |None|
     '''
     root = tree
     if isinstance(tree, Glycan):
@@ -332,7 +333,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1):
         fig, ax = plt.subplots()
         at = (0, 0)
         center = True
-    dtree.draw(orientation, at=at, ax=ax, scale=scale)
+    dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label)
     if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)
         # print(xmin, xmax, ymin, ymax)
