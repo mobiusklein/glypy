@@ -227,7 +227,6 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     # Render substituents along the bottom of the monosaccharide
     subs = []
     sub_x = x - (0.15 * (len(substituents) - 1))
-    print(x, sub_x)
     sub_y = y - 0.18
     for pos, subst_name in substituents:
         sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name))

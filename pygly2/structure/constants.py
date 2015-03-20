@@ -101,14 +101,13 @@ class Anomer(Enum):
 
 class RingType(Enum):
     '''
-    Corresponds to the type of ring structure of this |Monosaccharide|. Pyranose rings are 
+    Corresponds to the type of ring structure of this |Monosaccharide|. Pyranose rings are
     five-member rings including one Oxygen and Furanose rings are four member rings including
     one Oxygen.
 
     Is an |Enum|
     '''
-    pyranose = 1
-    furanose = 2
-    open = 3
+    pyranose = 6
+    furanose = 5
+    open = 0
     x = None
-

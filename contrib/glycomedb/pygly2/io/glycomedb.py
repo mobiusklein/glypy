@@ -1,12 +1,8 @@
 import requests
 from lxml import etree
-from pygly2.io import glycoct
-from collections import namedtuple
 
-Taxon = namedtuple("Taxon", ("tax_id", "name", 'entries'))
-Aglyca = namedtuple("Aglyca", ("name", "reducing", 'entries'))
-Entry = namedtuple("Entry", ("database", "id"))
-Motif = namedtuple("Motif", ("name", "id", "motif_class"))
+from pygly2.io import glycoct
+from pygly2.algorithms.database import Taxon, Aglyca, Motif, DatabaseEntry, GlycanRecord
 
 
 get_url_template = "http://www.glycome-db.org/database/showStructure.action?glycomeId={id}"
@@ -27,7 +23,7 @@ def get(id):
 #: GlycomeDB supplies a detailed schema link which allows `lxml` to easily pull out
 #: more than just the GlycoCT string. To download a more informative record, use :func:`get_record`
 
-def get_record(id):
+def get_record(id, record_type=GlycanRecord):
     '''
     Get the complete record for `id` from :title-reference:`GlycomeDB`.
 
@@ -38,7 +34,7 @@ def get_record(id):
     r = requests.get(get_url_template.format(id=id))
     r.raise_for_status()
     tree = etree.fromstring(r.content)
-    return GlycomeDBRecord(tree, id)
+    return glycan_record_from_xml(tree, id, record_type=record_type)
 
 
 def search_substructure(glycan_obj):
@@ -116,26 +112,15 @@ def make_entries(annotation):
     '''
     Helper method to create :class:`Entry` objects from <entry></entry> tags in :class:`Taxon` and :class:`Aglyca`.
     '''
-    res = [Entry(node.attrib['database'], node.attrib['id']) for node in annotation.findall(".//entry")]
+    res = [DatabaseEntry(node.attrib['database'], node.attrib['id']) for node in annotation.findall(".//entry")]
     return res
 
 
-class GlycomeDBRecord(object):
-    '''
-    Describes a complete entry from :title-reference:`GlycomeDB`.
-
-    Attributes
-    ----------
-    glycan: |Glycan| instance built from the structure stored in this record
-    taxa: |list| of :class:`Taxon` objects
-    aglycon: |list| of :class:`Aglyca` objects
-    motifs: |list| of :class:`Motif` objects
-    '''
-    def __init__(self, xml_tree, id):
-        self.glycan = glycoct.loads(xml_tree.find(xpath).text).next()
-        self.taxa = [Taxon(t.attrib['ncbi'], t.attrib['name'], make_entries(t)) for t in xml_tree.findall(".//taxon")]
-        self.aglycon = [Aglyca(t.attrib['name'], t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]
-        self.motifs = [Motif(t.attrib['name'], t.attrib['id'], t.attrib['class']) for t in xml_tree.findall(".//motif")]
-        self.id = id
-
-
+def glycan_record_from_xml(xml_tree, id, record_type=GlycanRecord):
+    structure = glycoct.loads(xml_tree.find(xpath).text).next()
+    taxa = [Taxon(t.attrib['ncbi'], t.attrib['name'], make_entries(t)) for t in xml_tree.findall(".//taxon")]
+    aglycon = [Aglyca(t.attrib['name'], t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]
+    motifs = [Motif(t.attrib['name'], t.attrib['id'], t.attrib['class']) for t in xml_tree.findall(".//motif")]
+    dbxref = [e for c in [t.entries for t in taxa] + [t.entries for t in aglycon] for e in c]
+    dbxref.append(DatabaseEntry("GlycomeDB", id))
+    return record_type(structure, motifs=motifs, dbxref=dbxref, aglycones=aglycon, taxa=taxa, id=id)

@@ -127,7 +127,7 @@ def toggle(monosaccharide):
     first iteration masks all links. The second unmasks them. Calls :func:`release`
     '''
     links = release(monosaccharide)
-    yield True
+    yield links
     [link.apply() for link, termini in links]
     yield False
 
@@ -221,7 +221,7 @@ class Monosaccharide(SaccharideBase):
 
     @configuration.setter
     def configuration(self, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, tuple):
             self._configuration = tuple(Configuration[v] for v in value)
         else:
             self._configuration = (Configuration[value],)
@@ -232,11 +232,11 @@ class Monosaccharide(SaccharideBase):
 
     @stem.setter
     def stem(self, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, tuple):
             self._stem = tuple(Stem[v] for v in value)
         else:
-            if value not in Stem and value is not None:
-                raise Exception(value)
+            # if value not in Stem and value is not None:
+            #     raise Exception(value)
             self._stem = (Stem[value],)
 
     @property
@@ -245,8 +245,8 @@ class Monosaccharide(SaccharideBase):
 
     @superclass.setter
     def superclass(self, value):
-        if value not in SuperClass and value is not None:
-            raise Exception(value)
+        # if value not in SuperClass and value is not None:
+        #     raise Exception(value)
         self._superclass = SuperClass[value]
 
     def clone(self, prop_id=False):

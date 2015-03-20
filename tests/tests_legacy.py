@@ -406,19 +406,19 @@ class MonosaccharideTests(unittest.TestCase):
 
         def t():
             structure.anomer = 5
-        self.assertRaises(Exception, t)
+        self.assertRaises(KeyError, t)
 
         def t():
             structure.stem = "gibberish"
-        self.assertRaises(Exception, t)
+        self.assertRaises(KeyError, t)
 
         def t():
             structure.superclass = "monose"
-        self.assertRaises(Exception, t)
+        self.assertRaises(KeyError, t)
 
         def t():
             structure.configuration = 'not-real'
-        self.assertRaises(Exception, t)
+        self.assertRaises(KeyError, t)
 
     def test_validate_reducing_end(self):
         structure = named_structures.monosaccharides['Hex']

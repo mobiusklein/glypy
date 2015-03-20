@@ -59,7 +59,7 @@ def make_counter(start=1, label=""):
     '''
     Create a functor whose only internal piece of data is a mutable container
     with a reference to an integer, `start`. When the functor is called, it returns
-    current `int` value of `start` and increments the mutable value by one. 
+    current `int` value of `start` and increments the mutable value by one.
 
     Parameters
     ----------
@@ -134,3 +134,40 @@ class {name}(object):
     except (AttributeError, ValueError):  # pragma: no cover
         pass
     return result
+
+
+class ClassPropertyDescriptor(object):
+    '''
+    Standard Class Property Descriptor Implementation
+    '''
+    def __init__(self, fget, fset=None):
+        self.fget = fget
+        self.fset = fset
+
+    def __get__(self, obj, klass=None):
+        if klass is None:
+            klass = type(obj)
+        return self.fget.__get__(obj, klass)()
+
+    def __set__(self, obj, value):
+        if not self.fset:
+            raise AttributeError("can't set attribute")
+        type_ = type(obj)
+        return self.fset.__get__(obj, type_)(value)
+
+    def setter(self, func):
+        if not isinstance(func, (classmethod, staticmethod)):
+            func = classmethod(func)
+        self.fset = func
+        return self
+
+
+def classproperty(func):
+    '''
+    Applies ClassPropertyDescriptor as you would a normal
+    @property descriptor
+    '''
+    if not isinstance(func, (classmethod, staticmethod)):
+        func = classmethod(func)
+
+    return ClassPropertyDescriptor(func)

@@ -1,3 +1,4 @@
+import sys
 import operator
 import logging
 import itertools
@@ -6,6 +7,7 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
+from .link import LinkMaskContext
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
@@ -689,7 +691,7 @@ class Glycan(SaccharideBase):
                             yield ion_type + k, link_ids + [break_id], include, mass - offset
 
                     # If generating crossring cleavages
-                    if len((kind) & set("AX")) > 0:
+                    if len((kind) & set("AX")) > 0 and child.ring_start is not None:
                         # Re-apply the broken link temporarily
                         link.apply()
                         try:
@@ -723,7 +725,8 @@ class Glycan(SaccharideBase):
                                 child_link_mask.next()
                         finally:
                             # Re-break the link for release in the later `finally` block
-                            link.break_link(refund=True)
+                            if link.is_attached():
+                                link.break_link(refund=True)
                 else:
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
@@ -742,7 +745,7 @@ class Glycan(SaccharideBase):
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield (k, [break_id], child_include, mass)
 
-                    if len((kind) & set("AX")) > 0:
+                    if len((kind) & set("AX")) > 0 and child.ring_start is not None:
                         # Re-apply the broken link temporarily
                         link.apply()
                         try:

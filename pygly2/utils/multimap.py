@@ -95,6 +95,7 @@ class MultiMap(object):
                 return True
         return False
 
+
 class OrderedMultiMap(MultiMap):
     '''
     Implements a simple MultiMap data structure on top of a dictionary of lists

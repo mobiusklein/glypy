@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from pygly2.structure import Glycan
 from pygly2.io.nomenclature import identity
+from pygly2.algorithms.database import GlycanRecordBase
 
 from .buchheim import buchheim
 from . import cfg_symbols
@@ -324,6 +325,8 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1, lab
     root = tree
     if isinstance(tree, Glycan):
         root = tree.root
+    elif isinstance(tree, GlycanRecordBase):
+        root = tree.structure.root
     dtree = DrawTree(root)
     buchheim(dtree)
     dtree.fix_special_cases()

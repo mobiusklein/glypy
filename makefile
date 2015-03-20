@@ -2,8 +2,7 @@ all: test docs
 
 
 test:
-	coverage run tests.py
-	coverage html -d test_reports
+	nosetests --with-coverage --cover-package=pygly2 --cover-html --cover-html-dir=test_reports --logging-level=CRITICAL
 
 docs:
 	make -f Makefile clean -C doc html
