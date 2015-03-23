@@ -150,7 +150,8 @@ class GlycanRecordBase(object):
     def add_metadata(cls, name, dtype, transform):
         '''
         Function-based approach to modifying the class-specific
-        :attr:`.__metadata_map` attribute.
+        :attr:`.__metadata_map` attribute. Must use :func:`getattr`
+        to prevent class-private name mangling
 
         Parameters
         ----------
@@ -161,7 +162,7 @@ class GlycanRecordBase(object):
         transform: function
             The function to extract the value of the metadata from a record
         '''
-        cls.__metadata_map[name] = (dtype, transform)
+        getattr(cls, "_{}__metadata_map".format(cls.__name__))[name] = (dtype, transform)
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
@@ -466,8 +467,8 @@ class RecordDatabase(object):
         self.cursor = self.connection.cursor
         self.record_type = record_type
         self._id = 0
-        self.apply_schema()
         if records is not None:
+            self.apply_schema()
             self.load_data(records)
             self.apply_indices()
 
@@ -565,7 +566,6 @@ class RecordDatabase(object):
                                    mass_shift=0):
         target_table = target_table or self.record_type.table_name
         lower, upper = self._find_boundaries(mass + mass_shift, tolerance)
-        print(lower, upper)
         results = self.execute("select * from {table_name}\
          where mass between {lower} and {upper};".format(
             lower=lower, upper=upper, table_name=target_table))

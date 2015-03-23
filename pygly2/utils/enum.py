@@ -14,11 +14,12 @@ class EnumValue(object):
         return self.value
 
     def __eq__(self, other):
-        if isinstance(other, EnumValue):
+        try:
             if self.group != other.group:
                 return False
             return self.value == other.value or self.names == other.names
-        return self.value == other or other in self.names
+        except AttributeError:
+            return self.value == other or other in self.names
 
     def __ne__(self, other):
         if isinstance(other, EnumValue) and self.group != other.group:

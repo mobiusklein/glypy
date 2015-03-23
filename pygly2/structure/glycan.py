@@ -74,7 +74,7 @@ class Glycan(SaccharideBase):
 
     def __init__(self, root=None, reducing_end=None, index_method='dfs'):
         '''
-        Constructs a new Glycan from the set of |Monosaccharide|
+        Constructs a new Glycan from the collection of connected |Monosaccharide| objects
         rooted at `root`.
 
         If `reducing_end` is not |None|, it is set as the reducing end.
@@ -526,6 +526,16 @@ class Glycan(SaccharideBase):
         '''
         return sum(
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
+
+    def total_composition(self):
+        '''
+        Computes the sum of the composition of all |Monosaccharide|s in ``self``
+
+        Returns
+        -------
+        :class:`~pygly2.composition.Composition`
+        '''
+        return sum((node.total_composition() for node in self), Composition())
 
     def clone(self, index_method='dfs', visited=None):
         '''

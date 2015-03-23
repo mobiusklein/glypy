@@ -1,10 +1,8 @@
 import logging
-logger = logging.getLogger(__name__)
-from collections import defaultdict
-from functools import partial
 from itertools import izip_longest
+from collections import defaultdict
+logger = logging.getLogger(__name__)
 
-from . import identity
 
 class MultiMap(object):
     '''Implements a simple MultiMap data structure on top of a dictionary of lists'''

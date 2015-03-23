@@ -18,6 +18,7 @@ class GlycanRecordTest(unittest.TestCase):
     def test_to_sql(self):
         rec = database.GlycanRecord(load("broad_n_glycan"))
         db = database.RecordDatabase()
+        db.apply_schema()
         db.create(load("broad_n_glycan"))
         self.assertEqual(db[1], rec)
 

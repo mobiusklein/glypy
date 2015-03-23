@@ -17,7 +17,7 @@ from pygly2.algorithms import subtree_search
 from pygly2.algorithms import similarity
 
 Substituent = pygly2.Substituent
-
+Glycan = glycan.Glycan
 
 def debug_on(*exceptions):
     if not exceptions:
@@ -218,7 +218,7 @@ LIN
 7:7d(2+1)8n
 8:7o(3+1)9d
 9:7o(4+1)10d
-10:10o(3|6+2)11d
+10:10o(3+2)11d
 11:11d(5+1)12n
 12:6o(4+1)13d
 13:13d(2+1)14n
@@ -231,13 +231,13 @@ LIN
 20:20d(2+1)21n
 21:20o(3+1)22d
 22:20o(4+1)23d
-23:23o(3|6+2)24d
+23:23o(3+2)24d
 24:24d(5+1)25n
 25:19o(6+1)26d
 26:26d(2+1)27n
 27:26o(3+1)28d
 28:26o(4+1)29d
-29:29o(3|6+2)30d
+29:29o(3+2)30d
 30:30d(5+1)31n
 31:1o(6+1)32d
 '''
@@ -245,14 +245,14 @@ LIN
 
 class GlycoCTParserTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
-
+    _multiprocess_can_split_ = True
     def test_parse_file(self):
         for g in glycoct.read(self._file_path):
             self.assertTrue(isinstance(g, glycan.Glycan))
 
 
 class NamedStructureTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_accessors(self):
         self.assertEqual(named_structures.monosaccharides.Fucose,
                          named_structures.monosaccharides["Fucose"])
@@ -263,7 +263,7 @@ class NamedStructureTests(unittest.TestCase):
 
 
 class StructureCompositionTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_missing_composition(self):
         import warnings
         warnings.filterwarnings('ignore')
@@ -275,7 +275,7 @@ class StructureCompositionTests(unittest.TestCase):
 class MonosaccharideTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
     glycan = iter(glycoct.read(_file_path)).next()
-
+    _multiprocess_can_split_ = True
     def test_from_glycoct(self):
         s = self.glycan.root.to_glycoct()
         b = StringIO(s)
@@ -436,19 +436,19 @@ class MonosaccharideTests(unittest.TestCase):
 
 class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
-
+    _multiprocess_can_split_ = True
     def test_from_glycoct(self):
         for structure in glycoct.read(self._file_path):
             self.assertEqual(
                 structure, glycoct.loads(structure.to_glycoct()).next())
 
     def test_fragments_preserve(self):
-        for structure in glycoct.read(self._file_path):
-            dup = structure.clone()
-            self.assertEqual(structure, dup)
-            list(dup.fragments('ZCBY', 3))
+        structure = glycoct.loads(branchy_glycan).next()
+        dup = structure.clone()
+        self.assertEqual(structure, dup)
+        list(dup.fragments('AXZCBY', 2))
 
-            self.assertEqual(structure, dup)
+        self.assertEqual(structure, dup)
 
     def test_branch_counts(self):
         structure = glycoct.loads(branchy_glycan).next()
@@ -626,8 +626,21 @@ class GlycanTests(unittest.TestCase):
             if fragment.link_ids == [3]:
                 self.assertAlmostEqual(frag_data[fragment.kind], fragment.mass, 2)
 
+    def test_subtree_from(self):
+        structure = glycoct.loads(branchy_glycan).next()
+        child = structure.root.children().next()[1]
+        subtree = Glycan.subtree_from(structure, child)
+        temp = structure.clone()
+        temproot = temp.root.children().next()[1]
+        for link in temp.root.links.values():
+            link.break_link(refund=True)
+        temp.root = temproot
+        self.assertEqual(temp, subtree)
+        self.assertEqual(Glycan.subtree_from(structure, 1), temp)
+
 
 class CrossRingTests(unittest.TestCase):
+    _multiprocess_can_split_ = True
     def test_unroll_ring(self):
         linear = crossring_fragments.unroll_ring(monosaccharides.GlcNAc)
         for i in range(len(linear)):
@@ -730,7 +743,7 @@ class SubstituentTests(unittest.TestCase):
 
 
 class MultiMapTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_iterators(self):
         from collections import Counter
         mm = multimap.MultiMap(a=1, b=3)
@@ -752,7 +765,7 @@ class MultiMapTests(unittest.TestCase):
 
 
 class CompositionTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_derivativize_bare(self):
         permethylated_reduced_mass = 1716.9033
         glycan = glycoct.loads(common_glycan).next()
@@ -810,7 +823,7 @@ class CompositionTests(unittest.TestCase):
 
 
 class ConstantTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_translate(self):
         self.assertTrue(
             constants.Modification.d == constants.Modification['d'])
@@ -870,7 +883,7 @@ class ConstantTests(unittest.TestCase):
 
 
 class LinkTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_link_equality(self):
         parent = named_structures.monosaccharides['Hex']
         child = named_structures.monosaccharides['Hex']
@@ -921,7 +934,7 @@ class LinkTests(unittest.TestCase):
 
 
 class SubtreeSearchTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_subtree_inclusion(self):
         core = glycans['N-Linked Core']
         tree = glycoct.loads(broad_n_glycan).next()
@@ -936,7 +949,7 @@ class SubtreeSearchTests(unittest.TestCase):
 
 
 class IdentifyTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_is_a_predicate(self):
         for name, monosaccharide in monosaccharides.items():
             self.assertTrue(identity.is_a(monosaccharide, name))
@@ -971,7 +984,7 @@ class IdentifyTests(unittest.TestCase):
 
 
 class LinearCodeTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_translate(self):
         broad = glycoct.loads(broad_n_glycan).next()
         dup = linear_code.loads(linear_code.dumps(broad))
@@ -992,7 +1005,7 @@ class LinearCodeTests(unittest.TestCase):
 
 
 class SimilarityTests(unittest.TestCase):
-
+    _multiprocess_can_split_ = True
     def test_deep_similarity(self):
         branchy = glycoct.loads(branchy_glycan).next()
         broad = glycoct.loads(broad_n_glycan).next()

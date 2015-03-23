@@ -120,6 +120,13 @@ class {name}(object):
         return True
     def __ne__(self, other):
         return not self == other
+
+    @property
+    def __dict__(self):
+        d = dict()
+        for f in {fields!r}:
+            d[f] = getattr(self, f)
+        return d
     ''').format(
         name=name,
         fields=fields,
