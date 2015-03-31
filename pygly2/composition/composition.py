@@ -14,6 +14,7 @@ _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
 _formula = r'^({})*$'.format(_atom)
 formula_pattern = re.compile(_formula)
 
+
 def _make_isotope_string(element_name, isotope_num):
     """Form a string label for an isotope."""
     if isotope_num == 0:

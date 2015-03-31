@@ -17,6 +17,6 @@ Glycan Analysis and Glycominformatics Library for Python
 
 ### Example uses
 3. Calculate the mass of a native or derivatized glycan
-3. Generate glycosidic cleavage fragments, including internal fragments, for matching with tandem MS (Cross-ring cleavage coming soon!)
+3. Generate glycosidic cleavage fragments, including internal fragments, for matching with tandem MS including cross ring cleavage.
 3. Perform substructure similarity searches with exact ordering or topological comparison and exact or fuzzy per-residue matching
 3. Annotate MS spectra with glycan structures

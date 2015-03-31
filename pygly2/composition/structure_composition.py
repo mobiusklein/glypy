@@ -18,6 +18,7 @@ class CompositionRule(object):
 
 
 class CompositionIndex(dict):
+
     def __getitem__(self, key):
         try:
             composition_dict = super(CompositionIndex, self).__getitem__(key)
@@ -27,6 +28,7 @@ class CompositionIndex(dict):
                 warnings.warn("{key} could not be found. It may not have an explicit composition".format(key=key),
                               stacklevel=3)
         return (composition_dict)
+
 
 # Monosaccharide Residue Compositions
 _monosaccharide_compositions = {

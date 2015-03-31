@@ -1,6 +1,6 @@
 import unittest
 from pygly2.algorithms import database
-from .common import load
+from common import load
 
 
 class GlycanRecordTest(unittest.TestCase):
@@ -10,10 +10,10 @@ class GlycanRecordTest(unittest.TestCase):
 
         self.assertEqual(rec.structure.mass(), rec.mass())
 
-        saccharides = {u'GlcNA': 6, u'Gal': 4, u'aMan': 2, u'Fuc': 1, u'Man': 1}
+        saccharides = {'Hex': 7, u'HexNAc': 6, 'dHex': 1}
         self.assertEqual(saccharides, rec.monosaccharides)
 
-        self.assertEqual(database.GlycanRecord.extract_composition(rec), '"Gal:4 aMan:2 Fuc:1 GlcNA:6 Man:1"')
+        self.assertEqual(database.GlycanRecord.extract_composition(rec), '"Hex:7 HexNAc:6 dHex:1"')
 
     def test_to_sql(self):
         rec = database.GlycanRecord(load("broad_n_glycan"))
@@ -37,3 +37,7 @@ class RecordDatabaseTest(unittest.TestCase):
         rec2 = database.GlycanRecord(load("complex_glycan"))
         db = database.RecordDatabase(records=[rec, rec2])
         self.assertEqual(rec, (db.ppm_match_tolerance_search(rec.mass(), 1e-5)).next())
+
+
+if __name__ == '__main__':
+    unittest.main()

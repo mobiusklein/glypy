@@ -6,6 +6,13 @@ from pygly2.utils import StringIO, identity as ident_op, multimap, pickle, ET, e
 
 structures = {}
 
+monosaccharides = pygly2.monosaccharides
+
+
+def emit(arg):
+    print(arg)
+    return arg
+
 
 def load(name):
     structure_composition.do_warn = False
@@ -197,13 +204,13 @@ LIN
 20:20d(2+1)21n
 21:20o(3+1)22d
 22:20o(4+1)23d
-23:23o(3|6+2)24d
+23:23o(3+2)24d
 24:24d(5+1)25n
 25:19o(6+1)26d
 26:26d(2+1)27n
 27:26o(3+1)28d
 28:26o(4+1)29d
-29:29o(3|6+2)30d
+29:29o(3+2)30d
 30:30d(5+1)31n
 31:1o(6+1)32d
 '''

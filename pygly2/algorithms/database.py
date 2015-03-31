@@ -1,9 +1,12 @@
+import os
 import sqlite3
 from collections import Counter, Iterable
 from functools import partial
 
+import pygly2
 from pygly2.utils import pickle, classproperty, make_struct
 from pygly2.io.nomenclature import identity
+from pygly2.algorithms import subtree_search
 
 
 Taxon = make_struct("Taxon", ("tax_id", "name", 'entries'))
@@ -372,7 +375,32 @@ def query_composition(prefix=None, **kwargs):
     return ' and '.join(composition_list)
 
 
+def naive_name_monosaccharide(monosaccharide):
+    try:
+        c = monosaccharide.clone()
+        if monosaccharide.superclass.value > 7:
+            return identity.identify(monosaccharide, tolerance=1)
+        c.anomer = None
+        return identity.identify(c)
+    except identity.IdentifyException:
+        try:
+            c.stem = None
+            c.configuration = None
+            return identity.identify(c)
+        except identity.IdentifyException:
+            return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
+             c.superclass.name.title() + ''.join(
+                ["".join(map(str.title, subst.name.split("_")))[:3] for p, subst in c.substituents()])
+
+
+def is_n_glycan(record):
+    return int(subtree_search.subtree_of(
+        n_glycan_core, record.structure, exact=False) == 1)
+n_glycan_core = pygly2.glycans["N-Linked Core"]
+
+
 @metadata("composition", "varchar(80)", extract_composition)
+@metadata("is_n_glycan", "boolean", is_n_glycan)
 class GlycanRecord(GlycanRecordBase):
 
     __metadata_map = {}
@@ -387,7 +415,11 @@ class GlycanRecord(GlycanRecordBase):
 
     @property
     def monosaccharides(self):
-        return Counter(map(identity.identify, self.structure))
+        return Counter(map(naive_name_monosaccharide, self.structure))
+
+    @property
+    def is_n_glycan(self):
+        return bool(is_n_glycan(self))
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
@@ -461,16 +493,25 @@ class RecordDatabase(object):
             defaults to |None| and no records are added. If records are provided, they are inserted
             with :meth:`.load_data` and afterwards :meth:`.apply_indices` is called.
         '''
+        created_new = False
+        if connection_string == ":memory:" or not os.path.exists(connection_string):
+            created_new = True
+
         self.connection_string = connection_string
         self.connection = sqlite3.connect(connection_string)
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor
         self.record_type = record_type
         self._id = 0
+
         if records is not None:
             self.apply_schema()
             self.load_data(records)
             self.apply_indices()
+        elif created_new:
+            self.apply_schema()
+        else:
+            self._id = len(self)
 
     def apply_schema(self):
         '''
@@ -514,9 +555,14 @@ class RecordDatabase(object):
                     raise
         self.commit()
 
+    def __len__(self):
+        res = (self.execute("select max(glycan_id) from {table_name};").next())["max(glycan_id)"]
+        return res or 0
+
     def create(self, structure, *args, **kwargs):
         record = self.record_type(structure=structure, *args, **kwargs)
         self.load_data([record])
+        return record
 
     def __getitem__(self, keys):
         results = []

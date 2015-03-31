@@ -301,7 +301,10 @@ class DrawTree(object):
             child.scale(factor)
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1, label=False):
+DEFAULT_SYMBOL_SCALE_FACTOR = 0.1
+
+
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -321,7 +324,12 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, scale=0.1, lab
     center: bool
         Should the plot limits be centered around this glycan? Defaults to |False| but will be
         be set to |True| if `ax` is |None|
+    label: bool
+        Should the bond annotations for `tree` be drawn? Defaults to |False|
     '''
+
+    scale = kwargs.get("scale", DEFAULT_SYMBOL_SCALE_FACTOR)
+
     root = tree
     if isinstance(tree, Glycan):
         root = tree.root

@@ -1,4 +1,3 @@
-import functools
 from ...structure import named_structures, Monosaccharide, Substituent
 from ...algorithms.similarity import monosaccharide_similarity
 from .synonyms import monosaccharides as monosaccharide_synonyms

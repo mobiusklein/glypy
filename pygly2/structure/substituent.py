@@ -5,18 +5,21 @@ from ..composition.structure_composition import substituent_compositions
 from .link import Link
 
 from ..composition import Composition, calculate_mass
-from ..utils import make_struct
 from ..utils.multimap import OrderedMultiMap
 
 
 class DerivatizePathway(object):
 
-    def __init__(self, can_nh_derivatize, is_nh_derivatizable):
+    def __init__(self, can_nh_derivatize=False, is_nh_derivatizable=False):
         self.can_nh_derivatize = can_nh_derivatize
         self.is_nh_derivatizable = is_nh_derivatizable
 
     def __repr__(self):
         return "<DerivatizePathway {}>".format(self.__dict__)
+
+    @classmethod
+    def add(cls, name, can_nh_derivatize, is_nh_derivatizable):
+        derivatize_info[name.replace("-", "_")] = DerivatizePathway(can_nh_derivatize, is_nh_derivatizable)
 
 
 derivatize_info = {
@@ -70,7 +73,7 @@ class Substituent(SubstituentBase):
     Represents a non-saccharide molecule commonly found bound to saccharide units.
     '''
 
-    def __init__(self, name, links=None, composition=None, id=None):
+    def __init__(self, name, links=None, composition=None, id=None, can_nh_derivatize=None, is_nh_derivatizable=None):
         if links is None:
             links = OrderedMultiMap()
         self.name = name
@@ -79,6 +82,15 @@ class Substituent(SubstituentBase):
             composition = substituent_compositions[self.name]
         self.composition = composition
         self.id = id or uuid4().int
+        try:
+            if can_nh_derivatize is is_nh_derivatizable is None:
+                self.can_nh_derivatize = derivatize_info[self.name].can_nh_derivatize
+                self.is_nh_derivatizable = derivatize_info[self.name].is_nh_derivatizable
+            else:
+                self.can_nh_derivatize = can_nh_derivatize or False
+                self.is_nh_derivatizable = is_nh_derivatizable or False
+        except KeyError:
+            raise KeyError("{} does not have defined derivatization rules. Please specify them.".format(self.name))
 
     @property
     def name(self):
@@ -283,27 +295,3 @@ class Substituent(SubstituentBase):
             if link.is_parent(self):
                 continue
             yield (pos, link.parent)
-
-    @property
-    def can_nh_derivatize(self):
-        '''
-        Check :data:`derivatize_info` to see if this substituent type
-        can be derivatized an N-H terminal.
-
-        Returns
-        -------
-        bool
-        '''
-        return derivatize_info[self.name].can_nh_derivatize
-
-    @property
-    def is_nh_derivatizable(self):
-        '''
-        Check :data:`derivatize_info` to see if this substituent type
-        derivatizes an N-H terminal.
-
-        Returns
-        -------
-        bool
-        '''
-        return derivatize_info[self.name].is_nh_derivatizable
