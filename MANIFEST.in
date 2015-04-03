@@ -1,0 +1,3 @@
+recursive-include pygly2/structure/data *.json
+recursive-include pygly2/io/nomenclature/data *.json
+
