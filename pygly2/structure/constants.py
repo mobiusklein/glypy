@@ -28,6 +28,16 @@ class SuperClass(Enum):
     s20 = 20
     x = None
 
+SuperClass.sug.add_name("Sugose")
+SuperClass.tri.add_name("Triose")
+SuperClass.tet.add_name("Tetrose")
+SuperClass.pen.add_name("Pentose")
+SuperClass.hex.add_name("Hexose")
+SuperClass.hep.add_name("Heparin")
+SuperClass.oct.add_name("Octose")
+SuperClass.non.add_name("Nonose")
+SuperClass.dec.add_name("Decose")
+
 
 class Stem(Enum):
     '''Corresponds to the bond formation pattern between the carbon atoms in the
@@ -80,10 +90,16 @@ class Modification(Enum):
     sp2 = 6
     sp = 7
     geminal = 8
-    _reserve = 9
-    _cleave = 10
 
 #: An alias for :attr:`Modification.aldi`
+Modification.aldi.add_name("Alditol")
+Modification.a.add_name("Acidic")
+Modification.d.add_name("Deoxygenated")
+Modification.keto.add_name("Ketone")
+Modification.en.add_name("DoubleBond")
+Modification.geminal.add_name("Geminal")
+Modification.sp.add_name("SP")
+Modification.sp2.add_name("SP2")
 ReducingEnd = Modification.aldi
 
 

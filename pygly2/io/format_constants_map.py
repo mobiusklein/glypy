@@ -8,13 +8,49 @@ anomer_map = {
     'x': constants.Anomer.x
 }
 
-superclass_map = {k.upper(): v for k, v in constants.SuperClass}
+
+SuperClass = constants.SuperClass
+superclass_map = {
+    "sug".upper(): SuperClass["sug"],
+    "tri".upper(): SuperClass["tri"],
+    "tet".upper(): SuperClass["tet"],
+    "pen".upper(): SuperClass["pen"],
+    "hex".upper(): SuperClass["hex"],
+    "hep".upper(): SuperClass["hep"],
+    "oct".upper(): SuperClass["oct"],
+    "non".upper(): SuperClass["non"],
+    "dec".upper(): SuperClass["dec"],
+    "s11".upper(): SuperClass["s11"],
+    "s12".upper(): SuperClass["s12"],
+    "s13".upper(): SuperClass["s13"],
+    "s14".upper(): SuperClass["s14"],
+    "s15".upper(): SuperClass["s15"],
+    "s16".upper(): SuperClass["s16"],
+    "s17".upper(): SuperClass["s17"],
+    "s18".upper(): SuperClass["s18"],
+    "s19".upper(): SuperClass["s19"],
+    "s20".upper(): SuperClass["s20"],
+    "x".upper(): SuperClass["x"],
+}
 
 
 link_replacement_composition_map = {
     "o": Composition(H=1),  # The source Carbon's Hydroxyl group loses its Hydrogen
-    "d": Composition(O=1, H=1),  # The Hydroxyl group of the target Carbon is lost
+    "d": Composition("OH"),  # The Hydroxyl group of the target Carbon is lost
     "h": Composition(H=1),  # The Hydrogen of the target Carbon is lost
     "n": Composition(H=1),  # Non-sugar unit recieves bond
-    "x": None  # Unknown
+    "x": Composition({})  # Unknown
+}
+
+
+Modification = constants.Modification
+modification_map = {
+    'd': Modification.Deoxygenated,
+    'a': Modification.Acidic,
+    'aldi': Modification.Alditol,
+    'keto': Modification.Ketone,
+    'en': Modification.DoubleBond,
+    'sp': Modification.SP,
+    'sp2': Modification.SP2,
+    'geminal': Modification.Geminal
 }

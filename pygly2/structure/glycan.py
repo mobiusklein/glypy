@@ -1,4 +1,3 @@
-import sys
 import operator
 import logging
 import itertools
@@ -7,7 +6,6 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
-from .link import LinkMaskContext
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
@@ -186,8 +184,17 @@ class Glycan(SaccharideBase):
     def reducing_end(self, value):
         self.root.reducing_end = value
 
-    def depth_first_traversal(
-            self, from_node=None, apply_fn=identity, visited=None):
+    def set_reducing_end(self, position):
+        '''
+        Sets the location of the reducing end.
+        '''
+        if position is None:
+            if self.reducing_end is not None:
+                self.root.drop_modification(self.reducing_end, modification="aldi")
+        else:
+            self.root.reducing_end = position
+
+    def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
         Make a depth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
@@ -248,9 +255,9 @@ class Glycan(SaccharideBase):
         visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
-        Returns
-        -------
-        generator
+        Yields
+        ------
+        Monosaccharide
 
         See also
         --------
@@ -306,9 +313,9 @@ class Glycan(SaccharideBase):
         visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
-        Returns
-        -------
-        generator
+        Yields
+        ------
+        Monosaccharide
 
         See also
         --------
@@ -321,6 +328,23 @@ class Glycan(SaccharideBase):
             from_node=from_node, apply_fn=apply_fn, visited=visited)
 
     def iterlinks(self, substituents=False, method='dfs', visited=None):
+        '''
+        Iterates over all |Link|s in |Glycan|.
+
+        Parameters
+        ----------
+        substituents: bool
+            If `substituents` is |True|, then include the |Link|s in
+            :attr:`substituent_links` on each |Monosaccharide|
+        method: str or function
+            The traversal method controlling the order of the nodes visited
+        visited: None or set
+            The collection of id values to ignore when traversing
+
+        Yields
+        ------
+        Link
+        '''
         traversal = self._get_traversal_method(method)
         links_visited = set()
 
@@ -338,6 +362,24 @@ class Glycan(SaccharideBase):
             traversal(apply_fn=links, visited=visited))
 
     def leaves(self, bidirectional=False, method='dfs', visited=None):
+        '''
+        Iterates over all |Monosaccharide|s in |Glycan|, yielding only those
+        that have no child nodes.
+
+        Parameters
+        ----------
+        bidirectional: bool
+            If `bidirectional` is |True|, then only |Monosaccharide| objects
+            with only one entry in :attr:`links`.
+        method: str or function
+            The traversal method controlling the order of the nodes visited
+        visited: None or set
+            The collection of id values to ignore when traversing
+
+        Yields
+        ------
+        Monosaccharide
+        '''
         traversal = self._get_traversal_method(method)
         if bidirectional:
             def is_leaf(obj):

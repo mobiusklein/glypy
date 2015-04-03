@@ -4,7 +4,8 @@ from collections import defaultdict
 from ..utils import opener, StringIO, ET
 from ..utils.multimap import OrderedMultiMap
 from ..structure import monosaccharide, substituent, link, glycan
-from .format_constants_map import anomer_map, link_replacement_composition_map
+from .format_constants_map import (anomer_map, superclass_map,
+                                   link_replacement_composition_map, modification_map)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -97,13 +98,14 @@ class GlycoCTXML(object):
                     (entity.attrib['type'], try_int(entity.attrib['pos_one'])))
             elif entity.tag == "basetype":
                 id, anomer, superclass, ring_start, ring_end = basetype_unpacker(entity.attrib)
+                superclass = superclass_map[superclass.upper()]
                 anomer = anomer_map[anomer]
                 id = int(id)
                 modifications = OrderedMultiMap()
                 mods = self.buffer.pop("modification", None)
                 if mods is not None:
                     for mod, pos in mods:
-                        modifications[pos] = mod
+                        modifications[pos] = modification_map[mod]
                 residue = monosaccharide.Monosaccharide(
                     anomer=anomer, superclass=superclass, stem=self.buffer.pop('stem'),
                     configuration=self.buffer.pop("configuration"), ring_start=ring_start,

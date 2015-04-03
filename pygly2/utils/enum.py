@@ -31,8 +31,8 @@ class EnumValue(object):
                                                        group_name=self.group.__name__,
                                                        value=self.value)
 
-    def add_name(self, name):
-        if name not in self.group:
+    def add_name(self, name, force=False):
+        if name not in self.group or force:
             self.names.add(name)
             self.group[name] = self
         else:
@@ -73,10 +73,25 @@ class EnumMeta(type):
     '''
 
     def __new__(cls, name, parents, attrs):
+        if attrs.get('__doc__') is None:
+            attrs['__doc__'] = "EnumType"
         enum_type = type.__new__(cls, name, parents, attrs)
-        for label, value in attrs.items():
+        mapped = {}
+        attr_pairs = attrs.items()
+        for label, value in attr_pairs:
             if not label.startswith("__") or label == "mro":
-                setattr(enum_type, label, EnumValue(enum_type, label, value))
+                attrs.pop(label)
+                delattr(enum_type, label)
+                enum_value = EnumValue(enum_type, label, value)
+                if value in mapped:
+                    try:
+                        mapped[value].add_name(label)
+                        setattr(enum_type, label, mapped[value])
+                    except KeyError, e:
+                        print e
+                else:
+                    mapped[value] = enum_value
+                    setattr(enum_type, label, enum_value)
 
         return enum_type
 

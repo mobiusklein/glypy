@@ -7,3 +7,7 @@ class SaccharideBase(object):
 
 class SubstituentBase(object):
     __metaclass__ = abc.ABCMeta
+
+
+class ModificationBase(object):
+    __metaclass__ = abc.ABCMeta

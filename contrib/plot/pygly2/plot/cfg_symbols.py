@@ -8,11 +8,10 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import matplotlib
 
-from pygly2.structure import Modification
+from pygly2.structure import Modification, Stem, SuperClass
 from pygly2.utils.enum import Enum
 from pygly2.io.nomenclature import identity
 
-GENERIC = -1
 logger = logging.getLogger(__name__)
 
 
@@ -106,8 +105,7 @@ def residue_shape(monosaccharide):
     elif "pen" in [monosaccharide.superclass]:
         if 'xyl' in monosaccharide.stem:
             return ResidueShape.star
-    else:
-        return ResidueShape.generic
+    return ResidueShape.generic
 
 
 def resolve_acid_shape(monosaccharide):
@@ -165,9 +163,13 @@ def residue_color(monosaccharide):
     if any(mod == Modification.a for p, mod in monosaccharide.modifications.items()):
             return resolve_acid_color(monosaccharide)
     if "hex" in [monosaccharide.superclass]:
-        if any(mod == Modification.d for p, mod in monosaccharide.modifications.items()):
+        if any(mod == Modification.d for p, mod in monosaccharide.modifications.items()) and\
+         monosaccharide.stem == (Stem.gal,):
             return ResidueColor.fuc
-    return ResidueColor[monosaccharide.stem[0]]
+    try:
+        return ResidueColor[monosaccharide.stem[0]]
+    except KeyError:
+        return ResidueColor.generic
 
 
 def resolve_acid_color(monosaccharide):
@@ -215,7 +217,7 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
             abbrev = monosaccharide.superclass.name.lower().capitalize()
     drawer = draw_map.get(shape)
     if drawer is None:
-        raise Exception("Don't know how to draw {}".format(shape))
+        raise Exception("Don't know how to draw {}".format((shape, monosaccharide)))
 
     res = None
     if shape == ResidueShape.generic:

@@ -47,7 +47,10 @@ def search_substructure(glycan_obj):
     r = session.post(_search_url, data=post_data)
     r.raise_for_status()
     tree = etree.fromstring(r.content)
-    last_page = int([p.attrib for p in tree.findall('.//page')][-1]["number"])
+    try:
+        last_page = int([p.attrib for p in tree.findall('.//page')][-1]["number"])
+    except:
+        last_page = 1
     matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
     for m in matches:
         yield m
@@ -77,7 +80,10 @@ def search_minimum_common_substructure(glycan_obj, minimum_residues=1):
     r = session.post(_mcs_search_url, data=post_data)
     r.raise_for_status()
     tree = etree.fromstring(r.content)
-    last_page = int([p.attrib for p in tree.findall('.//page')][-1]["number"])
+    try:
+        last_page = int([p.attrib for p in tree.findall('.//page')][-1]["number"])
+    except:
+        last_page = 1
     matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
     for m in matches:
         yield m
@@ -95,6 +101,10 @@ _mcs_search_url = "http://www.glycome-db.org/database/searchMCS.action"
 
 
 class GlycomeDBSearchMatch(object):
+    '''
+    A search match which carries information about the scored match and the
+    id number for retrieving the |Glycan| or |GlycanRecord|.
+    '''
     def __init__(self, id, score, cross_reference, species_number, **kwargs):
         self.id = id
         self.score = score
@@ -102,9 +112,23 @@ class GlycomeDBSearchMatch(object):
         self.num_species = species_number
 
     def get(self):
+        """Fetch the |Glycan| referenced by this search result
+
+        Returns
+        -------
+        Glycan:
+            The |Glycan| referenced
+        """
         return get(self.id)
 
     def get_record(self):
+        """Fetch the |GlycanRecord| referenced by this search result
+
+        Returns
+        -------
+        GlycanRecord:
+            The |GlycanRecord| referenced by this search result
+        """
         return get_record(self.id)
 
 
@@ -117,6 +141,24 @@ def make_entries(annotation):
 
 
 def glycan_record_from_xml(xml_tree, id, record_type=GlycanRecord):
+    '''
+    Converts an XML document and the associated database into an instance of
+    `record_type`.
+
+    Parameters
+    ----------
+    xml_tree: lxml.etree
+        XML document to consume
+    id:
+        GlycomeDB id number to assign this record
+    record_type: type
+        |GlycanRecord| or a subclass thereof
+
+    Returns
+    -------
+    record_type:
+        Constructed record
+    '''
     structure = glycoct.loads(xml_tree.find(xpath).text).next()
     taxa = [Taxon(t.attrib['ncbi'], t.attrib['name'], make_entries(t)) for t in xml_tree.findall(".//taxon")]
     aglycon = [Aglyca(t.attrib['name'], t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]

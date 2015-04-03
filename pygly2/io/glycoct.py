@@ -4,7 +4,8 @@ import warnings
 from ..utils import opener, StringIO, enum
 from ..utils.multimap import OrderedMultiMap
 from ..structure import monosaccharide, substituent, link, constants, glycan
-from .format_constants_map import anomer_map, superclass_map, link_replacement_composition_map
+from .format_constants_map import (anomer_map, superclass_map,
+                                   link_replacement_composition_map, modification_map)
 
 logger = logging.getLogger(__name__)
 
@@ -264,7 +265,7 @@ class GlycoCT(object):
         modifications = OrderedMultiMap()
         if mods is not None:
             for p, mod in modification_pattern.findall(mods):
-                modifications[try_int(p)] = constants.Modification[mod]
+                modifications[try_int(p)] = modification_map[mod]
 
         residue_dict["modifications"] = modifications
 
