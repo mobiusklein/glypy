@@ -74,6 +74,8 @@ class GlycoCTXML(object):
             iter(self)
         return self._iter.next()
 
+    __next__ = next
+
     def parse(self):
         for evt, entity in ET.iterparse(self.handle, ("start", "end")):
             if evt != "end":
@@ -106,10 +108,14 @@ class GlycoCTXML(object):
                 if mods is not None:
                     for mod, pos in mods:
                         modifications[pos] = modification_map[mod]
+                is_reduced = "aldi" in modifications[1]
+                if is_reduced:
+                    modifications.pop(1, "aldi")
+
                 residue = monosaccharide.Monosaccharide(
                     anomer=anomer, superclass=superclass, stem=self.buffer.pop('stem'),
                     configuration=self.buffer.pop("configuration"), ring_start=ring_start,
-                    ring_end=ring_end, modifications=modifications, id=id)
+                    ring_end=ring_end, modifications=modifications, reduced=is_reduced, id=id)
                 self.graph[id] = residue
                 if self.root is None:
                     self.root = residue

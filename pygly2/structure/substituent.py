@@ -14,11 +14,11 @@ class DerivatizePathway(object):
         self.can_nh_derivatize = can_nh_derivatize
         self.is_nh_derivatizable = is_nh_derivatizable
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<DerivatizePathway {}>".format(self.__dict__)
 
     @classmethod
-    def add(cls, name, can_nh_derivatize, is_nh_derivatizable):
+    def register(cls, name, can_nh_derivatize, is_nh_derivatizable):
         derivatize_info[name.replace("-", "_")] = DerivatizePathway(can_nh_derivatize, is_nh_derivatizable)
 
 

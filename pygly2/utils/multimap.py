@@ -33,6 +33,13 @@ class MultiMap(object):
             self.contents.pop(key)
         return len(objs)
 
+    def popv(self, value):
+        for k in self:
+            if value in self[k]:
+                self.pop(k, value)
+                return len(self[k])
+        return None
+
     def __iter__(self):
         return iter(self.contents)
 

@@ -54,6 +54,8 @@ def resolve_substituent(residue):
             part = "NGc"
         elif 'sulfate' == name:
             part = 'S'
+        else:
+            part = [t.title()[:2] for t in name.split("_")]
 
         # If there is a substituent after the first, successive ones are placed in parentheses
         if multi:

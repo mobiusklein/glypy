@@ -4,10 +4,11 @@ import functools
 import traceback
 import unittest
 import json
+import itertools
 from collections import defaultdict
 
 import pygly2
-from pygly2.structure import constants, substituent, glycan
+from pygly2.structure import constants, substituent, glycan, monosaccharide
 from pygly2.structure import link, named_structures, structure_composition
 from pygly2.structure import crossring_fragments
 from pygly2.io import glycoct, linear_code
@@ -17,8 +18,9 @@ from pygly2.composition import Composition, composition_transform, composition
 from pygly2.algorithms import subtree_search
 from pygly2.algorithms import similarity
 
-from common import emit
+from common import emit, load
 
+ReducedEnd = monosaccharide.ReducedEnd
 Substituent = pygly2.Substituent
 Glycan = glycan.Glycan
 
@@ -425,16 +427,27 @@ class MonosaccharideTests(unittest.TestCase):
 
     def test_validate_reducing_end(self):
         structure = named_structures.monosaccharides['Hex']
-        structure.reducing_end = 1
-        structure.reducing_end = 3
+        composition = structure.total_composition()
+        structure.reducing_end = ReducedEnd()
+        self.assertEqual(structure.total_composition(), composition + Composition("H2"))
+        structure.reducing_end = True
+        self.assertEqual(structure.total_composition(), composition + Composition("H2"))
+        self.assertEqual(structure.total_composition(), structure.clone().total_composition())
+        self.assertEqual(structure.total_composition(), pickle.loads(pickle.dumps(structure)).total_composition())
+        structure.reducing_end = None
+        self.assertEqual(structure.total_composition(), composition)
 
-        def t():
-            structure.reducing_end = -1
-        self.assertRaises(ValueError, t)
 
-        def t():
-            structure.reducing_end = 99
-        self.assertRaises(IndexError, t)
+    def test_low_level_traverse(self):
+        branchy = load("branchy_glycan")
+        t1 = monosaccharide.traverse(branchy.root)
+        t2 = branchy.dfs()
+        for a, b in itertools.izip(list(t1), list(t2)):
+            self.assertEqual(a, b)
+
+    def test_low_level_graph_clone(self):
+        branchy = load("branchy_glycan")
+        self.assertEqual(branchy.root, monosaccharide.graph_clone(branchy.root))
 
 
 # class GlycanTests(unittest.TestCase):
@@ -745,6 +758,12 @@ class SubstituentTests(unittest.TestCase):
         self.assertEqual(parent, dup)
         self.assertNotEqual(child, child.clone())
 
+    def test_derivatize_pathway_setter(self):
+        substituent.Substituent("not-real", None, Composition("H2O"), can_nh_derivatize=False, is_nh_derivatizable=True)
+        self.assertRaises(KeyError, lambda: substituent.Substituent("not-real", None, Composition("H2O")))
+        substituent.DerivatizePathway.register("not-real", False, True)
+        substituent.Substituent("not-real", None, Composition("H2O"))
+
 
 class MultiMapTests(unittest.TestCase):
 
@@ -770,10 +789,10 @@ class MultiMapTests(unittest.TestCase):
 
 class CompositionTests(unittest.TestCase):
 
-    def test_derivativize_bare(self):
+    def test_derivatize_bare(self):
         permethylated_reduced_mass = 1716.9033
         glycan = glycoct.loads(common_glycan).next()
-        glycan.reducing_end = 1
+        glycan.reducing_end = ReducedEnd()
         composition_transform.derivatize(glycan, 'methyl')
         self.assertAlmostEqual(glycan.mass(), permethylated_reduced_mass, 3)
 
@@ -1009,7 +1028,7 @@ class LinearCodeTests(unittest.TestCase):
         # linear code doesn't know about modifications or
         # ring shape
         sulfated = glycoct.loads(sulfated_glycan).next()
-        sulfated.root.drop_modification(1, 'aldi')
+        sulfated.reducing_end = None
         sulfated.root.ring_start = 1
         sulfated.root.ring_end = 5
         dup = linear_code.loads(linear_code.dumps(sulfated))

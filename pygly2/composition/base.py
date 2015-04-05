@@ -1,0 +1,3 @@
+
+class ChemicalCompositionError(Exception):
+    pass

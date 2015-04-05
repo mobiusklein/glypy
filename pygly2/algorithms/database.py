@@ -216,6 +216,7 @@ class GlycanRecordBase(object):
         self.aglycones = aglycones or []
         self.taxa = taxa or []
         self.id = kwargs.get('id')
+        self._bound_db = kwargs.get("bound_db")
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''
@@ -274,6 +275,38 @@ class GlycanRecordBase(object):
         values['structure'] = pickle.dumps(self)
         values['table_name'] = self.__table_name
         yield template.format(**values)
+
+    def to_update_sql(self, mass_params=None, inherits=None):
+        inherits = dict(inherits or {})
+        inherits.update(inherits)
+
+        template = '''update {table_name} (mass, structure /*rest*/)
+         values ({mass}, "{structure}" /*values*/) where glycan_id = {id};'''
+        ext_names = ', '.join(inherits)
+        if len(ext_names) > 0:
+            ext_names = ', ' + ext_names
+        ext_values = ', '.join(["{}".format(v) for k, v in self.collect_ext_data().items()])
+        if len(ext_values) > 0:
+            ext_values = ', ' + ext_values
+        if id is not None:
+            self.id = id
+
+        template = template.replace("/*rest*/", ext_names).replace("/*values*/", ext_values)
+        values = {}
+        values['id'] = self.id
+        values['mass'] = self.structure.mass(**(mass_params or {}))
+        values['structure'] = pickle.dumps(self)
+        values['table_name'] = self.__table_name
+        yield template.format(**values)
+
+    def update(self, mass_params=None, inherits=None, commit=True):
+        if self._bound_db is None:
+            raise ValueError("Cannot commit an unbound record")
+        cur = self._bound_db.cursor()
+        for stmt in self.to_update_sql(mass_params=None, inherits=None):
+            cur.execute(stmt)
+        if commit:
+            cur.commit()
 
     @classproperty
     def table_name(cls):

@@ -88,11 +88,9 @@ class Link(object):
         :meth:`Link.refund`
 
         '''
+        self.parent.composition -= (self.parent_loss or default_parent_loss)
 
-        self.parent.composition = self.parent.composition - \
-            (self.parent_loss or default_parent_loss)
-        self.child.composition = self.child.composition - \
-            (self.child_loss or default_child_loss)
+        self.child.composition -= (self.child_loss or default_child_loss)
         if self.is_substituent_link():
             self.parent.substituent_links[self.parent_position] = self
         else:
@@ -313,10 +311,8 @@ class Link(object):
         Returns the lost elemental composition caused by :meth:`apply`. Adds back :attr:`parent_loss`
         and :attr:`child_loss` to the :attr:`composition` of :attr:`parent` and :attr:`child` respectively
         '''
-        self.parent.composition = self.parent.composition + \
-            (self.parent_loss or default_parent_loss)
-        self.child.composition = self.child.composition + \
-            (self.child_loss or default_child_loss)
+        self.parent.composition += (self.parent_loss or default_parent_loss)
+        self.child.composition += (self.child_loss or default_child_loss)
 
     def is_attached(self):
         '''

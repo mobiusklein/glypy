@@ -70,12 +70,10 @@ class Glycan(SaccharideBase):
 
     traversal_methods = {}
 
-    def __init__(self, root=None, reducing_end=None, index_method='dfs'):
+    def __init__(self, root=None, index_method='dfs'):
         '''
         Constructs a new Glycan from the collection of connected |Monosaccharide| objects
         rooted at `root`.
-
-        If `reducing_end` is not |None|, it is set as the reducing end.
 
         If index_method is not |None|, the graph is indexed by the default search method
         given by `traversal_methods[index_method]`
@@ -88,8 +86,6 @@ class Glycan(SaccharideBase):
         self.branch_lengths = {}
         if index_method is not None:
             self.reindex(index_method)
-        if reducing_end is not None:
-            self.root.reducing_end = reducing_end
 
     def reindex(self, method='dfs'):
         '''
@@ -184,15 +180,11 @@ class Glycan(SaccharideBase):
     def reducing_end(self, value):
         self.root.reducing_end = value
 
-    def set_reducing_end(self, position):
+    def set_reducing_end(self, value):
         '''
-        Sets the location of the reducing end.
+        Sets the reducing end type.
         '''
-        if position is None:
-            if self.reducing_end is not None:
-                self.root.drop_modification(self.reducing_end, modification="aldi")
-        else:
-            self.root.reducing_end = position
+        self.root.reducing_end = value
 
     def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
@@ -220,6 +212,7 @@ class Glycan(SaccharideBase):
         --------
         Glycan.breadth_first_traversal
         '''
+        sort_predicate = methodcaller("order")
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
@@ -229,7 +222,7 @@ class Glycan(SaccharideBase):
             if res is not None:
                 yield res
             node_stack.extend(sorted((terminal for pos, link in node.links.items()
-                                      for terminal in link if terminal.id not in visited), key=methodcaller("order")))
+                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -263,6 +256,7 @@ class Glycan(SaccharideBase):
         --------
         Glycan.depth_first_traversal
         '''
+        sort_predicate = methodcaller("order")
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
@@ -272,7 +266,7 @@ class Glycan(SaccharideBase):
             if res is not None:
                 yield res
             node_queue.extend(sorted((terminal for pos, link in node.links.items()
-                                      for terminal in link if terminal.id not in visited), key=methodcaller("order")))
+                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal
@@ -577,6 +571,7 @@ class Glycan(SaccharideBase):
         -------
         :class:`~pygly2.composition.Composition`
         '''
+
         return sum((node.total_composition() for node in self), Composition())
 
     def clone(self, index_method='dfs', visited=None):

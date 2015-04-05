@@ -30,21 +30,22 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
     for p, subst in monosaccharide_obj.substituents():
         if subst.is_nh_derivatizable and substituent.can_nh_derivatize:
             subst.add_substituent(substituent.clone(), position=2, child_position=1)
-    reducing_end_pos = monosaccharide_obj.reducing_end
-    if reducing_end_pos is not None:
-        monosaccharide_obj.add_substituent(
-            substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
-            position=reducing_end_pos, child_loss=Composition(H=1), child_position=1)
+    red_end = monosaccharide_obj.reducing_end
+    if red_end is not None:
+        for i in range(1, red_end.valence + 1):
+            red_end.add_substituent(
+                substituent.clone(), parent_loss=Composition(H=1), max_occupancy=3,
+                position=i, child_loss=Composition(H=1), child_position=1)
 
     for pos, mod in monosaccharide_obj.modifications.items():
         if mod == Modification.a:
             monosaccharide_obj.add_substituent(
                 substituent.clone(), position=pos, parent_loss=Composition(H=1), max_occupancy=3,
                 child_loss=Composition(H=1), child_position=1)
-            if pos == reducing_end_pos:
-                monosaccharide_obj.add_substituent(
-                    substituent.clone(), position=reducing_end_pos, parent_loss=Composition(H=1), max_occupancy=4,
-                    child_loss=Composition(H=1), child_position=1)
+            # if pos == reducing_end_pos:
+            #     monosaccharide_obj.add_substituent(
+            #         substituent.clone(), position=reducing_end_pos, parent_loss=Composition(H=1), max_occupancy=4,
+            #         child_loss=Composition(H=1), child_position=1)
 
 
 # WIP

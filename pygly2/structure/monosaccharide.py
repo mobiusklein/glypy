@@ -2,7 +2,7 @@ import logging
 from uuid import uuid4
 from itertools import chain
 
-from .constants import Anomer, Configuration, Stem, SuperClass, Modification, ReducingEnd, RingType
+from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
 from .substituent import Substituent
 from .link import Link
 from .base import SaccharideBase
@@ -10,6 +10,7 @@ from .base import SaccharideBase
 from ..io.format_constants_map import anomer_map, superclass_map
 from ..utils import invert_dict, make_counter, StringIO, identity as ident_op
 from ..utils.multimap import OrderedMultiMap
+from ..utils.enum import EnumValue
 from ..composition import Composition, calculate_mass
 from ..composition.structure_composition import monosaccharide_composition
 from ..composition.structure_composition import modification_compositions
@@ -19,6 +20,8 @@ superclass_map = invert_dict(superclass_map)
 
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
+
+debug = False
 
 
 def get_standard_composition(monosaccharide):
@@ -36,11 +39,15 @@ def get_standard_composition(monosaccharide):
         The baseline composition from `monosaccharide.superclass` + `monosaccharide.modifications`
     '''
     base = monosaccharide_composition[monosaccharide.superclass]
-    for mod_pos, mod_val in monosaccharide.modifications.items():
+    modifications = list(monosaccharide.modifications.items())
+    for mod_pos, mod_val in modifications:
+        # Don't set the reducing end here
+        if isinstance(mod_val, ReducedEnd) or mod_val == "aldi":
+            continue
         try:
-            base = base + modification_compositions[mod_val](mod_pos)
+            base += modification_compositions[mod_val](mod_pos)
         except:
-            base = base + mod_val.composition
+            base += mod_val.composition
     return base
 
 
@@ -67,7 +74,8 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
         visited = set()
     yield apply_fn(monosaccharide)
     visited.add(monosaccharide.id)
-    for p, link in monosaccharide.links.items():
+    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
+    for p, link in outnodes:
         child = link[monosaccharide]
         if child.id in visited:
             continue
@@ -180,17 +188,28 @@ class Monosaccharide(SaccharideBase):
     links: |OrderedMultiMap|
         The mapping of sites to |Link| entries that refer to other |Monosaccharide| instances
     substituent_links: |OrderedMultiMap|
-            The mapping of sites to |Link| entries that refer to
-            |Substituent| instances.
+        The mapping of sites to |Link| entries that refer to
+        |Substituent| instances.
     composition: |Composition|
         An instance of |Composition| corresponding to the elemental composition
-        of ``self`` and its immediate modifications.
+        of ``self`` and its immediate modifications. If not provided, this will be inferred
+        from field values.
+    reduced: ReducedEnd
+        An instance of ReducedEnd, or the value |True|, represents a reduced sugar. May be inferred
+        from `modifications` if "aldi" is present
     '''
 
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=None, ring_end=None,
                  modifications=None, links=None, substituent_links=None,
-                 composition=None, id=None):
+                 composition=None, reduced=None, id=None):
+
+        # Make sure that if "aldi" is present, to replace it with
+        # the default ReducedEnd
+        if reduced is None:
+            if modifications.popv("aldi") is not None:
+                reduced = True
+
         self.anomer = anomer
         self.configuration = configuration
         self.stem = stem
@@ -203,10 +222,11 @@ class Monosaccharide(SaccharideBase):
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
         self.id = id or uuid4().int
+        self._reducing_end = None
         if composition is None:
             composition = get_standard_composition(self)
+        self.reducing_end = reduced
         self.composition = composition
-        self._reducing_end = None
 
     @property
     def anomer(self):
@@ -261,6 +281,8 @@ class Monosaccharide(SaccharideBase):
         '''
         modifications = OrderedMultiMap()
         for k, v in self.modifications.items():
+            if isinstance(v, ReducedEnd):
+                continue
             modifications[k] = Modification[v]
         monosaccharide = Monosaccharide(
             superclass=self.superclass,
@@ -270,6 +292,7 @@ class Monosaccharide(SaccharideBase):
             ring_end=self.ring_end,
             modifications=modifications,
             anomer=self.anomer,
+            reduced=self.reducing_end.clone() if self.reducing_end is not None else None,
             id=self.id if prop_id else None)
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
@@ -295,22 +318,30 @@ class Monosaccharide(SaccharideBase):
     @property
     def reducing_end(self):
         if self._reducing_end is None:
-            for pos, mod in self.modifications.items():
-                if mod == ReducingEnd:
-                    self._reducing_end = pos
+            for pos, mod in list(self.modifications.items()):
+                if isinstance(mod, ReducedEnd):
+                    self._reducing_end = mod
+                    break
+                elif mod == "aldi":
+                    self.modifications.popv("aldi")
+                    self.reducing_end = ReducedEnd()
                     break
         return self._reducing_end
 
     @reducing_end.setter
     def reducing_end(self, value):
-        if value in {-1, 'x'}:
-            raise ValueError("Cannot set the reducing end to be indeterminate")
-        if value > self.superclass.value:
-            raise IndexError("Index out of bounds")
-        pos = self.reducing_end
-        if pos is not None:
-            self.drop_modification(pos, ReducingEnd)
-        self.add_modification(ReducingEnd, value)
+        red_end = self.reducing_end
+        if red_end is not None:
+            self.modifications.pop(1, red_end)
+        # Setting to None will un-reduce the sugar, but should not
+        # put a None in :attr:`modifications`
+        if value:
+            if value is True:
+                value = ReducedEnd()
+            self.modifications[1] = value
+            self._reducing_end = value
+        else:
+            self._reducing_end = value
 
     def __getitem__(self, pos):
         return {
@@ -352,7 +383,7 @@ class Monosaccharide(SaccharideBase):
         for pos, obj in chain(self.modifications.items(),
                               self.links.items(),
                               self.substituent_links.items()):
-            if Modification.keto == obj or Modification.aldi == obj:
+            if obj == Modification.keto:
                 continue
             if pos in {-1, 'x'}:
                 unknowns += 1
@@ -402,11 +433,8 @@ class Monosaccharide(SaccharideBase):
         n_occupants = len(self.links[position]) +\
             len(self.modifications[position]) +\
             len(self.substituent_links[position])
-        if Modification.keto in self.modifications[position] or\
-           Modification.aldi in self.modifications[position]:
+        if Modification.keto in self.modifications[position]:
             n_occupants -= 1
-        # if position == self.reducing_end:
-        #     n_occupants -= 1
         return n_occupants
 
     def add_modification(self, modification, position, max_occupancy=0):
@@ -435,23 +463,29 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
-        try:
-            self.composition = self.composition + modification_compositions[modification](position)
-            self.modifications[position] = Modification[modification]
-        except:
-            self.composition = self.composition + modification.composition
-            self.modifications[position] = modification
+        if modification == "aldi":
+            self.reducing_end = ReducedEnd()
+        else:
+            try:
+                self.composition += modification_compositions[modification](position)
+                self.modifications[position] = Modification[modification]
+            except:
+                self.composition += modification.composition
+                self.modifications[position] = modification
         return self
 
     def drop_modification(self, position, modification):
         if position > self.superclass.value:
             raise IndexError("Index out of bounds")
         self.modifications.pop(position, modification)
-        try:
-            self.composition = self.composition - \
-                modification_compositions[modification](position)
-        except:
-            self.composition = self.composition - modification.composition
+        if modification == "aldi":
+            self.reducing_end = None
+        else:
+            try:
+                self.composition = self.composition - \
+                    modification_compositions[modification](position)
+            except:
+                self.composition = self.composition - modification.composition
         return self
 
     def add_substituent(self, substituent, position=-1, max_occupancy=0,
@@ -619,8 +653,18 @@ class Monosaccharide(SaccharideBase):
         conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
                             for c, s in zip(self.configuration, self.stem))
         superclass = "-" + superclass_map[self.superclass]
+
         modifications = '|'.join(
             "{0}:{1}".format(k, v.name) for k, v in self.modifications.items())
+        # if self.reducing_end is not None:
+        #     if len(modifications) > 0:
+        #         modifications = "{}:1|{}".format(
+        #             self.reducing_end.glycoct_modification_symbol,
+        #             modifications)
+        #     else:
+        #         modifications = "{}:1".format(
+        #             self.reducing_end.glycoct_modification_symbol)
+
         modifications = "|" + modifications if modifications != "" else ""
 
         # The complete monosaccharide residue line
@@ -791,6 +835,9 @@ class Monosaccharide(SaccharideBase):
             for link_pos, substituent_link, in self.substituent_links.items():
                 mass += substituent_link[self].mass(
                     average=average, charge=charge, mass_data=mass_data)
+        if self.reducing_end is not None:
+            mass += self.reducing_end.mass(
+                average=average, charge=charge, mass_data=mass_data)
         return mass
 
     def total_composition(self):
@@ -802,9 +849,12 @@ class Monosaccharide(SaccharideBase):
         -------
         :class:`~pygly2.composition.Composition`
         '''
-        comp = self.composition
+        comp = self.composition.clone()
         for p, sub in self.substituents():
-            comp = comp + sub.total_composition()
+            comp += sub.total_composition()
+        red_end = self.reducing_end
+        if red_end is not None:
+            comp += red_end.composition
         return comp
 
     def children(self):
@@ -855,19 +905,18 @@ class Monosaccharide(SaccharideBase):
 
 
 class ReducedEnd(object):
-    glycoct_modification_symbol = 'aldi'
+    name = 'aldi'
 
-    def __init__(self, position, composition=None, substituents=None, valence=2):
-        self.position = position
+    def __init__(self, composition=None, substituents=None, valence=2):
         self.composition = composition or Composition("H2")
-        self.substituent_links = substituents or OrderedMultiMap()
+        self.links = substituents or OrderedMultiMap()
         self.valence = valence
 
     def is_occupied(self, position):
         if position > self.valence:
             return float('inf')
         else:
-            return len(self.substituent_links[position])
+            return len(self.links[position])
 
     def add_substituent(self, substituent, position=-1, max_occupancy=0,
                         child_position=1, parent_loss=None, child_loss=None):
@@ -914,12 +963,12 @@ class ReducedEnd(object):
         return self
 
     def drop_substituent(self, position, substituent=None, refund=True):
-        if position > 2:
+        if position > self.valence:
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
             substituent = Substituent(substituent)
         link_obj = None
-        for substituent_link in self.substituent_links[position]:
+        for substituent_link in self.links[position]:
             if substituent_link.child.name == substituent.name or substituent is None:
                 link_obj = substituent_link
                 break
@@ -963,13 +1012,28 @@ class ReducedEnd(object):
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
 
-        for pos, link in self.substituent_links.items():
+        for pos, link in self.links.items():
             mass += link[self].mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
     def clone(self):
-        result = ReducedEnd(
-            self.position, Composition(self.composition), substituents=None, valence=self.valence)
-        for position, link in self.substituent_links.items():
+        result = ReducedEnd(Composition(self.composition), substituents=None, valence=self.valence)
+        for position, link in self.links.items():
             result.add_substituent(position, link.child.clone())
         return result
+
+    def __repr__(self):
+        rep = "<ReducedEnd {}>".format(self.composition)
+        return rep
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        elif isinstance(other, (int, EnumValue)):
+            return False
+        elif isinstance(other, str):
+            return other == self.name
+        return self.composition == other.composition and self.links == other.links
+
+    def __ne__(self, other):
+        return not self == other
