@@ -1,7 +1,6 @@
 import os
 import sqlite3
 from collections import Counter, Iterable
-from functools import partial
 
 import pygly2
 from pygly2.utils import pickle, classproperty, make_struct
@@ -235,6 +234,11 @@ class GlycanRecordBase(object):
             )
         return rep
 
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        state.pop("_bound_db", None)
+        return state
+
     def to_sql(self, id=None, mass_params=None, inherits=None):
         '''
         Translates the :class:`GlycanRecord` instance into SQL.
@@ -272,41 +276,42 @@ class GlycanRecordBase(object):
         values = {}
         values['id'] = self.id
         values['mass'] = self.structure.mass(**(mass_params or {}))
+        _bound_db = self._bound_db
+        self._bound_db = None
         values['structure'] = pickle.dumps(self)
+        self._bound_db = _bound_db
         values['table_name'] = self.__table_name
         yield template.format(**values)
 
-    def to_update_sql(self, mass_params=None, inherits=None):
+    def to_update_sql(self, mass_params=None, inherits=None, *args, **kwargs):
         inherits = dict(inherits or {})
         inherits.update(inherits)
 
-        template = '''update {table_name} (mass, structure /*rest*/)
-         values ({mass}, "{structure}" /*values*/) where glycan_id = {id};'''
-        ext_names = ', '.join(inherits)
-        if len(ext_names) > 0:
-            ext_names = ', ' + ext_names
-        ext_values = ', '.join(["{}".format(v) for k, v in self.collect_ext_data().items()])
-        if len(ext_values) > 0:
-            ext_values = ', ' + ext_values
-        if id is not None:
-            self.id = id
+        template = '''update {table_name} set mass = {mass}, structure = "{structure}" /*rest*/ where glycan_id = {id};'''
 
-        template = template.replace("/*rest*/", ext_names).replace("/*values*/", ext_values)
+        ext_names = list(inherits)
+        ext_values = ["{}".format(v) for k, v in self.collect_ext_data().items()]
+        ext_parts = ', '.join(["{} = {}".format(name, value) for name, value in zip(ext_names, ext_values)])
+        if len(ext_parts) > 0:
+            ext_parts = ", " + ext_parts
+
+        template = template.replace("/*rest*/", ext_parts)
         values = {}
         values['id'] = self.id
         values['mass'] = self.structure.mass(**(mass_params or {}))
         values['structure'] = pickle.dumps(self)
         values['table_name'] = self.__table_name
+
         yield template.format(**values)
 
-    def update(self, mass_params=None, inherits=None, commit=True):
+    def update(self, mass_params=None, inherits=None, commit=True, *args, **kwargs):
         if self._bound_db is None:
             raise ValueError("Cannot commit an unbound record")
         cur = self._bound_db.cursor()
-        for stmt in self.to_update_sql(mass_params=None, inherits=None):
+        for stmt in self.to_update_sql(mass_params=mass_params, inherits=inherits):
             cur.execute(stmt)
         if commit:
-            cur.commit()
+            cur.connection.commit()
 
     @classproperty
     def table_name(cls):
@@ -346,7 +351,9 @@ class GlycanRecordBase(object):
             more complex operations like decompressing or joining other tables in
             the database.
         '''
-        return pickle.loads(str(row["structure"]))
+        record = pickle.loads(str(row["structure"]))
+        record._bound_db = kwargs.get("database")
+        return record
 
     def collect_ext_data(self, inherits=None):
         '''
@@ -464,10 +471,26 @@ class GlycanRecord(GlycanRecordBase):
         inherits = _resolve_metadata_mro(self.__class__)
         return super(GlycanRecord, self).to_sql(*args, inherits=inherits, **kwargs)
 
+    def to_update_sql(self, *args, **kwargs):
+        inherits = _resolve_metadata_mro(self.__class__)
+        inherits = inherits or _resolve_metadata_mro(self.__class__)
+        kwargs['inherits'] = inherits
+        return super(GlycanRecord, self).to_update_sql(*args, **kwargs)
+
+    def update(self, mass_params=None, inherits=None, commit=True, *args, **kwargs):
+        inherits = inherits or _resolve_metadata_mro(self.__class__)
+        kwargs['inherits'] = inherits
+        super(GlycanRecord, self).update(mass_params=mass_params, *args, **kwargs)
+
     def collect_ext_data(self):
         inherits = _resolve_metadata_mro(self.__class__)
         data = super(GlycanRecord, self).collect_ext_data(inherits=inherits)
         return data
+
+
+def include_fragments(record, kind="BY", average=False, charge=0, mass_data=None):
+    record.fragments = list(record.structure.fragments(
+        kind=kind, average=average, charge=charge, mass_data=mass_data))
 
 
 def make_rectype(recname="GlycanRecordType", **kwargs):
@@ -589,7 +612,7 @@ class RecordDatabase(object):
         self.commit()
 
     def __len__(self):
-        res = (self.execute("select max(glycan_id) from {table_name};").next())["max(glycan_id)"]
+        res = (self.execute("select count(glycan_id) from {table_name};").next())["count(glycan_id)"]
         return res or 0
 
     def create(self, structure, *args, **kwargs):
@@ -610,12 +633,12 @@ class RecordDatabase(object):
         stmt = "select * from {table_name} where glycan_id in {keys};".format(
             table_name=self.record_type.table_name, keys=keys)
         for record in self.execute(stmt):
-            results.append(self.record_type.from_sql(record, self))
+            results.append(self.record_type.from_sql(record, database=self))
         return results if len(results) > 1 else results[0]
 
     def __iter__(self):
         for row in self.execute(self.stn("select * from {table_name};")):
-            yield self.record_type.from_sql(row, self)
+            yield self.record_type.from_sql(row, database=self)
 
     def sub_table_name(self, string, key='table_name'):
         return string.format(**{key: self.record_type.table_name})

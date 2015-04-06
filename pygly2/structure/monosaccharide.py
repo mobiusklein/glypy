@@ -656,21 +656,15 @@ class Monosaccharide(SaccharideBase):
 
         modifications = '|'.join(
             "{0}:{1}".format(k, v.name) for k, v in self.modifications.items())
-        # if self.reducing_end is not None:
-        #     if len(modifications) > 0:
-        #         modifications = "{}:1|{}".format(
-        #             self.reducing_end.glycoct_modification_symbol,
-        #             modifications)
-        #     else:
-        #         modifications = "{}:1".format(
-        #             self.reducing_end.glycoct_modification_symbol)
 
         modifications = "|" + modifications if modifications != "" else ""
+        ring_start = self.ring_start if self.ring_start is not None else 'x'
+        ring_end = self.ring_end if self.ring_end is not None else 'x'
 
         # The complete monosaccharide residue line
         residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
                                               superclass=superclass, modifications=modifications,
-                                              ring_start=self.ring_start or 'x', ring_end=self.ring_end or 'x')
+                                              ring_start=ring_start, ring_end=ring_end)
         res = [residue_str]
         lin = []
         # Construct the substituent lines
@@ -804,6 +798,34 @@ class Monosaccharide(SaccharideBase):
     def __repr__(self):  # pragma: no cover
         return self.to_glycoct().replace("\n", ' ')
 
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, state):
+        self.anomer = state['_anomer']
+        self.superclass = state['_superclass']
+        self.stem = state['_stem']
+        self.configuration = state['_configuration']
+
+        self.ring_start = state['ring_start']
+        self.ring_end = state['ring_end']
+        self.id = state['id']
+
+        self.modifications = state['modifications']
+        self.links = state['links']
+        self.substituent_links = state['substituent_links']
+        self.composition = state["composition"]
+        reduced = state.get('_reducing_end', None)
+        # Make sure that if "aldi" is present, to replace it with
+        # the default ReducedEnd
+        if reduced is None:
+            if self.modifications.popv(Modification.aldi) is not None:
+                # Deduct the modification mass from the main composition
+                self.composition -= {"H": 2}
+                reduced = True
+        self._reducing_end = None
+        self.reducing_end = reduced
+
     def mass(self, substituents=True, average=False, charge=0, mass_data=None):
         '''
         Calculates the total mass of ``self``. If ``substituents=True`` it will include
@@ -907,10 +929,11 @@ class Monosaccharide(SaccharideBase):
 class ReducedEnd(object):
     name = 'aldi'
 
-    def __init__(self, composition=None, substituents=None, valence=2):
+    def __init__(self, composition=None, substituents=None, valence=2, id=None):
         self.composition = composition or Composition("H2")
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
+        self.id = id or uuid4().int
 
     def is_occupied(self, position):
         if position > self.valence:
@@ -1016,14 +1039,40 @@ class ReducedEnd(object):
             mass += link[self].mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
-    def clone(self):
-        result = ReducedEnd(Composition(self.composition), substituents=None, valence=self.valence)
+    def clone(self, prop_id=True):
+        result = ReducedEnd(
+            Composition(self.composition), substituents=None,
+            valence=self.valence, id=self.id if prop_id else None)
         for position, link in self.links.items():
             result.add_substituent(position, link.child.clone())
         return result
 
+    def children(self):
+        '''
+        Returns an iterator over the :class:`Monosaccharide`s which are considered
+        the descendants of ``self``.
+        '''
+        for pos, link in self.links.items():
+            if link.is_child(self):
+                continue
+            yield (pos, link.child)
+
+    def total_composition(self):
+        '''
+        Computes the sum of the composition of `self` and each of its linked
+        :class:`~.substituent.Substituent`s
+
+        Returns
+        -------
+        :class:`~pygly2.composition.Composition`
+        '''
+        comp = self.composition
+        for pos, sub in self.children():
+            comp = comp + sub.total_composition()
+        return comp
+
     def __repr__(self):
-        rep = "<ReducedEnd {}>".format(self.composition)
+        rep = "<ReducedEnd {}>".format(self.total_composition())
         return rep
 
     def __eq__(self, other):
