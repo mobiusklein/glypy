@@ -1,7 +1,7 @@
 import itertools
 
-from . import structure_composition, monosaccharide, constants
-from ..composition import Composition
+from . import monosaccharide, constants
+from ..composition import Composition, structure_composition
 from ..utils.multimap import OrderedMultiMap
 
 RingType = constants.RingType
