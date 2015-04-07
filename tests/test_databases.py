@@ -1,4 +1,5 @@
 import unittest
+from pygly2.composition import composition_transform
 from pygly2.algorithms import database
 from common import load
 
@@ -21,6 +22,16 @@ class GlycanRecordTest(unittest.TestCase):
         db.apply_schema()
         db.create(load("broad_n_glycan"))
         self.assertEqual(db[1], rec)
+
+    def test_update(self):
+        db = database.RecordDatabase()
+        db.apply_schema()
+        db.create(load("broad_n_glycan"))
+        rec = db[1]
+        composition_transform.derivatize(rec.structure, "methyl")
+        rec.update()
+        dup = db[1]
+        self.assertAlmostEqual(rec.mass(), dup.mass(), 3)
 
 
 class RecordDatabaseTest(unittest.TestCase):

@@ -28,7 +28,7 @@ derivatize_info = {
     "anhydro": DerivatizePathway(True, False),
     "bromo": DerivatizePathway(True, False),
     "chloro": DerivatizePathway(True, False),
-    "diphosphoethanolamine": DerivatizePathway(True, False),
+    "diphospho_ethanolamine": DerivatizePathway(True, False),
     "ethanolamine": DerivatizePathway(True, False),
     "ethyl": DerivatizePathway(True, False),
     "fluoro": DerivatizePathway(True, False),
@@ -40,7 +40,7 @@ derivatize_info = {
     "methyl": DerivatizePathway(True, False),
     "phosphate": DerivatizePathway(True, False),
     "phosphocholine": DerivatizePathway(True, False),
-    "phosphoethanolamine": DerivatizePathway(True, False),
+    "phospho_ethanolamine": DerivatizePathway(True, False),
     "pyrophosphate": DerivatizePathway(True, False),
     "pyruvate": DerivatizePathway(True, False),
     "succinate": DerivatizePathway(True, False),
@@ -48,13 +48,13 @@ derivatize_info = {
     "thio": DerivatizePathway(True, False),
     "triphosphate": DerivatizePathway(True, False),
 
-    "x_lactate": DerivatizePathway(True, False),
-    "r_carboxyethyl": DerivatizePathway(True, False),
-    "r_lactate": DerivatizePathway(True, False),
-    "r_pyruvate": DerivatizePathway(True, False),
-    "s_carboxyethyl": DerivatizePathway(True, False),
-    "s_lactate": DerivatizePathway(True, False),
-    "s_pyruvate": DerivatizePathway(True, False),
+    "(x)_lactate": DerivatizePathway(True, False),
+    "(r)_carboxyethyl": DerivatizePathway(True, False),
+    "(r)_lactate": DerivatizePathway(True, False),
+    "(r)_pyruvate": DerivatizePathway(True, False),
+    "(s)_carboxyethyl": DerivatizePathway(True, False),
+    "(s)_lactate": DerivatizePathway(True, False),
+    "(s)_pyruvate": DerivatizePathway(True, False),
 
     "n_acetyl": DerivatizePathway(True, True),
     "n_amidino": DerivatizePathway(True, True),
@@ -186,7 +186,7 @@ class Substituent(SubstituentBase):
              parent_loss=parent_loss, child_loss=child_loss)
         return self
 
-    def drop_substiuent(self, position, substituent=None, refund=True):
+    def drop_substituent(self, position, substituent=None, refund=True):
         link_obj = None
         for substituent_link in self.links[position]:
             if substituent_link.child == substituent or substituent is None:

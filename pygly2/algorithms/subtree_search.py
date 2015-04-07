@@ -6,7 +6,7 @@ from ..structure import Glycan, Monosaccharide
 logger = logging.getLogger(__name__)
 
 
-def substituent_inclusion(self, other):  # pragma: no cover
+def substituent_inclusion(self, other):
     taken_b = set()
     b_substituents = list(other.substituents())
     cntr = 0
@@ -25,7 +25,7 @@ def substituent_inclusion(self, other):  # pragma: no cover
     return True
 
 
-def topological_inclusion(self, other, substituents=True, tolerance=0):  # pragma: no cover
+def topological_inclusion(self, other, substituents=True, tolerance=0): 
     '''
     Performs equality testing between two monosaccharides where
     the exact ordering of child links does not have match between
@@ -254,6 +254,9 @@ def find_max(solution_matrix):
 
 
 def depth(monosaccharide):
+    '''
+    Calculate  the distance from `monosaccharide` to its furthest grand-child node.
+    '''
     d = 1
     if(len(monosaccharide.links) > 1):
         d += max(depth(ch) for p, ch in monosaccharide.children())
@@ -261,6 +264,11 @@ def depth(monosaccharide):
 
 
 def extract_maximum_common_subgraph(node_a, node_b, exact=False):
+    '''
+    Given a pair of matched starting nodes from two separate glycan structures,
+    traverse them together, copying the best matching branches into a new |Glycan|
+    object.
+    '''
     root = node_a.clone()
     node_stack = [(root, node_a, node_b)]
     b_taken = set()

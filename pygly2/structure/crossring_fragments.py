@@ -4,6 +4,7 @@ from . import structure_composition, monosaccharide, constants
 from ..composition import Composition
 from ..utils.multimap import OrderedMultiMap
 
+RingType = constants.RingType
 Monosaccharide = monosaccharide.Monosaccharide
 graph_clone = monosaccharide.graph_clone
 traverse = monosaccharide.traverse
@@ -98,6 +99,10 @@ def crossring_fragments(monosaccharide, c1, c2, attach=True, copy=True):
     -------
     tuple of CrossRingFragment
     '''
+    ring_type = monosaccharide.ring_type
+    if ring_type is RingType.x or ring_type is RingType.open:
+        raise TypeError("Cannot cleave an open or unknown carbohydrate backbone")
+
     c1_segment, c1_include, c2_segment, c2_include = cleave_ring(
         monosaccharide, c1, c2)
 

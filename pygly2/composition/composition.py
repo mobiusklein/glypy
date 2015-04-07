@@ -1,5 +1,6 @@
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
+import warnings
 from collections import defaultdict
 from .mass_dict import nist_mass
 from .base import ChemicalCompositionError
@@ -10,7 +11,7 @@ try:
     from ccomposition import CComposition, calculate_mass as ccalculate_mass
 except ImportError:
     use_cython = False
-    print("Using Pure Python Implementation")
+    warnings.warn("Using Pure Python Implementation")
 
 
 # Forward Declaration
@@ -284,7 +285,6 @@ class PComposition(defaultdict):
             value is :py:data:`nist_mass`). It is used for formulae parsing only.
         """
         defaultdict.__init__(self, int)
-
         mol_comp = kwargs.get('mol_comp', std_mol_comp)
         mass_data = kwargs.get('mass_data', nist_mass)
 
@@ -314,63 +314,6 @@ class PComposition(defaultdict):
                         'formula'.format(args[0]))
         else:
             self._from_dict(kwargs)
-
-std_mol_comp.update({
-    # Amino Acids
-    'A':   PComposition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
-    'C':   PComposition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
-    'D':   PComposition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
-    'E':   PComposition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
-    'F':   PComposition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
-    'G':   PComposition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
-    'H':   PComposition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
-    'I':   PComposition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'K':   PComposition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
-    'L':   PComposition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'M':   PComposition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
-    'N':   PComposition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
-    'P':   PComposition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
-    'Q':   PComposition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
-    'R':   PComposition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
-    'S':   PComposition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
-    'T':   PComposition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
-    'V':   PComposition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
-    'W':   PComposition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),
-    'Y':   PComposition({'H': 9, 'C': 9, 'O': 2, 'N': 1}),
-
-    # Protein Sequence Terminals (modX format)
-    'H-':  PComposition({'H': 1}),
-    '-OH': PComposition({'O': 1, 'H': 1}),
-
-    # Glycans
-    'Hex':    PComposition({'H': 12, 'C': 6, 'O': 6}),
-    'Pen':    PComposition({'H': 10, 'C': 5, 'O': 5}),
-    'HexNAc': PComposition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
-    'NeuAc':  PComposition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
-    'NeuGc':  PComposition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
-})
-
-std_ion_comp = {
-    'M':        PComposition(formula=''),
-    'a':        PComposition(formula='H-2O-1' + 'C-1O-1'),
-    'a-H2O':    PComposition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
-    'a-NH3':    PComposition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
-    'b':        PComposition(formula='H-2O-1'),
-    'b-H2O':    PComposition(formula='H-2O-1' + 'H-2O-1'),
-    'b-NH3':    PComposition(formula='H-2O-1' + 'N-1H-3'),
-    'c':        PComposition(formula='H-2O-1' + 'NH3'),
-    'c-H2O':    PComposition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
-    'c-NH3':    PComposition(formula='H-2O-1'),
-    'x':        PComposition(formula='H-2O-1' + 'CO2'),
-    'x-H2O':    PComposition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
-    'x-NH3':    PComposition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
-    'y':        PComposition(formula=''),
-    'y-H2O':    PComposition(formula='H-2O-1'),
-    'y-NH3':    PComposition(formula='N-1H-3'),
-    'z':        PComposition(formula='H-2O-1' + 'ON-1H-1'),
-    'z-H2O':    PComposition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
-    'z-NH3':    PComposition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),
-}
 
 
 def pcalculate_mass(*args, **kwargs):
@@ -456,3 +399,60 @@ if use_cython:
 else:
     Composition = PComposition
     calculate_mass = pcalculate_mass
+
+std_mol_comp.update({
+    # Amino Acids
+    'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
+    'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
+    'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
+    'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
+    'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
+    'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
+    'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
+    'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
+    'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
+    'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
+    'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
+    'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
+    'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
+    'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
+    'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
+    'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
+    'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
+    'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
+    'W':   Composition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),
+    'Y':   Composition({'H': 9, 'C': 9, 'O': 2, 'N': 1}),
+
+    # Protein Sequence Terminals (modX format)
+    'H-':  Composition({'H': 1}),
+    '-OH': Composition({'O': 1, 'H': 1}),
+
+    # Glycans
+    'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
+    'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
+    'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
+    'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
+    'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
+})
+
+std_ion_comp = {
+    'M':        Composition(formula=''),
+    'a':        Composition(formula='H-2O-1' + 'C-1O-1'),
+    'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
+    'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
+    'b':        Composition(formula='H-2O-1'),
+    'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),
+    'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),
+    'c':        Composition(formula='H-2O-1' + 'NH3'),
+    'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
+    'c-NH3':    Composition(formula='H-2O-1'),
+    'x':        Composition(formula='H-2O-1' + 'CO2'),
+    'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
+    'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
+    'y':        Composition(formula=''),
+    'y-H2O':    Composition(formula='H-2O-1'),
+    'y-NH3':    Composition(formula='N-1H-3'),
+    'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),
+    'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
+    'z-NH3':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),
+}

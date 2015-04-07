@@ -304,6 +304,15 @@ class Monosaccharide(SaccharideBase):
 
     @property
     def ring_type(self):
+        """The size of the ring-shape of the carbohydrate, as computed
+        by ring_end - ring_start.
+        
+        Returns
+        -------
+        EnumValue:
+            The appropriate value of :class:`.RingType`
+        """
+
         try:
             diff = self.ring_end - self.ring_start
             if diff == 4:
@@ -313,16 +322,28 @@ class Monosaccharide(SaccharideBase):
             elif diff == 0:
                 return RingType.open
         except TypeError:
-            return RingType.x
+            pass
+        return RingType.x
 
     @property
     def reducing_end(self):
+        """Return the reducing end type of
+        `self` or |None| if `self` is not reduced. The reducing end value
+        can also be found in :attr:`modifications`. 
+        
+        If `Modification.aldi` is present, it will be converted into
+        an instance of :class:`.ReducedEnd` with default arguments.
+
+        Returns
+        -------
+        :class:`.ReducedEnd` or |None|
+        """
         if self._reducing_end is None:
             for pos, mod in list(self.modifications.items()):
                 if isinstance(mod, ReducedEnd):
                     self._reducing_end = mod
                     break
-                elif mod == "aldi":
+                elif mod == "aldi":  #pragma: no cover
                     self.modifications.popv("aldi")
                     self.reducing_end = ReducedEnd()
                     break
@@ -330,6 +351,21 @@ class Monosaccharide(SaccharideBase):
 
     @reducing_end.setter
     def reducing_end(self, value):
+        """Sets the reducing end type of `self`. 
+        
+        If `value` is |None|, then this residue is not reduced.
+        Else, if `value` ``is True``, then this residue's reducing end
+        is set to an instance of :class:`.ReducedEnd` with default parameters.
+        Else, this residue's reducing_end is set to `value`.
+
+        This process will scan :attr:`modifications` for a pre-existing `reducing_end`
+        value to replace.
+
+        Parameters
+        ----------
+        value: True, None, or :class:`.ReducedEnd`
+        
+        """
         red_end = self.reducing_end
         if red_end is not None:
             self.modifications.pop(1, red_end)
@@ -343,11 +379,20 @@ class Monosaccharide(SaccharideBase):
         else:
             self._reducing_end = value
 
-    def __getitem__(self, pos):
+    def __getitem__(self, position):
+        '''
+        Gets the collection of alterations made to the carbohydrate
+        backbone at `position`. This queries :attr:`modifications`, :attr:`links`, and
+        :attr:`substituent_links`.
+
+        Returns
+        -------
+        dict
+        '''
         return {
-            'modifications': self.modifications[pos],
-            'substituent_links': self.substituent_links[pos],
-            'links': self.links[pos]
+            'modifications': self.modifications[position],
+            'substituent_links': self.substituent_links[position],
+            'links': self.links[position]
             }
 
     def open_attachment_sites(self, max_occupancy=0):
@@ -415,7 +460,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        int
+        int:
             The number of occupants at ``position``
 
         Raises
@@ -460,6 +505,10 @@ class Monosaccharide(SaccharideBase):
         ValueError
             ``position`` is occupied by more than ``max_occupancy`` elements
 
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
@@ -475,9 +524,35 @@ class Monosaccharide(SaccharideBase):
         return self
 
     def drop_modification(self, position, modification):
-        if position > self.superclass.value:
+        '''
+        Remove the `modification` at `position`
+
+        Parameters
+        ----------
+        position: int
+            The position to drop the modification from
+        modification: Modification
+            The Modification to remove.
+
+        Raises
+        ------
+        IndexError:
+            If `position` is not a valid carbohydrate backbone position
+
+        ValueError:
+            If `modification` is not found at `position`
+
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
+        '''
+        if position > self.superclass.value or position < 0 and position not in {'x', -1}:
             raise IndexError("Index out of bounds")
-        self.modifications.pop(position, modification)
+        try:
+            self.modifications.pop(position, modification)
+        except IndexError, e:
+            raise ValueError("Modification {} not found at {}".format(modification, position))
         if modification == "aldi":
             self.reducing_end = None
         else:
@@ -518,6 +593,12 @@ class Monosaccharide(SaccharideBase):
             ``position`` exceeds the bounds set by :attr:`superclass`.
         ValueError
             ``position`` is occupied by more than ``max_occupancy`` elements
+
+
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
@@ -533,13 +614,42 @@ class Monosaccharide(SaccharideBase):
         return self
 
     def drop_substituent(self, position, substituent=None, refund=True):
-        if position > self.superclass.value:
+        '''
+        Remove the `substituent` at `position`. 
+
+        If `substituent` is |None|, then the first substituent found at `position` is
+        removed. 
+
+        Parameters
+        ----------
+        position: int
+            The position to drop the modification from
+        substituent: Substituent
+            The |Substituent| to remove. If |None|, the first substituent found at
+            `position` will be removed
+        refund: bool
+            Passed to :meth:`~.Link.break_link`
+
+        Raises
+        ------
+        IndexError:
+            If `position` is not a valid carbohydrate backbone position
+
+        ValueError:
+            If `substituent` is not found at `position`
+
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
+        '''
+        if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
             substituent = Substituent(substituent)
         link_obj = None
         for substituent_link in self.substituent_links[position]:
-            if substituent_link.child.name == substituent.name or substituent is None:
+            if substituent is None or substituent_link.child.name == substituent.name:
                 link_obj = substituent_link
                 break
         if link_obj is None:
@@ -582,6 +692,12 @@ class Monosaccharide(SaccharideBase):
             ``position`` exceeds the bounds set by :attr:`superclass`.
         ValueError
             ``position`` is occupied by more than ``max_occupancy`` elements
+
+
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
         '''
         if parent_loss is None:
             parent_loss = Composition(H=1)
@@ -597,7 +713,32 @@ class Monosaccharide(SaccharideBase):
         return self
 
     def drop_monosaccharide(self, position, refund=True):
-        if position > self.superclass.value:
+        '''
+        Remove the glycosidic bond at `position`, detatching a connected |Monosaccharide|
+
+        If there is more than one glycosidic bond at `position`, an error will be raised.
+
+        Parameters
+        ----------
+        position: int
+            The position to drop the modification from
+        refund: bool
+            Passed to :meth:`~.Link.break_link`
+
+        Raises
+        ------
+        IndexError:
+            If `position` is not a valid carbohydrate backbone position
+
+        ValueError:
+            If no |Link| or more than one |Link| is found at `position`
+
+        Returns
+        -------
+        Monosaccharide:
+            `self`, for chain calls
+        '''
+        if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
             raise IndexError("Index out of bounds")
         link_obj = None
         if len(self.links[position]) > 1:
@@ -710,6 +851,15 @@ class Monosaccharide(SaccharideBase):
         return flat
 
     def exact_ordering_equality(self, other, substituents=True):
+        '''
+        Performs equality testing between two monosaccharides where
+        the exact position (and ordering by sort) of links must to match between
+        the input |Monosaccharide|s
+
+        Returns
+        -------
+        |bool|
+        '''
         if self._flat_equality(other):
             if substituents:
                 for a_sub, b_sub in zip(self.substituents(), other.substituents()):
@@ -802,6 +952,10 @@ class Monosaccharide(SaccharideBase):
         return self.__dict__
 
     def __setstate__(self, state):
+        '''
+        Does some testing to upgrade outdated, but equivalent
+        modification models.
+        '''
         self.anomer = state['_anomer']
         self.superclass = state['_superclass']
         self.stem = state['_stem']
@@ -876,7 +1030,7 @@ class Monosaccharide(SaccharideBase):
             comp += sub.total_composition()
         red_end = self.reducing_end
         if red_end is not None:
-            comp += red_end.composition
+            comp += red_end.total_composition()
         return comp
 
     def children(self):
@@ -936,6 +1090,19 @@ class ReducedEnd(object):
         self.id = id or uuid4().int
 
     def is_occupied(self, position):
+        '''
+        Checks to see if a particular backbone position is occupied by a or :class:`.Substituent`.
+
+        Parameters
+        ----------
+        position: int
+            The position to check for occupancy. Passing -1 checks for undetermined attachments.
+
+        Returns
+        -------
+        numeric:
+            The number of occupants at ``position``, or `float('inf')` if `position` exceeds :attr:`valence`
+        '''
         if position > self.valence:
             return float('inf')
         else:
@@ -986,6 +1153,35 @@ class ReducedEnd(object):
         return self
 
     def drop_substituent(self, position, substituent=None, refund=True):
+        '''
+        Remove the `substituent` at `position`. 
+
+        If `substituent` is |None|, then the first substituent found at `position` is
+        removed. 
+
+        Parameters
+        ----------
+        position: int
+            The position to drop the modification from
+        substituent: Substituent
+            The |Substituent| to remove. If |None|, the first substituent found at
+            `position` will be removed
+        refund: bool
+            Passed to :meth:`~.Link.break_link`
+
+        Raises
+        ------
+        IndexError:
+            If `position` exceeds :attr:`valence`
+
+        ValueError:
+            If `substituent` is not found at `position`
+
+        Returns
+        -------
+        ReducedEnd:
+            `self` for chaining calls
+        '''
         if position > self.valence:
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
@@ -1009,8 +1205,7 @@ class ReducedEnd(object):
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''
-        Calculates the total mass of ``self``. If ``substituents=True`` it will include
-        the masses of its substituents.
+        Calculates the total mass of ``self``.
 
         Parameters
         ----------
@@ -1040,6 +1235,17 @@ class ReducedEnd(object):
         return mass
 
     def clone(self, prop_id=True):
+        """Make a deep copy of `self`.
+        
+        Parameters
+        ----------
+        prop_id: bool
+            Whether to copy over :attr:`id`.
+        
+        Returns
+        -------
+        ReducedEnd
+        """
         result = ReducedEnd(
             Composition(self.composition), substituents=None,
             valence=self.valence, id=self.id if prop_id else None)
@@ -1071,11 +1277,16 @@ class ReducedEnd(object):
             comp = comp + sub.total_composition()
         return comp
 
-    def __repr__(self):
+    def __repr__(self):  #pragma: no cover
         rep = "<ReducedEnd {}>".format(self.total_composition())
         return rep
 
     def __eq__(self, other):
+        '''
+        Test for equality with `other`, with special handling for `EnumValue` comparisons
+        for dealing with legacy format objects. If compared to the string "aldi", returns |True|,
+        otherwise does deep comparison of composition and substituents.
+        '''
         if other is None:
             return False
         elif isinstance(other, (int, EnumValue)):

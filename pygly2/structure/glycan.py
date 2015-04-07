@@ -6,6 +6,7 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
+from .constants import RingType
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
@@ -22,8 +23,10 @@ fragment_shift = {
 }
 
 fragment_direction = {
+    "A": -1,
     "B": -1,
     "C": -1,
+    "X": 1,
     "Y": 1,
     "Z": 1
 }
@@ -182,9 +185,33 @@ class Glycan(SaccharideBase):
 
     def set_reducing_end(self, value):
         '''
-        Sets the reducing end type.
+        Sets the reducing end type, and configures the root residue appropriately.
+
+        If the reducing_end is not |None|, then the following state changes are made to the root:
+        .. code-block:: python
+
+            self.root.ring_start = 0
+            self.root.ring_end = 0
+            self.root.anomer = "uncyclized"
+
+        Else, the correct state is unknown:
+        .. code-block:: python
+
+            self.root.ring_start = None
+            self.root.ring_end = None
+            self.root.anomer = None
+
         '''
         self.root.reducing_end = value
+        if self.reducing_end is not None:
+            self.root.ring_start = 0
+            self.root.ring_end = 0
+            self.root.anomer = "uncyclized"
+        else:
+            self.root.ring_start = None
+            self.root.ring_end = None
+            self.root.anomer = None
+
 
     def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
@@ -738,7 +765,8 @@ class Glycan(SaccharideBase):
                             yield ion_type + k, link_ids + [break_id], include, mass - offset
 
                     # If generating crossring cleavages
-                    if len((kind) & set("AX")) > 0 and child.ring_start is not None:
+                    ring_type = child.ring_type
+                    if len((kind) & set("AX")) > 0 and ring_type is not RingType.x and ring_type is not RingType.open:
                         # Re-apply the broken link temporarily
                         link.apply()
                         try:
@@ -792,7 +820,8 @@ class Glycan(SaccharideBase):
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield (k, [break_id], child_include, mass)
 
-                    if len((kind) & set("AX")) > 0 and child.ring_start is not None:
+                    ring_type = child.ring_type
+                    if len((kind) & set("AX")) > 0 and ring_type is not RingType.x and ring_type is not RingType.open:
                         # Re-apply the broken link temporarily
                         link.apply()
                         try:
@@ -882,7 +911,7 @@ class Glycan(SaccharideBase):
     def name_fragment(self, fragment):
         '''
         Attempt to assign a full name to a fragment based on the branch and position relative to
-        the reducing end along side B/C/Y/Z, according to :title-reference:`Domon and Costello`
+        the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
         '''
         if fragment.kind not in fragment_direction:
             raise ValueError(

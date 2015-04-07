@@ -376,7 +376,7 @@ class GlycanRecordBase(object):
         return not self == other
 
 
-def extract_composition(record, max_size=80):
+def extract_composition(record, max_size=120):
     '''
     Given a :class:`.GlycanRecord`, translate its :attr:`.monosaccharides` property
     into a string suitable for denormalized querying.
@@ -439,7 +439,7 @@ def is_n_glycan(record):
 n_glycan_core = pygly2.glycans["N-Linked Core"]
 
 
-@metadata("composition", "varchar(80)", extract_composition)
+@metadata("composition", "varchar(120)", extract_composition)
 @metadata("is_n_glycan", "boolean", is_n_glycan)
 class GlycanRecord(GlycanRecordBase):
 
@@ -590,7 +590,7 @@ class RecordDatabase(object):
             self.connection.executescript(ix_stmt)
         self.connection.commit()
 
-    def load_data(self, record_list):
+    def load_data(self, record_list, commit=True):
         '''
         Given an iterable of :attr:`.record_type` objects,
         assign each a primary key value and insert them into the
@@ -609,15 +609,17 @@ class RecordDatabase(object):
                 except:
                     print(stmt)
                     raise
-        self.commit()
+        if commit:
+            self.commit()
 
     def __len__(self):
         res = (self.execute("select count(glycan_id) from {table_name};").next())["count(glycan_id)"]
         return res or 0
 
     def create(self, structure, *args, **kwargs):
+        commit = kwargs.pop("commit", True)
         record = self.record_type(structure=structure, *args, **kwargs)
-        self.load_data([record])
+        self.load_data([record], commit=commit)
         return record
 
     def __getitem__(self, keys):
