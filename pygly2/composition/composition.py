@@ -6,6 +6,7 @@ from .mass_dict import nist_mass
 from .base import ChemicalCompositionError
 
 use_cython = True
+# use_cython = False
 
 try:
     from ccomposition import CComposition, calculate_mass as ccalculate_mass

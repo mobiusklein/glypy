@@ -67,7 +67,14 @@ def run_setup(include_cext=True):
               "pygly2.structure": ["pygly2/structure/data/*"],
               "pygly2.io.nomenclature": ["pygly2/io/nomenclature/data/*"]
           },
-          namespace_packages=["pygly2", "pygly2.io"],
+          namespace_packages=[
+            "pygly2",
+            "pygly2.io",
+            "pygly2.io.nomenclature",
+            "pygly2.structure",
+            "pygly2.composition",
+            "pygly2.utils"
+          ],
           cmdclass=cmdclass,
           zip_safe=False,
           ext_modules=extensions if include_cext else None,

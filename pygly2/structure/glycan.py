@@ -1,6 +1,7 @@
 import operator
 import logging
 import itertools
+import re
 from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
@@ -37,6 +38,67 @@ Fragment = make_struct(
     "Fragment", ("kind", "link_ids", "included_nodes", "mass"))
 DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
                                               "child_tree", "child_include_nodes", "link_ids"))
+
+
+def fragment_to_substructure(fragment, tree):
+    """Extract the substructure of `tree` which is contained in `fragment`
+
+    Parameters
+    ----------
+    fragment: Fragment
+        The fragment to extract substructure for.
+    tree: Glycan
+        The |Glycan| to extract substructure from.
+
+    Returns
+    -------
+    Glycan:
+        The |Glycan| substructure defined by the nodes contained in `fragment` as
+        found in `tree`
+    """
+    # Align the fragment locations with their id values.
+    # Be aware that cross-ring cleavages are labeled differently.
+    ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
+    links_broken = fragment.link_ids
+
+    pairings = zip(ion_types, links_broken)
+
+    break_targets = [link_id for ion_type, link_id in pairings if ion_type[0] == ""]
+    crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+
+    # All operations will be done on a copy of the tree of interest
+    tree = tree.clone()
+    # A point of reference known to be inside the fragment tree
+    anchor = None
+    for pos, link in tree.iterlinks():
+        # If the current link's child was cross-ring cleaved,
+        # then we must apply that cleavage and find an anchor
+        if link.child.id in crossring_targets:
+            ion_type = crossring_targets[link.child.id]
+            c1, c2 = map(int, ion_type[0].split(","))
+            target = tree.get(link.child.id)
+            a_frag, x_frag = crossring_fragments(target, c1, c2, attach=True, copy=False)
+            residue_toggle(target).next()
+
+            for pos, link in a_frag.links.items():
+                if link[a_frag].id in fragment.included_nodes:
+                    anchor = a_frag
+
+            for pos, link in x_frag.links.items():
+                if link[x_frag].id in fragment.included_nodes:
+                    anchor = x_frag
+        # If this link was cleaved, break it and find an anchor
+        if link.id in break_targets:
+            parent, child = link.break_link(refund=True)
+            if parent.id in fragment.included_nodes:
+                anchor = parent
+            elif child.id in fragment.included_nodes:
+                anchor = child
+
+    # Build a new tree from the anchor
+    substructure = Glycan(root=anchor, index_method=None).reroot()
+
+    return substructure
 
 
 class Glycan(SaccharideBase):
@@ -913,10 +975,12 @@ class Glycan(SaccharideBase):
         Attempt to assign a full name to a fragment based on the branch and position relative to
         the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
         '''
-        if fragment.kind not in fragment_direction:
+        ring_coordinates, ion_kind = re.search(r"(\d+,\d+)?(\S)", fragment.kind).groups()
+        ring_coordinates = "" if ring_coordinates is None else ring_coordinates
+        if ion_kind not in fragment_direction:
             raise ValueError(
                 "Cannot determine fragment orientation, {}".format(fragment))
-        if fragment_direction[fragment.kind] > 0:
+        if fragment_direction[ion_kind] > 0:
             link = self.link_index[fragment.link_ids[0] - 1]
             label = link.label
             fragment_name = "{}{}".format(

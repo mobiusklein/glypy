@@ -204,6 +204,8 @@ class Monosaccharide(SaccharideBase):
                  modifications=None, links=None, substituent_links=None,
                  composition=None, reduced=None, id=None):
 
+        if modifications is None:
+            modifications = OrderedMultiMap()
         # Make sure that if "aldi" is present, to replace it with
         # the default ReducedEnd
         if reduced is None:
@@ -216,8 +218,7 @@ class Monosaccharide(SaccharideBase):
         self.superclass = superclass
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.modifications = OrderedMultiMap(
-        ) if modifications is None else modifications
+        self.modifications = modifications
         self.links = OrderedMultiMap() if links is None else links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
