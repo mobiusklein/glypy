@@ -1,3 +1,6 @@
+import warnings
+
+
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
@@ -17,6 +20,8 @@ class EnumValue(object):
         try:
             if self.group != other.group:
                 return False
+            if self is other:
+                return True
             return self.value == other.value or self.names == other.names
         except AttributeError:
             return self.value == other or other in self.names
@@ -46,6 +51,8 @@ class EnumValue(object):
             except KeyError:  # pragma: no cover
                 pass
         raise KeyError("Could not resolve {} against {}".format(self, mapping))
+
+debug = False
 
 
 class EnumMeta(type):
@@ -104,6 +111,9 @@ class EnumMeta(type):
         return (k in self.__dict__) or (k in self.__dict__.values())
 
     def __getitem__(self, k):
+        if debug:
+            warnings.simplefilter("always")
+            warnings.warn("Search by %r" % k, stacklevel=2)
         return self.translate(k)
 
     def __setattr__(self, k, v):
@@ -144,7 +154,7 @@ class EnumMeta(type):
 
         if k in self.__dict__:
             return self.__dict__[k]
-        elif k in self:
+        elif k in self.__dict__.values():
             return self[self.name(k)]
         else:
             raise KeyError("Could not translate {0} through {1}".format(k, self))

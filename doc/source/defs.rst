@@ -1,6 +1,6 @@
 .. Common classes that are referenced frequently
 .. |Glycan| replace:: :class:`~pygly2.structure.glycan.Glycan`
-
+.. |GlycanRecord| replace:: :class:`~pygly2.algorithms.database.GlycanRecord`
 .. |Monosaccharide| replace:: :class:`~pygly2.structure.monosaccharide.Monosaccharide`
 
 .. |Link| replace:: :class:`~pygly2.structure.link.Link`
@@ -13,7 +13,7 @@
 .. |Enum| replace:: :class:`~pygly2.utils.enum.Enum`
 .. |SuperClass| replace:: :class:`~pygly2.structure.constants.SuperClass`
 .. |Modification| replace:: :class:`~pygly2.structure.constants.Modification`
-
+.. |Configuration| replace:: :class:`~pygly2.structure.constants.Configuration`
 
 .. Common functions that are referenced frequently
 

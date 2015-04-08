@@ -17,6 +17,7 @@ except ImportError:
 
 # Forward Declaration
 std_mol_comp = {}
+_isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
 _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
 _formula = r'^({})*$'.format(_atom)
 formula_pattern = re.compile(_formula)
@@ -39,13 +40,9 @@ def _parse_isotope_string(label):
     >>> _parse_isotope_string('C[12]')
     ('C', 12)
     """
-    if label.endswith(']'):
-        isotope_num = int(label[label.find('[') + 1:-1])
-        element_name = label[:label.find('[')]
-    else:
-        isotope_num = 0
-        element_name = label
-    return (element_name, isotope_num)
+    element_name, num = re.match(_isotope_string, label).groups()
+    isotope_num = int(num) if num else 0
+    return element_name, isotope_num
 
 
 class PComposition(defaultdict):

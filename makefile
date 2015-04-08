@@ -4,6 +4,14 @@ all: test docs
 test:
 	nosetests --with-coverage --cover-package=pygly2 --cover-html --cover-html-dir=test_reports --logging-level=CRITICAL
 
+
+clean:
+	rm -r *.pyd
+	rm -r *.so
+
+build:
+	python setup.py develop
+
 docs:
 	make -f Makefile clean -C doc html
 

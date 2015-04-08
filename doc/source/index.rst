@@ -25,8 +25,9 @@ Contents:
    io/nomenclature/identity
    io/nomenclature/synonyms
 
-   algorithms/subtree_search
    algorithms/similarity
+   algorithms/subtree_search
+   algorithms/database
 
 
 Indices and tables

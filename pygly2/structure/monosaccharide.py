@@ -21,7 +21,7 @@ superclass_map = invert_dict(superclass_map)
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
 
-debug = False
+debug = True
 
 
 def get_standard_composition(monosaccharide):
@@ -42,7 +42,11 @@ def get_standard_composition(monosaccharide):
     modifications = list(monosaccharide.modifications.items())
     for mod_pos, mod_val in modifications:
         # Don't set the reducing end here
-        if isinstance(mod_val, ReducedEnd) or mod_val == "aldi":
+        if isinstance(mod_val, ReducedEnd):
+            monosaccharide.reducing_end = mod_val
+            continue
+        elif mod_val is Modification.aldi:
+            monosaccharide.reducing_end = True
             continue
         try:
             base += modification_compositions[mod_val](mod_pos)
@@ -202,20 +206,22 @@ class Monosaccharide(SaccharideBase):
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=None, ring_end=None,
                  modifications=None, links=None, substituent_links=None,
-                 composition=None, reduced=None, id=None):
+                 composition=None, reduced=None, id=None, fast=False):
 
         if modifications is None:
             modifications = OrderedMultiMap()
-        # Make sure that if "aldi" is present, to replace it with
-        # the default ReducedEnd
-        if reduced is None:
-            if modifications.popv("aldi") is not None:
-                reduced = True
 
-        self.anomer = anomer
-        self.configuration = configuration
-        self.stem = stem
-        self.superclass = superclass
+        if fast:
+            self._anomer = anomer
+            self._configuration = tuple(configuration)
+            self._stem = tuple(stem)
+            self._superclass = superclass
+        else:
+            self.anomer = anomer
+            self.configuration = configuration
+            self.stem = stem
+            self.superclass = superclass
+
         self.ring_start = ring_start
         self.ring_end = ring_end
         self.modifications = modifications
@@ -224,9 +230,9 @@ class Monosaccharide(SaccharideBase):
             is None else substituent_links
         self.id = id or uuid4().int
         self._reducing_end = None
+        self.reducing_end = reduced
         if composition is None:
             composition = get_standard_composition(self)
-        self.reducing_end = reduced
         self.composition = composition
 
     @property
@@ -267,7 +273,7 @@ class Monosaccharide(SaccharideBase):
     def superclass(self, value):
         self._superclass = SuperClass[value]
 
-    def clone(self, prop_id=False):
+    def clone(self, prop_id=False, fast=True):
         '''
         Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
         with the same data. All mutable data structures are duplicated and distinct from the original.
@@ -285,6 +291,7 @@ class Monosaccharide(SaccharideBase):
             if isinstance(v, ReducedEnd):
                 continue
             modifications[k] = Modification[v]
+
         monosaccharide = Monosaccharide(
             superclass=self.superclass,
             stem=self.stem,
@@ -294,7 +301,8 @@ class Monosaccharide(SaccharideBase):
             modifications=modifications,
             anomer=self.anomer,
             reduced=self.reducing_end.clone() if self.reducing_end is not None else None,
-            id=self.id if prop_id else None)
+            id=self.id if prop_id else None,
+            fast=fast)
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
             dup = sub.clone()
@@ -331,7 +339,7 @@ class Monosaccharide(SaccharideBase):
         """Return the reducing end type of
         `self` or |None| if `self` is not reduced. The reducing end value
         can also be found in :attr:`modifications`. 
-        
+
         If `Modification.aldi` is present, it will be converted into
         an instance of :class:`.ReducedEnd` with default arguments.
 
@@ -344,8 +352,8 @@ class Monosaccharide(SaccharideBase):
                 if isinstance(mod, ReducedEnd):
                     self._reducing_end = mod
                     break
-                elif mod == "aldi":  #pragma: no cover
-                    self.modifications.popv("aldi")
+                elif mod is Modification.aldi:  # pragma: no cover
+                    self.modifications.popv(Modification.aldi)
                     self.reducing_end = ReducedEnd()
                     break
         return self._reducing_end
@@ -513,7 +521,7 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
-        if modification == "aldi":
+        if modification is Modification.aldi:
             self.reducing_end = ReducedEnd()
         else:
             try:
@@ -552,9 +560,9 @@ class Monosaccharide(SaccharideBase):
             raise IndexError("Index out of bounds")
         try:
             self.modifications.pop(position, modification)
-        except IndexError, e:
+        except IndexError:
             raise ValueError("Modification {} not found at {}".format(modification, position))
-        if modification == "aldi":
+        if modification is Modification.aldi:
             self.reducing_end = None
         else:
             try:

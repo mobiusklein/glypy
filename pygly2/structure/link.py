@@ -255,7 +255,7 @@ class Link(object):
     def __ne__(self, other):
         return not (self == other)
 
-    def break_link(self, refund=False, reorient_fn=None):
+    def break_link(self, refund=False):
         '''
         This function reverses :meth:`Link.apply`, removing the reference to :obj:`self` from
         both :attr:`parent` and :attr:`child`'s store of links. If ``refund`` is :const:`True`,
@@ -267,8 +267,6 @@ class Link(object):
         :class:`~.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent` parent
         :class:`~.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent` child
         '''
-        if reorient_fn is not None:
-            reorient_fn(self)
         if self.is_substituent_link():
             self.parent.substituent_links.pop(self.parent_position, self)
         else:
@@ -278,7 +276,7 @@ class Link(object):
             self.refund()
         return (self.parent, self.child)
 
-    def reconnect(self, refund=False, reorient_fn=None):
+    def reconnect(self, refund=False):
         '''
         The opposite of :meth:`Link.break_link`, add `self` to the appropriate places on
         :attr:`parent` and :attr:`child`
@@ -287,13 +285,8 @@ class Link(object):
         ----------
         refund: bool
             Should :meth:`Link.refund` be called? Defaults to |False|
-        reorient_fn: function
-            A function to be applied prior to reconnecting the bond. Defaults to |None|. If |None| is
-            passed, no action is taken
 
         '''
-        if reorient_fn is not None:
-            reorient_fn(self)
         if self.is_substituent_link():
             self.parent.substituent_links[self.parent_position] = self
         else:

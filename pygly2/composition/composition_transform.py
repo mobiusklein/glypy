@@ -10,6 +10,16 @@ def derivatize(saccharide, substituent):
     '''
     For each monosaccharide and viable substituent, attach the specified
     substituent.
+
+    .. warning::
+        This function mutates the input `saccharide` object, because copying objects
+        is expensive. If you want to continue using the underivatized object, create
+        a copy of it using the object's :meth:`.clone` method.
+
+    See Also
+    --------
+    :func:`.strip_derivitization`
+
     '''
     if isinstance(substituent, basestring):
         substituent = Substituent(substituent)
@@ -55,7 +65,14 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
 def strip_derivitization(saccharide):
     '''
     For each monosaccharide and viable substituent, remove all substituents
-    added by :func:`derivatize`
+    added by :func:`derivatize`.
+
+    .. warning::
+        This function, like :func:`derivatize`, will mutate the input `saccharide`.
+
+    See Also
+    --------
+    :func:`.derivatize`
     '''
     if isinstance(saccharide, Glycan):
         map(strip_derivatization_monosaccharide, saccharide)

@@ -116,9 +116,6 @@ _modification_compositions = {
         "H": -2,
         "O": 1
     }, {1: {"H": 2}}),
-    "aldi": CompositionRule({
-        "H": 2
-    }),
     "keto": CompositionRule({"H": -2}),
 }
 

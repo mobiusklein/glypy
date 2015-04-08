@@ -13,17 +13,10 @@ cdef:
     dict std_mol_comp = {}
     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
     str _formula = r'^({})*$'.format(_atom)
-    class CComposition(dict)
+    str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
 
-formula_pattern = re.compile(_formula)
-
-
-cdef str _make_isotope_string(str element_name, int isotope_num):
-    """Form a string label for an isotope."""
-    if isotope_num == 0:
-        return element_name
-    else:
-        return '%s[%d]' % (element_name, isotope_num)
+    object isotope_pattern = re.compile(_isotope_string)
+    object formula_pattern = re.compile(_formula)
 
 @cython.boundscheck(False)
 cdef tuple _parse_isotope_string(str label):
@@ -38,13 +31,16 @@ cdef tuple _parse_isotope_string(str label):
     cdef:
         int isotope_num
         str element_name
-    if label.endswith(']'):
-        isotope_num = int(label[label.find('[') + 1:-1])
-        element_name = label[:label.find('[')]
+    element_name, num = isotope_pattern.search(label).groups()
+    isotope_num = int(num) if num else 0
+    return element_name, isotope_num
+
+cdef str _make_isotope_string(str element_name, int isotope_num):
+    """Form a string label for an isotope."""
+    if isotope_num == 0:
+        return element_name
     else:
-        isotope_num = 0
-        element_name = label
-    return (element_name, isotope_num)
+        return '%s[%d]' % (element_name, isotope_num)
 
 
 cdef class CComposition(dict):

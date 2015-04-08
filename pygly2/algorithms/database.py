@@ -94,11 +94,13 @@ class RecordMethodsMeta(type):
 
 
 class GlycanRecordBase(object):
-    __metaclass__ = RecordMethodsMeta
     '''
     Defines the base class for SQL serialize-able records carrying
     glycan structure data and metadata. Includes tools for extending the
     SQL schema describing the structure to make new information query-able.
+
+    .. warning::
+        This is a base class. All user-defined record classes should be based on :class:`.GlycanRecord`
 
     Intended for storage in a :class:`RecordDatabase` instance, a wrapper around
     an Sqlite3 database file
@@ -126,7 +128,7 @@ class GlycanRecordBase(object):
     The translation to SQL values is carried out by :meth:`.to_sql`, and is restored from
     a query row by :meth:`.from_sql`.
     '''
-
+    __metaclass__ = RecordMethodsMeta
     #: Default table name used
     __table_name = "GlycanRecord"
 
@@ -266,7 +268,7 @@ class GlycanRecordBase(object):
         ext_names = ', '.join(inherits)
         if len(ext_names) > 0:
             ext_names = ', ' + ext_names
-        ext_values = ', '.join(["{}".format(v) for k, v in self.collect_ext_data().items()])
+        ext_values = ', '.join(["{}".format(v) for k, v in self._collect_ext_data().items()])
         if len(ext_values) > 0:
             ext_values = ', ' + ext_values
         if id is not None:
@@ -284,13 +286,19 @@ class GlycanRecordBase(object):
         yield template.format(**values)
 
     def to_update_sql(self, mass_params=None, inherits=None, *args, **kwargs):
+        '''
+        Generates SQL for use with ``UPDATE {table_name} set ... where glycan_id = {id};``.
+
+        Called by :meth:`update`
+        '''
+
         inherits = dict(inherits or {})
         inherits.update(inherits)
 
         template = '''update {table_name} set mass = {mass}, structure = "{structure}" /*rest*/ where glycan_id = {id};'''
 
         ext_names = list(inherits)
-        ext_values = ["{}".format(v) for k, v in self.collect_ext_data().items()]
+        ext_values = ["{}".format(v) for k, v in self._collect_ext_data().items()]
         ext_parts = ', '.join(["{} = {}".format(name, value) for name, value in zip(ext_names, ext_values)])
         if len(ext_parts) > 0:
             ext_parts = ", " + ext_parts
@@ -305,6 +313,20 @@ class GlycanRecordBase(object):
         yield template.format(**values)
 
     def update(self, mass_params=None, inherits=None, commit=True, *args, **kwargs):
+        """Execute SQL ``UPDATE`` instructions, writing this object's values back to the
+        database it was last extracted from.
+
+        Parameters
+        ----------
+        mass_params: dict
+            Parameters passed to :meth:`mass`
+
+        Raises
+        ------
+        ValueError:
+            If the record is not bound to a database
+
+        """
         if self._bound_db is None:
             raise ValueError("Cannot commit an unbound record")
         cur = self._bound_db.cursor()
@@ -355,11 +377,10 @@ class GlycanRecordBase(object):
         record._bound_db = kwargs.get("database")
         return record
 
-    def collect_ext_data(self, inherits=None):
+    def _collect_ext_data(self, inherits=None):
         '''
         Apply each metadata mapping transform sequentially, storing each result
-        in a |dict| object, returning the collection of extension data.
-
+        in a |dict| object for generating SQL.
         '''
         meta_map = dict(inherits or {})
         meta_map.update(dict(self.__metadata_map))
@@ -370,7 +391,13 @@ class GlycanRecordBase(object):
         return data
 
     def __eq__(self, other):
-        return self.structure == other.structure
+        '''
+        Equality testing is done between :attr:`structure`
+        '''
+        try:
+            return self.structure == other.structure
+        except:
+            return False
 
     def __ne__(self, other):
         return not self == other
@@ -416,6 +443,27 @@ def query_composition(prefix=None, **kwargs):
 
 
 def naive_name_monosaccharide(monosaccharide):
+    '''
+    Generate a generic name for `monosaccharide`, based loosely on IUPAC
+    naming schema without including information about linkage.
+
+    The tendency for monosaccharides of superclass > 7 to have special names,
+    which will be used preferentially if possible.
+
+    Parameters
+    ----------
+    monosaccharide: Monosaccharide
+
+    Returns
+    -------
+    str:
+        A simple name based on `SuperClass`, modifications, and substituents.
+
+    See Also
+    --------
+    :func:`pygly2.io.nomenclature.identity.identify`
+
+    '''
     try:
         c = monosaccharide.clone()
         if monosaccharide.superclass.value > 7:
@@ -434,6 +482,18 @@ def naive_name_monosaccharide(monosaccharide):
 
 
 def is_n_glycan(record):
+    '''
+    A predicate testing if the :title:`N-linked Glycan` core motif is present in `record.structure`.
+
+    Returns
+    -------
+    int:
+        0 if |False|, 1 if |True|. Sqlite doesn't have a dedicated |bool| data type.
+
+    See Also
+    --------
+    :func:`pygly2.algorithms.subtree_search.subtree_of`
+    '''
     return int(subtree_search.subtree_of(
         n_glycan_core, record.structure, exact=False) == 1)
 n_glycan_core = pygly2.glycans["N-Linked Core"]
@@ -442,6 +502,10 @@ n_glycan_core = pygly2.glycans["N-Linked Core"]
 @metadata("composition", "varchar(120)", extract_composition)
 @metadata("is_n_glycan", "boolean", is_n_glycan)
 class GlycanRecord(GlycanRecordBase):
+    '''
+    An extension of :class:`GlycanRecordBase` to add additional features and better support for extension
+    by both metaprogramming and inheritance.
+    '''
 
     __metadata_map = {}
 
@@ -455,10 +519,28 @@ class GlycanRecord(GlycanRecordBase):
 
     @property
     def monosaccharides(self):
+        '''
+        Returns a mapping of the counts of monosaccharides found in :attr:`structure`. Generic names are found
+        using :func:`naive_name_monosaccharide`.
+
+        .. note::
+            This property is mapped to the the database column ``composition`` by :func:`extract_composition`.
+
+
+        See Also
+        --------
+        :func:`extract_composition`
+        :func:`naive_name_monosaccharide`
+        '''
         return Counter(map(naive_name_monosaccharide, self.structure))
 
     @property
     def is_n_glycan(self):
+        '''
+        Returns |True| if :attr:`structure` has the :title:`N-linked Glycan` core motif.
+
+        .. note:: This property is mapped to the the database column ``is_n_glycan`` by :func:`is_n_glycan`
+        '''
         return bool(is_n_glycan(self))
 
     @classmethod
@@ -482,9 +564,9 @@ class GlycanRecord(GlycanRecordBase):
         kwargs['inherits'] = inherits
         super(GlycanRecord, self).update(mass_params=mass_params, *args, **kwargs)
 
-    def collect_ext_data(self):
+    def _collect_ext_data(self):
         inherits = _resolve_metadata_mro(self.__class__)
-        data = super(GlycanRecord, self).collect_ext_data(inherits=inherits)
+        data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
 
 
@@ -495,6 +577,9 @@ def include_fragments(record, kind="BY", average=False, charge=0, mass_data=None
 
 def make_rectype(recname="GlycanRecordType", **kwargs):
     '''
+    Programmatically create a new ``type`` based on :class:`GlycanRecord` at
+    run time.
+
     A helper method for creating new specializations of the
     GlycanRecord class which only add new metadata mappings
     that the user does not want to add to all instances of the
@@ -521,6 +606,14 @@ class RecordDatabase(object):
     This class defines a handful general data access methods as well as the ability
     to directly write SQL queries against the database.
 
+    Calls :meth:`.apply_schema`. If ``records`` is not |None|, calls :meth:`.apply_indices`.
+
+    ``record_type``, the stored class type is used for inferring the table schema,
+    table name, and :meth:`GlycanRecord.from_sql` function.
+
+    If ``records`` is not provided, no records are added. If records are provided, they are inserted
+    with :meth:`.load_data` and afterwards :meth:`.apply_indices` is called.
+
     Attributes
     ----------
     connection_string: |str|
@@ -530,25 +623,19 @@ class RecordDatabase(object):
         The class type of the records assumed to be stored in this database. The stored
         class type is used for inferring the table schema, table name, and :meth:`GlycanRecord.from_sql`
         function.
+
+    Parameters
+    ----------
+    connection_string: str
+        The path to the Sqlite database file, or the ":memory:" special
+        keyword defining the database to be held directly in memory.
+    record_type: type
+        The class type of the records assumed to be stored in this database. Defaults to :class:`GlycanRecord`
+    records: list
+        A list of `record_type` records to insert immediately on table creation.
     '''
     def __init__(self, connection_string=":memory:", record_type=GlycanRecord, records=None):
-        '''
-        Calls :meth:`.apply_schema`. If `records` is not |None|, calls :meth:`.apply_indices`.
 
-        Parameters
-        ----------
-        connection_string: str
-            The path to the Sqlite database file, or the ":memory:" special
-            keyword defining the database to be held directly in memory.
-        record_type: :class:`type`
-            The class type of the records assumed to be stored in this database. The stored
-            class type is used for inferring the table schema, table name, and :meth:`GlycanRecord.from_sql`
-            function. Defaults to :class:`GlycanRecord`
-        records: list
-            A list of `record_type` records to insert immediately on table creation. If not provided,
-            defaults to |None| and no records are added. If records are provided, they are inserted
-            with :meth:`.load_data` and afterwards :meth:`.apply_indices` is called.
-        '''
         created_new = False
         if connection_string == ":memory:" or not os.path.exists(connection_string):
             created_new = True
@@ -574,10 +661,15 @@ class RecordDatabase(object):
         Executes each SQL block yielded by :attr:`.record_type`'s :meth:`.sql_schema` class method.
         Commits all pending changes.
 
-        Called during initialization.
+        Called during initialization if the database is newly created.
+
+        .. danger::
+            The SQL table definition statements generated may drop existing tables. Calling
+            this function on an already populated table can cause data loss.
         '''
         self.connection.executescript('\n'.join(self.record_type.sql_schema()))
         self.connection.commit()
+        self._id = 0
 
     def apply_indices(self):
         '''
@@ -617,12 +709,26 @@ class RecordDatabase(object):
         return res or 0
 
     def create(self, structure, *args, **kwargs):
+        '''
+        A convenience function for creating a database entry for |Glycan| `structure`. Passes
+        along all arguments to :attr:`record_type` initialization methods.
+
+        Parameters
+        ----------
+        structure: Glycan
+        commit: bool
+            If |True|, commit changes after adding this record. Defaults to |True|.
+        '''
         commit = kwargs.pop("commit", True)
         record = self.record_type(structure=structure, *args, **kwargs)
         self.load_data([record], commit=commit)
         return record
 
+    # TODO: Generate more efficient SQL for simple lookups.
     def __getitem__(self, keys):
+        '''
+        Look up records in the database by primary key. Also accepts `slice`s.
+        '''
         results = []
         if isinstance(keys, int):
             keys = str(tuple([keys])).replace(',', '')
@@ -639,24 +745,55 @@ class RecordDatabase(object):
         return results if len(results) > 1 else results[0]
 
     def __iter__(self):
+        '''
+        Iterate sequentially over each entry in the database.
+        '''
         for row in self.execute(self.stn("select * from {table_name};")):
             yield self.record_type.from_sql(row, database=self)
 
     def sub_table_name(self, string, key='table_name'):
+        '''
+        A convenience function called to substitute in the primary table name
+        into raw SQL queries. By default it looks for the token {table_name}.
+        '''
         return string.format(**{key: self.record_type.table_name})
 
     stn = sub_table_name
 
     def execute(self, query, *args, **kwargs):
+        '''
+        A wrapper around :meth:`sqlite3.Connection.execute`. Will format
+        the query string to substitute in the main table name if the {table_name}
+        token is present
+
+        `sqlite3.execute <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.execute>`_
+        '''
         return self.connection.execute(self.stn(query), *args, **kwargs)
 
-    def executemany(self, query_iter, *args, **kwargs):
-        return self.connection.executemany(query_iter, *args, **kwargs)
+    def executemany(self, query, param_iter, *args, **kwargs):
+        '''
+        A wrapper around :meth:`sqlite3.Connection.executemany`. Will format
+        the query string to substitute in the main table name if the {table_name}
+        token is present.
+
+        `sqlite3.executemany <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.executemany>`_
+        '''
+        return self.connection.executemany(self.stn(query), param_iter, *args, **kwargs)
 
     def executescript(self, script, *args, **kwargs):
+        '''
+        A wrapper around :meth:`sqlite3.Connection.executescript`.
+
+        `sqlite3.executescript <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.executescript>`_
+        '''
         return self.connection.executescript(script, *args, **kwargs)
 
     def commit(self):
+        '''
+        A wrapper around :meth:`sqlite3.Connection.commit`. Writes pending changes to the database.
+
+        `sqlite3.commit <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.commit>`_
+        '''
         self.connection.commit()
 
     def rollback(self):

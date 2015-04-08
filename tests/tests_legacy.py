@@ -671,11 +671,11 @@ class LinkTests(unittest.TestCase):
 
         link_1 = link.Link(parent, child, parent_position=3,
                            child_position=3, parent_loss='H', child_loss='OH')
-        link_1.break_link(refund=True, reorient_fn=ident_op)
+        link_1.break_link(refund=True)
         self.assertTrue(len(parent.links[3]) == 0)
         self.assertTrue(len(child.links[3]) == 0)
 
-        link_1.reconnect(refund=True, reorient_fn=ident_op)
+        link_1.reconnect(refund=True)
         self.assertTrue(len(parent.links[3]) == 1)
         self.assertTrue(len(child.links[3]) == 1)
 

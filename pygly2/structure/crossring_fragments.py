@@ -5,6 +5,11 @@ from ..composition import Composition, structure_composition
 from ..utils.multimap import OrderedMultiMap
 
 RingType = constants.RingType
+SuperClass = constants.SuperClass
+Configuration = constants.Configuration
+Stem = constants.Stem
+Anomer = constants.Anomer
+
 Monosaccharide = monosaccharide.Monosaccharide
 graph_clone = monosaccharide.graph_clone
 traverse = monosaccharide.traverse
@@ -32,12 +37,12 @@ class CrossRingFragment(Monosaccharide):
         detatching to a |Glycan|
     '''
     def __init__(self, composition, cleave_1, cleave_2, contains, kind,
-                 modifications=None, anomer=None,
-                 stem=None, configuration=None, id=None, link_cache=None):
+                 modifications=None, anomer=Anomer.x,
+                 stem=(Stem.x,), configuration=(Configuration.x,), id=None, link_cache=None):
         super(CrossRingFragment, self).__init__(
             modifications=modifications, ring_start=None, ring_end=None,
-            substituent_links=None, links=None, superclass=None, anomer=anomer,
-            stem=stem, configuration=configuration, id=id, composition=composition)
+            substituent_links=None, links=None, superclass=SuperClass.x, anomer=anomer,
+            stem=stem, configuration=configuration, id=id, composition=composition, fast=True)
         self.kind = kind
         self.cleave_1 = cleave_1
         self.cleave_2 = cleave_2
@@ -127,8 +132,8 @@ def crossring_fragments(monosaccharide, c1, c2, attach=True, copy=True):
     # If the ring_end is cleaved, then the O component of
     # the ring should go with the X ion
     if ring_end - (ring_start - 1) == c2:
-        c1_fragment.composition = Composition(c1_fragment.composition) - {"O": 1}
-        c2_fragment.composition = Composition(c2_fragment.composition) + {"O": 1}
+        c1_fragment.composition -= {"O": 1}
+        c2_fragment.composition += {"O": 1}
 
     return a_fragment, x_fragment
 
@@ -232,7 +237,7 @@ def unroll_ring(residue):
     for i in range(ring_size):
         segment = {
             "index": i + 1,
-            "backbone": Composition("COH2"),
+            "backbone": Composition({'H': 2, 'C': 1, 'O': 1}),
             "modifications": OrderedMultiMap(),
             "substituent_links": OrderedMultiMap(),
             "links": OrderedMultiMap()

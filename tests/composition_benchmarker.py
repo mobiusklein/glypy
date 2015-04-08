@@ -14,4 +14,4 @@ cProfile.run("list(glyc.fragments('ABXY', max_cleavages=2))",
 
 
 stat = pstats.Stats(outfile)
-stat.print_stats()
+stat.strip_dirs().sort_stats("cumulative").print_stats()

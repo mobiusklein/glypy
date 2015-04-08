@@ -279,7 +279,7 @@ class Glycan(SaccharideBase):
         '''
         Make a depth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
-        This is the default traversal method for all |Glycan|s. :meth:`~.dfs` is an alias of this method.
+        This is the default traversal method for all |Glycan| objects. :meth:`~.dfs` is an alias of this method.
         Both names can be used to specify this strategy to :meth:`~._get_traversal_method`.
 
         Parameters
@@ -412,12 +412,12 @@ class Glycan(SaccharideBase):
 
     def iterlinks(self, substituents=False, method='dfs', visited=None):
         '''
-        Iterates over all |Link|s in |Glycan|.
+        Iterates over all |Link| objects in |Glycan|.
 
         Parameters
         ----------
         substituents: bool
-            If `substituents` is |True|, then include the |Link|s in
+            If `substituents` is |True|, then include the |Link| objects in
             :attr:`substituent_links` on each |Monosaccharide|
         method: str or function
             The traversal method controlling the order of the nodes visited
@@ -446,7 +446,7 @@ class Glycan(SaccharideBase):
 
     def leaves(self, bidirectional=False, method='dfs', visited=None):
         '''
-        Iterates over all |Monosaccharide|s in |Glycan|, yielding only those
+        Iterates over all |Monosaccharide| objects in |Glycan|, yielding only those
         that have no child nodes.
 
         Parameters
@@ -654,7 +654,7 @@ class Glycan(SaccharideBase):
 
     def total_composition(self):
         '''
-        Computes the sum of the composition of all |Monosaccharide|s in ``self``
+        Computes the sum of the composition of all |Monosaccharide| objects in ``self``
 
         Returns
         -------
