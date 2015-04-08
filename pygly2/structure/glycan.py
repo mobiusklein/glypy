@@ -43,6 +43,22 @@ DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nod
 def fragment_to_substructure(fragment, tree):
     """Extract the substructure of `tree` which is contained in `fragment`
 
+
+    >>> from pygly2 import glycans as glycan_factory
+    >>> from pygly2.structure import glycan
+    >>> n_linked_core = glycan_factory["N-Linked Core"]
+    >>> frag = n_linked_core.fragments().next()
+    >>> frag
+    <Fragment kind=Y link_ids=[1] included_nodes=[1] mass=221.089937203>
+    >>> glycan.fragment_to_substructure(frag, n_linked_core)
+    RES
+    1b:b-dglc-HEX-1:5
+    2s:n-acetyl
+    LIN
+    1:1d(2+1)2n
+    <BLANKLINE>
+    >>>
+
     Parameters
     ----------
     fragment: Fragment
@@ -206,6 +222,9 @@ class Glycan(SaccharideBase):
         return self
 
     def reroot(self):
+        '''
+        Set :attr:`root` to the node with the lowest :attr:`id`
+        '''
         self.root = sorted(self, key=operator.attrgetter('id'))[0]
         self.reindex()
         return self
@@ -250,14 +269,14 @@ class Glycan(SaccharideBase):
         Sets the reducing end type, and configures the root residue appropriately.
 
         If the reducing_end is not |None|, then the following state changes are made to the root:
-        .. code-block:: python
+        .. code-block::
 
             self.root.ring_start = 0
             self.root.ring_end = 0
             self.root.anomer = "uncyclized"
 
         Else, the correct state is unknown:
-        .. code-block:: python
+        .. code-block::
 
             self.root.ring_start = None
             self.root.ring_end = None
@@ -273,7 +292,6 @@ class Glycan(SaccharideBase):
             self.root.ring_start = None
             self.root.ring_end = None
             self.root.anomer = None
-
 
     def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
@@ -293,9 +311,9 @@ class Glycan(SaccharideBase):
         visited: set or None
             A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
 
-        Returns
-        -------
-        generator
+        Yields
+        ------
+        Return Value of `apply_fn`, by default Monosaccharide
 
         See also
         --------
@@ -339,7 +357,7 @@ class Glycan(SaccharideBase):
 
         Yields
         ------
-        Monosaccharide
+        Return Value of `apply_fn`, by default Monosaccharide
 
         See also
         --------
@@ -398,7 +416,7 @@ class Glycan(SaccharideBase):
 
         Yields
         ------
-        Monosaccharide
+        Return Value of `apply_fn`, by default Monosaccharide
 
         See also
         --------
@@ -556,7 +574,7 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        buffer: `file-like` or None
+        buffer: file-like or None
             The stream to write the serialized structure to. If |None|, uses an instance
             of `StringIO`
         close: bool

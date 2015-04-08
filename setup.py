@@ -1,6 +1,5 @@
 import sys
 from setuptools import setup, find_packages, Extension
-from Cython.Build import cythonize
 
 # With gratitude to the SqlAlchemy setup.py authors
 
@@ -14,9 +13,15 @@ if sys.platform == 'win32':
     # find the compiler
     ext_errors += (IOError,)
 
-extensions = cythonize([Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"])],
-                       annotate=True,
-                       profile=True)
+try:
+    from Cython.Build import cythonize
+    extensions = cythonize([Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"])],
+                           annotate=True,
+                           profile=True)
+except ImportError:
+    extensions = [
+      Extension('pygly2.composition.ccomposition', sources=['pygly2/composition/ccomposition.c'])
+    ]
 
 cmdclass = {}
 

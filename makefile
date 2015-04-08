@@ -9,9 +9,6 @@ clean:
 	rm -r *.pyd
 	rm -r *.so
 
-build:
-	python setup.py develop
-
 docs:
 	make -f Makefile clean -C doc html
 

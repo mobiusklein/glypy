@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pygly2'
-copyright = u'2015, J. Klein, Dr. N. Edwards'
+copyright = u'2015, J. Klein, Dr. N. Edwards, Dr. Joseph Zaia'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
