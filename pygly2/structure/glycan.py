@@ -770,10 +770,10 @@ class Glycan(SaccharideBase):
         created by removing one or more monosaccharide-monosaccharide bond.
 
         .. note::
-            While generating fragments, the glycan structure is being permuted. All of the
+            While generating fragments, the |Glycan| object is being permuted. All of the
             changes being made are reversed during the generation process, and the glycan is
             returned to the same state it was in when :meth:`~.fragments` was called by the end
-            of the generator. Do not attempt to use the glycan structure for other things while
+            of the generator. Do not attempt to use the |Glycan| object for other things while
             fragmenting it. If you must, copy it first with :meth:`~.clone`.
 
 
@@ -793,6 +793,11 @@ class Glycan(SaccharideBase):
         mass_data: dict, optional, defaults to `None`
             If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
+
+        Yields
+        ------
+        :class:`Fragment`
+
         See also
         --------
         :func:`pygly2.composition.composition.calculate_mass`
@@ -976,6 +981,31 @@ class Glycan(SaccharideBase):
                 link.apply()
 
     def substructures(self, max_cleavages=1, min_cleavages=1, min_size=2):
+        '''
+        Generate disjoint subtrees from this glycan by examining by removing one or
+        more monosaccharide-monosaccharide bond.
+
+        .. note::
+            While generating substructures, the glycan object is being permuted. All of the
+            changes being made are reversed during the generation process, and the glycan is
+            returned to the same state it was in when :meth:`~.substructures` was called by the end
+            of the generator. Do not attempt to use the glycan object for other things while
+            fragmenting it. If you must, copy it first with :meth:`~.clone`.
+
+
+        Parameters
+        ----------
+        max_cleavages: |int|
+            The maximum number of bonds to break per substructure
+        min_cleavages: |int|
+            The minimum number of bonds to break per substructure
+        min_size: |int|
+            The minimum number of monosaccharides per substructure
+
+        See also
+        --------
+        :func:`pygly2.composition.composition.calculate_mass`
+        '''
         results_container = DisjointTrees
         for frag in self.break_links_subtrees(
                 max_cleavages, min_size=min_size):

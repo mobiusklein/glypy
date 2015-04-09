@@ -6,10 +6,13 @@
 Welcome to pygly2's documentation!
 ==================================
 
+
 Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   Quickstart <quickstart/quickstart>
    
    structure
    composition
