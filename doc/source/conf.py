@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pygly2'
-copyright = u'2015, J. Klein, Dr. N. Edwards, Dr. Joseph Zaia'
+copyright = u'2015, J. Klein, Dr. N. Edwards, Dr. J. Zaia'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -93,7 +93,7 @@ add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-add_module_names = True
+#add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -217,7 +217,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'pygly2.tex', u'pygly2 Documentation',
-   u'J. Klein, Dr. N. Edwards', 'manual'),
+   u'J. Klein, Dr. N. Edwards', "Dr. J. Zaia", 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -247,7 +247,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'pygly2', u'pygly2 Documentation',
-     [u'J. Klein, Dr. N. Edwards'], 1)
+     [u'J. Klein, Dr. N. Edwards', "Dr. J. Zaia"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -261,7 +261,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'pygly2', u'pygly2 Documentation',
-   u'J. Klein, Dr. N. Edwards', 'pygly2', 'One line description of project.',
+   u'J. Klein, Dr. N. Edwards, Dr. J. Zaia', 'pygly2', 'One line description of project.',
    'Miscellaneous'),
 ]
 

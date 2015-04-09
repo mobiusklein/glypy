@@ -6,5 +6,13 @@ We often want to work with large amounts of data, sometimes larger than is conve
 
 For a more sophisticated ORM, please see http://www.sqlalchemy.org/
 
+.. autoclass:: pygly2.algorithms.database.GlycanRecord
+    :members:
+    :inherited-members:
+    :exclude-members: __str__, __getattribute__, __format__, __delattr__, __hash__, __new__, __reduce__, __reduce_ex__, __subclasshook__, __setattr__, __sizeof__, 
+
+
 .. automodule:: pygly2.algorithms.database
     :members:
+    :exclude-members: GlycanRecord, GlycanRecordBase
+

@@ -1,0 +1,33 @@
+.method, .function, .attribute {
+    border-bottom: 1px lightgrey solid;
+}
+
+.descclassname {
+    display: none;
+}
+
+.docutils.literal {
+    padding: 3px;
+    font-weight: 900;
+    border-radius: 3px;
+}
+
+.sig-paren{
+    font-weight: 600;
+}
+
+.field-body .first {
+    margin-top: 2em !important;
+}
+
+.py-attr {
+    background-color: lightsteelblue;
+}
+
+.py-class {
+    background-color: #9FF781 !important;
+}
+
+dl.class > dt > em.property ~ code.descname {
+    font-size: 1.3em;
+}
