@@ -25,11 +25,11 @@ def substituent_inclusion(self, other):
     return True
 
 
-def topological_inclusion(self, other, substituents=True, tolerance=0): 
+def topological_inclusion(self, other, substituents=True, tolerance=0):
     '''
     Performs equality testing between two monosaccharides where
     the exact ordering of child links does not have match between
-    the input |Monosaccharide|s, so long as an ``a`` is included in ``b``
+    the input |Monosaccharide|, so long as an ``a`` is included in ``b``
 
     Equality testing is done by :func:`similarity.monosaccharide_similarity`.
 
@@ -40,7 +40,7 @@ def topological_inclusion(self, other, substituents=True, tolerance=0):
     other: Glycan
         The |Glycan| to test inclusion in
     substituents: bool
-        Consider substituents when comparing |Monosaccharide|s. Defaults to |True|
+        Consider substituents when comparing |Monosaccharide| s. Defaults to |True|
     tolerance: int
         The amount of error allowed when checking for flat similarity.
 

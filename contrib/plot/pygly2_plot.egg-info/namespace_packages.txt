@@ -1,2 +1,3 @@
 pygly2
 pygly2.plot
+pygly2.tests

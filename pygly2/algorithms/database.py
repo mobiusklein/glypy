@@ -405,7 +405,7 @@ class GlycanRecordBase(object):
 
 def extract_composition(record, max_size=120):
     '''
-    Given a :class:`.GlycanRecord`, translate its :attr:`.monosaccharides` property
+    Given a :class:`GlycanRecord`, translate its :attr:`.monosaccharides` property
     into a string suitable for denormalized querying.
 
     Transforms the resulting, e.g. Counter({u'GlcNA': 6, u'Gal': 4, u'aMan': 2, u'Fuc': 1, u'Man': 1})
@@ -414,7 +414,7 @@ def extract_composition(record, max_size=120):
 
     Parameters
     ----------
-    record: GlycanRecord
+    record: :class:`GlycanRecord`
         The record to serialize :attr:`.monosaccharides` for
     max_size: int
         The maximum size of the resulting string allowed under the target
@@ -626,12 +626,12 @@ class RecordDatabase(object):
 
     Parameters
     ----------
-    connection_string: str
+    connection_string: :class:`str`
         The path to the Sqlite database file, or the ":memory:" special
         keyword defining the database to be held directly in memory.
-    record_type: type
+    record_type: :class:`type`
         The class type of the records assumed to be stored in this database. Defaults to :class:`GlycanRecord`
-    records: list
+    records: :class:`list`
         A list of `record_type` records to insert immediately on table creation.
     '''
     def __init__(self, connection_string=":memory:", record_type=GlycanRecord, records=None):
@@ -715,7 +715,7 @@ class RecordDatabase(object):
 
         Parameters
         ----------
-        structure: Glycan
+        structure: :class:`Glycan`
         commit: bool
             If |True|, commit changes after adding this record. Defaults to |True|.
         '''
@@ -727,7 +727,11 @@ class RecordDatabase(object):
     # TODO: Generate more efficient SQL for simple lookups.
     def __getitem__(self, keys):
         '''
-        Look up records in the database by primary key. Also accepts `slice`s.
+        Look up records in the database by primary key. Also accepts :class:`slice` objects.
+
+        Returns
+        -------
+        :class:`.record_type` or :class:`list` of :class:`.record_type`
         '''
         results = []
         if isinstance(keys, int):
@@ -797,14 +801,21 @@ class RecordDatabase(object):
         self.connection.commit()
 
     def rollback(self):
+        '''
+        A wrapper around :meth:`sqlite3.Connection.rollback`. Reverses the last set of changes to the database.
+
+        `sqlite3.rollback <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.rollback>`_
+        '''
         self.connection.rollback()
 
     def _find_boundaries(self, mass, tolerance):
         spread = mass * tolerance
         return (mass - spread, mass + spread)
 
-    def ppm_match_tolerance_search(self, mass, tolerance, target_table=None,
-                                   mass_shift=0):
+    def ppm_match_tolerance_search(self, mass, tolerance, target_table=None, mass_shift=0):
+        '''
+        Rapidly search the database for entries with a recorded mass within ``tolerance`` ppm of ``mass``.
+        '''
         target_table = target_table or self.record_type.table_name
         lower, upper = self._find_boundaries(mass + mass_shift, tolerance)
         results = self.execute("select * from {table_name}\

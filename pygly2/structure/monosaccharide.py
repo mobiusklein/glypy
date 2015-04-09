@@ -24,18 +24,20 @@ logger.setLevel("DEBUG")
 debug = True
 
 
-def get_standard_composition(monosaccharide):
+def _get_standard_composition(monosaccharide):
     '''Used to get initial composition for a given monosaccharide
-    ``Superclass`` and modifications
+    |Superclass| and modifications.
+
+    Used during initialization of a |Monosaccharide|.
 
     Parameters
     ----------
-    monosaccharide: Monosaccharide
+    monosaccharide: :class:`Monosaccharide`
         The |Monosaccharide| object to read attributes from
 
     Returns
     -------
-    Composition:
+    :class:`~pygly2.composition.composition.Composition`:
         The baseline composition from `monosaccharide.superclass` + `monosaccharide.modifications`
     '''
     base = monosaccharide_composition[monosaccharide.superclass]
@@ -62,7 +64,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
 
     Parameters
     ----------
-    monosaccharide: Monosaccharide
+    monosaccharide: :class:`Monosaccharide`
         Residue to start traversing from
     visited: set or None
         The collection of node ids to ignore, having already visited them. If |None|, it defaults
@@ -72,7 +74,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
 
     Yields
     -------
-    Monosaccharide
+    :class:`Monosaccharide`
     '''
     if visited is None:
         visited = set()
@@ -93,7 +95,7 @@ def graph_clone(monosaccharide, visited=None):
 
     Parameters
     ----------
-    residue: Monosaccharide
+    residue: :class:`Monosaccharide`
         The root of the graph to clone
     visited: set or None
         The collection of node ids to ignore, having already visited them. If |None|, it defaults
@@ -101,7 +103,7 @@ def graph_clone(monosaccharide, visited=None):
 
     Returns
     -------
-    Monosaccharide:
+    :class:`Monosaccharide`:
         The root of a newly duplicated and identical residue graph
     '''
     clone_root = monosaccharide.clone(prop_id=True)
@@ -232,7 +234,7 @@ class Monosaccharide(SaccharideBase):
         self._reducing_end = None
         self.reducing_end = reduced
         if composition is None:
-            composition = get_standard_composition(self)
+            composition = _get_standard_composition(self)
         self.composition = composition
 
     @property
@@ -315,10 +317,10 @@ class Monosaccharide(SaccharideBase):
     def ring_type(self):
         """The size of the ring-shape of the carbohydrate, as computed
         by ring_end - ring_start.
-        
+
         Returns
         -------
-        EnumValue:
+        :class:`EnumValue`:
             The appropriate value of :class:`.RingType`
         """
 
@@ -338,7 +340,7 @@ class Monosaccharide(SaccharideBase):
     def reducing_end(self):
         """Return the reducing end type of
         `self` or |None| if `self` is not reduced. The reducing end value
-        can also be found in :attr:`modifications`. 
+        can also be found in :attr:`modifications`.
 
         If `Modification.aldi` is present, it will be converted into
         an instance of :class:`.ReducedEnd` with default arguments.
@@ -360,8 +362,8 @@ class Monosaccharide(SaccharideBase):
 
     @reducing_end.setter
     def reducing_end(self, value):
-        """Sets the reducing end type of `self`. 
-        
+        """Sets the reducing end type of `self`.
+
         If `value` is |None|, then this residue is not reduced.
         Else, if `value` ``is True``, then this residue's reducing end
         is set to an instance of :class:`.ReducedEnd` with default parameters.
@@ -373,7 +375,7 @@ class Monosaccharide(SaccharideBase):
         Parameters
         ----------
         value: True, None, or :class:`.ReducedEnd`
-        
+
         """
         red_end = self.reducing_end
         if red_end is not None:
@@ -396,7 +398,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        dict
+        :class:`dict`
         '''
         return {
             'modifications': self.modifications[position],
@@ -427,9 +429,9 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        list:
+        :class:`list`:
             The positions open for binding
-        int:
+        :class:`int`:
             The number of bound but unknown locations on the backbone.
         '''
         slots = [0] * self.superclass.value
@@ -516,7 +518,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if self.is_occupied(position) > max_occupancy:
@@ -553,7 +555,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if position > self.superclass.value or position < 0 and position not in {'x', -1}:
@@ -606,7 +608,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if self.is_occupied(position) > max_occupancy:
@@ -624,10 +626,10 @@ class Monosaccharide(SaccharideBase):
 
     def drop_substituent(self, position, substituent=None, refund=True):
         '''
-        Remove the `substituent` at `position`. 
+        Remove the `substituent` at `position`.
 
         If `substituent` is |None|, then the first substituent found at `position` is
-        removed. 
+        removed.
 
         Parameters
         ----------
@@ -649,7 +651,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
@@ -705,7 +707,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if parent_loss is None:
@@ -744,7 +746,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        Monosaccharide:
+        :class:`Monosaccharide`:
             `self`, for chain calls
         '''
         if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
@@ -863,7 +865,7 @@ class Monosaccharide(SaccharideBase):
         '''
         Performs equality testing between two monosaccharides where
         the exact position (and ordering by sort) of links must to match between
-        the input |Monosaccharide|s
+        the input |Monosaccharide| objects
 
         Returns
         -------

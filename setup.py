@@ -16,9 +16,9 @@ if sys.platform == 'win32':
 try:
     from Cython.Build import cythonize
     extensions = cythonize([Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"])],
-                           annotate=True,
-                           profile=True)
-except ImportError:
+                           annotate=True)
+except ImportError, AttributeError:
+    print("No Cython")
     extensions = [
       Extension('pygly2.composition.ccomposition', sources=['pygly2/composition/ccomposition.c'])
     ]
@@ -30,6 +30,9 @@ class BuildFailed(Exception):
 
     def __init__(self):
         self.cause = sys.exc_info()[1]  # work around py 2/3 different syntax
+
+    def __str__(self):
+        return str(self.cause)
 
 
 class ve_build_ext(build_ext):
@@ -78,7 +81,8 @@ def run_setup(include_cext=True):
             "pygly2.io.nomenclature",
             "pygly2.structure",
             "pygly2.composition",
-            "pygly2.utils"
+            "pygly2.utils",
+            "pygly2.tests"
           ],
           cmdclass=cmdclass,
           zip_safe=False,
@@ -87,9 +91,9 @@ def run_setup(include_cext=True):
 
 try:
     run_setup(True)
-except BuildFailed as exc:
+except Exception as exc:
     status_msgs(
-        exc.cause,
+        str(exc),
         "WARNING: The C extension could not be compiled, " +
         "speedups are not enabled.",
         "Failure information, if any, is above.",

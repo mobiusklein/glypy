@@ -41,15 +41,15 @@ class Link(object):
 
         Parameters
         ----------
-        parent: Monosaccharide or Substituent
-        child: Monosaccharide or Substituent
+        parent: :class:`Monosaccharide` or :class:`Substituent`
+        child: :class:`Monosaccharide` or :class:`Substituent`
         parent_position: int
             The position on the parent to attach to Defaults to -1
         child_position: int
             The position on the child to attach to. Defaults to -1
-        parent_loss: Composition or str
+        parent_loss: :class:`Composition` or str
             The elemental composition deducted from the parent when the bond is applied
-        child_loss: Composition or str
+        child_loss: :class:`Composition` or str
             The elemental composition deducted from the child when the bond is applied
         id: int
             A locally unique identifier within a graph. If |None|, uuid4 is used to generate one. Defaults to |None|
@@ -104,11 +104,11 @@ class Link(object):
 
         Parameters
         ----------
-        mol: Monosaccharide or Substituent
+        mol: :class:`Monosaccharide` or :class:`Substituent`
 
         Returns
         -------
-        Monosaccharide or Substituent
+        :class:`Monosaccharide` or :class:`Substituent`
 
         Raises
         ------

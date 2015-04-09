@@ -36,6 +36,32 @@ MAIN_BRANCH_SYM = '-'
 
 Fragment = make_struct(
     "Fragment", ("kind", "link_ids", "included_nodes", "mass"))
+'''
+A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
+
+Created by :func:`make_struct`.
+
+Attributes
+----------
+kind: |str|
+    One of A, B, C, X, Y, or Z for each link broken or ring cleaved
+
+link_ids: |list| of |int|
+    The :attr:`id` value of each link cleaved.
+
+included_nodes: |list| of |int|
+    The :attr:`id` value of each |Monosaccharide| contained in the fragment
+
+mass: |float|
+    The mass or `m/z` of the fragment.
+
+See Also
+--------
+:meth:`Glycan.fragments`
+:func:`.make_struct`
+'''
+
+
 DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
                                               "child_tree", "child_include_nodes", "link_ids"))
 
@@ -62,7 +88,7 @@ def fragment_to_substructure(fragment, tree):
     Parameters
     ----------
     fragment: Fragment
-        The fragment to extract substructure for.
+        The :class:`Fragment` to extract substructure for.
     tree: Glycan
         The |Glycan| to extract substructure from.
 
@@ -269,14 +295,16 @@ class Glycan(SaccharideBase):
         Sets the reducing end type, and configures the root residue appropriately.
 
         If the reducing_end is not |None|, then the following state changes are made to the root:
-        .. code-block::
+
+        .. code-block:: python
 
             self.root.ring_start = 0
             self.root.ring_end = 0
             self.root.anomer = "uncyclized"
 
         Else, the correct state is unknown:
-        .. code-block::
+
+        .. code-block:: python
 
             self.root.ring_start = None
             self.root.ring_end = None
@@ -313,7 +341,7 @@ class Glycan(SaccharideBase):
 
         Yields
         ------
-        Return Value of `apply_fn`, by default Monosaccharide
+        Return Value of `apply_fn`, by default |Monosaccharide|
 
         See also
         --------
@@ -357,7 +385,7 @@ class Glycan(SaccharideBase):
 
         Yields
         ------
-        Return Value of `apply_fn`, by default Monosaccharide
+        Return Value of `apply_fn`, by default |Monosaccharide|
 
         See also
         --------
@@ -720,7 +748,7 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        self, other: Glycan
+        self, other: :class:`~pygly2.structure.glycan.Glycan`
 
         Returns
         -------
@@ -747,6 +775,7 @@ class Glycan(SaccharideBase):
             returned to the same state it was in when :meth:`~.fragments` was called by the end
             of the generator. Do not attempt to use the glycan structure for other things while
             fragmenting it. If you must, copy it first with :meth:`~.clone`.
+
 
         Parameters
         ----------
@@ -777,8 +806,9 @@ class Glycan(SaccharideBase):
             'B', 'Y'), average=False, charge=0, mass_data=None, visited=None):
         '''
         A recursive co-routine that generates all `kind` fragments of a glycan graph to a
-        depth of `n_links`. If `n_links` > 1, then internal fragments are generated. Called by
+        depth of `n_links`. If `n_links` > 1, then internal fragments are generated. Called by 
         :meth:`.fragments`
+
 
         Parameters
         ----------
@@ -797,6 +827,7 @@ class Glycan(SaccharideBase):
             the contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information
         visited: set
             A set of link ids to not visit by :meth:`iterlinks`. If |None| will be the empty set.
+
 
         Yields
         ------

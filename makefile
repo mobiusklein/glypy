@@ -1,18 +1,18 @@
-all: test docs
+all: develop test docs
 
 
 test:
-	nosetests --with-coverage --cover-package=pygly2 --cover-html --cover-html-dir=test_reports --logging-level=CRITICAL
+	nosetests --traverse-namespace --with-coverage --cover-package=pygly2,pygly2.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v
 
 
 clean:
-	rm -r *.pyd
-	rm -r *.so
+	@rm  pygly2/*/*.pyd
+	@rm  pygly2/*/*.so
 
 docs:
 	make -f Makefile clean -C doc html
 
-develop:
+develop: clean
 	python setup.py develop
 
 serve-docs:

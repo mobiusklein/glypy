@@ -1,2 +1,1 @@
 pygly2
-tests
