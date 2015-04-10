@@ -20,7 +20,7 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 # Sphinx Extensions path
-sys.path.insert(0, os.path.abspath('ext'))
+sys.path.insert(0, os.path.abspath('ext/numpydoc'))
 # Module path
 sys.path.insert(0, os.path.abspath('../..'))
 print(sys.path)
