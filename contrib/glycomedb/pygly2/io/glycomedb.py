@@ -2,7 +2,32 @@ import requests
 from lxml import etree
 
 from pygly2.io import glycoct
-from pygly2.algorithms.database import Taxon, Aglyca, Motif, DatabaseEntry, GlycanRecord
+from pygly2.algorithms.database import (Taxon, Aglyca, Motif,
+                                        DatabaseEntry, GlycanRecord,
+                                        RecordDatabase)
+
+cache = None
+
+
+def set_cache(path):
+    global cache
+    cache = RecordDatabase(path)
+
+
+def add_cache(record):
+    if cache is None:
+        return
+    for stmt in record.to_sql():
+        try:
+            cache.connection.execute(stmt)
+        except Exception, e:
+            print(e, record.id)
+
+
+def check_cache(key):
+    if cache is None:
+        return
+    return key in cache
 
 
 get_url_template = "http://www.glycome-db.org/database/showStructure.action?glycomeId={id}"
@@ -13,6 +38,8 @@ def get(id):
     '''
     Get the structure for `id` from :title-reference:`GlycomeDB`.
     '''
+    if check_cache(id):
+        return cache[id].structure
     r = requests.get(get_url_template.format(id=id))
     r.raise_for_status()
     tree = etree.fromstring(r.content)
@@ -23,7 +50,7 @@ def get(id):
 #: GlycomeDB supplies a detailed schema link which allows `lxml` to easily pull out
 #: more than just the GlycoCT string. To download a more informative record, use :func:`get_record`
 
-def get_record(id, record_type=GlycanRecord):
+def get_record(id):
     '''
     Get the complete record for `id` from :title-reference:`GlycomeDB`.
 
@@ -31,10 +58,12 @@ def get_record(id, record_type=GlycanRecord):
     -------
     |Glycan|
     '''
+    if check_cache(id):
+        return cache[id]
     r = requests.get(get_url_template.format(id=id))
     r.raise_for_status()
     tree = etree.fromstring(r.content)
-    return glycan_record_from_xml(tree, id, record_type=record_type)
+    return glycan_record_from_xml(tree, id)
 
 
 def search_substructure(glycan_obj):
@@ -54,7 +83,7 @@ def search_substructure(glycan_obj):
     matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
     for m in matches:
         yield m
-    for page_id in range(1, last_page):
+    for page_id in range(2, last_page):
         get_more = session.post(_get_more_results_url, data={"page": page_id})
         get_more.raise_for_status()
         tree = etree.fromstring(get_more.content)
@@ -87,7 +116,7 @@ def search_minimum_common_substructure(glycan_obj, minimum_residues=1):
     matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
     for m in matches:
         yield m
-    for page_id in xrange(1, last_page):
+    for page_id in xrange(2, last_page):
         get_more = session.post(_get_more_results_url, data={"page": page_id})
         get_more.raise_for_status()
         tree = etree.fromstring(get_more.content)
@@ -98,6 +127,36 @@ def search_minimum_common_substructure(glycan_obj, minimum_residues=1):
             yield m
 
 _mcs_search_url = "http://www.glycome-db.org/database/searchMCS.action"
+
+
+def search_by_species(tax_id):
+    post_data = {
+        "species": tax_id,
+        "type": "ncbi",
+        "subTree": "yes",
+    }
+    session = requests.Session()
+    r = session.post(_taxa_search_url, data=post_data)
+    r.raise_for_status()
+    tree = etree.fromstring(r.content)
+    try:
+        last_page = int([p.attrib for p in tree.findall('.//page')][-1]["number"])
+    except:
+        last_page = 1
+    matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
+    for m in matches:
+        yield m
+    for page_id in xrange(2, last_page):
+        get_more = session.post(_get_more_results_url, data={"page": page_id})
+        get_more.raise_for_status()
+        tree = etree.fromstring(get_more.content)
+        matches = [GlycomeDBSearchMatch(**s.attrib) for s in tree.findall(".//structure")]
+        if len(matches) == 0:
+            raise StopIteration(get_more.content)
+        for m in matches:
+            yield m
+
+_taxa_search_url = "http://www.glycome-db.org/database/searchBySpecies.action"
 
 
 class GlycomeDBSearchMatch(object):
@@ -140,10 +199,10 @@ def make_entries(annotation):
     return res
 
 
-def glycan_record_from_xml(xml_tree, id, record_type=GlycanRecord):
+def glycan_record_from_xml(xml_tree, id):
     '''
     Converts an XML document and the associated database into an instance of
-    `record_type`.
+    `GlycanRecord`.
 
     Parameters
     ----------
@@ -151,18 +210,19 @@ def glycan_record_from_xml(xml_tree, id, record_type=GlycanRecord):
         XML document to consume
     id:
         GlycomeDB id number to assign this record
-    record_type: type
-        |GlycanRecord| or a subclass thereof
 
     Returns
     -------
-    record_type:
+    GlycanRecord:
         Constructed record
     '''
     structure = glycoct.loads(xml_tree.find(xpath).text).next()
     taxa = [Taxon(t.attrib['ncbi'], t.attrib['name'], make_entries(t)) for t in xml_tree.findall(".//taxon")]
-    aglycon = [Aglyca(t.attrib['name'], t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]
+    aglycon = [Aglyca(t.attrib['name'].replace(
+        "'", "`"), t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]
     motifs = [Motif(t.attrib['name'], t.attrib['id'], t.attrib['class']) for t in xml_tree.findall(".//motif")]
     dbxref = [e for c in [t.entries for t in taxa] + [t.entries for t in aglycon] for e in c]
     dbxref.append(DatabaseEntry("GlycomeDB", id))
-    return record_type(structure, motifs=motifs, dbxref=dbxref, aglycones=aglycon, taxa=taxa, id=id)
+    record = GlycanRecord(structure, motifs=motifs, dbxref=dbxref, aglycones=aglycon, taxa=taxa, id=id)
+    add_cache(record)
+    return record

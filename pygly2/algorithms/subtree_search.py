@@ -6,25 +6,6 @@ from ..structure import Glycan, Monosaccharide
 logger = logging.getLogger(__name__)
 
 
-def substituent_inclusion(self, other):
-    taken_b = set()
-    b_substituents = list(other.substituents())
-    cntr = 0
-    for a_pos, a_substituent in self.substituents():
-        matched = False
-        cntr += 1
-        for b_pos, b_substituent in b_substituents:
-            if b_pos in taken_b:
-                continue
-            if b_substituent == a_substituent:
-                matched = True
-                taken_b.add(b_pos)
-                break
-        if not matched and cntr > 0:
-            return False
-    return True
-
-
 def topological_inclusion(self, other, substituents=True, tolerance=0):
     '''
     Performs equality testing between two monosaccharides where
@@ -79,32 +60,31 @@ def exact_ordering_inclusion(self, other, substituents=True, tolerance=0):
     obs, expect = monosaccharide_similarity(self, other, include_substituents=substituents)
     if (obs - expect) >= -tolerance:
         if substituents:
-            for a_sub, b_sub in itertools.izip_longest(self.substituents(), other.substituents()):
+            other_substituents = dict(other.substituents())
+            for a_pos, a_sub in self.substituents():
+                b_sub = other_substituents.get(a_pos)
                 if b_sub is None:
                     return False
-                if a_sub is None:
-                    break
                 if a_sub != b_sub:
                     return False
-        for a_mod, b_mod in itertools.izip_longest(self.modifications.items(), other.modifications.items()):
+        other_mods = dict(other.modifications.items())
+        for a_pos, a_mod in self.modifications.items():
+            b_mod = other_mods.get(a_pos)
             if b_mod is None:
                 return False
-            if a_mod is None:
-                break
             if a_mod != b_mod:
                 return False
-        for a_child, b_child in itertools.izip_longest(self.children(), other.children()):
+        other_children = dict(other.children())
+        for pos, a_child in self.children():
+            b_child = other_children.get(pos)
             if b_child is None:
                 return False
-            if a_child is None:
-                break
             if a_child[0] == b_child[0]:
-                if not exact_ordering_inclusion(a_child[1], b_child[1], substituents=substituents, tolerance=tolerance):
+                if not exact_ordering_inclusion(a_child, b_child, substituents=substituents, tolerance=tolerance):
                     return False
             else:
                 return False
         return True
-    return False
 
 
 def subtree_of(subtree, tree, exact=False, tolerance=0):

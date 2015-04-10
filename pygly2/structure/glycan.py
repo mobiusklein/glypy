@@ -507,7 +507,7 @@ class Glycan(SaccharideBase):
 
         Yields
         ------
-        Monosaccharide
+        |Monosaccharide|
         '''
         traversal = self._get_traversal_method(method)
         if bidirectional:
@@ -715,7 +715,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        Glycan
+        :class:`~pygly2.structure.glycan.Glycan`
         '''
         clone_root = graph_clone(self.root, visited=visited)
         return Glycan(clone_root, index_method=index_method)
@@ -726,7 +726,7 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        self, other: Glycan
+        self, other: :class:`~pygly2.structure.glycan.Glycan`
 
         Returns
         -------
@@ -811,9 +811,9 @@ class Glycan(SaccharideBase):
             'B', 'Y'), average=False, charge=0, mass_data=None, visited=None):
         '''
         A recursive co-routine that generates all `kind` fragments of a glycan graph to a
-        depth of `n_links`. If `n_links` > 1, then internal fragments are generated. Called by 
-        :meth:`.fragments`
+        depth of `n_links`. If `n_links` > 1, then internal fragments are generated. 
 
+        Called by :meth:`Glycan.fragments`
 
         Parameters
         ----------

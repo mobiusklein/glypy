@@ -161,7 +161,9 @@ def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
                 continue
             if identity.is_a(monosaccharide, monosaccharide_reference[k], tolerance=tolerance):
                 residue_sym = v
-                substituents_sym =  [(substituent_to_linear_code(*s)) for s in get_relevant_substituents(monosaccharide)]
+                substituents_sym = [(
+                    substituent_to_linear_code(
+                        *s)) for s in get_relevant_substituents(monosaccharide)]
                 if len(substituents_sym) > 0:
                     residue_sym = residue_sym + '[{}]'.format(', '.join(substituents_sym))
                 residue_sym = residue_sym + anomer_map_to[monosaccharide.anomer]

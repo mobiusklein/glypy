@@ -168,19 +168,19 @@ class Monosaccharide(SaccharideBase):
     ----------
     anomer: :class:`Anomer` or {'alpha', 'beta', 'uncyclized', 'x', 'missing', None}
         An entry of :class:`~pygly2.structure.constants.Anomer` that corresponds to the linkage type
-        of the carbohydrate backbone. Is an entry of a class based on :class:`EnumMeta`
+        of the carbohydrate backbone. Is an entry of a class based on :class:`Enum`
     superclass: :class:`SuperClass` or {'tri', 'tet', 'pen', 'hex', 'hep', 'oct', 'non' 'missing', 'x', None}
         An entry of :class:`~pygly2.structure.constants.SuperClass` that corresponds to the number of
         carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the
         instance and the number of positions open to be linked to or modified. Is an entry of a class
-        based on :class:`EnumMeta`
+        based on :class:`Enum`
     configuration: :class:`Configuration` or {'d', 'l', 'x', 'missing', None}
         An entry of |Configuration| which corresponds to the optical
-        stereomer state of the instance. Is an entry of a class based on :class:`EnumMeta`. May possess
+        stereomer state of the instance. Is an entry of a class based on :class:`Enum`. May possess
         more than one value.
     stem: :class:`Stem` or {"gro", "ery", "rib", "ara", "all", "alt", "glc", "man", "tre", "xyl", "lyx", "gul", "ido", "gal", "tal", "thr", 'x', 'missing', None}
         Corresponds to the bond conformation of the carbohydrate backbone. Is an entry of a class based
-        on :class:`EnumMeta`. May possess more than one value.
+        on :class:`Enum`. May possess more than one value.
     ring_start: int or {0, -1, 'x', None}
         The index of the carbon of the carbohydrate backbone that starts a ring. A value of `-1`, `'x'`, or
         |None| corresponds to an unknown start. A value of `0` refers to a linear chain.

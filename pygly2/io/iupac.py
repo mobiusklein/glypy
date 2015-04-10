@@ -1,6 +1,5 @@
 from collections import deque
 
-import pygly2
 from pygly2.structure import Monosaccharide, Glycan, constants, named_structures
 from pygly2.io import format_constants_map
 from pygly2.io.nomenclature import identity

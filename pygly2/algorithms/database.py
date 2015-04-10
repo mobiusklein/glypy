@@ -755,6 +755,13 @@ class RecordDatabase(object):
         for row in self.execute(self.stn("select * from {table_name};")):
             yield self.record_type.from_sql(row, database=self)
 
+    def __contains__(self, key):
+        try:
+            self[key]
+            return True
+        except IndexError:
+            return False
+
     def sub_table_name(self, string, key='table_name'):
         '''
         A convenience function called to substitute in the primary table name
