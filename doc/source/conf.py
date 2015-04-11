@@ -100,9 +100,7 @@ add_function_parentheses = True
 #show_authors = False
 
 default_role = "py:obj"
-rst_prolog = '\n'.join([
-  ".. include:: {docroot}/defs.rst".format(docroot=os.path.abspath('.'))
-  ])
+rst_epilog = open("./definitions").read()
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
