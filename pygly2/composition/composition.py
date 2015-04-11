@@ -1,19 +1,15 @@
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
-import warnings
 from collections import defaultdict
 from .mass_dict import nist_mass
-from .base import ChemicalCompositionError
+from .base import ChemicalCompositionError, composition_factory
 
 use_cython = True
-# use_cython = False
 
 try:
     from ccomposition import CComposition, calculate_mass as ccalculate_mass
 except ImportError:
     use_cython = False
-    warnings.warn("Using Pure Python Implementation")
-
 
 # Forward Declaration
 std_mol_comp = {}
@@ -105,6 +101,15 @@ class PComposition(defaultdict):
 
     def __neg__(self):
         return -1 * self
+
+    def __reduce__(self):
+        return composition_factory, (list(self),), self.__getstate__()
+
+    def __getstate__(self):
+        return dict(self)
+
+    def __setstate__(self, d):
+        self._from_dict(d)
 
     # Override the default behavior, if a key is not present
     # do not initialize it to 0.

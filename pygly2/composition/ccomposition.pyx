@@ -3,7 +3,7 @@
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
 from .mass_dict import nist_mass
-from .base import ChemicalCompositionError
+from .base import ChemicalCompositionError, composition_factory
 
 cimport cython
 
@@ -90,7 +90,7 @@ cdef class CComposition(dict):
         return result
 
     def __reduce__(self):
-        return type(self), (list(self),), self.__getstate__()
+        return composition_factory, (list(self),), self.__getstate__()
 
     def __getstate__(self):
         return dict(self)
