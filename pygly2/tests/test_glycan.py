@@ -39,8 +39,8 @@ class GlycanTests(unittest.TestCase):
 
         for frag in frags:
             structure.name_fragment(frag)
-            kind = frag[0]
-            mass = frag[-1]
+            kind = frag.kind
+            mass = frag.mass
             candidates = container[kind] + container[kind[::-1]]
             if len(candidates) == 0:
                 raise AssertionError("No candidates found for {}".format(frag))

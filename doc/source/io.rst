@@ -1,8 +1,6 @@
 Serialization and I/O Formats
 =============================
 
-Contents:
-
 .. toctree::
     :caption: Structure Formats
     :name: io_toc
@@ -11,3 +9,4 @@ Contents:
     io/glycoct
     io/linear_code
     io/nomenclature/identity
+

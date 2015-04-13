@@ -1,8 +1,6 @@
-
 Structures
 ==========
 
-Contents:
 
 .. toctree::
     :maxdepth: 2
@@ -14,3 +12,5 @@ Contents:
     structure/link
     structure/substituent
     structure/glycan
+
+

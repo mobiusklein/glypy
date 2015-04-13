@@ -35,7 +35,7 @@ fragment_direction = {
 MAIN_BRANCH_SYM = '-'
 
 Fragment = make_struct(
-    "Fragment", ("kind", "link_ids", "included_nodes", "mass"))
+    "Fragment", ("kind", "link_ids", "included_nodes", "mass", "name"))
 '''
 A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
 
@@ -764,13 +764,13 @@ class Glycan(SaccharideBase):
         return not self == other
 
     def fragments(self, kind=('B', 'Y'), max_cleavages=1, average=False, charge=0, mass_data=None,
-                  min_cleavages=1):
+                  min_cleavages=1, inplace=False):
         '''
         Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
         created by removing one or more monosaccharide-monosaccharide bond.
 
         .. note::
-            While generating fragments, the |Glycan| object is being permuted. All of the
+            While generating fragments with `inplace = True`, the |Glycan| object is being permuted. All of the
             changes being made are reversed during the generation process, and the glycan is
             returned to the same state it was in when :meth:`~.fragments` was called by the end
             of the generator. Do not attempt to use the |Glycan| object for other things while
@@ -779,7 +779,6 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-
         kind: `sequence`
             Any `iterable` or `sequence` of characters corresponding to A/B/C/X/Y/Z
             as published by :title-reference:`Domon and Costello`
@@ -793,6 +792,8 @@ class Glycan(SaccharideBase):
         mass_data: dict, optional, defaults to `None`
             If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
+        inplace: `bool`
+            Whether or not to first copy `self` and generate fragments from the copy, keeping `self` intact.
 
         Yields
         ------
@@ -802,10 +803,18 @@ class Glycan(SaccharideBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
+        gen = self
+        if not inplace:
+            gen = self.clone()
         results_container = Fragment
         for i in range(min_cleavages, max_cleavages + 1):
-            for frag in self.break_links(i, kind, average, charge, mass_data):
-                yield results_container(*frag)
+            for kind, link_ids, included_nodes, mass in gen.break_links(i, kind, average, charge, mass_data):
+                frag = results_container(kind, link_ids, included_nodes, mass, None)
+                try:
+                    frag.name = self.name_fragment(frag)
+                except:
+                    frag.name = str(frag)
+                yield frag
 
     def break_links(self, n_links=0, kind=(
             'B', 'Y'), average=False, charge=0, mass_data=None, visited=None):
@@ -1056,20 +1065,47 @@ class Glycan(SaccharideBase):
         '''
         ring_coordinates, ion_kind = re.search(r"(\d+,\d+)?(\S)", fragment.kind).groups()
         ring_coordinates = "" if ring_coordinates is None else ring_coordinates
-        if ion_kind not in fragment_direction:
-            raise ValueError(
-                "Cannot determine fragment orientation, {}".format(fragment))
-        if fragment_direction[ion_kind] > 0:
-            link = self.link_index[fragment.link_ids[0] - 1]
-            label = link.label
-            fragment_name = "{}{}".format(
-                fragment.kind, label.replace(MAIN_BRANCH_SYM, ""))
-        else:
-            link = self.link_index[fragment.link_ids[0] - 1]
-            label = link.label
-            label_key = label[0]
-            distance = int(label[1:])
-            inverted_distance = self.branch_lengths[label_key] - (distance - 1)
-            fragment_name = "{}{}{}".format(
-                fragment.kind, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
-        return fragment_name
+
+        ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
+        links_broken = fragment.link_ids
+
+        pairings = zip(ion_types, links_broken)
+
+        break_targets = {link_id: ion_type for ion_type, link_id in pairings if ion_type[0] == ""}
+        crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+        
+        name_parts = []    
+        for crossring_id in crossring_targets:
+            # Seek the link that holds the fragmented residue
+            for link in self.link_index:
+                if link.child.id == crossring_id:
+                    ion_type = crossring_targets[crossring_id]
+                    label = link.label
+                    if fragment_direction[ion_type[1]] > 0:
+                        name = "{}{}".format(''.join(map(str, ion_type)), label.replace(MAIN_BRANCH_SYM, ""))
+                        name_parts.append(name)
+                    else:
+                        label_key = label[0]
+                        distance = int(label[1:])
+                        inverted_distance = self.branch_lengths[label_key] - (distance - 1)
+                        name = "{}{}{}".format(''.join(map(str, ion_type)), label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
+                        name_parts.append(name)
+                    break
+        for break_id, ion_type in break_targets.items():
+            ion_type = ion_type[1]
+            if fragment_direction[ion_type] > 0:
+                link = self.link_index[break_id - 1]
+                label = link.label
+                name = "{}{}".format(ion_type, label.replace(MAIN_BRANCH_SYM, ""))
+                name_parts.append(name)
+            else:
+                link = self.link_index[fragment.link_ids[0] - 1]
+                label = link.label
+                label_key = label[0]
+                distance = int(label[1:])
+                inverted_distance = self.branch_lengths[label_key] - (distance - 1)
+                name = "{}{}{}".format(
+                    ion_type, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
+                name_parts.append(name)
+
+        return '-'.join(name_parts)
