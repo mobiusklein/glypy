@@ -1096,6 +1096,7 @@ class ReducedEnd(object):
 
     def __init__(self, composition=None, substituents=None, valence=2, id=None):
         self.composition = composition or Composition("H2")
+        self.base_composition = self.composition.clone()
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
         self.id = id or uuid4().int
@@ -1258,10 +1259,10 @@ class ReducedEnd(object):
         ReducedEnd
         """
         result = ReducedEnd(
-            Composition(self.composition), substituents=None,
+            Composition(self.base_composition), substituents=None,
             valence=self.valence, id=self.id if prop_id else None)
         for position, link in self.links.items():
-            result.add_substituent(position, link.child.clone())
+            result.add_substituent(link.child.clone(), position)
         return result
 
     def children(self):
