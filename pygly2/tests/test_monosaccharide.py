@@ -3,7 +3,7 @@ import json
 import itertools
 
 from pygly2.structure import named_structures, constants, monosaccharide, substituent, glycan
-from pygly2.composition import structure_composition, Composition
+from pygly2.composition import structure_composition, Composition, composition_transform
 from pygly2.io import glycoct
 
 from common import StringIO, load, pickle
@@ -179,6 +179,9 @@ class MonosaccharideTests(unittest.TestCase):
         self.assertEqual(structure.total_composition(), pickle.loads(pickle.dumps(structure)).total_composition())
         structure.reducing_end = None
         self.assertEqual(structure.total_composition(), composition)
+        structure.reducing_end = True
+        composition_transform.derivatize(structure, "methyl")
+        self.assertEqual(structure.mass(), structure.clone().mass())
 
     def test_low_level_traverse(self):
         branchy = load("branchy_glycan")

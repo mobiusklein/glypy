@@ -1,6 +1,6 @@
 import logging
 from uuid import uuid4
-from itertools import chain
+from itertools import chain, izip_longest
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
 from .substituent import Substituent
@@ -1095,7 +1095,11 @@ class ReducedEnd(object):
     name = 'aldi'
 
     def __init__(self, composition=None, substituents=None, valence=2, id=None):
-        self.composition = composition or Composition("H2")
+        if composition is None:
+            composition = Composition("H2")
+        else:
+            composition = Composition(composition)
+        self.composition = composition
         self.base_composition = self.composition.clone()
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
@@ -1289,7 +1293,7 @@ class ReducedEnd(object):
             comp = comp + sub.total_composition()
         return comp
 
-    def __repr__(self):  #pragma: no cover
+    def __repr__(self):  # pragma: no cover
         rep = "<ReducedEnd {}>".format(self.total_composition())
         return rep
 
@@ -1305,7 +1309,15 @@ class ReducedEnd(object):
             return False
         elif isinstance(other, str):
             return other == self.name
-        return self.composition == other.composition and self.links == other.links
+        composition_equal = self.composition == other.composition
+        if not composition_equal:
+            return False
+        for spair, opair in izip_longest(self.links.items(), other.links.items()):
+            if spair[0] != opair[0]:
+                return False
+            if not spair[1]._flat_equality(opair[1]):
+                return False
+        return True
 
     def __ne__(self, other):
         return not self == other

@@ -239,9 +239,13 @@ class Link(object):
         '''
         if (other is None or not isinstance(other, Link)):
             return False
-        res = (self.parent == other.parent)
+        res = self._flat_equality(other)
         if res:
-            res = (self.child == other.child)
+            res = (self.parent == other.parent)
+        return res
+
+    def _flat_equality(self, other):
+        res = (self.child == other.child)
         if res:
             res = (self.parent_position == other.parent_position)
         if res:
