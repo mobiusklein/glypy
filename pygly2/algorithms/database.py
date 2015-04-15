@@ -219,14 +219,17 @@ class GlycanRecordBase(object):
         self.id = kwargs.get('id')
         self._bound_db = kwargs.get("bound_db")
 
-    def mass(self, average=False, charge=0, mass_data=None):
+    def mass(self, average=False, charge=0, mass_data=None, override=None):
         '''
-        Calculates the mass of :attr:`structure`.
+        Calculates the mass of :attr:`structure`. If `override` is not |None|,
+        return this instead.
 
         See Also
         --------
         :meth:`pygly2.structure.glycan.Glycan.mass`
         '''
+        if override is not None:
+            return override
         return self.structure.mass(average=average, charge=charge, mass_data=mass_data)
 
     def __repr__(self):  # pragma: no cover
@@ -682,11 +685,13 @@ class RecordDatabase(object):
             self.connection.executescript(ix_stmt)
         self.connection.commit()
 
-    def load_data(self, record_list, commit=True):
+    def load_data(self, record_list, commit=True, **kwargs):
         '''
         Given an iterable of :attr:`.record_type` objects,
         assign each a primary key value and insert them into the
         database.
+
+        Forwards all ``**kwargs`` to :meth:`to_sql` calls.
 
         Commits all pending changes after all data is loaded.
         '''
@@ -695,7 +700,7 @@ class RecordDatabase(object):
         for record in record_list:
             self._id += 1
             record.id = self._id
-            for stmt in record.to_sql():
+            for stmt in record.to_sql(**kwargs):
                 try:
                     self.connection.execute(stmt)
                 except:
