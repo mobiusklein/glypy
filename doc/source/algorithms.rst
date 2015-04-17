@@ -4,7 +4,6 @@ Algorithms
 
 .. toctree::
     :maxdepth: 2
-    :caption: Algorithms
     :name: algorithms_toc
 
     Monosaccharide Similarity <algorithms/similarity>

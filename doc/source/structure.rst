@@ -4,7 +4,6 @@ Structures
 
 .. toctree::
     :maxdepth: 2
-    :caption: Structures
     :name: structure_toc
     
     structure/constants
