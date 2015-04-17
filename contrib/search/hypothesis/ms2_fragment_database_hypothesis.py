@@ -8,7 +8,7 @@ from .common_transforms import (monoisotopic_mass, reduced_mass,
 from pygly2.utils import identity
 
 default_fragmentation_parameters = {
-    "kind": "BYX",
+    "kind": "ABYX",
     "max_cleavages": 2,
     "average": False,
     "charge": 0
@@ -16,7 +16,7 @@ default_fragmentation_parameters = {
 
 
 def mass_transform(record, derivatize_fn=identity, adduct_mass=0, adduct_number=0):
-    derivatize_fn(record.structure)
+    derivatize_fn(record)
     mass = record.mass() + adduct_number * adduct_mass
     return mass
 
@@ -33,14 +33,15 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
     if isinstance(in_database, str):
         in_database = database.RecordDatabase(in_database)
     if out_database is None:
-        out_database_string = os.path.splitext(in_database.connection_string)[0]
-        database.RecordDatabase(out_database_string, record_type=in_database.record_type)
+        out_database_string = os.path.splitext(in_database.connection_string)[0] + ".out.db"
+        out_database = database.RecordDatabase(out_database_string, record_type=in_database.record_type)
     elif isinstance(out_database, str):
         out_database = database.RecordDatabase(out_database)
     for record in in_database:
         mass = mass_transform(record, **(mass_transform_parameters or {}))
-        fragments = extract_fragments(record, fragmentation_parameters or default_fragmentation_parameters)
+        fragments = extract_fragments(record, fragmentation_parameters)
         record.fragments = fragments
+        record.intact_mass = mass
         out_database.load_data([record], commit=False, mass_params={"override": mass})
     out_database.commit()
     return out_database

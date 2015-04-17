@@ -280,7 +280,7 @@ class GlycanRecordBase(object):
         template = template.replace("/*rest*/", ext_names).replace("/*values*/", ext_values)
         values = {}
         values['id'] = self.id
-        values['mass'] = self.structure.mass(**(mass_params or {}))
+        values['mass'] = self.mass(**(mass_params or {}))
         _bound_db = self._bound_db
         self._bound_db = None
         values['structure'] = pickle.dumps(self)
@@ -309,7 +309,7 @@ class GlycanRecordBase(object):
         template = template.replace("/*rest*/", ext_parts)
         values = {}
         values['id'] = self.id
-        values['mass'] = self.structure.mass(**(mass_params or {}))
+        values['mass'] = self.mass(**(mass_params or {}))
         values['structure'] = pickle.dumps(self)
         values['table_name'] = self.__table_name
 
@@ -571,11 +571,6 @@ class GlycanRecord(GlycanRecordBase):
         inherits = _resolve_metadata_mro(self.__class__)
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
-
-
-def include_fragments(record, kind="BY", average=False, charge=0, mass_data=None):
-    record.fragments = list(record.structure.fragments(
-        kind=kind, average=average, charge=charge, mass_data=mass_data))
 
 
 def make_rectype(recname="GlycanRecordType", **kwargs):

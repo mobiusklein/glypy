@@ -58,6 +58,7 @@ def enumerate_tree(tree, ax):
         ax.text(x, y + 0.2, node.tree.id, color='red')
     # Update the plot
     ax.get_figure().canvas.draw()
+    return tree, ax
 
 
 class DrawTree(object):

@@ -17,6 +17,38 @@ SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
 
 
+def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
+    '''
+    A low-level depth-first traversal method for unwrapped residue
+    graphs
+
+    Parameters
+    ----------
+    monosaccharide: :class:`Monosaccharide`
+        Residue to start traversing from
+    visited: set or None
+        The collection of node ids to ignore, having already visited them. If |None|, it defaults
+        to the empty set.
+    apply_fn: function
+        Function to apply to each residue before yielding them
+
+    Yields
+    -------
+    :class:`Monosaccharide`
+    '''
+    if visited is None:
+        visited = set()
+    yield apply_fn(monosaccharide)
+    visited.add(monosaccharide.id)
+    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
+    for p, link in outnodes:
+        child = link[monosaccharide]
+        if link.id in visited:
+            continue
+        for grandchild in traverse(child, visited=visited, apply_fn=apply_fn):
+            yield grandchild
+
+
 class CrossRingFragment(Monosaccharide):
     '''
     Describes a fragment formed by cleaving across two bonds of the ring of a
@@ -38,11 +70,13 @@ class CrossRingFragment(Monosaccharide):
     '''
     def __init__(self, composition, cleave_1, cleave_2, contains, kind,
                  modifications=None, anomer=Anomer.x,
-                 stem=(Stem.x,), configuration=(Configuration.x,), id=None, link_cache=None):
+                 stem=(Stem.x,), configuration=(Configuration.x,), id=None,
+                 link_cache=None, source=None):
         super(CrossRingFragment, self).__init__(
             modifications=modifications, ring_start=None, ring_end=None,
             substituent_links=None, links=None, superclass=SuperClass.x, anomer=anomer,
             stem=stem, configuration=configuration, id=id, composition=composition, fast=True)
+        self._source = source
         self.kind = kind
         self.cleave_1 = cleave_1
         self.cleave_2 = cleave_2
@@ -68,6 +102,15 @@ class CrossRingFragment(Monosaccharide):
     def __repr__(self):
         return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.graph_mass())
+
+    def __eq__(self, other):
+        res = super(CrossRingFragment, self).__eq__(other)
+        if not res:
+            res = self._source == other and self.id == other.id
+        return res
+
+    def __ne__(self, other):
+        return not self == other
 
     def graph_mass(self, average=False, charge=0, mass_data=None):
         '''
