@@ -135,7 +135,7 @@ def release(monosaccharide):
     Break all monosaccharide-monosaccharide links on `monosaccharide`, returning
     them as a list. Breaking is done with `refund=True`
     '''
-    return [(link, link.break_link(refund=True)) for link in list(monosaccharide.links.values())]
+    return [(link, link.try_break_link(refund=True)) for link in list(monosaccharide.links.values())]
 
 
 def toggle(monosaccharide):
@@ -145,7 +145,7 @@ def toggle(monosaccharide):
     '''
     links = release(monosaccharide)
     yield links
-    [link.apply() for link, termini in links]
+    [link.try_apply() for link, termini in links]
     yield False
 
 

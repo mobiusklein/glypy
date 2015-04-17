@@ -104,6 +104,8 @@ class CrossRingFragment(Monosaccharide):
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.graph_mass())
 
     def __eq__(self, other):
+        if other is None:
+            return False
         res = super(CrossRingFragment, self).__eq__(other)
         if not res:
             res = self._source == other and self.id == other.id
@@ -230,7 +232,7 @@ def pack_fragment(fragment_parts, c1, c2, include, residue, attach=True, copy=Tr
     fragment_object = CrossRingFragment(
         fragment_data['composition'], c1, c2, fragment_data['contains'],
         '?', fragment_data['modifications'], stem=residue.stem,
-        configuration=residue.configuration, id=residue.id
+        configuration=residue.configuration, id=residue.id, source=residue
     )
 
     composition_shift = Composition()

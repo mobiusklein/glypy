@@ -327,6 +327,16 @@ class Link(object):
         child = self in self.child.links[self.child_position]
         return parent and child
 
+    def try_break_link(self, refund=False):
+        if self.is_attached():
+            return self.break_link(refund=refund)
+        return False
+
+    def try_apply(self):
+        if not self.is_attached():
+            return self.apply()
+        return False
+
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()
         rep = "({parent.id}){parent_loss}({parent_position}+{child_position}){child_loss}({child.id})"
