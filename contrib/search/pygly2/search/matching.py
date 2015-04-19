@@ -66,9 +66,9 @@ def match_fragments(fragments, peak_list):
     matches = []
     for fragment in fragments:
         for peak in peak_list:
-            match_error = fabs(ppm_error(fragment.mass, neutral_mass(peak.mass, 1)))
+            match_error = fabs(ppm_error(fragment.mass, peak.mass))
             if match_error <= 2e-5:
-                matches.append(FragmentMatch(fragment.name, peak.mass, match_error, peak.intensity, peak.charge))
+                matches.append(FragmentMatch(fragment.name, peak.mass, match_error, peak.intensity, peak.charge, peak.id))
     return matches
 
 

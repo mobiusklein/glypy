@@ -77,6 +77,7 @@ def run_setup(include_cext=True):
           },
           namespace_packages=[
             "pygly2",
+            "pygly2.algorithms",
             "pygly2.io",
             "pygly2.io.nomenclature",
             "pygly2.structure",

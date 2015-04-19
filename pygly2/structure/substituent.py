@@ -165,9 +165,9 @@ class Substituent(SubstituentBase):
         max_occupancy: int, optional
             The maximum number of items acceptable at ``position``. Defaults to :const:`1`
         parent_loss: Composition or str
-            The elemental composition removed from ``self``
+            The elemental composition removed from ``self``. Defaults to ``H1``.
         child_loss: Composition or str
-            The elemental composition removed from ``substituent``
+            The elemental composition removed from ``substituent``. Defaults to ``H1``.
 
         Raises
         ------
@@ -248,7 +248,10 @@ class Substituent(SubstituentBase):
         --------
         :meth:`.structure.Monosaccharide.clone`
         '''
+
         substituent = Substituent(self.name)
+        if hasattr(self, "_derivatize"):
+            substituent._derivatize = True
         for pos, link in self.links.items():
             if link.is_child(self):
                 continue

@@ -13,6 +13,11 @@ nomenclature_map = {
     "cfg": cfg_symbols
 }
 
+
+DEFAULT_TREE_SCALE_FACTOR = 0.65
+DEFAULT_SYMBOL_SCALE_FACTOR = 0.1
+
+
 #: :data:`special_cases` contains a list of names for
 #: special case monosaccharides
 special_cases = ["Fuc", "Xyl"]
@@ -39,7 +44,7 @@ def sign(x, zero_dir=-1):
 
 
 def make_gid(s):
-    '''Formats a string to use kebab-case and sanitize illegal characters'''
+    '''Formats a string to use ``kebab-case`` and sanitize illegal characters'''
     s = str(s)
     return re.sub(r'[\s\|\(\):]', '-', s)
 
@@ -52,6 +57,19 @@ def breadth_first_traversal(tree):
 
 
 def enumerate_tree(tree, ax):
+    """Label each node of `tree` on `ax` with the node's :attr:`id`
+
+    Parameters
+    ----------
+    tree: :class:`DrawTree`
+        A drawn :class:`DrawTree` object
+    ax: matplotlib.Axes
+        The axes on which `tree` has been drawn
+
+    Returns
+    -------
+    tree, ax
+    """
     nodes = list(breadth_first_traversal(tree))
     for node in nodes:
         x, y = node.coords('h')
@@ -61,16 +79,46 @@ def enumerate_tree(tree, ax):
     return tree, ax
 
 
+def find_link(parent, child):
+    for p, link in parent.links.items():
+        if child.parent_linkage == p:
+            if link.child == child:
+                return link
+
+
+def get(tree, node_id):
+    for node in breadth_first_traversal(tree):
+        if node.tree.id == node_id:
+            return node
+
+
+def get_link_pair(tree, link_id):
+    link = None
+    for node in breadth_first_traversal(tree):
+        for p, t_link in node.tree.links.items():
+            if t_link.id == link_id:
+                link = t_link
+                break
+    if link is None:
+        raise Exception("Link not found")
+    parent = get(tree, link.parent.id)
+    child = get(tree, link.child.id)
+    return parent, child
+
+
 class DrawTree(object):
-    def __init__(self, tree, parent=None, depth=0, number=1):
+    def __init__(self, tree, parent=None, depth=0, number=1, parent_linkage=None):
         self.x = -1.
         self.y = depth
         self.tree = tree
-        self.mask_special_cases = True
-        self.children = [DrawTree(c, self, depth+1, i+1)
-                         for i, c
-                         in enumerate(ch for p, ch in tree.children())]
         self.parent = parent
+        self.parent_linkage = parent_linkage
+
+        self.children = [DrawTree(c[1], self, depth+1, i+1, c[0])
+                         for i, c
+                         in enumerate(tree.children())]
+
+        self.mask_special_cases = True
         self.thread = None
         self.mod = 0
         self.ancestor = self
@@ -81,11 +129,6 @@ class DrawTree(object):
 
     def __iter__(self):
         return iter(self.children)
-
-    def check(self):
-        print(self.x, self.y)
-        for child in self:
-            child.check()
 
     @property
     def children(self):
@@ -281,6 +324,31 @@ class DrawTree(object):
 
     def extrema(self, orientation='h', at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
                 ymin=float('inf'), ymax=-float("inf")):
+        '''
+        Finds the most extreme points describing the area this node and its children occupy.
+
+        Parameters
+        ----------
+        orientation: str
+            The orientation mapping symbol. May be one of {'h', 'horizontal', 'v', 'vertical'}.
+            Defaults to 'h'
+        at: tuple of int
+            The position to orient relative to in the xy-plane. A tuple of integers corresponding
+            to the center x and y respectively.
+        xmin: float
+        xmax: float
+        ymin: float
+        ymax: float
+            Used internally to pass along current extreme values recursively to child nodes.
+
+        Returns
+        -------
+        xmin: float
+        xmax: float
+        ymin: float
+        ymax: float
+
+        '''
         x, y = self.coords(orientation, at)
         if x < xmin:
             xmin = x
@@ -294,15 +362,57 @@ class DrawTree(object):
             xmin, xmax, ymin, ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax)
         return xmin, xmax, ymin, ymax
 
-    def scale(self, factor=0.65):
+    def scale(self, factor=DEFAULT_TREE_SCALE_FACTOR):
         '''Scale all existing edge lengths by `factor`, defaults to `0.65`'''
         self.x *= factor
         self.y *= factor
         for child in self:
             child.scale(factor)
 
+    def get(self, node_id):
+        return get(self, node_id)
 
-DEFAULT_SYMBOL_SCALE_FACTOR = 0.1
+    def get_link_pair(self, link_id):
+        return get_link_pair(self, link_id)
+
+    def draw_cleavage(dtree, ax, fragment, orientation="h", at=(0, 0), scale=0.1, color='red'):
+        scale *= 2
+        ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
+        links_broken = fragment.link_ids
+
+        pairings = zip(ion_types, links_broken)
+
+        break_targets = [link_id for ion_type, link_id in pairings if ion_type[0] == ""]
+        crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+        for link_break in break_targets:
+            parent, child = get_link_pair(dtree, link_break)
+            px, py = parent.coords(orientation, at)
+            cx, cy = child.coords(orientation, at)
+
+            if py == cy and px != cx:
+                center = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
+                lx1, ly1 = center, py + scale
+                lx2, ly2 = center, py - scale
+            elif py != cy and px == cx:
+                center = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
+                lx1, ly1 = px + scale, center
+                lx2, ly2 = px - scale, center
+            else:
+                xcenter = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
+                ycenter = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
+                if py < cy:
+                    lx2, ly2 = xcenter + scale, ycenter + scale
+                    lx1, ly1 = xcenter - scale, ycenter - scale
+                else:
+                    lx1, ly1 = xcenter - scale, ycenter + scale
+                    lx2, ly2 = xcenter + scale, ycenter - scale
+
+            ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3)
+
+        for crossring in crossring_targets:
+            target = get(dtree, crossring)
+            cx, cy = target.coords(orientation, at)
+            ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
 
 
 def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, **kwargs):

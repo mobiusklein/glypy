@@ -25,7 +25,7 @@
 }
 
 .py-class {
-    background-color: #9FF781 !important;
+    background-color: palegreen !important;
 }
 
 dl.class > dt > em.property ~ code.descname {

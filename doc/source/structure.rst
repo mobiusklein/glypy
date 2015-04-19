@@ -1,7 +1,6 @@
 Structures
 ==========
 
-
 .. toctree::
     :maxdepth: 2
     :name: structure_toc

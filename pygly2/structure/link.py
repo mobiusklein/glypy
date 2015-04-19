@@ -328,11 +328,17 @@ class Link(object):
         return parent and child
 
     def try_break_link(self, refund=False):
+        '''
+        Try to break the link if it is attached, otherwise return |False|
+        '''
         if self.is_attached():
             return self.break_link(refund=refund)
         return False
 
     def try_apply(self):
+        '''
+        Try to apply the link if it is not attached, otherwise return |False|
+        '''
         if not self.is_attached():
             return self.apply()
         return False

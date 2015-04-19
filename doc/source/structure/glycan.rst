@@ -2,7 +2,7 @@
 Glycan
 ===================
 
-Stuff about this module
+Represent polysaccharide molecules and their associated functions
 
 .. automodule:: pygly2.structure.glycan
     :members:

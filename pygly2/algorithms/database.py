@@ -298,7 +298,8 @@ class GlycanRecordBase(object):
         inherits = dict(inherits or {})
         inherits.update(inherits)
 
-        template = '''update {table_name} set mass = {mass}, structure = "{structure}" /*rest*/ where glycan_id = {id};'''
+        template = '''update {table_name} set mass = {mass},
+         structure = "{structure}" /*rest*/ where glycan_id = {id};'''
 
         ext_names = list(inherits)
         ext_values = ["{}".format(v) for k, v in self._collect_ext_data().items()]
@@ -469,6 +470,11 @@ def naive_name_monosaccharide(monosaccharide):
     '''
     try:
         c = monosaccharide.clone()
+        for psub, pcopy in zip(monosaccharide.substituents(), c.substituents()):
+            _, sub = psub
+            _, copy = pcopy
+            if hasattr(sub, "_derivatize"):
+                copy._derivatize = True
         if monosaccharide.superclass.value > 7:
             return identity.identify(monosaccharide, tolerance=1)
         c.anomer = None
@@ -480,8 +486,9 @@ def naive_name_monosaccharide(monosaccharide):
             return identity.identify(c)
         except identity.IdentifyException:
             return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
-             c.superclass.name.title() + ''.join(
-                ["".join(map(str.title, subst.name.split("_")))[:3] for p, subst in c.substituents()])
+                   c.superclass.name.title() + ''.join([''.join(map(str.title, subst.name.split("_")))[:3]
+                                                        for p, subst in c.substituents()
+                                                        if not hasattr(subst, "_derivatize")])
 
 
 def is_n_glycan(record):

@@ -1170,10 +1170,10 @@ class ReducedEnd(object):
 
     def drop_substituent(self, position, substituent=None, refund=True):
         '''
-        Remove the `substituent` at `position`. 
+        Remove the `substituent` at `position`.
 
         If `substituent` is |None|, then the first substituent found at `position` is
-        removed. 
+        removed.
 
         Parameters
         ----------
@@ -1252,12 +1252,12 @@ class ReducedEnd(object):
 
     def clone(self, prop_id=True):
         """Make a deep copy of `self`.
-        
+
         Parameters
         ----------
         prop_id: bool
             Whether to copy over :attr:`id`.
-        
+
         Returns
         -------
         ReducedEnd
