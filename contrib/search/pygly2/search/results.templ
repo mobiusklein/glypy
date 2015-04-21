@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matching Results</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cosmo/bootstrap.min.css">
+    <style>
+td{
+    vertical-align: top;
+    width: 50%;
+}
+
+.structure-match{
+    border-bottom: 1px solid grey;
+}
+
+.labeled-data{
+    font-size: 1.2em;
+}
+
+.ion-match{
+    padding: 3px;
+    border-bottom: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    border-left: 1px solid lightgrey;
+}
+
+.matched-ion-names{
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.ion-group-data {
+    margin-top: 5px;
+}
+
+.ion-group-data span {
+    font-size: 1.2em !important;
+}
+
+.ion-observation{
+    padding-left: 14px;
+}
+
+.group-separator {
+    margin-top: 4px;
+    border-bottom: 1px solid grey;   
+}
+
+.settings-item{
+    font-size: 1.2em;
+}
+
+
+    </style>
+</head>
+<body class='container'>
+{% if settings is not none %}
+<h2>Settings</h2>
+    {% for key, value in settings.items() %}
+        <div class="settings-item">
+        <span class='label label-default'>{{key}}:</span> {{value}}
+        </div>
+    {% endfor %}
+{% endif %}
+<h2>Matching Results</h2>
+{% for match in matches | sort(attribute='intact_mass')%}
+    <div id="entry-{{match.id}}" class='structure-match'>
+        <h4>Matches for {{match.id}}</h4>
+        <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
+        <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error[0] | scientific_notation}}</span>
+        <span class='labeled-data'><b>Fragments Observed / Expected: </b> {{match.matches|length / match.fragments|length}} </span>
+    {% if match.matches|length > 0 %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        {% for ion_group in match.matches | sort(attribute="mass") | groupby("mass") %}
+                            <div class="group-separator"></div>
+                            
+                            <div class='ion-match'>
+                                <div class="matched-ion-names">    
+                                {% for ion in ion_group.list %}
+                                    {% if loop.index > 1 %}
+                                        &nbsp;
+                                    {% endif %}
+                                    <span class="labeled-data match-key {{ion.match_key}} label label-primary">
+                                        {{ion.match_key}}
+                                    </span>
+                                {% endfor %}
+                                </div>
+                                {% set ion = ion_group.list[0] %}
+                                <div class='ion-group-data'>
+                                    <span class='label label-default'> Mass: {{ion.mass | limit_sigfig}}</span>
+                                    <span class='label label-default'>PPM Error: {{ion.ppm_error | scientific_notation}}</span>
+                                </div>
+                                <table class="ion-observation table table-compact">
+                                    <thead>
+                                        <tr>
+                                        <th>Scan ID</th>
+                                        <th>PPM Error</th>
+                                        <th>Intensity</th>
+                                        <th>Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% for scan, obs in ion_group.list[0].matches.items() %}
+                                    <tr>
+                                    <td>{{scan}}</td>
+                                    <td>{{obs.ppm_error | scientific_notation }}</td> 
+                                    <td>{{obs.intensity | limit_sigfig}}</td> 
+                                    <td>{{obs.charge}}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                </table>
+                            </div>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <div class="group-separator"></div>
+                        <pre>
+{{match|strip_derivatize}}
+                        </pre>
+                        {{match | cfg_plot}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+    <p>No MS2 Matches Found</p>
+    {% endif %}
+    </div>
+{% endfor %}
+</body>
+</html>

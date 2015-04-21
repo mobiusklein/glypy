@@ -1,3 +1,4 @@
+import logging
 import requests
 from lxml import etree
 
@@ -6,11 +7,14 @@ from pygly2.algorithms.database import (Taxon, Aglyca, Motif,
                                         DatabaseEntry, GlycanRecord,
                                         RecordDatabase)
 
+logger = logging.getLogger(__name__)
+
 cache = None
 
 
 def set_cache(path):
     global cache
+    logger.info("Setting glycomedb client cache to %r", path)
     cache = RecordDatabase(path)
 
 
@@ -21,13 +25,18 @@ def add_cache(record):
         try:
             cache.connection.execute(stmt)
         except Exception, e:
-            print(e, record.id)
+            logger.error("An error occurred while adding %r", record, exc_info=e)
 
 
 def check_cache(key):
     if cache is None:
-        return
-    return key in cache
+        return False
+    res = int(key) in cache
+    if not res:
+        logger.debug("Cache miss %r", key)
+    else:
+        logger.debug("Cache hit %r", key)
+    return res
 
 
 get_url_template = "http://www.glycome-db.org/database/showStructure.action?glycomeId={id}"
@@ -159,13 +168,28 @@ def search_by_species(tax_id):
 _taxa_search_url = "http://www.glycome-db.org/database/searchBySpecies.action"
 
 
+def download_results(results, to=None):
+    if to is not None:
+        if isinstance(to, str):
+            set_cache(to)
+        elif isinstance(to, RecordDatabase):
+            global cache
+            cache = to
+    for r in results:
+        print r.id
+        try:
+            r.get_record()
+        except glycoct.GlycoCTError, e:
+            logger.exception("Exception %r", e, exc_info=e)
+
+
 class GlycomeDBSearchMatch(object):
     '''
     A search match which carries information about the scored match and the
     id number for retrieving the |Glycan| or |GlycanRecord|.
     '''
     def __init__(self, id, score, cross_reference, species_number, **kwargs):
-        self.id = id
+        self.id = int(id)
         self.score = score
         self.num_crossreferences = cross_reference
         self.num_species = species_number
@@ -224,5 +248,6 @@ def glycan_record_from_xml(xml_tree, id):
     dbxref = [e for c in [t.entries for t in taxa] + [t.entries for t in aglycon] for e in c]
     dbxref.append(DatabaseEntry("GlycomeDB", id))
     record = GlycanRecord(structure, motifs=motifs, dbxref=dbxref, aglycones=aglycon, taxa=taxa, id=id)
+    record.id = id
     add_cache(record)
     return record

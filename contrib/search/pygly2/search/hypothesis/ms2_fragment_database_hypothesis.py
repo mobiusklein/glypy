@@ -56,3 +56,21 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
             logger.info("%d records processed", i)
     out_database.commit()
     return out_database
+
+
+def duplicate_check(db):
+    blacklist = set()
+    keepers = []
+    for rec in db:
+        print rec.id
+        if rec.id in blacklist:
+            continue
+        keepers.append(rec)
+        m = rec.mass()
+        isobarics = list(db.ppm_match_tolerance_search(m, 0))
+        for iso in isobarics:
+            if iso.id == rec.id:
+                continue
+            if iso.structure.topological_equality(rec.structure):
+                blacklist.add(iso.id)
+    return keepers

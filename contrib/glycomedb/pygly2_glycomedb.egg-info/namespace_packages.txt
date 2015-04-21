@@ -1,2 +1,0 @@
-pygly2
-pygly2.io

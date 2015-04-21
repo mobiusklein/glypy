@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 from collections import Counter, Iterable
 
 import pygly2
@@ -7,6 +8,7 @@ from pygly2.utils import pickle, classproperty, make_struct
 from pygly2.io.nomenclature import identity
 from pygly2.algorithms import subtree_search
 
+logger = logging.getLogger(__name__)
 
 Taxon = make_struct("Taxon", ("tax_id", "name", 'entries'))
 Aglyca = make_struct("Aglyca", ("name", "reducing", 'entries'))
@@ -400,7 +402,8 @@ class GlycanRecordBase(object):
         '''
         try:
             return self.structure == other.structure
-        except:
+        except Exception, e:
+            logger.exception(exc_info=e)
             return False
 
     def __ne__(self, other):
@@ -580,27 +583,27 @@ class GlycanRecord(GlycanRecordBase):
         return data
 
 
-def make_rectype(recname="GlycanRecordType", **kwargs):
-    '''
-    Programmatically create a new ``type`` based on :class:`GlycanRecord` at
-    run time.
+# def make_rectype(recname="GlycanRecordType", **kwargs):
+#     '''
+#     Programmatically create a new ``type`` based on :class:`GlycanRecord` at
+#     run time.
 
-    A helper method for creating new specializations of the
-    GlycanRecord class which only add new metadata mappings
-    that the user does not want to add to all instances of the
-    GlycanRecord type.
+#     A helper method for creating new specializations of the
+#     GlycanRecord class which only add new metadata mappings
+#     that the user does not want to add to all instances of the
+#     GlycanRecord type.
 
-    Parameters
-    ----------
-    recname: str
-        The name of the new subclass. Defaults to "GlycanRecordType".
-        Does not need to be unique.
-    **kwargs: dict
-        Passing arbitrary key-value pairs of names and tuples of data type strings
-        and transform functions to be added to the metadata mapping
-    '''
-    rectype = type(recname, (GlycanRecord,), {"_{}__metadata_map".format(recname): kwargs})
-    return rectype
+#     Parameters
+#     ----------
+#     recname: str
+#         The name of the new subclass. Defaults to "GlycanRecordType".
+#         Does not need to be unique.
+#     **kwargs: dict
+#         Passing arbitrary key-value pairs of names and tuples of data type strings
+#         and transform functions to be added to the metadata mapping
+#     '''
+#     rectype = type(recname, (GlycanRecord,), {"_{}__metadata_map".format(recname): kwargs})
+#     return rectype
 
 
 class RecordDatabase(object):
@@ -687,7 +690,7 @@ class RecordDatabase(object):
             self.connection.executescript(ix_stmt)
         self.connection.commit()
 
-    def load_data(self, record_list, commit=True, **kwargs):
+    def load_data(self, record_list, commit=True, set_id=True, **kwargs):
         '''
         Given an iterable of :attr:`.record_type` objects,
         assign each a primary key value and insert them into the
@@ -700,8 +703,9 @@ class RecordDatabase(object):
         if not isinstance(record_list, Iterable):
             record_list = [record_list]
         for record in record_list:
-            self._id += 1
-            record.id = self._id
+            if set_id:
+                self._id += 1
+                record.id = self._id
             for stmt in record.to_sql(**kwargs):
                 try:
                     self.connection.execute(stmt)
@@ -741,19 +745,29 @@ class RecordDatabase(object):
         :class:`.record_type` or :class:`list` of :class:`.record_type`
         '''
         results = []
+        key_type = int
         if isinstance(keys, int):
             keys = str(tuple([keys])).replace(',', '')
         elif isinstance(keys, slice):
+            key_type = slice
             keys = tuple(range(keys.start or 1, keys.stop or self._id, keys.step or 1))
             if len(keys) == 1:
                 keys = str(keys).replace(",", '')
         else:
+            key_type = type(keys)
             keys = tuple(keys)
+            if len(keys) == 1:
+                keys = str(tuple([keys])).replace(',', '')
         stmt = "select * from {table_name} where glycan_id in {keys};".format(
             table_name=self.record_type.table_name, keys=keys)
         for record in self.execute(stmt):
             results.append(self.record_type.from_sql(record, database=self))
-        return results if len(results) > 1 else results[0]
+        if len(results) == 0 and key_type == int:
+            raise IndexError("No record found for %r" % keys)
+        if len(results) > 1:
+            return results
+        else:
+            return results[0]
 
     def __iter__(self):
         '''
@@ -764,7 +778,7 @@ class RecordDatabase(object):
 
     def __contains__(self, key):
         try:
-            self[key]
+            self[int(key)]
             return True
         except IndexError:
             return False

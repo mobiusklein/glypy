@@ -1094,7 +1094,7 @@ class Monosaccharide(SaccharideBase):
 class ReducedEnd(object):
     name = 'aldi'
 
-    def __init__(self, composition=None, substituents=None, valence=2, id=None):
+    def __init__(self, composition=None, substituents=None, valence=1, id=None):
         if composition is None:
             composition = Composition("H2")
         else:

@@ -1,0 +1,1 @@
+recursive-include pygly2/search *.templ

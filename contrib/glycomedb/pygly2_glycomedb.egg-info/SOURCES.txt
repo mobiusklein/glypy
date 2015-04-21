@@ -1,9 +1,0 @@
-setup.py
-pygly2/__init__.py
-pygly2/io/__init__.py
-pygly2/io/glycomedb.py
-pygly2_glycomedb.egg-info/PKG-INFO
-pygly2_glycomedb.egg-info/SOURCES.txt
-pygly2_glycomedb.egg-info/dependency_links.txt
-pygly2_glycomedb.egg-info/namespace_packages.txt
-pygly2_glycomedb.egg-info/top_level.txt

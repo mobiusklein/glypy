@@ -5,6 +5,8 @@ from pygly2.utils import make_struct
 from pygly2 import Composition
 
 PROTON = Composition("H+").mass
+DEFAULT_MS2_MATCH_TOLERANCE = 2e-5
+DEFAULT_MS1_MATCH_TOLERANCE = 1e-5
 FragmentMatch = make_struct("FragmentMatch", ["match_key", "mass", "ppm_error",
                                               "intensity", "charge", "scan_id"])
 MergedMatch = make_struct("MergedMatch", ["match_key", "mass", "ppm_error", "intensity",
@@ -46,20 +48,33 @@ def collect_similar_ions(fragments, tolerance=2e-8, redundant=True):
     return groups
 
 
-def find_matches(precursor, msms_db):
+def find_matches(precursor, msms_db, ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
+                 ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE, ion_types="ABCXYZ"):
     '''
     Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
     '''
     results = []
-    for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass, 1e-5):
+    precursor_ppm_errors = []
+    scans_searched = set()
+    i = 0
+
+    precursor.fragments = [f for f in precursor.fragments if f.kind[-1] in ion_types]
+
+    for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass, ms1_match_tolerance):
         row = msms_db.precursor_type.from_sql(row, msms_db)
+        precursor_ppm_errors.append(ppm_error(precursor.mass(), row.neutral_mass))
+        scans_searched.update(row.scan_ids)
         matches = match_fragments(precursor.fragments, row.tandem_data)
         results.append(matches)
+        i += 1
+    precursor.ppm_error = precursor_ppm_errors
+    precursor.scan_ids = scans_searched
+    precursor.intact_structures_searched = i
     precursor.matches = collect_matches(chain.from_iterable(results))
     return precursor
 
 
-def match_fragments(fragments, peak_list):
+def match_fragments(fragments, peak_list, ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE):
     '''
     Match theoretical MS2 fragments against the observed peaks.
     '''
@@ -67,8 +82,9 @@ def match_fragments(fragments, peak_list):
     for fragment in fragments:
         for peak in peak_list:
             match_error = fabs(ppm_error(fragment.mass, peak.mass))
-            if match_error <= 2e-5:
-                matches.append(FragmentMatch(fragment.name, peak.mass, match_error, peak.intensity, peak.charge, peak.id))
+            if match_error <= ms2_match_tolerance:
+                matches.append(FragmentMatch(
+                    fragment.name, peak.mass, match_error, peak.intensity, peak.charge, peak.id))
     return matches
 
 
