@@ -2,7 +2,7 @@ all: develop test docs
 
 
 test:
-	nosetests --traverse-namespace --with-coverage --cover-package=pygly2,pygly2.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v
+	nosetests --traverse-namespace --with-coverage --cover-package=pygly2,pygly2.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
 
 
 clean:

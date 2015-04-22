@@ -62,7 +62,7 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
                 child_loss=Composition(H=1), child_position=1)
 
 
-def strip_derivitization(saccharide):
+def strip_derivatization(saccharide):
     '''
     For each monosaccharide and viable substituent, remove all substituents
     added by :func:`derivatize`.

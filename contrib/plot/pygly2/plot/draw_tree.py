@@ -1,6 +1,7 @@
 import re
 import matplotlib.pyplot as plt
 
+from pygly2 import monosaccharides
 from pygly2.structure import Glycan
 from pygly2.io.nomenclature import identity
 from pygly2.algorithms.database import GlycanRecordBase
@@ -20,7 +21,7 @@ DEFAULT_SYMBOL_SCALE_FACTOR = 0.1
 
 #: :data:`special_cases` contains a list of names for
 #: special case monosaccharides
-special_cases = ["Fuc", "Xyl"]
+special_cases = [monosaccharides["Fuc"], monosaccharides["Xyl"]]
 
 
 def is_special_case(node):
@@ -118,6 +119,8 @@ class DrawTree(object):
                          for i, c
                          in enumerate(tree.children())]
 
+        self._axes = None
+
         self.mask_special_cases = True
         self.thread = None
         self.mod = 0
@@ -141,6 +144,16 @@ class DrawTree(object):
     def children(self, value):
         self._children = value
 
+    @property
+    def axes(self):
+        return self._axes
+
+    @axes.setter
+    def axes(self, value):
+        self._axes = value
+        for child in self:
+            child.axes = value
+
     def fix_special_cases(self, offset=0.5):
         n = 0
         self.mask_special_cases = False
@@ -160,7 +173,9 @@ class DrawTree(object):
         if isinstance(symbol_nomenclature, basestring):
             symbol_nomenclature = nomenclature_map[symbol_nomenclature]
         if ax is None:
-            fig, ax = plt.subplots()
+            ax = self.axes
+            if ax is None:
+                fig, ax = plt.subplots()
         self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
         self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
 
@@ -204,7 +219,9 @@ class DrawTree(object):
             is |None|, `cfg` will be used.
         '''
         if ax is None:
-            fig, ax = plt.subplots()
+            ax = self.axes
+            if ax is None:
+                fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
         for child in self:
             cx, cy = child.draw_branches(orientation, at, ax=ax,
@@ -237,7 +254,9 @@ class DrawTree(object):
             is |None|, `cfg` will be used.
         '''
         if ax is None:
-            fig, ax = plt.subplots()
+            ax = self.axes
+            if ax is None:
+                fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
                                                                           orientation=orientation, **kwargs)
@@ -375,7 +394,18 @@ class DrawTree(object):
     def get_link_pair(self, link_id):
         return get_link_pair(self, link_id)
 
-    def draw_cleavage(dtree, ax, fragment, orientation="h", at=(0, 0), scale=0.1, color='red'):
+    def draw_cleavage(dtree, ax=None, fragment=None, orientation="h", at=(0, 0), scale=0.1, color='red', label=True):
+        '''
+        .. warning::
+            Here be magical numbers
+
+        '''
+        if ax is None:
+            ax = dtree.axes
+        if ax is None:
+            raise Exception("`ax` is required")
+        if fragment is None:
+            raise Exception("`fragment` is required")
         scale *= 2
         ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
         links_broken = fragment.link_ids
@@ -384,11 +414,13 @@ class DrawTree(object):
 
         break_targets = [link_id for ion_type, link_id in pairings if ion_type[0] == ""]
         crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+
         for link_break in break_targets:
-            parent, child = get_link_pair(dtree, link_break)
+            parent, child = dtree.get_link_pair(link_break)
             px, py = parent.coords(orientation, at)
             cx, cy = child.coords(orientation, at)
 
+            branch_point = False
             if py == cy and px != cx:
                 center = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
                 lx1, ly1 = center, py + scale
@@ -398,6 +430,7 @@ class DrawTree(object):
                 lx1, ly1 = px + scale, center
                 lx2, ly2 = px - scale, center
             else:
+                branch_point = True
                 xcenter = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
                 ycenter = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
                 if py < cy:
@@ -408,11 +441,31 @@ class DrawTree(object):
                     lx2, ly2 = xcenter + scale, ycenter - scale
 
             ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3)
+            if fragment.kind[-1] in {"B", "C"}:
+                label_x = (lx2, lx2 - scale)
+                if branch_point:
+                    label_x = [x - 2 * scale for x in label_x]
+
+                ax.plot(label_x, (ly1, ly1), color=color, zorder=3)
+                if label:
+                    ax.text(label_x[0] - .4, ly1 + 0.05, fragment.name)
+            else:
+                ax.plot((lx2, lx2 + scale), (ly2, ly2), color=color, zorder=3)
+                if label:
+                    ax.text(lx2 + 0.05, ly2 - 0.15, fragment.name)
 
         for crossring in crossring_targets:
-            target = get(dtree, crossring)
+            target = dtree.get(crossring)
             cx, cy = target.coords(orientation, at)
             ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
+            if fragment.kind[-1] == "X":
+                ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
+                if label:
+                    ax.text((cx + scale) - 0.4, (cy - scale) - .15, fragment.name)
+            else:
+                ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
+                if label:
+                    ax.text((cx - scale) - 0.42, (cy + scale) + .01, fragment.name)
 
 
 def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, **kwargs):
@@ -449,16 +502,17 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
     dtree = DrawTree(root)
     buchheim(dtree)
     dtree.fix_special_cases()
-    dtree.scale()
+    dtree.scale(kwargs.get("squeeze", DEFAULT_TREE_SCALE_FACTOR))
     fig = None
+    # Create a figure if no axes are provided
     if ax is None:
         fig, ax = plt.subplots()
         at = (0, 0)
         center = True
     dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label)
+    # If the figure is stand-alone, center it
     if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)
-        # print(xmin, xmax, ymin, ymax)
         if orientation in {'h', 'horizontal'}:
             ax.set_xlim(-1 * (abs(xmin) + 2) if xmin < 1 else xmin - 2, (1 * abs(xmax) + 2))
             ax.set_ylim(-1 * (abs(ymin) + 2) if ymin < 1 else ymin - 2, (1 * abs(ymax) + 2))
@@ -467,4 +521,5 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
             ax.set_ylim(ymin - sign(ymin, 1) * 2, ymax + 2)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
+    dtree.axes = ax
     return (dtree, ax)

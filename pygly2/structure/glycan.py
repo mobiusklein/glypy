@@ -808,8 +808,9 @@ class Glycan(SaccharideBase):
             gen = self.clone()
         results_container = Fragment
         for i in range(min_cleavages, max_cleavages + 1):
-            for kind, link_ids, included_nodes, mass in gen.break_links(i, kind, average, charge, mass_data, visited=visited):
-                frag = results_container(kind, link_ids, included_nodes, mass, None)
+            for frag_type, link_ids, included_nodes, mass in gen.break_links(i, kind, average, charge,
+                                                                             mass_data, visited=visited):
+                frag = results_container(frag_type, link_ids, included_nodes, mass, None)
                 try:
                     frag.name = self.name_fragment(frag)
                 except:
@@ -859,6 +860,7 @@ class Glycan(SaccharideBase):
         if n_links < 0:  # pragma: no cover
             raise ValueError("Cannot break a negative number of Links")
         n_links -= 1
+
         kind = set(kind)
         if visited is None:
             visited = set()
@@ -879,10 +881,9 @@ class Glycan(SaccharideBase):
                     # Recursively call :meth:`break_link` with the decremented `n_links` counter,
                     # and propagate all other parameters.
                     parent_frags = list(parent_tree.break_links(
-                        n_links, kind=kind, average=average, charge=charge, mass_data=mass_data, visited=visited))
+                        n_links, kind=(kind), average=average, charge=charge, mass_data=mass_data, visited=visited))
                     child_frags = list(child_tree.break_links(
-                        n_links, kind=kind, average=average, charge=charge, mass_data=mass_data, visited=visited))
-
+                        n_links, kind=(kind), average=average, charge=charge, mass_data=mass_data, visited=visited))
                     for k in (kind) & set("YZ"):
                         offset = fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
@@ -940,7 +941,6 @@ class Glycan(SaccharideBase):
                 else:
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
-
                     for k in (kind) & set("YZ"):
                         offset = fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
@@ -1090,7 +1090,6 @@ class Glycan(SaccharideBase):
 
         # Accumulator for name components
         name_parts = []
-
         # Collect cross-ring fragment names
         for crossring_id in crossring_targets:
             # Seek the link that holds the fragmented residue
@@ -1105,9 +1104,9 @@ class Glycan(SaccharideBase):
                         label_key = label[0]
                         distance = int(label[1:])
                         inverted_distance = self.branch_lengths[label_key] - (distance - 1)
-                        name = "{}{}{}".format(''.join(map(str, ion_type)), label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
+                        name = "{}{}{}".format(
+                            ''.join(map(str, ion_type)), label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
                         name_parts.append(name)
-                    break
 
         # Collect glycocidic fragment names
         for break_id, ion_type in break_targets.items():
@@ -1118,7 +1117,7 @@ class Glycan(SaccharideBase):
                 name = "{}{}".format(ion_type, label.replace(MAIN_BRANCH_SYM, ""))
                 name_parts.append(name)
             else:
-                link = self.link_index[fragment.link_ids[0] - 1]
+                link = self.link_index[break_id - 1]
                 label = link.label
                 label_key = label[0]
                 distance = int(label[1:])

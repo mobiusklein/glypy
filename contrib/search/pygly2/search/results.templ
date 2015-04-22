@@ -3,6 +3,8 @@
 <head>
     <title>Matching Results</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cosmo/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <style>
 td{
     vertical-align: top;
@@ -34,7 +36,7 @@ td{
 }
 
 .ion-group-data span {
-    font-size: 1.2em !important;
+    font-size: 1em !important;
 }
 
 .ion-observation{
@@ -50,15 +52,72 @@ td{
     font-size: 1.2em;
 }
 
+.collapse-caret{
+    text-align: right;
+    float: right;
+    text-decoration: none !important;
+}
 
     </style>
+    <script>
+
+function configureCollapse(){
+    var tables = $(".ion-observation.table")
+    var carets = $(".collapse-caret") 
+    carets.click(collapse)
+    for(var i = 0; i < tables.length; i++){
+        var table = $(tables[i])
+        if(table.find("tbody tr").length > 1){
+            invertCaret($(carets[i]).find(".glyphicon"))
+            table.toggle()
+        }
+    }
+}
+
+function invertCaret(symbol){
+    if(symbol.hasClass("glyphicon-chevron-up")){
+        symbol.removeClass("glyphicon-chevron-up")
+        symbol.addClass("glyphicon-chevron-down")
+    } else {
+        symbol.removeClass("glyphicon-chevron-down")
+        symbol.addClass("glyphicon-chevron-up")        
+    }
+}
+
+function collapse(evt){
+    evt.preventDefault();
+    var handle = $(this)
+    var symbol = handle.find(".glyphicon")
+    var collapseSelector = ".ion-observation.table"
+    var target = handle.parent().find(collapseSelector)
+    target.toggle()
+    invertCaret(symbol)
+    return false;
+}
+
+$(function(){
+    configureCollapse();
+    $('[data-toggle="tooltip"]').tooltip()
+
+})
+
+    </script>
 </head>
 <body class='container'>
 {% if settings is not none %}
 <h2>Settings</h2>
     {% for key, value in settings.items() %}
         <div class="settings-item">
-        <span class='label label-default'>{{key}}:</span> {{value}}
+        {% if key == "mass_shift" %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span>
+            {% for shift in value %}
+                {% if shift.name != "" %}
+                    <span class='label label-info'>{{shift.name}}: {{shift.mass}}</span>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span> {{value}}
+        {% endif %}
         </div>
     {% endfor %}
 {% endif %}
@@ -68,7 +127,7 @@ td{
         <h4>Matches for {{match.id}}</h4>
         <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
         <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error[0] | scientific_notation}}</span>
-        <span class='labeled-data'><b>Fragments Observed / Expected: </b> {{match.matches|length / match.fragments|length}} </span>
+        <span class='labeled-data'><b>Fragments Observed / Expected: </b> {{match|collect_fragments|length / match.fragments|length}} </span>
     {% if match.matches|length > 0 %}
         <table>
             <tbody>
@@ -76,24 +135,34 @@ td{
                     <td>
                         {% for ion_group in match.matches | sort(attribute="mass") | groupby("mass") %}
                             <div class="group-separator"></div>
-                            
                             <div class='ion-match'>
+                            <a class='collapse-caret'><span class="glyphicon glyphicon-chevron-down"></span></a>
                                 <div class="matched-ion-names">    
                                 {% for ion in ion_group.list %}
                                     {% if loop.index > 1 %}
                                         &nbsp;
                                     {% endif %}
                                     <span class="labeled-data match-key {{ion.match_key}} label label-primary">
-                                        {{ion.match_key}}
+                                        {{ion.match_key|replace(":", "")}}
                                     </span>
                                 {% endfor %}
                                 </div>
                                 {% set ion = ion_group.list[0] %}
                                 <div class='ion-group-data'>
-                                    <span class='label label-default'> Mass: {{ion.mass | limit_sigfig}}</span>
-                                    <span class='label label-default'>PPM Error: {{ion.ppm_error | scientific_notation}}</span>
+                                    <table class='table table-compact'>
+                                        <thead>
+                                            <tr><th>Mass</th><th>PPM Error</th><th>Intensity</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                            <td>{{ion.mass | limit_sigfig}}</td>
+                                            <td>{{ion.ppm_error | scientific_notation}}</td>
+                                            <td>{{ion.intensity | limit_sigfig}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <table class="ion-observation table table-compact">
+                                <table class="ion-observation table table-compact" data-toggle="tooltip" title='Per Observation Data' style="display: none;">
                                     <thead>
                                         <tr>
                                         <th>Scan ID</th>
@@ -103,7 +172,7 @@ td{
                                         </tr>
                                     </thead>
                                     <tbody>
-                                {% for scan, obs in ion_group.list[0].matches.items() %}
+                                {% for scan, obs in ion_group.list[0].matches.items()|sort(attribute=0) %}
                                     <tr>
                                     <td>{{scan}}</td>
                                     <td>{{obs.ppm_error | scientific_notation }}</td> 
@@ -111,7 +180,7 @@ td{
                                     <td>{{obs.charge}}</td>
                                     </tr>
                                 {% endfor %}
-                                </tbody>
+                                    </tbody>
                                 </table>
                             </div>
                         {% endfor %}

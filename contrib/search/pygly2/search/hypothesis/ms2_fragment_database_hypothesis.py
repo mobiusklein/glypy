@@ -1,21 +1,25 @@
 import os
 import logging
 from pygly2.algorithms import database
-from .common_transforms import (monoisotopic_mass,
-                                reduced_mass,
-                                permethelylated_mass,
-                                derivatized_mass,
-                                deuteroreduced_permethylated_mass)
-
+from .common_transforms import monoisotopic_mass
 from pygly2.utils import identity
 
+
 logger = logging.getLogger(__name__)
+
 
 default_fragmentation_parameters = {
     "kind": "ABCYXZ",
     "max_cleavages": 1,
     "average": False,
     "charge": 0
+}
+
+
+default_mass_transform_parameters = {
+    "derivatize_fn": monoisotopic_mass,
+    "adduct_mass": 0,
+    "adduct_number": 0
 }
 
 
@@ -52,13 +56,15 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
         record.fragments = fragments
         record.intact_mass = mass
         out_database.load_data([record], commit=False, mass_params={"override": mass})
-        if i % 1 == 0:
-            logger.info("%d records processed", i)
+        logger.info("%d records processed", i)
     out_database.commit()
     return out_database
 
 
 def duplicate_check(db):
+    '''
+    Check the passed iterable of |GlycanRecord| objects for topological duplicates.
+    '''
     blacklist = set()
     keepers = []
     for rec in db:
@@ -66,11 +72,28 @@ def duplicate_check(db):
         if rec.id in blacklist:
             continue
         keepers.append(rec)
+        anomers = []
+        for node in rec.structure:
+            anomers.append(node.anomer)
+            node.anomer = None
         m = rec.mass()
         isobarics = list(db.ppm_match_tolerance_search(m, 0))
         for iso in isobarics:
             if iso.id == rec.id:
                 continue
+
+            iso_anomers = []
+            for node in iso.structure:
+                iso_anomers.append(node.anomer)
+                node.anomer = None
+
             if iso.structure.topological_equality(rec.structure):
                 blacklist.add(iso.id)
+
+            for an, node in zip(iso_anomers, iso.structure):
+                node.anomer = an
+
+        for an, node in zip(anomers, rec.structure):
+            node.anomer = an
+
     return keepers

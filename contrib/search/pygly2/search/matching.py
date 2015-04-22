@@ -11,6 +11,8 @@ FragmentMatch = make_struct("FragmentMatch", ["match_key", "mass", "ppm_error",
                                               "intensity", "charge", "scan_id"])
 MergedMatch = make_struct("MergedMatch", ["match_key", "mass", "ppm_error", "intensity",
                                           "charge", "scan_id", "matches"])
+MassShift = make_struct("MassShift", ["name", "mass"])
+NoShift = MassShift("", 0.0)
 
 
 def neutral_mass(mz, z):
@@ -48,11 +50,13 @@ def collect_similar_ions(fragments, tolerance=2e-8, redundant=True):
     return groups
 
 
-def find_matches(precursor, msms_db, ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
+def find_matches(precursor, msms_db, shifts=None,
+                 ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
                  ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE, ion_types="ABCXYZ"):
     '''
     Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
     '''
+    shifts = shifts or [NoShift]
     results = []
     precursor_ppm_errors = []
     scans_searched = set()
@@ -60,13 +64,15 @@ def find_matches(precursor, msms_db, ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLER
 
     precursor.fragments = [f for f in precursor.fragments if f.kind[-1] in ion_types]
 
-    for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass, ms1_match_tolerance):
-        row = msms_db.precursor_type.from_sql(row, msms_db)
-        precursor_ppm_errors.append(ppm_error(precursor.mass(), row.neutral_mass))
-        scans_searched.update(row.scan_ids)
-        matches = match_fragments(precursor.fragments, row.tandem_data)
-        results.append(matches)
-        i += 1
+    for shift in shifts:
+        for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):
+            spectrum = msms_db.precursor_type.from_sql(row, msms_db)
+            precursor_ppm_errors.append(ppm_error(precursor.mass() + shift.mass, spectrum.neutral_mass))
+            scans_searched.update(spectrum.scan_ids)
+            matches = match_fragments(precursor.fragments, spectrum.tandem_data,
+                                      shifts=shifts, ms2_match_tolerance=ms2_match_tolerance)
+            results.append(matches)
+            i += 1
     precursor.ppm_error = precursor_ppm_errors
     precursor.scan_ids = scans_searched
     precursor.intact_structures_searched = i
@@ -74,17 +80,20 @@ def find_matches(precursor, msms_db, ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLER
     return precursor
 
 
-def match_fragments(fragments, peak_list, ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE):
+def match_fragments(fragments, peak_list, shifts=None, ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE):
     '''
     Match theoretical MS2 fragments against the observed peaks.
     '''
+    shifts = shifts or [NoShift]
     matches = []
-    for fragment in fragments:
-        for peak in peak_list:
-            match_error = fabs(ppm_error(fragment.mass, peak.mass))
-            if match_error <= ms2_match_tolerance:
-                matches.append(FragmentMatch(
-                    fragment.name, peak.mass, match_error, peak.intensity, peak.charge, peak.id))
+    for shift in shifts:
+        for fragment in fragments:
+            for peak in peak_list:
+                match_error = fabs(ppm_error(fragment.mass + shift.mass, peak.mass))
+                if match_error <= ms2_match_tolerance:
+                    matches.append(FragmentMatch(
+                        fragment.name + ":" + shift.name, peak.mass,
+                        match_error, peak.intensity, peak.charge, peak.id))
     return matches
 
 
@@ -115,3 +124,20 @@ def merge_matches(matches):
                          best_match.intensity, best_match.charge,
                          best_match.scan_id, match_map)
     return merged
+
+
+def collect_matched_scans(matches, msms_db):
+    '''
+    Count the number of scans matched and the number of scans not matched in the data
+
+    Parameters
+    ----------
+    matches: iterable of GlycanRecord
+        Search Results
+    masms_db: spectra.MSMSSqlDB
+        Observed Data
+    '''
+    scan_ids = tuple({scan_id for match in matches for scan_id in match.scan_ids})
+    scans_not_matched = tuple(msms_db.execute("select * from Scans where scan_id not in {}".format(scan_ids)))
+    count_not_matched = len(scans_not_matched)
+    return len(scan_ids), count_not_matched
