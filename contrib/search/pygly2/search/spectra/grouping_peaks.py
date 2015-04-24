@@ -1,4 +1,11 @@
+import csv
+from spectra import ObservedPrecursorSpectrum, Scan
 
+def tryfloat(obj):
+    try:
+        return float(obj)
+    except:
+        return obj
 
 class DeconRow(object):
     '''
@@ -28,13 +35,25 @@ class DeconRow(object):
 
         self.inference_score = inference_score
 
-    @classmethod
+    @staticmethod
     def from_csv(stream, noise_threshold=0):
-        for line in stream:
-            row = DeconRow(*map(float, line))
+        reader = csv.reader(stream)
+        reader.next()
+        for line in reader:
+            row = DeconRow(*map(tryfloat, line))
             yield row
+
+    def to_observed_spectrum(self):
+        scan_ids = [self.scan_number]
+        charge = self.charge
+        neutral_mass = self.monoisotopic_abundance
+        scan = Scan(self.scan_number, self.charge, self.mz)
+        spectrum = ObservedPrecursorSpectrum([scan], scan_ids, charge, neutral_mass, [], **self.__dict__)
+        return spectrum
 
 
 class ResultsGroup(object):
-    def __init__(self):
+    def __init__(self, ms1_score, observed_mass, composition, ppm_error, charge, scan_density,
+                 average_a_plus_2_error, a_to_a_plus_2_ration, volume, signal_to_noise, centroid_error, centroid_scan,
+                 max_scan_number, min_scan_number, calculated_mass, adduct_mass, num_adducts):
         pass

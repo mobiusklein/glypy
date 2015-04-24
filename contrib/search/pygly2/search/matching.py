@@ -1,8 +1,11 @@
+import re
 from math import fabs
 from itertools import chain
 from collections import defaultdict
 from pygly2.utils import make_struct
 from pygly2 import Composition
+
+crossring_pattern = re.compile(r"\d,\d")
 
 PROTON = Composition("H+").mass
 DEFAULT_MS2_MATCH_TOLERANCE = 2e-5
@@ -61,8 +64,8 @@ def find_matches(precursor, msms_db, shifts=None,
     precursor_ppm_errors = []
     scans_searched = set()
     i = 0
-
-    precursor.fragments = [f for f in precursor.fragments if f.kind[-1] in ion_types]
+    ion_types = map(sorted, ion_types)
+    precursor.fragments = [f for f in precursor.fragments if sorted(crossring_pattern.sub("", f.kind)) in (ion_types)]
 
     for shift in shifts:
         for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):

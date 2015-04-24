@@ -19,7 +19,7 @@ cdef:
     object formula_pattern = re.compile(_formula)
 
 @cython.boundscheck(False)
-cdef tuple _parse_isotope_string(str label):
+cdef inline tuple _parse_isotope_string(str label):
     """Parse an string with an isotope label and return the element name and
     the isotope number.
 
@@ -35,7 +35,7 @@ cdef tuple _parse_isotope_string(str label):
     isotope_num = int(num) if num else 0
     return element_name, isotope_num
 
-cdef str _make_isotope_string(str element_name, int isotope_num):
+cdef inline str _make_isotope_string(str element_name, int isotope_num):
     """Form a string label for an isotope."""
     if isotope_num == 0:
         return element_name
@@ -397,7 +397,7 @@ std_ion_comp = {
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-cpdef double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:
+cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:
     """Calculates the monoisotopic mass of a chemical formula or CComposition object.
 
     Parameters

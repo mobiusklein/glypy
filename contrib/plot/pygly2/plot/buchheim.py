@@ -14,10 +14,12 @@ def buchheim(tree):
         third_walk(dt, -min)
     return dt
 
+
 def third_walk(tree, n):
     tree.x += n
     for c in tree.children:
         third_walk(c, n)
+
 
 def firstwalk(v, distance=1.):
     if len(v.children) == 0:
@@ -34,8 +36,8 @@ def firstwalk(v, distance=1.):
 
         midpoint = (v.children[0].x + v.children[-1].x) / 2
 
-        ell = v.children[0]
-        arr = v.children[-1]
+        # ell = v.children[0]
+        # arr = v.children[-1]
         w = v.lbrother()
         if w:
             v.x = w.x + distance
@@ -44,11 +46,12 @@ def firstwalk(v, distance=1.):
             v.x = midpoint
     return v
 
+
 def apportion(v, default_ancestor, distance):
     w = v.lbrother()
     if w is not None:
-        #in buchheim notation:
-        #i == inner; o == outer; r == right; l == left; r = +; l = -
+        # in buchheim notation:
+        # i == inner; o == outer; r == right; l == left; r = +; l = -
         vir = vor = v
         vil = w
         vol = v.lmost_sibling
@@ -80,6 +83,7 @@ def apportion(v, default_ancestor, distance):
             default_ancestor = v
     return default_ancestor
 
+
 def move_subtree(wl, wr, shift):
     subtrees = wr.number - wl.number
     wr.change -= shift / subtrees
@@ -87,6 +91,7 @@ def move_subtree(wl, wr, shift):
     wl.change += shift / subtrees
     wr.x += shift
     wr.mod += shift
+
 
 def execute_shifts(v):
     shift = change = 0
@@ -96,14 +101,16 @@ def execute_shifts(v):
         change += w.change
         shift += w.shift + change
 
+
 def ancestor(vil, v, default_ancestor):
-    #the relevant text is at the bottom of page 7 of
-    #"Improving Walker's Algorithm to Run in Linear Time" by Buchheim et al, (2002)
-    #http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.16.8757&rep=rep1&type=pdf
+    # the relevant text is at the bottom of page 7 of
+    # "Improving Walker's Algorithm to Run in Linear Time" by Buchheim et al, (2002)
+    # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.16.8757&rep=rep1&type=pdf
     if vil.ancestor in v.parent.children:
         return vil.ancestor
     else:
         return default_ancestor
+
 
 def second_walk(v, m=0, depth=0, min=None):
     v.x += m

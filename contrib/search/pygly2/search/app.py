@@ -56,7 +56,7 @@ app.add_argument("-o", "--output", default=None)
 def taskmain():
     args = app.parse_args()
     # Flatten list
-    args.ion_types = [c for i in args.ion_types for c in i if c in {"A", "B", "C", "X", "Y", "Z"}]
+    args.ion_types = [c for i in args.ion_types for c in i.split(',')]
     if len(args.ion_types) == 0:
         args.ion_types = ["A", "B", "C", "X", "Y", "Z"]
     if len(args.mass_shift) == 0:
