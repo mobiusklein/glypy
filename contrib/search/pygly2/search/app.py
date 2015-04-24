@@ -1,8 +1,6 @@
 import argparse
 import os
 
-from profilehooks import profile
-
 from pygly2.algorithms import database
 from pygly2.utils import pickle
 

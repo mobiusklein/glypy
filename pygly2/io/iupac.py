@@ -1,3 +1,7 @@
+'''
+Currently experiencing issues resolving implicit positioning
+'''
+
 import re
 from collections import deque
 
@@ -115,7 +119,7 @@ def resolve_special_base_type(residue):
     return None
 
 
-def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-', open_branch='[', close_branch=']'):
+def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-', open_branch='[', close_branch=']', is_branch=False):
     '''
     Translate a |Glycan| structure into IUPAC Three Letter Code.
     Recursively operates on branches.
@@ -142,37 +146,39 @@ def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-'
     deque
     '''
     base = structure.root if isinstance(structure, Glycan) else structure
-    stack = [(1, base)]
+    stack = [(attach, base)]
     outstack = deque()
     while(len(stack) > 0):
-        outedge_pos, node = stack.pop()
-        if outedge_pos in {None, -1}:
-            outedge_pos = ''
-        link = "{oe}{outedge_pos}-{attach}{ce}".format(
-            outedge_pos=outedge_pos, attach=attach, oe=open_edge, ce=close_edge)
-        if attach is None:
-            link = ""
-        elif attach != 1 and link[-1] == '-':
+        outedge, node = stack.pop()
+        link = ""
+        if outedge is not None:
+            link = "{oe}{attach}-{outedge_pos}{ce}".format(
+                outedge_pos=outedge.parent_position,
+                attach=outedge.child_position,
+                oe=open_edge, ce=close_edge)
+        # Branch linkage does not start with leading dash
+        if is_branch and link[-1] == '-':
             link = link[:-1]
         outstack.appendleft('{node}{link}'.format(node=monosaccharide_to_iupac(node), link=link))
-        attach = 1
-        children = list(node.children())
+        # Reset for next pass through the loop
+        is_branch = False
+        children = list((p, link) for p, link in node.links.items() if link.is_parent(node))
         if len(children) > 1:
-            for pos, child in children[:-1]:
+            for pos, link in children[:-1]:
                 branch = '{ob}{branch}{cb}'.format(
-                    branch=''.join(glycan_to_iupac(child, pos,
+                    branch=''.join(glycan_to_iupac(link.child, link,
                                                    open_edge=open_edge, close_edge=close_edge,
-                                                   open_branch=open_branch, close_branch=close_branch)),
-                    attach_pos=pos,
+                                                   open_branch=open_branch, close_branch=close_branch,
+                                                   is_branch=True)),
                     ob=open_branch,
                     cb=close_branch
                 )
                 outstack.appendleft(branch)
-            pos, child = children[-1]
-            stack.append((pos, child))
+            pos, link = children[-1]
+            stack.append((link, link.child))
         elif len(children) == 1:
-            pos, child = children[0]
-            stack.append((pos, child))
+            pos, link = children[0]
+            stack.append((link, link.child))
     return outstack
 
 
@@ -184,12 +190,12 @@ def to_iupac(structure):
 
 
 monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
-                                       (?P<configuration>[LDl])-
+                                       (?P<configuration>[LD?])-
                                        (?P<modification>[a-z0-9_]*)
                                        (?P<base_type>[^-]+?)
                                        (?P<ring_type>[pfo?])
                                        (?P<substituent>[^-]*)
-                                       (?P<linkage>-\([0-9?]-[0-9?]\)-)?$''', re.VERBOSE)
+                                       (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
 
 
 def monosaccharide_from_iupac(monosaccharide_str, parent=None):
@@ -271,7 +277,8 @@ def glycan_from_iupac(text):
         elif text[-1] == '[':
             try:
                 branch_parent, old_root, old_last_outedge = branch_stack.pop()
-                branch_parent.add_monosaccharide(root, position=last_outedge, child_position=1)
+                child_position, parent_position = last_outedge
+                branch_parent.add_monosaccharide(root, position=parent_position, child_position=child_position)
                 root = old_root
                 last_residue = branch_parent
                 last_outedge = old_last_outedge
@@ -289,7 +296,7 @@ def glycan_from_iupac(text):
                 last_residue = next_residue
                 text = text[:match.start()]
             else:
-                raise IUPACException("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
+                raise IUPACException("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
 
     res = Glycan(root)
     if len(res) > 1:
