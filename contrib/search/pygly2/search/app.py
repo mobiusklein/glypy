@@ -1,6 +1,14 @@
 import argparse
 import os
-
+import sys
+import logging
+try:
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s - %(name)s:%(funcName)s:%(lineno)d - %(levelname)s - %(message)s",
+                        datefmt="%H:%M:%S")
+    logger = logging.getLogger()
+except:
+    pass
 from pygly2.algorithms import database
 from pygly2.utils import pickle
 
@@ -42,17 +50,20 @@ def main(structure_database, observed_data,
 
 
 app = argparse.ArgumentParser("pygly-ms2")
-app.add_argument("-s", "--structure-database")
-app.add_argument("-d", "--observed-data")
-app.add_argument("-t1", "--ms1-tolerance", type=float, default=DEFAULT_MS1_MATCH_TOLERANCE)
-app.add_argument("-t2", "--ms2-tolerance", type=float, default=DEFAULT_MS2_MATCH_TOLERANCE)
-app.add_argument("-i", "--ion-types", action="append", default=[], help='Control which ion types (ABCXYZ) are considered. Defaults to all of them.')
+app.add_argument("-s", "--structure-database", help='Path to the structure databse to search against')
+app.add_argument("-d", "--observed-data", help='Path to the observed ion data to search against')
+app.add_argument("-t1", "--ms1-tolerance", type=float, default=DEFAULT_MS1_MATCH_TOLERANCE, help='PPM match tolerance for MS1 Matching')
+app.add_argument("-t2", "--ms2-tolerance", type=float, default=DEFAULT_MS2_MATCH_TOLERANCE, help='PPM match tolerance for MS2 Matching')
+app.add_argument("-i", "--ion-types", action="append", default=[],
+                 help='Control which ion types (ABCXYZ and multiples of them for internal fragments)\
+                 are considered as a comma separated list. Defaults to A,B,C,X,Y,Z.')
 app.add_argument("-m", "--mass-shift", action='append', nargs=2, default=[])
 app.add_argument("-o", "--output", default=None)
 
 
 def taskmain():
     args = app.parse_args()
+    logger.debug(args)
     # Flatten list
     args.ion_types = [c for i in args.ion_types for c in i.split(',')]
     if len(args.ion_types) == 0:
@@ -72,13 +83,14 @@ def taskmain():
                    ms2_match_tolerance=args.ms2_tolerance,
                    ion_types=args.ion_types)
     if args.output is None:
-        args.output = os.path.splitext(args.structure_database)[0] + ".results.html"
-    outfile = open(args.output, "w")
+        args.output = os.path.splitext(args.structure_database)[0] + ".results"
+    outfile = open(args.output + ".html", "w")
     outfile.write(render(matches, args.__dict__))
     outfile.close()
-    store_file = open(os.path.splitext(args.output)[0] + ".pkl", 'wb')
+    store_file = open(args.output + ".pkl", 'wb')
     pickle.dump({"matches": matches, "settings": args.__dict__}, store_file)
     store_file.close()
+    logger.debug("Done")
 
 
 def rerender(data_path, output_path=None):
@@ -90,5 +102,4 @@ def rerender(data_path, output_path=None):
 
 
 def rerendermain():
-    import sys
     rerender(*sys.argv[1:])

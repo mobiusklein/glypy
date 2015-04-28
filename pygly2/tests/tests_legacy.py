@@ -255,6 +255,10 @@ class GlycoCTParserTests(unittest.TestCase):
         for g in glycoct.read(self._file_path):
             self.assertTrue(isinstance(g, glycan.Glycan))
 
+    def test_parse_cyclical(self):
+        structure = load("cyclical_glycan")
+        self.assertAlmostEqual(structure.mass(), 810.2641170925)
+
 
 class NamedStructureTests(unittest.TestCase):
 

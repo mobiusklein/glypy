@@ -1,6 +1,8 @@
 import re
-import matplotlib.pyplot as plt
+from collections import defaultdict
+from uuid import uuid4
 
+import matplotlib.pyplot as plt
 from pygly2 import monosaccharides
 from pygly2.structure import Glycan
 from pygly2.io.nomenclature import identity
@@ -50,11 +52,16 @@ def make_gid(s):
     return re.sub(r'[\s\|\(\):]', '-', s)
 
 
-def breadth_first_traversal(tree):
-    yield tree
-    for child in tree:
-        for descend in breadth_first_traversal(child):
-            yield descend
+def breadth_first_traversal(tree, visited=None):
+    if visited is None:
+        visited = set()
+    print tree.id
+    if tree.id not in visited:
+        visited.add(tree.id)
+        yield tree
+        for child in tree:
+            for descend in breadth_first_traversal(child, visited=visited):
+                yield descend
 
 
 def enumerate_tree(tree, ax):
@@ -62,8 +69,8 @@ def enumerate_tree(tree, ax):
 
     Parameters
     ----------
-    tree: :class:`DrawTree`
-        A drawn :class:`DrawTree` object
+    tree: :class:`DrawTreeNode`
+        A drawn :class:`DrawTreeNode` object
     ax: matplotlib.Axes
         The axes on which `tree` has been drawn
 
@@ -107,17 +114,27 @@ def get_link_pair(tree, link_id):
     return parent, child
 
 
-class DrawTree(object):
-    def __init__(self, tree, parent=None, depth=0, number=1, parent_linkage=None):
+def resolve_creation_cycle(node, parent, depth, i, parent_linkage, visited):
+    print node.id, parent.id, visited.keys()
+    if node.id in visited:
+        return visited[node.id]
+    else:
+        return DrawTreeNode(node, parent, depth+1, i+1, parent_linkage, visited)
+
+
+class DrawTreeNode(object):
+    def __init__(self, tree, parent=None, depth=0, number=1, parent_linkage=None, visited=None):
+        if visited is None:
+            visited = dict()
+        self.id = tree.id
+        if self.id in visited:
+            raise Exception("Cycle detected")
+        visited[self.id] = self
         self.x = -1.
         self.y = depth
         self.tree = tree
         self.parent = parent
         self.parent_linkage = parent_linkage
-
-        self.children = [DrawTree(c[1], self, depth+1, i+1, c[0])
-                         for i, c
-                         in enumerate(tree.children())]
 
         self._axes = None
 
@@ -129,6 +146,17 @@ class DrawTree(object):
         self._lmost_sibling = None
         # Number of the node in its group of siblings 1..n
         self.number = number
+
+        if self.parent is not None:
+            self.data = self.parent.data
+            self.uuid = self.parent.uuid
+        else:
+            self.data = defaultdict(dict)
+            self.uuid = uuid4().hex
+
+        self.children = [resolve_creation_cycle(c[1], self, depth+1, i+1, c[0], visited)
+                         for i, c
+                         in enumerate(tree.children())]
 
     def __iter__(self):
         return iter(self.children)
@@ -152,9 +180,15 @@ class DrawTree(object):
     def axes(self, value):
         self._axes = value
         for child in self:
-            child.axes = value
+            if child.axes != value:
+                child.axes = value
 
-    def fix_special_cases(self, offset=0.5):
+    def fix_special_cases(self, offset=0.5, visited=None):
+        if visited is None:
+            visited = set()
+        if self.id in visited:
+            return
+        visited.add(self.id)
         n = 0
         self.mask_special_cases = False
         for child in self.children:
@@ -167,7 +201,7 @@ class DrawTree(object):
                     child.x = self.x - offset
                 else:
                     raise Exception("Don't know how to handle more than two special case child nodes.")
-            child.fix_special_cases(offset)
+            child.fix_special_cases(offset, visited)
 
     def draw(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
         if isinstance(symbol_nomenclature, basestring):
@@ -176,8 +210,10 @@ class DrawTree(object):
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
-        self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
-        self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, label=label, **kwargs)
+        self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+                           label=label, visited=set(), **kwargs)
+        self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+                        label=label, visited=set(), **kwargs)
 
     def coords(self, orientation="h", at=(0, 0)):
         if orientation in {"h", "horizontal"}:
@@ -199,7 +235,8 @@ class DrawTree(object):
             y = y
         return x, y
 
-    def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None, label=True, **kwargs):
+    def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None,
+                      label=True, visited=None, **kwargs):
         '''
         Draw the edges linking parent nodes to child nodes. Also draws the parent outlink position
         and the child anomer symbol
@@ -218,23 +255,29 @@ class DrawTree(object):
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
             is |None|, `cfg` will be used.
         '''
+        if visited is None:
+            visited = set()
         if ax is None:
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
         x, y = self.coords(orientation, at)
+        if self.id in visited:
+            return x, y
+        visited.add(self.id)
         for child in self:
             cx, cy = child.draw_branches(orientation, at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
-                                         label=label, **kwargs)
-            ax.plot((x, cx), (y, cy), color='black', zorder=1)
+                                         label=label, visited=visited, **kwargs)
+            symbol_nomenclature.line_to(ax, x, y, cx, cy, color='black', zorder=1)
             if label:
                 self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
                                               symbol_nomenclature=symbol_nomenclature,
-                                              child=child, **kwargs)
+                                              child=child, visited=visited, **kwargs)
         return x, y
 
-    def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None, label=True, **kwargs):
+    def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None,
+                   label=True, visited=None, **kwargs):
         '''
         Draw the symbol representing the individual monosaccharide and its substituents.
 
@@ -253,25 +296,33 @@ class DrawTree(object):
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
             is |None|, `cfg` will be used.
         '''
+        if visited is None:
+            visited = set()
         if ax is None:
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
+        if self.id in visited:
+            return
+        visited.add(self.id)
         x, y = self.coords(orientation, at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
                                                                           orientation=orientation, **kwargs)
+        self.data["patches"][self.tree.id] = [residue_elements, substituent_elements]
+        self.data["position"][self.tree.id] = x, y
         for i, res_el in enumerate(residue_elements):
             if isinstance(res_el, tuple):
-                [el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id))) for el in res_el]
+                [el.set_gid(self.uuid + '-' + (str(self.id) + '-node')) for el in res_el]
             else:
-                res_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id)))
+                res_el.set_gid(self.uuid + '-' + str(self.id) + '-node')
         for i, sub_el in enumerate(substituent_elements):
             if isinstance(sub_el, tuple):
-                [el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i))) for el in sub_el]
+                [el.set_gid(self.uuid + '-' + (str(self.id) + "-subst-" + str(i))) for el in sub_el]
             else:
-                sub_el.set_gid(make_gid(str(self.tree) + '-' + str(self.tree.id) + "-subst-" + str(i)))
+                sub_el.set_gid(self.uuid + '-' + (str(self.id) + "-subst-" + str(i)))
         for child in self:
-            child.draw_nodes(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+            child.draw_nodes(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+                             visited=visited, **kwargs)
 
     def draw_linkage_annotations(self, orientation='h', at=(0, 0), ax=None,
                                  symbol_nomenclature=None, child=None, **kwargs):
@@ -292,7 +343,7 @@ class DrawTree(object):
         symbol_nomenclature: |str|
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
             is |None|, `cfg` will be used.
-        child: :class:`DrawTree`
+        child: :class:`DrawTreeNode`
             The child node to draw relative to.
         '''
         sx, sy = self.coords(orientation, at)
@@ -336,13 +387,13 @@ class DrawTree(object):
     lmost_sibling = property(get_lmost_sibling)
 
     def __str__(self):
-        return "%s: x=%s mod=%s" % (self.tree, self.x, self.mod)
+        return "%s: id=%s  x=%s mod=%s" % (self.tree, self.id, self.x, self.mod)
 
     def __repr__(self):
         return self.__str__()
 
     def extrema(self, orientation='h', at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
-                ymin=float('inf'), ymax=-float("inf")):
+                ymin=float('inf'), ymax=-float("inf"), visited=None):
         '''
         Finds the most extreme points describing the area this node and its children occupy.
 
@@ -368,6 +419,11 @@ class DrawTree(object):
         ymax: float
 
         '''
+        if visited is None:
+            visited = set()
+        if self.id in visited:
+            return xmin, xmax, ymin, ymax
+        visited.add(self.id)
         x, y = self.coords(orientation, at)
         if x < xmin:
             xmin = x
@@ -378,15 +434,20 @@ class DrawTree(object):
         if y > ymax:
             ymax = y
         for child in self:
-            xmin, xmax, ymin, ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax)
+            xmin, xmax, ymin, ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax, visited=visited)
         return xmin, xmax, ymin, ymax
 
-    def scale(self, factor=DEFAULT_TREE_SCALE_FACTOR):
+    def scale(self, factor=DEFAULT_TREE_SCALE_FACTOR, visited=None):
         '''Scale all existing edge lengths by `factor`, defaults to `0.65`'''
+        if visited is None:
+            visited = set()
+        if self.id in visited:
+            return
+        visited.add(self.id)
         self.x *= factor
         self.y *= factor
         for child in self:
-            child.scale(factor)
+            child.scale(factor, visited)
 
     def get(self, node_id):
         return get(self, node_id)
@@ -394,14 +455,14 @@ class DrawTree(object):
     def get_link_pair(self, link_id):
         return get_link_pair(self, link_id)
 
-    def draw_cleavage(dtree, ax=None, fragment=None, orientation="h", at=(0, 0), scale=0.1, color='red', label=True):
+    def draw_cleavage(self, ax=None, fragment=None, orientation="h", at=(0, 0), scale=0.1, color='red', label=True):
         '''
         .. warning::
             Here be magical numbers
 
         '''
         if ax is None:
-            ax = dtree.axes
+            ax = self.axes
         if ax is None:
             raise Exception("`ax` is required")
         if fragment is None:
@@ -416,7 +477,7 @@ class DrawTree(object):
         crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
 
         for link_break in break_targets:
-            parent, child = dtree.get_link_pair(link_break)
+            parent, child = self.get_link_pair(link_break)
             px, py = parent.coords(orientation, at)
             cx, cy = child.coords(orientation, at)
 
@@ -440,32 +501,76 @@ class DrawTree(object):
                     lx1, ly1 = xcenter - scale, ycenter + scale
                     lx2, ly2 = xcenter + scale, ycenter - scale
 
-            ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3)
+            line = ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3)
+            self.data['patches'][fragment.name] = line[0]
+            self.data['position'][fragment.name] = (lx1, lx2), (ly1, ly2)
+            line[0].set_gid(self.uuid + '-' + fragment.name)
             if fragment.kind[-1] in {"B", "C"}:
                 label_x = (lx2, lx2 - scale)
                 if branch_point:
                     label_x = [x - 2 * scale for x in label_x]
 
-                ax.plot(label_x, (ly1, ly1), color=color, zorder=3)
+                line = ax.plot(label_x, (ly1, ly1), color=color, zorder=3)
+                line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
+                self.data['patches'][fragment.name + "_direction"] = line[0]
+                self.data['position'][fragment.name + "_direction"] = label_x, (ly1, ly1)
                 if label:
-                    ax.text(label_x[0] - .4, ly1 + 0.05, fragment.name)
+                    text = ax.text(label_x[0] - .4, ly1 + 0.05, fragment.name)
+                    self.data['patches'][fragment.name + "_text"] = text
+                    self.data['position'][fragment.name + "_text"] = label_x[0] - .4, ly1 + 0.05
             else:
-                ax.plot((lx2, lx2 + scale), (ly2, ly2), color=color, zorder=3)
+                line = ax.plot((lx2, lx2 + scale), (ly2, ly2), color=color, zorder=3)
+                line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
+                self.data['patches'][fragment.name + "_direction"] = line[0]
+                self.data['position'][fragment.name + "_direction"] = (lx2, lx2 + scale), (ly2, ly2)
+
                 if label:
-                    ax.text(lx2 + 0.05, ly2 - 0.15, fragment.name)
+                    self.data['patches'][fragment.name + "_text"] = ax.text(lx2 + 0.05, ly2 - 0.15, fragment.name)
+                    self.data['position'][fragment.name + "_text"] = lx2 + 0.05, ly2 - 0.15
 
         for crossring in crossring_targets:
-            target = dtree.get(crossring)
+            target = self.get(crossring)
             cx, cy = target.coords(orientation, at)
-            ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
+            line = ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
+            self.data['patches'][fragment.name] = line[0]
+            self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
+            line[0].set_gid(self.uuid + '-' + fragment.name)
             if fragment.kind[-1] == "X":
-                ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
+                line = ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
+                line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
+                self.data['patches'][fragment.name + "_direction"] = line[0]
+                self.data['position'][fragment.name + "_direction"] =\
+                    (cx + scale, cx + 2 * scale), (cy - scale, cy - scale)
+
                 if label:
                     ax.text((cx + scale) - 0.4, (cy - scale) - .15, fragment.name)
             else:
-                ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
+                line = ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
+                line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
+                self.data['patches'][fragment.name + "_direction"] = line[0]
+                self.data['position'][fragment.name + "_direction"] =\
+                    (cx - scale, cx - scale * 2), (cy + scale, cy + scale)
                 if label:
                     ax.text((cx - scale) - 0.42, (cy + scale) + .01, fragment.name)
+
+
+def get_root(structure):
+    root = structure
+    if isinstance(structure, Glycan):
+        root = structure.root
+    elif isinstance(structure, GlycanRecordBase):
+        root = structure.structure.root
+    return root
+
+
+class DrawTree(object):
+    def __init__(self, structure, figure=None, ax=None, **kwargs):
+        self.structure = structure
+        self.root = DrawTreeNode(get_root(structure))
+        self.figure = figure
+        self.axes = ax
+        self.layout = kwargs.get("layout", buchheim)
+        self.symbol_nomenclature = kwargs.get("symbol_nomenclature", cfg_symbols)
 
 
 def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, **kwargs):
@@ -499,7 +604,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
         root = tree.root
     elif isinstance(tree, GlycanRecordBase):
         root = tree.structure.root
-    dtree = DrawTree(root)
+    dtree = DrawTreeNode(root)
     buchheim(dtree)
     dtree.fix_special_cases()
     dtree.scale(kwargs.get("squeeze", DEFAULT_TREE_SCALE_FACTOR))

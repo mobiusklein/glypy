@@ -458,3 +458,20 @@ def draw_text(ax, x, y, text, scale=0.1):
 def format_text(text):
     label = ''.join([token.capitalize()[:2] for token in text.split('_', 1)])
     return label
+
+
+def line_to(ax, sx, sy, ex, ey, zorder=1, color='black'):
+    vertices = [
+        (sx, sy),
+        (ex, ey),
+        (0, 0)
+    ]
+    codes = [
+        Path.MOVETO,
+        Path.LINETO,
+        Path.STOP
+    ]
+    path = Path(vertices, codes)
+    patch = patches.PathPatch(path)
+    ax.add_patch(patch)
+    return patch

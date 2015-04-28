@@ -6,7 +6,7 @@ from ..structure import Glycan, Monosaccharide
 logger = logging.getLogger(__name__)
 
 
-def topological_inclusion(self, other, substituents=True, tolerance=0):
+def topological_inclusion(self, other, substituents=True, tolerance=0, visited=None):
     '''
     Performs equality testing between two monosaccharides where
     the exact ordering of child links does not have match between
@@ -33,6 +33,11 @@ def topological_inclusion(self, other, substituents=True, tolerance=0):
     --------
     :func:`similarity.monosaccharide_similarity`
     '''
+    if visited is None:
+        visited = set()
+    if (self.id, other.id) in visited:
+        return True
+    visited.add((self.id, other.id))
     obs, expect = monosaccharide_similarity(self, other, include_substituents=substituents)
     if (obs - expect) >= -tolerance:
         taken_b = set()
@@ -41,7 +46,9 @@ def topological_inclusion(self, other, substituents=True, tolerance=0):
             for b_pos, b_child in other.children():
                 if (b_pos, b_child.id) in taken_b:
                     continue
-                if topological_inclusion(a_child, b_child, substituents=substituents, tolerance=tolerance):
+                if topological_inclusion(a_child, b_child,
+                                         substituents=substituents,
+                                         tolerance=tolerance, visited=visited):
                     matched = True
                     taken_b.add((b_pos, b_child.id))
                     break
@@ -51,12 +58,16 @@ def topological_inclusion(self, other, substituents=True, tolerance=0):
     return False
 
 
-def exact_ordering_inclusion(self, other, substituents=True, tolerance=0):
+def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visited=None):
     '''
     A generalization of :meth:`~pygly2.structure.monosaccharide.Monosaccharide.exact_ordering_equality` which
     allows for ``self`` to be matched to ``other``, but for ``other`` to include more. Consequently, this method is
     not commutative.
     '''
+    if visited is None:
+        visited = set()
+    if (self.id, other.id) in visited:
+        return True
     obs, expect = monosaccharide_similarity(self, other, include_substituents=substituents)
     if (obs - expect) >= -tolerance:
         if substituents:
@@ -80,7 +91,8 @@ def exact_ordering_inclusion(self, other, substituents=True, tolerance=0):
             if b_child is None:
                 return False
             if a_child[0] == b_child[0]:
-                if not exact_ordering_inclusion(a_child, b_child, substituents=substituents, tolerance=tolerance):
+                if not exact_ordering_inclusion(a_child, b_child, substituents=substituents,
+                                                tolerance=tolerance, visited=visited):
                     return False
             else:
                 return False
@@ -163,7 +175,7 @@ MaximumCommonSubtreeResults = make_struct(
     "MaximumCommonSubtreeResults", ("score", "tree", "similarity_matrix"))
 
 
-def compare_nodes(node_a, node_b, include_substituents=True, exact=False):
+def compare_nodes(node_a, node_b, include_substituents=True, exact=False, visited=None):
     '''
     Score the pair of `node_a` and `node_b` and all pairings of their children.
 
@@ -172,7 +184,13 @@ def compare_nodes(node_a, node_b, include_substituents=True, exact=False):
     float:
         The similarity score between the input nodes
     '''
+    if visited is None:
+        visited = set()
     score = 0.
+    if (node_a.id, node_b.id) in visited:
+        return score
+    visited.add((node_a.id, node_b.id))
+
     observed, expected = monosaccharide_similarity(
         node_a, node_b, include_substituents=include_substituents, include_children=False)
     if exact:
@@ -183,7 +201,8 @@ def compare_nodes(node_a, node_b, include_substituents=True, exact=False):
     for child_a, child_b in itertools.product((ch_a for p, ch_a in node_a.children()),
                                               (ch_b for p, ch_b in node_b.children())):
         score += compare_nodes(child_a, child_b,
-                               include_substituents=include_substituents, exact=exact)
+                               include_substituents=include_substituents,
+                               exact=exact, visited=visited)
     return score
 
 
@@ -233,13 +252,18 @@ def find_max(solution_matrix):
     return score, ix_a, ix_b
 
 
-def depth(monosaccharide):
+def depth(monosaccharide, visited=None):
     '''
     Calculate  the distance from `monosaccharide` to its furthest grand-child node.
     '''
+    if visited is None:
+        visited = set()
+    if monosaccharide.id in visited:
+        return 0
+    visited.add(monosaccharide.id)
     d = 1
     if(len(monosaccharide.links) > 1):
-        d += max(depth(ch) for p, ch in monosaccharide.children())
+        d += max(depth(ch, visited) for p, ch in monosaccharide.children())
     return d
 
 
@@ -252,6 +276,7 @@ def extract_maximum_common_subgraph(node_a, node_b, exact=False):
     root = node_a.clone()
     node_stack = [(root, node_a, node_b)]
     b_taken = set()
+    index = {node_a.id: root}
     while len(node_stack) > 0:
         mcs_node, node_a, node_b = node_stack.pop()
         for a_pos, a_child in node_a.children():
@@ -284,7 +309,10 @@ def extract_maximum_common_subgraph(node_a, node_b, exact=False):
                 continue
 
             b_taken.add(matched_node.id)
-            terminal = a_child.clone()
+            if a_child.id in index:
+                terminal = index[a_child.id]
+            else:
+                terminal = index[a_child.id] = a_child.clone()
             link = [
                 link for link in node_a.links[a_pos] if link.is_child(a_child)][0]
             link.clone(mcs_node, terminal)

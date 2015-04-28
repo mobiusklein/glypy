@@ -65,7 +65,7 @@ def chrinc(a='a', i=1):
     return chr(ord(a) + i)
 
 
-def make_struct(name, fields):
+def make_struct(name, fields, debug=False):
     '''
     A convenience function for defining plain-old-data (POD) objects that are optimized
     for named accessor lookup, unlike `namedtuple`. If the named container does not
@@ -109,6 +109,8 @@ class {name}(object):
         args=','.join(fields),
         self_fields=','.join('self.' + f for f in fields))
     d = {'fields': fields}
+    if debug:
+        print(template)
     exec(template, d)
     result = d[name]
     # Patch the class to support pickling, as is done for namedtuple

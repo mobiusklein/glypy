@@ -7,21 +7,38 @@ def childer(tree):
     return [child for child in tree if len(set(child.tree.stem) & special_case_stems) < 1]
 
 
-def buchheim(tree):
-    dt = firstwalk(tree)
-    min = second_walk(dt)
+def buchheim(tree, visited=None):
+    if visited is None:
+        visited = set()
+    dt = firstwalk(tree, visited=visited)
+    visited = set()
+    min = second_walk(dt, visited=visited)
     if min < 0:
         third_walk(dt, -min)
     return dt
 
 
-def third_walk(tree, n):
+def third_walk(tree, n, visited=None):
+    if visited is None:
+        visited = set()
+
     tree.x += n
+
+    if tree.id in visited:
+        return
+
+    visited.add(tree.id)
+
     for c in tree.children:
-        third_walk(c, n)
+        third_walk(c, n, visited=visited)
 
 
-def firstwalk(v, distance=1.):
+def firstwalk(v, distance=1., visited=None):
+    if visited is None:
+        visited = set()
+    if v.id in visited:
+        return v
+    visited.add(v.id)
     if len(v.children) == 0:
         if v.lmost_sibling:
             v.x = v.lbrother().x + distance
@@ -30,7 +47,7 @@ def firstwalk(v, distance=1.):
     else:
         default_ancestor = v.children[0]
         for w in v.children:
-            firstwalk(w)
+            firstwalk(w, distance, visited)
             default_ancestor = apportion(w, default_ancestor, distance)
         execute_shifts(v)
 
@@ -112,14 +129,21 @@ def ancestor(vil, v, default_ancestor):
         return default_ancestor
 
 
-def second_walk(v, m=0, depth=0, min=None):
+def second_walk(v, m=0, depth=0, min=None, visited=None):
+    if visited is None:
+        visited = set()
     v.x += m
     v.y = depth
+
+    if v.id in visited:
+        return v.x
+
+    visited.add(v.id)
 
     if min is None or v.x < min:
         min = v.x
 
     for w in v.children:
-        min = second_walk(w, m + v.mod, depth+1, min)
+        min = second_walk(w, m + v.mod, depth+1, min, visited=visited)
 
     return min

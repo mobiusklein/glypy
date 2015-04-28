@@ -1,0 +1,101 @@
+<script>
+
+function getEntryContainer(handle){
+    var handle = $(handle === undefined ? (this) : handle)
+    origin = handle
+    while(true){
+        if(handle.is("body")){
+            throw new Error("Did not find container")
+        }
+        if(handle.hasClass("structure-match")){
+            return handle
+        }
+        handle = handle.parent()
+    }
+}
+
+function getGlycanSVG(handle){
+    var handle = $(handle === undefined ? (this) : handle)
+    var entryConainer = handle.hasClass("structure-match") ? handle : getEntryContainer(handle)
+    var svgContainer = entryConainer.find("svg")
+    return svgContainer
+}
+
+function highlightCleavage(handle, svgContainer){
+    handle = $(handle === undefined ? (this) : handle)
+    svgContainer = svgContainer === undefined ? getGlycanSVG(handle) : svgContainer
+    var svgUUID = svgContainer.attr("id")
+    var cleavageType = handle.text().split("-")[0].replace(/\n|\s\s+/g, "")
+    var cleavageTag = svgContainer.find(
+        ("#" + svgUUID + "-" + cleavageType + " path, " + "#" + svgUUID + "-" + cleavageType + "-direction path").replace(/\n|\s\s/g, ""))
+    handle.hover(
+        function(evt){
+            cleavageTag.attr("class", "highlight-cleavage")},
+        function(evt){
+            cleavageTag.attr("class", "")}
+    )
+
+}
+
+
+function configureHighlightCleavage(){
+    var entries = $(".structure-match")
+    entries.each(function(index, entry)
+    {
+        entry = $(entry)
+        var svgContainer = getGlycanSVG(entry)
+        entry.find(".match-key").each(function(index, ionName){
+            highlightCleavage(ionName, svgContainer)
+        })
+    })
+}
+
+
+function configureCollapse(){
+    var carets = $(".collapse-caret")
+    carets.click(collapseIonMatches)
+}
+
+function invertCaret(symbol){
+    if(symbol.hasClass("glyphicon-chevron-up")){
+        symbol.removeClass("glyphicon-chevron-up")
+        symbol.addClass("glyphicon-chevron-down")
+    } else {
+        symbol.removeClass("glyphicon-chevron-down")
+        symbol.addClass("glyphicon-chevron-up")        
+    }
+}
+
+function collapseIonMatches(evt){
+    evt.preventDefault();
+    var handle = $(this)
+    var symbol = handle.find(".glyphicon")
+    var collapseSelector = "tr.per-observation."  + handle.attr("data-target")
+    var target = handle.parent().parent().parent().find(collapseSelector)
+    target.toggle()
+    invertCaret(symbol)
+    return false;
+}
+
+function collapseGlycoCT(evt){
+    evt.preventDefault()
+    var handle = $(this)
+    var symbol = handle.find(".glyphicon")
+    handle.parent().find(".gycoct-contaner").toggle()
+    invertCaret(symbol)
+}
+
+$(function(){
+    configureCollapse();
+    configureHighlightCleavage()
+    $('.fraction').each(function(key, value) {
+        $this = $(this)
+        var split = $this.html().split("/")
+        if( split.length == 2 ){
+            $this.html('<span class="frac-top">'+split[0]+'</span><span class="frac-bottom">'+split[1]+'</span>')
+        }    
+    });
+})
+
+
+</script>

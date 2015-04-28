@@ -194,12 +194,12 @@ class GlycoCT(object):
     '''
 
     @classmethod
-    def loads(cls, glycoct_str):
+    def loads(cls, glycoct_str, structure_class=Glycan):
         '''Parse results from |str|'''
         rep = StringIO(glycoct_str)
-        return cls(rep)
+        return cls(rep, structure_class=structure_class)
 
-    def __init__(self, stream):
+    def __init__(self, stream, structure_class=Glycan):
         '''
         Creates a parser of condensed GlycoCT.
 
@@ -216,6 +216,7 @@ class GlycoCT(object):
         self.repeats = {}
         self.root = None
         self._iter = None
+        self.structure_class = structure_class
 
     def _read(self):
         for line in self.handle:
@@ -363,7 +364,7 @@ class GlycoCT(object):
                 logger.debug("RES")
                 if self.root is not None and not self.in_repeat:
                     logger.debug("yielding root")
-                    yield Glycan(self.root)
+                    yield self.structure_class(self.root)
                     self._reset()
             elif LIN == line.strip():
                 if self.state != RES:
@@ -408,19 +409,19 @@ class GlycoCT(object):
             else:
                 raise GlycoCTError("Unknown format error: {}".format(line))
         self.in_repeat = False
-        yield Glycan(self.root)
+        yield self.structure_class(self.root)
 
 
-def read(stream):
+def read(stream, structure_class=Glycan):
     '''
     A convenience wrapper for :class:`GlycoCT`
     '''
-    return GlycoCT(stream)
+    return GlycoCT(stream, structure_class=structure_class)
 
 
-def loads(glycoct_str):
+def loads(glycoct_str, structure_class=Glycan):
     '''
     A convenience wrapper for :meth:`GlycoCT.loads`
     '''
 
-    return GlycoCT.loads(glycoct_str)
+    return GlycoCT.loads(glycoct_str, structure_class=structure_class)

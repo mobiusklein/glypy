@@ -1,0 +1,61 @@
+<table class='ion-observation table table-compact'>
+    <thead>
+        <tr>
+            <th>Ion</th>
+            <th>Mass</th>
+            <th>PPM Error</th>
+            <th>Intensity</th>
+            <th>Matches</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ion_group in match.matches | sort(attribute="mass") | groupby("mass") %}
+            <tr>
+                <td class="matched-ion-names">
+                    {% for ion in ion_group.list %}
+                        {% if loop.index > 1 %}
+                            &nbsp;
+                        {% endif %}
+                        <span class="labeled-data match-key {{ion.match_key}} label label-primary">
+                            {{ion.match_key|replace(":", "")}}
+                        </span>
+                    {% endfor %}
+                </td>
+            {% set ion = ion_group.list[0] %}
+                <td>{{ion.mass | limit_sigfig}}</td>
+                <td>{{ion.ppm_error | scientific_notation}}</td>
+                <td>{{ion.intensity | limit_sigfig}}</td>
+                <td>
+                    {{ion.matches|length}}
+                    <a class='ion-collapse-caret' data-target='{{ion.match_key|replace(":", "-")}}'>
+                        <span class="glyphicon glyphicon-chevron-down"></span>
+                    </a>
+                </td>
+            </tr>
+            <tr class='per-observation {{ion.match_key|replace(":", "-")}}' style='display: none;'>
+                <td colspan=10>
+                    <table class='table table-compact'>
+                        <thead>
+                            <tr>
+                                <th>Scan ID</th>
+                                <th>PPM Error</th>
+                                <th>Intensity</th>
+                                <th>Charge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for scan, obs in ion_group.list[0].matches.items()|sort(attribute=0) %}
+                            <tr>
+                                <td>{{scan}}</td>
+                                <td>{{obs.ppm_error | scientific_notation }}</td> 
+                                <td>{{obs.intensity | limit_sigfig}}</td> 
+                                <td>{{obs.charge}}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

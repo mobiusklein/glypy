@@ -106,7 +106,9 @@ def graph_clone(monosaccharide, visited=None):
     :class:`Monosaccharide`:
         The root of a newly duplicated and identical residue graph
     '''
+    index = {}
     clone_root = monosaccharide.clone(prop_id=True)
+    index[clone_root.id] = clone_root
     node_stack = [(clone_root, monosaccharide)]
     visited = set() if visited is None else visited
     while(len(node_stack) > 0):
@@ -119,7 +121,11 @@ def graph_clone(monosaccharide, visited=None):
             terminal = link.to(ref)
             if terminal.id in visited:
                 continue
-            clone_terminal = terminal.clone(prop_id=True)
+            # Handle cycles where the same node is linked many times
+            if terminal.id in index:
+                clone_terminal = index[terminal.id]
+            else:
+                index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
             clone_terminal.id = terminal.id
             if link.is_child(terminal):
                 link.clone(clone, clone_terminal)
@@ -861,7 +867,7 @@ class Monosaccharide(SaccharideBase):
                 self.total_composition() == other.total_composition()
         return flat
 
-    def exact_ordering_equality(self, other, substituents=True):
+    def exact_ordering_equality(self, other, substituents=True, visited=None):
         '''
         Performs equality testing between two monosaccharides where
         the exact position (and ordering by sort) of links must to match between
@@ -871,6 +877,13 @@ class Monosaccharide(SaccharideBase):
         -------
         |bool|
         '''
+        if visited is None:
+            visited = set()
+        if (self.id, other.id) in visited:
+            return True
+
+        visited.add((self.id, other.id))
+
         if self._flat_equality(other):
             if substituents:
                 for a_sub, b_sub in zip(self.substituents(), other.substituents()):
@@ -882,12 +895,14 @@ class Monosaccharide(SaccharideBase):
             for a_child, b_child in zip(self.children(), other.children()):
                 if a_child[0] != b_child[0]:
                     return False
-                if not a_child[1].exact_ordering_equality(b_child[1], substituents=substituents):
+                if not a_child[1].exact_ordering_equality(b_child[1],
+                                                          substituents=substituents,
+                                                          visited=visited):
                     return False
             return True
         return False
 
-    def topological_equality(self, other, substituents=True):
+    def topological_equality(self, other, substituents=True, visited=None):
         '''
         Performs equality testing between two monosaccharides where
         the exact ordering of child links does not have to match between
@@ -898,6 +913,10 @@ class Monosaccharide(SaccharideBase):
         -------
         |bool|
         '''
+        if visited is None:
+            visited = set()
+        if (self.id, other.id) in visited:
+            return True
         if self._flat_equality(other) and (not substituents or self._match_substituents(other)):
             taken_b = set()
             b_children = list(other.children())
@@ -907,7 +926,9 @@ class Monosaccharide(SaccharideBase):
                 for b_pos, b_child in b_children:
                     if (b_pos, b_child.id) in taken_b:
                         continue
-                    if a_child.topological_equality(b_child, substituents=substituents):
+                    if a_child.topological_equality(b_child,
+                                                    substituents=substituents,
+                                                    visited=visited):
                         matched = True
                         taken_b.add((b_pos, b_child.id))
                         break

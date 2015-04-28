@@ -1,8 +1,17 @@
 from itertools import cycle
 from collections import defaultdict
+try:
+    from lxml import etree as ET
+except:
+    try:
+        from xml.etree import cElementTree as ET
+    except:
+        from xml.etree import ElementTree as ET
+
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.colors import cnames
+
 from jinja2 import Environment, PackageLoader
 
 from pygly2.composition import composition_transform
@@ -52,7 +61,9 @@ def cfg_plot(record):
     fig.savefig(img_buffer, format="svg")
     plt.close(fig)
 
-    return img_buffer.getvalue()
+    root, ids = ET.XMLID(img_buffer.getvalue())
+    root.set("id", dtree.uuid)
+    return ET.tostring(root)
 
 
 def scientific_notation(num):
@@ -64,7 +75,7 @@ def limit_sigfig(num):
 
 
 def create_environment():
-    loader = PackageLoader("pygly2", "search")
+    loader = PackageLoader("pygly2", "search/results_template")
     env = Environment(loader=loader)
     env.filters["collect_fragments"] = collect_fragments
     env.filters["strip_derivatize"] = strip_derivatize_glycoct

@@ -214,3 +214,17 @@ LIN
 30:30d(5+1)31n
 31:1o(6+1)32d
 '''
+
+
+structures["cyclical_glycan"] = '''
+RES
+1b:a-dglc-HEX-1:5
+2b:a-dglc-HEX-1:5
+3b:a-dglc-HEX-1:5
+4b:a-dglc-HEX-1:5
+LIN
+1:1o(3+1)2d
+2:2o(6+1)3d
+3:3o(3+1)4d
+4:4o(6+1)1d
+'''

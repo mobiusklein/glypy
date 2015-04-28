@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matching Results</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cosmo/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    {% include "style.templ" %}
+    {% include "scripts.templ" %}
+</head>
+<body class='container'>
+{% include "header.templ" %}
+{% if settings is not none %}
+<h2>Settings</h2>
+    {% for key, value in settings.items() %}
+        <div class="settings-item">
+        {% if key == "mass_shift" %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span>
+            {% for shift in value %}
+                {% if shift.name != "" %}
+                    <span class='label label-info'>{{shift.name}}: {{shift.mass}}</span>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span> {{value}}
+        {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}
+<h2>Matching Results</h2>
+{% for match in matches | sort(attribute='intact_mass')%}
+    <div id="entry-{{match.id}}" class='structure-match'>
+        <h4>Matches for {{match.id}}</h4>
+        <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
+        <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error[0] | scientific_notation}}</span>
+        <span class='labeled-data'><b>Score: </b> {{match.score | limit_sigfig}} </span>
+        <span class='labeled-data'><b>Fragments <small class='fraction'>Observed / Total</small>: </b> {{(match|collect_fragments|length / match.fragments|length) | limit_sigfig }} </span>
+    {% if match.matches|length > 0 %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        {% include 'ion-table.templ' %}
+                    <td>
+                        <pre class='glycoct'>
+{{match|strip_derivatize}}
+                        </pre>
+                        {{match | cfg_plot}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+    <p>No MS2 Matches Found</p>
+    {% endif %}
+    </div>
+{% endfor %}
+{% include "footer.templ" %}
+</body>
+</html>

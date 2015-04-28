@@ -1,7 +1,7 @@
 import operator
 import logging
 import itertools
-import re
+import warnings
 from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
@@ -10,6 +10,7 @@ from .base import SaccharideBase
 from .constants import RingType
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments
+from .fragment import Fragment
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
 
@@ -33,33 +34,6 @@ fragment_direction = {
 }
 
 MAIN_BRANCH_SYM = '-'
-
-Fragment = make_struct(
-    "Fragment", ("kind", "link_ids", "included_nodes", "mass", "name"))
-'''
-A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
-
-Created by :func:`make_struct`.
-
-Attributes
-----------
-kind: |str|
-    One of A, B, C, X, Y, or Z for each link broken or ring cleaved
-
-link_ids: |list| of |int|
-    The :attr:`id` value of each link cleaved.
-
-included_nodes: |list| of |int|
-    The :attr:`id` value of each |Monosaccharide| contained in the fragment
-
-mass: |float|
-    The mass or `m/z` of the fragment.
-
-See Also
---------
-:meth:`Glycan.fragments`
-:func:`.make_struct`
-'''
 
 
 DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
@@ -98,15 +72,8 @@ def fragment_to_substructure(fragment, tree):
         The |Glycan| substructure defined by the nodes contained in `fragment` as
         found in `tree`
     """
-    # Align the fragment locations with their id values.
-    # Be aware that cross-ring cleavages are labeled differently.
-    ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
-    links_broken = fragment.link_ids
-
-    pairings = zip(ion_types, links_broken)
-
-    break_targets = [link_id for ion_type, link_id in pairings if ion_type[0] == ""]
-    crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+    break_targets = fragment.link_ids
+    crossring_targets = fragment.crossring_cleavages
 
     # All operations will be done on a copy of the tree of interest
     tree = tree.clone()
@@ -207,12 +174,21 @@ class Glycan(SaccharideBase):
         self.deindex()
         traversal = self._get_traversal_method(method)
         index = []
+        visited = set()
         i = 1
         for node in traversal():
+            addr = id(node)
+            if addr in visited:
+                continue
+            visited.add(addr)
             index.append(node)
         for node in index:
-            node.id = i
-            i += 1
+            if node.id < 0:
+                node.id = i
+                i += 1
+            else:
+                warnings.warn("A cyclic structure has been detected.\
+                 Internal fragments may not be calculated correctly")
 
         link_index = []
         for pos, link in self.iterlinks(method=method):
@@ -633,7 +609,12 @@ class Glycan(SaccharideBase):
         lin_accumulator = []
         dependencies = defaultdict(dict)
 
+        visited = set()
+
         for node in (self):
+            if node.id in visited:
+                continue
+            visited.add(node.id)
             res, lin, index = node.to_glycoct(
                 res_counter, lin_counter, complete=False)
 
@@ -1077,16 +1058,9 @@ class Glycan(SaccharideBase):
         Attempt to assign a full name to a fragment based on the branch and position relative to
         the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
         '''
-        ring_coordinates, ion_kind = re.search(r"(\d+,\d+)?(\S)", fragment.kind).groups()
-        ring_coordinates = "" if ring_coordinates is None else ring_coordinates
 
-        ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
-        links_broken = fragment.link_ids
-
-        pairings = zip(ion_types, links_broken)
-
-        break_targets = {link_id: ion_type for ion_type, link_id in pairings if ion_type[0] == ""}
-        crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+        break_targets = fragment.link_ids
+        crossring_targets = fragment.crossring_cleavages
 
         # Accumulator for name components
         name_parts = []

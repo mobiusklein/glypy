@@ -4,7 +4,7 @@ from collections import defaultdict
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False,
-                              exact=True):
+                              exact=True, visited=None):
     '''
     A heuristic for measuring similarity between monosaccharide instances
 
@@ -41,6 +41,14 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         Number of expected matching traits assuming perfect equality
     '''
 
+    if visited is None:
+        visited = set()
+
+    if (node.id, target.id) in visited:
+        return 0, 0
+
+    visited.add((node.id, target.id))
+
     res = 0
     qs = 0
     res += (node.anomer == target.anomer) or (target.anomer.value is None)
@@ -76,7 +84,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
             for node_child in node_children:
                 c_res, c_qs = monosaccharide_similarity(
                     node_child, target_child, include_substituents=include_substituents,
-                    include_modifications=include_modifications, include_children=include_children)
+                    include_modifications=include_modifications,
+                    include_children=include_children, visited=visited)
                 match_index[node_child.id, target_child.id] = (c_res, c_qs)
 
         assignments = optimal_assignment(match_index, operator.sub)

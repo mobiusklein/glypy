@@ -18,6 +18,10 @@ MassShift = make_struct("MassShift", ["name", "mass"])
 NoShift = MassShift("", 0.0)
 
 
+def strip_shift_label(match_key):
+    return match_key.split(":")[0]
+
+
 def neutral_mass(mz, z):
     return (mz * z) - (z * PROTON)
 
@@ -80,6 +84,7 @@ def find_matches(precursor, msms_db, shifts=None,
     precursor.scan_ids = scans_searched
     precursor.intact_structures_searched = i
     precursor.matches = collect_matches(chain.from_iterable(results))
+    precursor.score = simple_score(precursor)
     return precursor
 
 
@@ -144,3 +149,25 @@ def collect_matched_scans(matches, msms_db):
     scans_not_matched = tuple(msms_db.execute("select * from Scans where scan_id not in {}".format(scan_ids)))
     count_not_matched = len(scans_not_matched)
     return len(scan_ids), count_not_matched
+
+
+def simple_score(record):
+    total_mass = record.mass()
+    for fragment in record.fragments:
+        fragment.score = fragment.mass / total_mass
+    total_score = sum(fragment.score for fragment in record.fragments)
+
+    for fragment in record.fragments:
+        fragment.score /= total_score
+
+    fmap = {f.name: f for f in record.fragments}
+
+    score = 0
+    observed = set()
+    for match in record.matches:
+        key = strip_shift_label(match.match_key)
+        if key in observed:
+            continue
+        observed.add(key)
+        score += fmap[key].score
+    return score
