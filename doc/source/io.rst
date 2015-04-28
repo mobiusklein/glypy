@@ -2,7 +2,6 @@ Serialization and I/O Formats
 =============================
 
 .. toctree::
-    :name: io_toc
     :maxdepth: 2
 
     io/glycoct

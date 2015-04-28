@@ -6,7 +6,7 @@ Many helper functions used throughout the rest of the library.
 
 .. currentmodule:: pygl2.utils
 
-.. automodule:: pygly2.utils.__init__
+.. automodule:: pygly2.utils.base
     :members:
 
 .. automodule:: pygly2.utils.enum
