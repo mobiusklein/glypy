@@ -55,7 +55,6 @@ def make_gid(s):
 def breadth_first_traversal(tree, visited=None):
     if visited is None:
         visited = set()
-    print tree.id
     if tree.id not in visited:
         visited.add(tree.id)
         yield tree
@@ -115,7 +114,6 @@ def get_link_pair(tree, link_id):
 
 
 def resolve_creation_cycle(node, parent, depth, i, parent_linkage, visited):
-    print node.id, parent.id, visited.keys()
     if node.id in visited:
         return visited[node.id]
     else:
@@ -535,6 +533,7 @@ class DrawTreeNode(object):
             self.data['patches'][fragment.name] = line[0]
             self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
             line[0].set_gid(self.uuid + '-' + fragment.name)
+            annotation_name = re.sub(r'\d,\d', '', fragment.name)
             if fragment.kind[-1] == "X":
                 line = ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
@@ -543,7 +542,7 @@ class DrawTreeNode(object):
                     (cx + scale, cx + 2 * scale), (cy - scale, cy - scale)
 
                 if label:
-                    ax.text((cx + scale) - 0.4, (cy - scale) - .15, fragment.name)
+                    ax.text((cx + scale) - 0.4, (cy - scale) - .15, annotation_name)
             else:
                 line = ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
@@ -551,7 +550,7 @@ class DrawTreeNode(object):
                 self.data['position'][fragment.name + "_direction"] =\
                     (cx - scale, cx - scale * 2), (cy + scale, cy + scale)
                 if label:
-                    ax.text((cx - scale) - 0.42, (cy + scale) + .01, fragment.name)
+                    ax.text((cx - scale) - 0.42, (cy + scale) + .01, annotation_name)
 
 
 def get_root(structure):

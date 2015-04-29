@@ -12,7 +12,9 @@ except:
 from pygly2.algorithms import database
 from pygly2.utils import pickle
 
-from .matching import find_matches, DEFAULT_MS2_MATCH_TOLERANCE, DEFAULT_MS1_MATCH_TOLERANCE, MassShift, NoShift
+from .matching import (find_matches, DEFAULT_MS2_MATCH_TOLERANCE,
+                       DEFAULT_MS1_MATCH_TOLERANCE, MassShift,
+                       NoShift, collect_matched_scans)
 from .spectra import bupid_topdown_deconvoluter, spectra
 from .report import render
 
@@ -46,7 +48,10 @@ def main(structure_database, observed_data,
                                ion_types=ion_types)
         if results.intact_structures_searched > 0:
             matches.append(results)
-    return matches
+    results = {}
+    results["count_scans_matched"], results["count_scans_not_matched"] = collect_matched_scans(matches, observed_db)
+
+    return matches, results
 
 
 app = argparse.ArgumentParser("pygly-ms2")
@@ -77,18 +82,24 @@ def taskmain():
                 MassShift(name.replace("'", ""), float(mass.replace("'", "")))
                 )
         args.mass_shift = shifts + [NoShift]
-    matches = main(args.structure_database, args.observed_data,
+    results = main(args.structure_database, args.observed_data,
                    shifts=args.mass_shift,
                    ms1_match_tolerance=args.ms1_tolerance,
                    ms2_match_tolerance=args.ms2_tolerance,
                    ion_types=args.ion_types)
+    matches, experimental_statistics = results
     if args.output is None:
         args.output = os.path.splitext(args.structure_database)[0] + ".results"
     outfile = open(args.output + ".html", "w")
-    outfile.write(render(matches, args.__dict__))
+    outfile.write(render(matches, experimental_statistics, args.__dict__))
     outfile.close()
     store_file = open(args.output + ".pkl", 'wb')
-    pickle.dump({"matches": matches, "settings": args.__dict__}, store_file)
+    pickle.dump({
+        "matches": matches,
+        "experimental_statistics": experimental_statistics,
+        "settings": args.__dict__},
+        store_file)
+
     store_file.close()
     logger.debug("Done")
 

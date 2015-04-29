@@ -84,7 +84,7 @@ def querymethod(func):
     return classmethod(QueryMethod(func))
 
 
-class RecordMethodsMeta(type):
+class _RecordMethodsMeta(type):
     def __new__(cls, name, bases, body):
         querymethods = {}
         for fname, func in body.items():
@@ -130,7 +130,7 @@ class GlycanRecordBase(object):
     The translation to SQL values is carried out by :meth:`.to_sql`, and is restored from
     a query row by :meth:`.from_sql`.
     '''
-    __metaclass__ = RecordMethodsMeta
+    __metaclass__ = _RecordMethodsMeta
     #: Default table name used
     __table_name = "GlycanRecord"
 
@@ -421,7 +421,7 @@ def extract_composition(record, max_size=120):
 
     Parameters
     ----------
-    record: :class:`GlycanRecord`
+    record: GlycanRecord
         The record to serialize :attr:`.monosaccharides` for
     max_size: int
         The maximum size of the resulting string allowed under the target
@@ -583,29 +583,6 @@ class GlycanRecord(GlycanRecordBase):
         return data
 
 
-# def make_rectype(recname="GlycanRecordType", **kwargs):
-#     '''
-#     Programmatically create a new ``type`` based on :class:`GlycanRecord` at
-#     run time.
-
-#     A helper method for creating new specializations of the
-#     GlycanRecord class which only add new metadata mappings
-#     that the user does not want to add to all instances of the
-#     GlycanRecord type.
-
-#     Parameters
-#     ----------
-#     recname: str
-#         The name of the new subclass. Defaults to "GlycanRecordType".
-#         Does not need to be unique.
-#     **kwargs: dict
-#         Passing arbitrary key-value pairs of names and tuples of data type strings
-#         and transform functions to be added to the metadata mapping
-#     '''
-#     rectype = type(recname, (GlycanRecord,), {"_{}__metadata_map".format(recname): kwargs})
-#     return rectype
-
-
 class RecordDatabase(object):
     '''
     A wrapper around an Sqlite3 database for storing and searching GlycanRecord
@@ -634,12 +611,12 @@ class RecordDatabase(object):
 
     Parameters
     ----------
-    connection_string: :class:`str`
+    connection_string: str
         The path to the Sqlite database file, or the ":memory:" special
         keyword defining the database to be held directly in memory.
-    record_type: :class:`type`
+    record_type: type
         The class type of the records assumed to be stored in this database. Defaults to :class:`GlycanRecord`
-    records: :class:`list`
+    records: list
         A list of `record_type` records to insert immediately on table creation.
     '''
     def __init__(self, connection_string=":memory:", record_type=GlycanRecord, records=None):
@@ -851,3 +828,6 @@ class RecordDatabase(object):
             lower=lower, upper=upper, table_name=target_table))
         for result in results:
             yield self.record_type.from_sql(result)
+
+#: Open a database. Alias of :meth:`RecordDatabase.__init__`
+dbopen = RecordDatabase

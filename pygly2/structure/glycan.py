@@ -1,7 +1,6 @@
 import operator
 import logging
 import itertools
-import warnings
 from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
@@ -186,9 +185,6 @@ class Glycan(SaccharideBase):
             if node.id < 0:
                 node.id = i
                 i += 1
-            else:
-                warnings.warn("A cyclic structure has been detected.\
-                 Internal fragments may not be calculated correctly")
 
         link_index = []
         for pos, link in self.iterlinks(method=method):
@@ -239,6 +235,12 @@ class Glycan(SaccharideBase):
             return self.index[ix]
         else:
             raise IndexError("Tried to access the index of an unindexed Glycan.")
+
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, state):
+        self.__dict__ = state
 
     def get(self, ix):
         for node in self:
@@ -609,6 +611,7 @@ class Glycan(SaccharideBase):
         lin_accumulator = []
         dependencies = defaultdict(dict)
 
+        # Detect cycles and avoid including the same residue twice
         visited = set()
 
         for node in (self):
@@ -658,12 +661,12 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        average: bool, optional, defaults to False
+        average: bool
             Whether or not to use the average isotopic composition when calculating masses.
             When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: int, optional, defaults to 0
+        charge: int
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: dict, optional, defaults to None
+        mass_data: dict
             If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
 
@@ -729,7 +732,8 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        self, other: :class:`~pygly2.structure.glycan.Glycan`
+        self: :class:`Glycan`
+        other: :class:`Glycan`
 
         Returns
         -------
@@ -749,13 +753,6 @@ class Glycan(SaccharideBase):
         '''
         Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
         created by removing one or more monosaccharide-monosaccharide bond.
-
-        .. note::
-            While generating fragments with `inplace = True`, the |Glycan| object is being permuted. All of the
-            changes being made are reversed during the generation process, and the glycan is
-            returned to the same state it was in when :meth:`~.fragments` was called by the end
-            of the generator. Do not attempt to use the |Glycan| object for other things while
-            fragmenting it. If you must, copy it first with :meth:`~.clone`.
 
 
         Parameters
@@ -984,17 +981,10 @@ class Glycan(SaccharideBase):
                     logger.debug("Reapplying %d", link.id)
                     link.apply()
 
-    def substructures(self, max_cleavages=1, min_cleavages=1, min_size=2):
+    def substructures(self, max_cleavages=1, min_cleavages=1, min_size=2, inplace=False):
         '''
         Generate disjoint subtrees from this glycan by examining by removing one or
         more monosaccharide-monosaccharide bond.
-
-        .. note::
-            While generating substructures, the glycan object is being permuted. All of the
-            changes being made are reversed during the generation process, and the glycan is
-            returned to the same state it was in when :meth:`~.substructures` was called by the end
-            of the generator. Do not attempt to use the glycan object for other things while
-            fragmenting it. If you must, copy it first with :meth:`~.clone`.
 
 
         Parameters
@@ -1010,8 +1000,11 @@ class Glycan(SaccharideBase):
         --------
         :func:`pygly2.composition.composition.calculate_mass`
         '''
+        structure = self
+        if not inplace:
+            structure = self.clone()
         results_container = DisjointTrees
-        for frag in self.break_links_subtrees(
+        for frag in structure.break_links_subtrees(
                 max_cleavages, min_size=min_size):
             yield results_container(*frag)
 

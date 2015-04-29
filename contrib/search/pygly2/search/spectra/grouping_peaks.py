@@ -1,11 +1,13 @@
 import csv
 from spectra import ObservedPrecursorSpectrum, Scan
 
+
 def tryfloat(obj):
     try:
         return float(obj)
     except:
         return obj
+
 
 class DeconRow(object):
     '''

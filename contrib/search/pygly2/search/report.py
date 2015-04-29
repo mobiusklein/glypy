@@ -74,6 +74,10 @@ def limit_sigfig(num):
     return "%0.4f" % num
 
 
+def unique(iterable):
+    return set(iterable)
+
+
 def create_environment():
     loader = PackageLoader("pygly2", "search/results_template")
     env = Environment(loader=loader)
@@ -81,12 +85,18 @@ def create_environment():
     env.filters["strip_derivatize"] = strip_derivatize_glycoct
     env.filters["scientific_notation"] = scientific_notation
     env.filters["cfg_plot"] = cfg_plot
+    env.filters["min"] = min
+    env.filters["max"] = max
+    env.filters["unique"] = unique
     env.filters["limit_sigfig"] = limit_sigfig
 
     template = env.get_template("results.templ")
     return template
 
 
-def render(matches, settings=None):
+def render(matches, experimental_statistics=None, settings=None):
     template = create_environment()
-    return template.render(matches=matches, settings=settings)
+    return template.render(
+        matches=matches,
+        experimental_statistics=experimental_statistics,
+        settings=settings)

@@ -26,10 +26,13 @@ function highlightCleavage(handle, svgContainer){
     svgContainer = svgContainer === undefined ? getGlycanSVG(handle) : svgContainer
     var svgUUID = svgContainer.attr("id")
     var cleavageType = handle.text().split("-")[0].replace(/\n|\s\s+/g, "")
+    var cleavageGroup = svgContainer.find(("#" + svgUUID + "-" + cleavageType).replace(/\n|\s\s+/g, ""))
     var cleavageTag = svgContainer.find(
         ("#" + svgUUID + "-" + cleavageType + " path, " + "#" + svgUUID + "-" + cleavageType + "-direction path").replace(/\n|\s\s/g, ""))
     handle.hover(
         function(evt){
+            cleavageGroup.detach()
+            svgContainer.append(cleavageGroup)
             cleavageTag.attr("class", "highlight-cleavage")},
         function(evt){
             cleavageTag.attr("class", "")}
@@ -52,8 +55,10 @@ function configureHighlightCleavage(){
 
 
 function configureCollapse(){
-    var carets = $(".collapse-caret")
+    var carets = $(".ion-collapse-caret")
     carets.click(collapseIonMatches)
+    carets = $(".glycoct-collapse-caret")
+    carets.click(collapseGlycoCT)
 }
 
 function invertCaret(symbol){
@@ -81,7 +86,7 @@ function collapseGlycoCT(evt){
     evt.preventDefault()
     var handle = $(this)
     var symbol = handle.find(".glyphicon")
-    handle.parent().find(".gycoct-contaner").toggle()
+    handle.parent().parent().find(".glycoct-container").toggle()
     invertCaret(symbol)
 }
 

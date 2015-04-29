@@ -5,7 +5,9 @@ from sqlalchemy import PickleType, Numeric, String, create_engine, Column, Integ
 from pygly2 import Glycan
 from pygly2.io import glycoct as glycoct_parser
 
+
 Base = declarative_base()
+
 
 class ExtGlycanRecord(Base):
     __tablename__ = "ExtGlycanRecord"

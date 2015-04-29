@@ -56,7 +56,7 @@ class MSMSSqlDB(object):
 
     def __getitem__(self, scan_id):
         results = []
-        for row in self.execute('''select neutral_mass, charge,
+        for row in self.execute('''select *,
              ObservedPrecursorSpectrum.precursor_id, other_data from ObservedPrecursorSpectrum
              join Scans on ObservedPrecursorSpectrum.precursor_id =
              Scans.precursor_id where scan_id = {0};'''.format(scan_id)):
@@ -64,7 +64,7 @@ class MSMSSqlDB(object):
         return results
 
     def __iter__(self):
-        for row in self.execute("select * from ObservedPrecursorSpectrum;"):
+        for row in self.execute("select * from ObservedPrecursorSpectrum order by neutral_mass;"):
             yield self.precursor_type.from_sql(row, self)
 
     def execute(self, *args, **kwargs):

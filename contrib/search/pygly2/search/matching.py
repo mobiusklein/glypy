@@ -5,11 +5,23 @@ from collections import defaultdict
 from pygly2.utils import make_struct
 from pygly2 import Composition
 
+
+def _machine_epsilon(func=float):
+    machine_epsilon = func(1)
+    while func(1)+func(machine_epsilon) != func(1):
+        machine_epsilon_last = machine_epsilon
+        machine_epsilon = func(machine_epsilon) / func(2)
+    return machine_epsilon_last
+
+
 crossring_pattern = re.compile(r"\d,\d")
 
 PROTON = Composition("H+").mass
 DEFAULT_MS2_MATCH_TOLERANCE = 2e-5
 DEFAULT_MS1_MATCH_TOLERANCE = 1e-5
+MACHINE_EPSILON = _machine_epsilon()
+
+
 FragmentMatch = make_struct("FragmentMatch", ["match_key", "mass", "ppm_error",
                                               "intensity", "charge", "scan_id"])
 MergedMatch = make_struct("MergedMatch", ["match_key", "mass", "ppm_error", "intensity",
@@ -59,13 +71,40 @@ def collect_similar_ions(fragments, tolerance=2e-8, redundant=True):
 
 def find_matches(precursor, msms_db, shifts=None,
                  ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
-                 ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE, ion_types="ABCXYZ"):
-    '''
-    Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
+                 ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE, ion_types=('A', 'B', 'C', 'X', 'Y', 'Z')):
+    '''Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
+
+    Parameters
+    ----------
+    precursor: GlycanRecord
+        Precursor Glycan to search for
+    msms_db : MSMSSqlDB
+        The observed MS and MSMS Spectra
+    shifts : list of MassShift, optional
+        List of mass shifts to apply to each mass searched, defaults to :const:`NoShift`
+    ms1_match_tolerance : float, optional
+        PPM matching tolerance for MS1 search. Defaults to :const:`DEFAULT_MS1_MATCH_TOLERANCE`
+    ms2_match_tolerance : float, optional
+        PPM matching tolerance for MS2 search. Defaults to :const:`DEFAULT_MS2_MATCH_TOLERANCE`
+    ion_types : iterable, optional
+        Iterable of ion types to search for. Defaults to ('A', 'B', 'C', 'X', 'Y', 'Z')
+
+    Returns
+    -------
+    precursor: GlycanRecord
+        precursor is modified to contain new attributes
+            - charge_states
+            - ppm_error
+            - scan_ids
+            - intact_structures_searched
+            - scan_density
+            - matches
+            - score
     '''
     shifts = shifts or [NoShift]
     results = []
     precursor_ppm_errors = []
+    precursor_charge_state = []
     scans_searched = set()
     i = 0
     ion_types = map(sorted, ion_types)
@@ -75,14 +114,19 @@ def find_matches(precursor, msms_db, shifts=None,
         for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):
             spectrum = msms_db.precursor_type.from_sql(row, msms_db)
             precursor_ppm_errors.append(ppm_error(precursor.mass() + shift.mass, spectrum.neutral_mass))
+            precursor_charge_state.append(spectrum.charge)
             scans_searched.update(spectrum.scan_ids)
             matches = match_fragments(precursor.fragments, spectrum.tandem_data,
                                       shifts=shifts, ms2_match_tolerance=ms2_match_tolerance)
             results.append(matches)
             i += 1
+
+    precursor.charge_states = precursor_charge_state
     precursor.ppm_error = precursor_ppm_errors
     precursor.scan_ids = scans_searched
     precursor.intact_structures_searched = i
+
+    precursor.scan_density = scan_density(precursor)
     precursor.matches = collect_matches(chain.from_iterable(results))
     precursor.score = simple_score(precursor)
     return precursor
@@ -171,3 +215,17 @@ def simple_score(record):
         observed.add(key)
         score += fmap[key].score
     return score
+
+
+def scan_density(record):
+    scan_range = record.scan_ids
+    if len(scan_range) == 0:
+        return 0.
+    min_scan = min(scan_range)
+    max_scan = max(scan_range)
+    total_scans = len(scan_range)
+    try:
+        scan_density = total_scans / (float(max_scan - min_scan))
+    except ZeroDivisionError:
+        scan_density = 0.
+    return scan_density
