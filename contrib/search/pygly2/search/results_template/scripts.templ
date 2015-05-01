@@ -25,19 +25,23 @@ function highlightCleavage(handle, svgContainer){
     handle = $(handle === undefined ? (this) : handle)
     svgContainer = svgContainer === undefined ? getGlycanSVG(handle) : svgContainer
     var svgUUID = svgContainer.attr("id")
-    var cleavageType = handle.text().split("-")[0].replace(/\n|\s\s+/g, "")
-    var cleavageGroup = svgContainer.find(("#" + svgUUID + "-" + cleavageType).replace(/\n|\s\s+/g, ""))
-    var cleavageTag = svgContainer.find(
-        ("#" + svgUUID + "-" + cleavageType + " path, " + "#" + svgUUID + "-" + cleavageType + "-direction path").replace(/\n|\s\s/g, ""))
-    handle.hover(
-        function(evt){
+    var cleavageType = handle.text().replace(/\n|\s\s+/g, "").replace(",", "_").split("-")
+    handle.hover(function(evt){
+        for(var i = 0; i < cleavageType.length; i++){
+            var cleavageGroup = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i]).replace(/\n|\s\s+/g, ""))
+            var cleavageTag = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i] + " path, " + "#" + svgUUID + "-" + cleavageType[i] + "-direction path").replace(/\n|\s\s/g, ""))
             cleavageGroup.detach()
             svgContainer.append(cleavageGroup)
-            cleavageTag.attr("class", "highlight-cleavage")},
-        function(evt){
-            cleavageTag.attr("class", "")}
-    )
+            cleavageTag.attr("class", "highlight-cleavage")
+        }    
+    }, function(evt){ 
+        for(var i = 0; i < cleavageType.length; i++){
+            var cleavageGroup = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i]).replace(/\n|\s\s+/g, ""))
+            var cleavageTag = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i] + " path, " + "#" + svgUUID + "-" + cleavageType[i] + "-direction path").replace(/\n|\s\s/g, ""))
 
+            cleavageTag.attr("class", "")
+        }
+    })
 }
 
 

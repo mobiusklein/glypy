@@ -41,7 +41,6 @@ class Fragment(object):
     See Also
     --------
     :meth:`Glycan.fragments`
-    :func:`.make_struct`
     '''
     __slots__ = [
         "mass",
@@ -68,9 +67,21 @@ class Fragment(object):
             link_ids_splitter(self, self.link_ids, self.kind)
 
     def is_reducing(self):
+        """Is this fragment from the reducing end
+
+        Returns
+        -------
+        |bool|
+        """
         return set(self.kind) in set("XYZ")
 
     def is_non_reducing(self):
+        """Is this fragment from the non-reducing end
+
+        Returns
+        -------
+        |bool|
+        """
         return set(self.kind) in set("ABC")
 
     def __getstate__(self):

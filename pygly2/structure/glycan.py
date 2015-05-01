@@ -16,14 +16,14 @@ from ..composition import Composition
 methodcaller = operator.methodcaller
 logger = logging.getLogger("Glycan")
 
-fragment_shift = {
+_fragment_shift = {
     "B": Composition(O=1, H=2),
     "Y": Composition(),
     "C": Composition(),
     "Z": Composition(H=2, O=1),
 }
 
-fragment_direction = {
+_fragment_direction = {
     "A": -1,
     "B": -1,
     "C": -1,
@@ -76,6 +76,8 @@ def fragment_to_substructure(fragment, tree):
 
     # All operations will be done on a copy of the tree of interest
     tree = tree.clone()
+    crossring_targets_nodes = []
+    break_targets_nodes = []
     # A point of reference known to be inside the fragment tree
     anchor = None
     for pos, link in tree.iterlinks():
@@ -85,23 +87,29 @@ def fragment_to_substructure(fragment, tree):
             ion_type = crossring_targets[link.child.id]
             c1, c2 = map(int, ion_type[0].split(","))
             target = tree.get(link.child.id)
-            a_frag, x_frag = crossring_fragments(target, c1, c2, attach=True, copy=False)
-            residue_toggle(target).next()
-
-            for pos, link in a_frag.links.items():
-                if link[a_frag].id in fragment.included_nodes:
-                    anchor = a_frag
-
-            for pos, link in x_frag.links.items():
-                if link[x_frag].id in fragment.included_nodes:
-                    anchor = x_frag
+            crossring_targets_nodes.append((target, c1, c2))
         # If this link was cleaved, break it and find an anchor
         if link.id in break_targets:
-            parent, child = link.break_link(refund=True)
-            if parent.id in fragment.included_nodes:
-                anchor = parent
-            elif child.id in fragment.included_nodes:
-                anchor = child
+            break_targets_nodes.append(link)
+
+    for target in crossring_targets_nodes:
+        a_frag, x_frag = crossring_fragments(target, c1, c2, attach=True, copy=False)
+        residue_toggle(target).next()
+
+        for pos, link in a_frag.links.items():
+            if link[a_frag].id in fragment.included_nodes:
+                anchor = a_frag
+
+        for pos, link in x_frag.links.items():
+            if link[x_frag].id in fragment.included_nodes:
+                anchor = x_frag
+
+    for link in break_targets_nodes:
+        parent, child = link.break_link(refund=True)
+        if parent.id in fragment.included_nodes:
+            anchor = parent
+        elif child.id in fragment.included_nodes:
+            anchor = child
 
     # Build a new tree from the anchor
     substructure = Glycan(root=anchor, index_method=None).reroot()
@@ -434,7 +442,7 @@ class Glycan(SaccharideBase):
         return traversal(
             from_node=from_node, apply_fn=apply_fn, visited=visited)
 
-    def iterlinks(self, substituents=False, method='dfs', visited=None):
+    def iterlinks(self, apply_fn=identity, substituents=False, method='dfs', visited=None):
         '''
         Iterates over all |Link| objects in |Glycan|.
 
@@ -458,12 +466,16 @@ class Glycan(SaccharideBase):
         def links(obj):
             if substituents:
                 for pos, link in obj.substituent_links.items():
-                    yield (pos, link)
+                    res = apply_fn((pos, link))
+                    if res:
+                        yield res
             for pos, link in obj.links.items():
                 if link.id in links_visited:
                     continue
                 links_visited.add(link.id)
-                yield (pos, link)
+                res = apply_fn((pos, link))
+                if res:
+                    yield res
 
         return itertools.chain.from_iterable(
             traversal(apply_fn=links, visited=visited))
@@ -863,13 +875,13 @@ class Glycan(SaccharideBase):
                     child_frags = list(child_tree.break_links(
                         n_links, kind=(kind), average=average, charge=charge, mass_data=mass_data, visited=visited))
                     for k in (kind) & set("YZ"):
-                        offset = fragment_shift[k].calc_mass(
+                        offset = _fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
                         for ion_type, link_ids, include, mass in parent_frags:
                             yield ion_type + k, link_ids + [break_id], include, mass - offset
 
                     for k in (kind) & set("BC"):
-                        offset = fragment_shift[k].calc_mass(
+                        offset = _fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
                         for ion_type, link_ids, include, mass in child_frags:
                             yield ion_type + k, link_ids + [break_id], include, mass - offset
@@ -920,14 +932,14 @@ class Glycan(SaccharideBase):
                     parent_include = [n.id for n in parent_tree]
                     child_include = [n.id for n in child_tree]
                     for k in (kind) & set("YZ"):
-                        offset = fragment_shift[k].calc_mass(
+                        offset = _fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
                         mass = parent_tree.mass(
                             average=average, charge=charge, mass_data=mass_data) - offset
                         yield (k, [break_id], parent_include, mass)
 
                     for k in (kind) & set("BC"):
-                        offset = fragment_shift[k].calc_mass(
+                        offset = _fragment_shift[k].calc_mass(
                             average=average, mass_data=mass_data)
                         mass = child_tree.mass(
                             average=average, charge=charge, mass_data=mass_data) - offset
@@ -1064,7 +1076,7 @@ class Glycan(SaccharideBase):
                 if link.child.id == crossring_id:
                     ion_type = crossring_targets[crossring_id]
                     label = link.label
-                    if fragment_direction[ion_type[1]] > 0:
+                    if _fragment_direction[ion_type[1]] > 0:
                         name = "{}{}".format(''.join(map(str, ion_type)), label.replace(MAIN_BRANCH_SYM, ""))
                         name_parts.append(name)
                     else:
@@ -1078,7 +1090,7 @@ class Glycan(SaccharideBase):
         # Collect glycocidic fragment names
         for break_id, ion_type in break_targets.items():
             ion_type = ion_type[1]
-            if fragment_direction[ion_type] > 0:
+            if _fragment_direction[ion_type] > 0:
                 link = self.link_index[break_id - 1]
                 label = link.label
                 name = "{}{}".format(ion_type, label.replace(MAIN_BRANCH_SYM, ""))

@@ -2,8 +2,10 @@ import os
 import logging
 from pygly2.algorithms import database
 from .common_transforms import monoisotopic_mass
-from pygly2.utils import identity
+from pygly2.utils import identity, pickle
 
+from multiprocessing import Pool
+from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,24 @@ def record_handle(record, mass_transform_parameters, fragmentation_parameters):
     return record
 
 
-def prepare_database(in_database, out_database=None, mass_transform_parameters=None, fragmentation_parameters=None):
+def _chunk_iter(iter, size=50):
+    results = []
+    for entry in iter:
+        results.append(entry)
+        if len(results) == size:
+            yield results
+            results = []
+    yield results
+
+
+def _strip_bound_db_gen(record_iter):
+    for record in record_iter:
+        record._bound_db = 0
+        yield record
+
+
+def prepare_database(in_database, out_database=None, mass_transform_parameters=None,
+                     fragmentation_parameters=None, n_processes=1):
     if isinstance(in_database, str):
         in_database = database.RecordDatabase(in_database)
     if out_database is None:
@@ -50,13 +69,35 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
         out_database = database.RecordDatabase(out_database_string, record_type=in_database.record_type)
     elif isinstance(out_database, str):
         out_database = database.RecordDatabase(out_database, record_type=in_database.record_type)
-    for i, record in enumerate(in_database):
-        mass = mass_transform(record, **(mass_transform_parameters or {}))
-        fragments = extract_fragments(record, fragmentation_parameters)
-        record.fragments = fragments
-        record.intact_mass = mass
-        out_database.load_data([record], commit=False, mass_params={"override": mass})
-        logger.info("%d records processed", i)
+    if n_processes == 1:
+        for i, record in enumerate(in_database):
+            mass = mass_transform(record, **(mass_transform_parameters or {}))
+            fragments = extract_fragments(record, fragmentation_parameters)
+            record.fragments = fragments
+            record.intact_mass = mass
+            out_database.load_data([record], commit=False, mass_params={"override": mass})
+            logger.info("%d records processed", i)
+    else:
+        print("Using pool")
+        worker_pool = Pool(n_processes, maxtasksperchild=3)
+        taskfn = partial(record_handle,
+                         mass_transform_parameters=mass_transform_parameters,
+                         fragmentation_parameters=fragmentation_parameters)
+        do_work = True
+        size = 30
+        g = _chunk_iter(_strip_bound_db_gen(in_database), size)
+        while do_work:
+            job = g.next()
+            if len(job) < size:
+                do_work = False
+            for i, record in enumerate(worker_pool.imap_unordered(taskfn, job, chunksize=1)):
+                mass = record.intact_mass
+                out_database.load_data([record], set_id=False, commit=False, mass_params={"override": mass})
+                logger.info("%d records processed", i)
+                print(i)
+            out_database.commit()
+            print(len(out_database))
+            del job
     out_database.commit()
     return out_database
 

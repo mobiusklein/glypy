@@ -1,9 +1,10 @@
+import re
 import argparse
 import os
 import sys
 import logging
 try:
-    logging.basicConfig(level=logging.INFO,
+    logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s - %(name)s:%(funcName)s:%(lineno)d - %(levelname)s - %(message)s",
                         datefmt="%H:%M:%S")
     logger = logging.getLogger()
@@ -39,19 +40,30 @@ def main(structure_database, observed_data,
         observed_db = observed_data
     else:
         raise Exception("Cannot load data: {}".format(observed_data))
+    spectral_match_db = []
     matches = []
     for structure in structure_database:
-        results = find_matches(structure, observed_db,
-                               shifts=shifts,
-                               ms1_match_tolerance=ms1_match_tolerance,
-                               ms2_match_tolerance=ms2_match_tolerance,
-                               ion_types=ion_types)
+        results, spectral_matches = find_matches(structure, observed_db,
+                                                 shifts=shifts,
+                                                 ms1_match_tolerance=ms1_match_tolerance,
+                                                 ms2_match_tolerance=ms2_match_tolerance,
+                                                 ion_types=ion_types)
+        spectral_match_db.append(spectral_matches)
+        # for matched_spec in spectral_matches:
+        #     precursor = spectral_match_db[matched_spec["precursor_id"]]
+        #     if len(precursor) == 0:
+        #         precursor = observed_db[matched_spec["precursor_id"]][0]
+        #     else:
+        #         precursor = precursor[0]
+
         if results.intact_structures_searched > 0:
             matches.append(results)
     results = {}
-    results["count_scans_matched"], results["count_scans_not_matched"] = collect_matched_scans(matches, observed_db)
+    scans_matched, scans_not_matched = map(list, collect_matched_scans(matches, observed_db))
+    results["count_scans_matched"] = len(scans_matched)
+    results["count_scans_not_matched"] = len(scans_not_matched)
 
-    return matches, results
+    return matches, results, scans_matched, scans_not_matched, spectral_match_db
 
 
 app = argparse.ArgumentParser("pygly-ms2")
@@ -60,7 +72,7 @@ app.add_argument("-d", "--observed-data", help='Path to the observed ion data to
 app.add_argument("-t1", "--ms1-tolerance", type=float, default=DEFAULT_MS1_MATCH_TOLERANCE, help='PPM match tolerance for MS1 Matching')
 app.add_argument("-t2", "--ms2-tolerance", type=float, default=DEFAULT_MS2_MATCH_TOLERANCE, help='PPM match tolerance for MS2 Matching')
 app.add_argument("-i", "--ion-types", action="append", default=[],
-                 help='Control which ion types (ABCXYZ and multiples of them for internal fragments)\
+                 help='Control which ion types (A,B,C,X,Y,Z and multiples of them for internal fragments)\
                  are considered as a comma separated list. Defaults to A,B,C,X,Y,Z.')
 app.add_argument("-m", "--mass-shift", action='append', nargs=2, default=[])
 app.add_argument("-o", "--output", default=None)
@@ -79,7 +91,7 @@ def taskmain():
         shifts = []
         for name, mass in args.mass_shift:
             shifts.append(
-                MassShift(name.replace("'", ""), float(mass.replace("'", "")))
+                MassShift(re.sub(r"'|\\", '', name), float(re.sub(r"'|\\", '', mass)))
                 )
         args.mass_shift = shifts + [NoShift]
     results = main(args.structure_database, args.observed_data,
@@ -87,18 +99,23 @@ def taskmain():
                    ms1_match_tolerance=args.ms1_tolerance,
                    ms2_match_tolerance=args.ms2_tolerance,
                    ion_types=args.ion_types)
-    matches, experimental_statistics = results
+    matches, experimental_statistics, scans_matched, scans_not_matched, spectral_match_db = results
     if args.output is None:
         args.output = os.path.splitext(args.structure_database)[0] + ".results"
-    outfile = open(args.output + ".html", "w")
-    outfile.write(render(matches, experimental_statistics, args.__dict__))
-    outfile.close()
     store_file = open(args.output + ".pkl", 'wb')
-    pickle.dump({
+    packed_results = {
         "matches": matches,
         "experimental_statistics": experimental_statistics,
-        "settings": args.__dict__},
-        store_file)
+        "settings": args.__dict__,
+        "scans_matched": scans_matched,
+        "scans_not_matched": scans_not_matched,
+        "spectral_match_db": spectral_match_db
+    }
+    pickle.dump(packed_results, store_file)
+    store_file.close()
+    outfile = open(args.output + ".html", "w")
+    outfile.write(render(**packed_results))
+    outfile.close()
 
     store_file.close()
     logger.debug("Done")

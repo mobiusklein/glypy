@@ -18,7 +18,7 @@ except:  # pragma: no cover
         from StringIO import StringIO
     except:
         from io import StringIO
-from .base import opener, make_counter, invert_dict, identity, nullop, chrinc, make_struct, classproperty
+from .base import opener, make_counter, invert_dict, identity, nullop, chrinc, make_struct, classproperty, cyclewarning
 
 __all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop']
 

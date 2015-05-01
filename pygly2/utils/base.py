@@ -1,5 +1,11 @@
+import warnings
 import sys
 import gzip
+
+
+def cyclewarning():
+    warnings.warn("A cyclic glycan may be present. They may not cross-ring fragment correctly.")
+
 
 def opener(obj, mode='r'):
     '''
@@ -41,7 +47,10 @@ def make_counter(start=1, label=""):
     ----------
     start: int, optional
         The number to start counting from. Defaults to `1`.
-    return: int
+
+    Returns
+    -------
+    int:
         The next number in the count progression.
     '''
     start = [start]
@@ -71,6 +80,13 @@ def make_struct(name, fields, debug=False):
     for named accessor lookup, unlike `namedtuple`. If the named container does not
     require any special logic and won't be extended, the resulting structure is best for
     storing and accessing the data.
+
+    Parameters
+    ----------
+    name: str
+        The name of the new class structure
+    fields: iterable of str
+
     '''
     template = ('''
 class {name}(object):

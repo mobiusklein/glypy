@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import logging
+import functools
 from collections import Counter, Iterable
 
 import pygly2
@@ -72,29 +73,6 @@ def metadata(name, dtype, transform):
     return func
 
 
-class QueryMethod(object):
-    def __init__(self, func):
-        self.func = func
-
-    def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
-
-
-def querymethod(func):
-    return classmethod(QueryMethod(func))
-
-
-class _RecordMethodsMeta(type):
-    def __new__(cls, name, bases, body):
-        querymethods = {}
-        for fname, func in body.items():
-            if isinstance(func, classmethod) and isinstance(func.__func__, QueryMethod):
-                querymethods[fname] = func
-        body['_query_methods'.format(name)] = querymethods
-        typ = type.__new__(cls, name, bases, body)
-        return typ
-
-
 class GlycanRecordBase(object):
     '''
     Defines the base class for SQL serialize-able records carrying
@@ -130,7 +108,7 @@ class GlycanRecordBase(object):
     The translation to SQL values is carried out by :meth:`.to_sql`, and is restored from
     a query row by :meth:`.from_sql`.
     '''
-    __metaclass__ = _RecordMethodsMeta
+
     #: Default table name used
     __table_name = "GlycanRecord"
 
@@ -149,8 +127,6 @@ class GlycanRecordBase(object):
     #: metadata mappings. Add metadata here to
     #: include in all GlycanRecordBase'd objects
     __metadata_map = {}
-
-    __query_methods = {}
 
     @classmethod
     def add_metadata(cls, name, dtype, transform):
@@ -283,7 +259,7 @@ class GlycanRecordBase(object):
         values = {}
         values['id'] = self.id
         values['mass'] = self.mass(**(mass_params or {}))
-        _bound_db = self._bound_db
+        _bound_db = getattr(self, "_bound_db", None)
         self._bound_db = None
         values['structure'] = pickle.dumps(self)
         self._bound_db = _bound_db
@@ -356,10 +332,6 @@ class GlycanRecordBase(object):
         Setter for :attr:`.table_name`
         '''
         cls.__table_name = value
-
-    @classproperty
-    def query_methods(cls):
-        return cls._query_methods
 
     @classmethod
     def from_sql(cls, row, *args, **kwargs):
@@ -439,13 +411,13 @@ def extract_composition(record, max_size=120):
     return '\"' + ' '.join(composition_list) + '\"'
 
 
-def query_composition(prefix=None, **kwargs):
+def _query_composition(prefix=None, **kwargs):
     if prefix is None:
         prefix = ''
     else:
         prefix += '.'
     col_name = prefix + "composition"
-    composition_list = ["{} like %{}:{}%".format(col_name, name, count) for name, count in kwargs.items()]
+    composition_list = ["{} like '%{}:{}%'".format(col_name, name, count) for name, count in kwargs.items()]
     return ' and '.join(composition_list)
 
 
@@ -522,13 +494,25 @@ class GlycanRecord(GlycanRecordBase):
 
     __metadata_map = {}
 
-    extract_composition = staticmethod(extract_composition)
-    query_composition = staticmethod(query_composition)
+    @classmethod
+    def query_like_composition(cls, conn, record=None, prefix=None):
+        stmt = "select * from {table_name} where " + _query_composition(prefix, **record.monosaccharides) + ";"
+        for result in conn.execute(stmt):
+            yield cls.from_sql(result, conn)
 
-    @querymethod
-    def find_like_composition(cls, cursor, select_stmt="select * from {table_name}", prefix=None, record=None):
-        stmt = select_stmt + " " + cls.query_composition(prefix, **record.monosaccharides) + ";"
-        return cursor.execute(stmt)
+    @classmethod
+    def add_index(cls, *args, **kwargs):
+        '''
+        Generate the base table's indices for fast search
+
+        Yields
+        ------
+        str:
+            The SQL script block describing the mass_index of the GlycanRecord table
+        '''
+        for stmt in super(GlycanRecord, cls).add_index(*args, **kwargs):
+            yield stmt
+        yield "create index if not exists n_glycan on {table_name}(is_n_glycan desc);"
 
     @property
     def monosaccharides(self):
@@ -632,6 +616,11 @@ class RecordDatabase(object):
         self.record_type = record_type
         self._id = 0
 
+        for name in dir(record_type):
+            if "query_" in name:
+                method = getattr(record_type, name)
+                setattr(self, name, functools.partial(method, conn=self))
+
         if records is not None:
             self.apply_schema()
             self.load_data(records)
@@ -652,8 +641,8 @@ class RecordDatabase(object):
             The SQL table definition statements generated may drop existing tables. Calling
             this function on an already populated table can cause data loss.
         '''
-        self.connection.executescript('\n'.join(self.record_type.sql_schema()))
-        self.connection.commit()
+        self.executescript('\n'.join(self.record_type.sql_schema()))
+        self.commit()
         self._id = 0
 
     def apply_indices(self):
@@ -664,8 +653,8 @@ class RecordDatabase(object):
         May be called during initialization if data was added.
         '''
         for ix_stmt in self.record_type.add_index():
-            self.connection.executescript(ix_stmt)
-        self.connection.commit()
+            self.execute(ix_stmt)
+        self.commit()
 
     def load_data(self, record_list, commit=True, set_id=True, **kwargs):
         '''
@@ -693,6 +682,12 @@ class RecordDatabase(object):
             self.commit()
 
     def __len__(self):
+        """The number of records in the database
+
+        Returns
+        -------
+        int
+        """
         res = (self.execute("select count(glycan_id) from {table_name};").next())["count(glycan_id)"]
         return res or 0
 
@@ -759,6 +754,10 @@ class RecordDatabase(object):
             return True
         except IndexError:
             return False
+
+    def __repr__(self):  # pragma: no cover
+        rep = "<RecordDatabase {} records>".format(len(self))
+        return rep
 
     def sub_table_name(self, string, key='table_name'):
         '''

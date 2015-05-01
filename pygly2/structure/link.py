@@ -318,7 +318,7 @@ class Link(object):
 
         Returns
         -------
-        bool
+        |bool|
         '''
         if self.is_substituent_link():
             parent = self in self.parent.substituent_links[self.parent_position]
@@ -353,15 +353,6 @@ class Link(object):
             child=self.child,
             child_loss=child_loss_str,
             child_position=self.child_position)
-
-
-def glycocidic_bond(parent, child, parent_position, child_position):
-    '''A convenient shortcut for constructing glycans'''
-    link = Link(parent, child, parent_position=parent_position,
-                child_position=child_position,
-                parent_loss=Composition(formula="H"),
-                child_loss=Composition(formula="OH"))
-    return link
 
 
 class LinkMaskContext(object):  # pragma: no cover

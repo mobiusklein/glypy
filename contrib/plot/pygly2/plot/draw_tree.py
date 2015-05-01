@@ -466,13 +466,9 @@ class DrawTreeNode(object):
         if fragment is None:
             raise Exception("`fragment` is required")
         scale *= 2
-        ion_types = re.findall(r"(\d+,\d+)?(\S)", fragment.kind)
-        links_broken = fragment.link_ids
 
-        pairings = zip(ion_types, links_broken)
-
-        break_targets = [link_id for ion_type, link_id in pairings if ion_type[0] == ""]
-        crossring_targets = {node_id: ion_type for ion_type, node_id in pairings if ion_type[0] != ""}
+        break_targets = fragment.link_ids
+        crossring_targets = fragment.crossring_cleavages
 
         for link_break in break_targets:
             parent, child = self.get_link_pair(link_break)
@@ -532,7 +528,7 @@ class DrawTreeNode(object):
             line = ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
             self.data['patches'][fragment.name] = line[0]
             self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
-            line[0].set_gid(self.uuid + '-' + fragment.name)
+            line[0].set_gid(self.uuid + '-' + fragment.name.replace(",", '_'))
             annotation_name = re.sub(r'\d,\d', '', fragment.name)
             if fragment.kind[-1] == "X":
                 line = ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
@@ -545,7 +541,7 @@ class DrawTreeNode(object):
                     ax.text((cx + scale) - 0.4, (cy - scale) - .15, annotation_name)
             else:
                 line = ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
-                line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
+                line[0].set_gid(self.uuid + '-' + fragment.name.replace(",", '_') + "-direction")
                 self.data['patches'][fragment.name + "_direction"] = line[0]
                 self.data['position'][fragment.name + "_direction"] =\
                     (cx - scale, cx - scale * 2), (cy + scale, cy + scale)

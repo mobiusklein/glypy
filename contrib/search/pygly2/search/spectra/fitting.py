@@ -5,20 +5,21 @@ try:
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s - %(name)s:%(funcName)s:%(lineno)d - %(levelname)s - %(message)s",
                         datefmt="%H:%M:%S")
-    logger = logging.getLogger(__name__)
 except:
     pass
 from pygly2.algorithms import database
 
 from ..matching import (DEFAULT_MS2_MATCH_TOLERANCE,
-                        DEFAULT_MS1_MATCH_TOLERANCE, MassShift,
-                        NoShift, collect_matched_scans,
+                        DEFAULT_MS1_MATCH_TOLERANCE,
+                        MassShift,
+                        NoShift,
                         crossring_pattern,
                         ppm_error, match_fragments)
 from ..spectra import bupid_topdown_deconvoluter, spectra
 
 from collections import Counter
 
+logger = logging.getLogger(__name__)
 
 reducing_end_type = {"X", "Y", "Z"}
 terminal_end_type = {"A", "B", "C"}

@@ -47,8 +47,10 @@ def cfg_plot(record):
             dtree.draw_cleavage(ax, fmap[match_key], color='red', label=True)
         elif order == 2:
             untruncated = True
+            frag = fmap[match_key]
             for f in fmap.values():
-                if f.mass == match.mass and f.name in match.match_key and f.name != match.match_key:
+                if f.mass == frag.mass and set(f.included_nodes) >= set(frag.included_nodes)\
+                   and f.name != match.match_key:
                     untruncated = False
                     break
             if untruncated:
@@ -94,9 +96,9 @@ def create_environment():
     return template
 
 
-def render(matches, experimental_statistics=None, settings=None):
+def render(matches, experimental_statistics=None, settings=None, **kwargs):
     template = create_environment()
     return template.render(
         matches=matches,
         experimental_statistics=experimental_statistics,
-        settings=settings)
+        settings=settings, **kwargs)

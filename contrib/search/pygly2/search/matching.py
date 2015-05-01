@@ -2,8 +2,11 @@ import re
 from math import fabs
 from itertools import chain
 from collections import defaultdict
-from pygly2.utils import make_struct
+
 from pygly2 import Composition
+from pygly2.utils import make_struct
+
+from pygly2.search.spectra import MSMSSqlDB
 
 
 def _machine_epsilon(func=float):
@@ -23,9 +26,9 @@ MACHINE_EPSILON = _machine_epsilon()
 
 
 FragmentMatch = make_struct("FragmentMatch", ["match_key", "mass", "ppm_error",
-                                              "intensity", "charge", "scan_id"])
+                                              "intensity", "charge", "peak_id"])
 MergedMatch = make_struct("MergedMatch", ["match_key", "mass", "ppm_error", "intensity",
-                                          "charge", "scan_id", "matches"])
+                                          "charge", "peak_id", "matches"])
 MassShift = make_struct("MassShift", ["name", "mass"])
 NoShift = MassShift("", 0.0)
 
@@ -40,13 +43,6 @@ def neutral_mass(mz, z):
 
 def mass_charge_ratio(neutral_mass, z):
     return (neutral_mass + (z * PROTON)) / z
-
-default_fragmentation_parameters = {
-    "kind": "BYX",
-    "max_cleavages": 2,
-    "average": False,
-    "charge": 0
-}
 
 
 def ppm_error(x, y):
@@ -71,7 +67,9 @@ def collect_similar_ions(fragments, tolerance=2e-8, redundant=True):
 
 def find_matches(precursor, msms_db, shifts=None,
                  ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
-                 ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE, ion_types=('A', 'B', 'C', 'X', 'Y', 'Z')):
+                 ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
+                 ion_types=('A', 'B', 'C', 'X', 'Y', 'Z'),
+                 spectrum_matches=None):
     '''Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
 
     Parameters
@@ -106,18 +104,22 @@ def find_matches(precursor, msms_db, shifts=None,
     precursor_ppm_errors = []
     precursor_charge_state = []
     scans_searched = set()
+    if spectrum_matches is None:
+        spectrum_matches = []
     i = 0
-    ion_types = map(sorted, ion_types)
-    precursor.fragments = [f for f in precursor.fragments if sorted(crossring_pattern.sub("", f.kind)) in (ion_types)]
-
+    ion_types = map(''.join, map(sorted, ion_types))
+    precursor.fragments = [f for f in precursor.fragments
+                           if ''.join(sorted(crossring_pattern.sub("", f.kind))) in (ion_types)]
     for shift in shifts:
         for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):
             spectrum = msms_db.precursor_type.from_sql(row, msms_db)
             precursor_ppm_errors.append(ppm_error(precursor.mass() + shift.mass, spectrum.neutral_mass))
             precursor_charge_state.append(spectrum.charge)
             scans_searched.update(spectrum.scan_ids)
-            matches = match_fragments(precursor.fragments, spectrum.tandem_data,
-                                      shifts=shifts, ms2_match_tolerance=ms2_match_tolerance)
+            matches = match_fragments(precursor.fragments, spectrum,
+                                      shifts=shifts,
+                                      ms2_match_tolerance=ms2_match_tolerance,
+                                      spectrum_matches=spectrum_matches)
             results.append(matches)
             i += 1
 
@@ -129,13 +131,18 @@ def find_matches(precursor, msms_db, shifts=None,
     precursor.scan_density = scan_density(precursor)
     precursor.matches = collect_matches(chain.from_iterable(results))
     precursor.score = simple_score(precursor)
-    return precursor
+    return precursor, spectrum_matches
 
 
-def match_fragments(fragments, peak_list, shifts=None, ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE):
+def match_fragments(fragments, precursor, shifts=None,
+                    ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
+                    spectrum_matches=None):
     '''
     Match theoretical MS2 fragments against the observed peaks.
     '''
+    if spectrum_matches is None:
+        spectrum_matches = []
+    peak_list = precursor.tandem_data
     shifts = shifts or [NoShift]
     matches = []
     for shift in shifts:
@@ -146,6 +153,8 @@ def match_fragments(fragments, peak_list, shifts=None, ms2_match_tolerance=DEFAU
                     matches.append(FragmentMatch(
                         fragment.name + ":" + shift.name, peak.mass,
                         match_error, peak.intensity, peak.charge, peak.id))
+                    spectrum_matches.append({"precursor_id": precursor.id, "peak_id": peak.id,
+                                             "fragment_name": fragment.name + ":" + shift.name})
     return matches
 
 
@@ -171,10 +180,10 @@ def merge_matches(matches):
         if fabs(match.ppm_error) < fabs(best_ppm):
             best_ppm = match.ppm_error
             best_match = match
-        match_map[match.scan_id] = match
+        match_map[match.peak_id] = match
     merged = MergedMatch(best_match.match_key, best_match.mass, best_match.ppm_error,
                          best_match.intensity, best_match.charge,
-                         best_match.scan_id, match_map)
+                         best_match.peak_id, match_map)
     return merged
 
 
@@ -190,9 +199,8 @@ def collect_matched_scans(matches, msms_db):
         Observed Data
     '''
     scan_ids = tuple({scan_id for match in matches for scan_id in match.scan_ids})
-    scans_not_matched = tuple(msms_db.execute("select * from Scans where scan_id not in {}".format(scan_ids)))
-    count_not_matched = len(scans_not_matched)
-    return len(scan_ids), count_not_matched
+    scans_not_matched = map(dict, msms_db.execute("select scan_id from Scans where scan_id not in {}".format(scan_ids)))
+    return scan_ids, scans_not_matched
 
 
 def simple_score(record):

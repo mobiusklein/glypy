@@ -8,7 +8,7 @@ from .link import Link
 from .base import SaccharideBase
 
 from ..io.format_constants_map import anomer_map, superclass_map
-from ..utils import invert_dict, make_counter, StringIO, identity as ident_op
+from ..utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning
 from ..utils.multimap import OrderedMultiMap
 from ..utils.enum import EnumValue
 from ..composition import Composition, calculate_mass
@@ -124,6 +124,7 @@ def graph_clone(monosaccharide, visited=None):
             # Handle cycles where the same node is linked many times
             if terminal.id in index:
                 clone_terminal = index[terminal.id]
+                cyclewarning()
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
             clone_terminal.id = terminal.id
@@ -137,17 +138,29 @@ def graph_clone(monosaccharide, visited=None):
 
 
 def release(monosaccharide):
-    '''
-    Break all monosaccharide-monosaccharide links on `monosaccharide`, returning
+    '''Break all monosaccharide-monosaccharide links on `monosaccharide`, returning
     them as a list. Breaking is done with `refund=True`
+
+    Parameters
+    ----------
+    monosaccharide : Monosaccharide
+        |Monosaccharide| to break all links on
+
+    Returns
+    -------
+    list of tuple(link, (link.parent, link.child))
     '''
     return [(link, link.try_break_link(refund=True)) for link in list(monosaccharide.links.values())]
 
 
 def toggle(monosaccharide):
-    '''
-    A simple generator for declaratively masking and masking a residue's links. The
+    '''A simple generator for declaratively masking and masking a residue's links. The
     first iteration masks all links. The second unmasks them. Calls :func:`release`
+
+    Parameters
+    ----------
+    monosaccharide : Monosaccharide
+        |Monosaccharide| to mask links on
     '''
     links = release(monosaccharide)
     yield links
@@ -172,10 +185,10 @@ class Monosaccharide(SaccharideBase):
 
     Attributes
     ----------
-    anomer: :class:`Anomer` or {'alpha', 'beta', 'uncyclized', 'x', 'missing', None}
+    anomer: :class:`Anomer`
         An entry of :class:`~pygly2.structure.constants.Anomer` that corresponds to the linkage type
         of the carbohydrate backbone. Is an entry of a class based on :class:`Enum`
-    superclass: :class:`SuperClass` or {'tri', 'tet', 'pen', 'hex', 'hep', 'oct', 'non' 'missing', 'x', None}
+    superclass: :class:`SuperClass`
         An entry of :class:`~pygly2.structure.constants.SuperClass` that corresponds to the number of
         carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the
         instance and the number of positions open to be linked to or modified. Is an entry of a class
@@ -184,13 +197,13 @@ class Monosaccharide(SaccharideBase):
         An entry of |Configuration| which corresponds to the optical
         stereomer state of the instance. Is an entry of a class based on :class:`Enum`. May possess
         more than one value.
-    stem: :class:`Stem` or {"gro", "ery", "rib", "ara", "all", "alt", "glc", "man", "tre", "xyl", "lyx", "gul", "ido", "gal", "tal", "thr", 'x', 'missing', None}
+    stem: :class:`Stem`
         Corresponds to the bond conformation of the carbohydrate backbone. Is an entry of a class based
         on :class:`Enum`. May possess more than one value.
-    ring_start: int or {0, -1, 'x', None}
+    ring_start: |int|
         The index of the carbon of the carbohydrate backbone that starts a ring. A value of `-1`, `'x'`, or
         |None| corresponds to an unknown start. A value of `0` refers to a linear chain.
-    ring_end:  int or {0, -1, 'x', None}
+    ring_end:  |int|
         The index of the carbon of the carbohydrate backbone that ends a ring. A value of `-1`, `'x'`, or
         |None| corresponds to an unknown ends. A value of `0` refers to a linear chain.
     reducing_end: :class:`int`
@@ -206,7 +219,7 @@ class Monosaccharide(SaccharideBase):
         An instance of |Composition| corresponding to the elemental composition
         of ``self`` and its immediate modifications. If not provided, this will be inferred
         from field values.
-    reduced: ReducedEnd
+    reduced: :class:`ReducedEnd`
         An instance of ReducedEnd, or the value |True|, represents a reduced sugar. May be inferred
         from `modifications` if "aldi" is present
     '''
@@ -945,6 +958,8 @@ class Monosaccharide(SaccharideBase):
         fashion. Used by :meth:`topological_equality`
         '''
         taken_b = set()
+        b_num_unknown = len(other.substituent_links[-1])
+        unknown_cntr = 0
         b_substituents = list(other.substituents())
         cntr = 0
         for a_pos, a_substituent in self.substituents():
@@ -952,14 +967,20 @@ class Monosaccharide(SaccharideBase):
             cntr += 1
             for b_pos, b_substituent in b_substituents:
                 if b_pos in taken_b:
-                    continue
+                    if b_pos != -1:
+                        continue
+                    else:
+                        if unknown_cntr < b_num_unknown:
+                            unknown_cntr += 1
+                        else:
+                            continue
                 if b_substituent == a_substituent:
                     matched = True
                     taken_b.add(b_pos)
                     break
             if not matched and cntr > 0:
                 return False
-        if len(taken_b) != len(b_substituents):
+        if len(taken_b) + unknown_cntr != len(b_substituents):
             return False
         return True
 
@@ -1069,6 +1090,13 @@ class Monosaccharide(SaccharideBase):
         '''
         Returns an iterator over the :class:`Monosaccharide` instancess which are considered
         the descendants of `self`.  Alias for `__iter__`
+
+        Yields
+        ------
+        position: int
+            Location of the bond to the child |Monosaccharide|
+        child: |Monosaccharide|
+            |Monosaccharide| at `position`
         '''
         for pos, link in self.links.items():
             if link.is_child(self):
@@ -1079,6 +1107,13 @@ class Monosaccharide(SaccharideBase):
         '''
         Returns an iterator over the :class:`Monosaccharide` instances which are considered
         the ancestors of `self`.
+
+        Yields
+        ------
+        position: int
+            Location of the bond to the parent |Monosaccharide|
+        parent: |Monosaccharide|
+            |Monosaccharide| at `position`
         '''
         for pos, link in self.links.items():
             if link.is_parent(self):
@@ -1089,6 +1124,13 @@ class Monosaccharide(SaccharideBase):
         '''
         Returns an iterator over all substituents attached1
         to :obj:`self` by a :class:`~.link.Link` object stored in :attr:`~.substituent_links`
+
+        Yields
+        ------
+        position: int
+            Location of the bond to the substituent
+        substituent: Substituent
+            |Substituent| at `position`
         '''
         for pos, link in self.substituent_links.items():
             yield pos, link.to(self)
@@ -1113,6 +1155,20 @@ class Monosaccharide(SaccharideBase):
 
 
 class ReducedEnd(object):
+    """Represents the composition shift and conformation change created
+    by reducing a |Monosaccharide|.
+
+    Attributes
+    -------
+    composition : |Composition|
+    substituents: |OrderedMultiMap|
+    valence: |int|
+        Number of substituents this node can host
+    id: |int|
+        Unique identifier
+
+    There is also a class attribute, :attr:`name` for comparison with :attr:`~.Modification.aldi`
+    """
     name = 'aldi'
 
     def __init__(self, composition=None, substituents=None, valence=1, id=None):

@@ -14,7 +14,7 @@ class GlycanRecordTest(unittest.TestCase):
         saccharides = {'Hex': 7, u'HexNAc': 6, 'dHex': 1}
         self.assertEqual(saccharides, rec.monosaccharides)
 
-        self.assertEqual(database.GlycanRecord.extract_composition(rec), '"Hex:7 HexNAc:6 dHex:1"')
+        self.assertEqual(database.extract_composition(rec), '"Hex:7 HexNAc:6 dHex:1"')
 
     def test_to_sql(self):
         rec = database.GlycanRecord(load("broad_n_glycan"))

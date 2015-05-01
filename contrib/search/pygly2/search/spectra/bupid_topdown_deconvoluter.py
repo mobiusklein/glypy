@@ -32,11 +32,11 @@ class BUPIDYamlParser(DeconIOBase):
             precursor = peak_data["scans"][0]
             precursor_mz = precursor["mz"]
             precursor_charge = precursor["z"]
-            # if precursor_charge > ms_constants.MAX_PRECURSOR_CHARGE_STATE:
-            #     continue
+            if precursor_charge > ms_constants.MAX_PRECURSOR_CHARGE_STATE:
+                continue
             precursor_neutral_mass = neutral_mass(
                 precursor_mz, precursor_charge)
-            tandem_data = [ObservedTandemSpectrum(*ion) for
+            tandem_data = [ObservedTandemSpectrum(*ion, precursor_id=tandem_ms_ind) for
                            ion in itertools.izip(
                                peak_data["mass"], peak_data["z"], peak_data["intensity"])
                            if (ion[1] <= precursor_charge)  # and
@@ -52,5 +52,5 @@ class BUPIDYamlParser(DeconIOBase):
                                                          precursor_charge,
                                                          precursor_neutral_mass,
                                                          tandem_data)
-            observed_spectra._iterkey = tandem_ms_ind
+            observed_spectra.id = tandem_ms_ind
             self.data[tandem_ms_ind] = observed_spectra

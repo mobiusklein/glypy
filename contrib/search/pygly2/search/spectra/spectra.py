@@ -56,15 +56,22 @@ class MSMSSqlDB(object):
 
     def __getitem__(self, scan_id):
         results = []
-        for row in self.execute('''select *,
-             ObservedPrecursorSpectrum.precursor_id, other_data from ObservedPrecursorSpectrum
-             join Scans on ObservedPrecursorSpectrum.precursor_id =
-             Scans.precursor_id where scan_id = {0};'''.format(scan_id)):
+        for row in self.execute('''SELECT *,
+             ObservedPrecursorSpectrum.precursor_id, other_data FROM ObservedPrecursorSpectrum
+             JOIN Scans ON ObservedPrecursorSpectrum.precursor_id =
+             Scans.precursor_id WHERE scan_id = {0};'''.format(scan_id)):
             results.append(self.precursor_type.from_sql(row, self))
         return results
 
+    def get_tandem_spectra(self, id):
+        results = []
+        for row in self.execute('''SELECT * FROM ObservedTandemSpectrum WHERE
+                                   tandem_id = {}'''.format(id)):
+            results.append(ObservedTandemSpectrum.from_sql(row, self))
+        return results
+
     def __iter__(self):
-        for row in self.execute("select * from ObservedPrecursorSpectrum order by neutral_mass;"):
+        for row in self.execute("SELECT * FROM ObservedPrecursorSpectrum ORDER BY neutral_mass;"):
             yield self.precursor_type.from_sql(row, self)
 
     def execute(self, *args, **kwargs):
@@ -89,14 +96,14 @@ class MSMSSqlDB(object):
     def ppm_match_tolerance_search(self, mass, tolerance, target_table="ObservedPrecursorSpectrum",
                                    precursor_id=None, mass_shift=0):
         boundaries = self._find_boundaries(mass + mass_shift, tolerance)
-        results = self.execute("select * from ObservedPrecursorSpectrum\
-         where neutral_mass between %f and %f;" % boundaries)
+        results = self.execute("SELECT * FROM ObservedPrecursorSpectrum\
+         WHERE neutral_mass BETWEEN %f AND %f;" % boundaries)
         for result in results:
             yield result
 
 
 class Scan(object):
-    def __init__(self, id, z, mz):
+    def __init__(self, id, z, mz, **kwargs):
         self.scan_id = id
         self.z = z
         self.mz = mz
@@ -108,28 +115,33 @@ class Scan(object):
     def to_json(self):
         return self.__dict__
 
+    @classmethod
+    def from_dict(cls, d):
+        inst = cls(d['scan_id'], d["z"], d["mz"])
+        return inst
 
-class ObservedPrecursorSpectrumBase(object):
+
+class ObservedPrecursorSpectrum(object):
     __table_name__ = "ObservedPrecursorSpectrum"
 
     @classmethod
     def sql_schema(cls):
         return '''
-    drop table if exists  ObservedPrecursorSpectrum;
-    create table ObservedPrecursorSpectrum (
-    precursor_id integer unique primary key not null,
-    charge integer,
-    neutral_mass float,
-    other_data text
+    DROP TABLE IF EXISTS ObservedPrecursorSpectrum;
+    CREATE TABLE ObservedPrecursorSpectrum (
+    precursor_id INTEGER UNIQUE PRIMARY KEY NOT NULL,
+    charge INTEGER,
+    neutral_mass FLOAT,
+    other_data TEXT
     );
 
-    drop table if exists Scans;
-    create table Scans(
-    scan_id integer unique primary key not null,
-    mz float,
-    z integer,
-    precursor_id integer,
-    foreign key(precursor_id) references ObservedPrecursorSpectrum(precursor_id)
+    DROP TABLE IF EXISTS Scans;
+    CREATE TABLE Scans(
+    scan_id INTEGER UNIQUE PRIMARY KEY NOT NULL,
+    mz FLOAT,
+    z INTEGER,
+    precursor_id INTEGER,
+    FOREIGN KEY(precursor_id) REFERENCES ObservedPrecursorSpectrum(precursor_id)
     );
     '''
 
@@ -140,15 +152,7 @@ class ObservedPrecursorSpectrumBase(object):
         self.neutral_mass = neutral_mass
         self.tandem_data = tandem_data
         self.other_data = data
-        self._iterkey = data.pop('id', None)
-
-    @property
-    def id(self):
-        return self._iterkey
-
-    @id.setter
-    def id(self, value):
-        self._iterkey = value
+        self.id = data.pop('id', None)
 
     def __repr__(self):
         return "<Scans: ({scans}), Neutral Mass: {neutral_mass}, Tandem Spectra: {num_tandem}>".format(
@@ -162,109 +166,45 @@ class ObservedPrecursorSpectrumBase(object):
         return json_dict
 
     def to_sql(self):
-        stmt = '''insert into {table} (precursor_id, neutral_mass, charge, other_data)
+        stmt = '''INSERT INTO {table} (precursor_id, neutral_mass, charge, other_data)
         VALUES ({id}, {neutral_mass}, {charge}, '{other_data}');'''.format(
             table="ObservedPrecursorSpectrum",
-            id=self._iterkey, neutral_mass=self.neutral_mass, charge=self.charge,
+            id=self.id, neutral_mass=self.neutral_mass, charge=self.charge,
             other_data=json.dumps(self.other_data))
         yield stmt
 
         for tandem in self.tandem_data:
-            yield (tandem.to_sql(self._iterkey))
+            yield (tandem.to_sql(self.id))
 
         for scan in self.scans:
-            insert_stmt = '''insert into {table} (scan_id, mz, z, precursor_id)
-            values ({id}, {mz}, {z},{precursor_id});'''.format(
-                table="Scans", precursor_id=self._iterkey,  **scan)
+            insert_stmt = '''INSERT INTO {table} (scan_id, mz, z, precursor_id)
+            VALUES ({id}, {mz}, {z},{precursor_id});'''.format(
+                table="Scans", precursor_id=self.id,  **scan)
             yield (insert_stmt)
 
     @classmethod
     def from_sql(cls, row, cursor):
         neutral_mass = row['neutral_mass']
         charge = row['charge']
-        _iterkey = row['precursor_id']
+        id = row['precursor_id']
         other_data = json.loads(row['other_data'])
-        scans_rows = cursor.execute("select * from Scans where Scans.precursor_id={0};".format(_iterkey))
-        scans = map(dict, scans_rows)
-        scan_ids = [scan.pop('scan_id') for scan in scans]
-        for i, scan in enumerate(scans):
-            scan['id'] = scan_ids[i]
-            scan.pop("precursor_id")
-        tandem_rows = cursor.execute("select * from ObservedTandemSpectrum where\
-         ObservedTandemSpectrum.precursor_id={0};".format(_iterkey))
+        scans_rows = cursor.execute("SELECT * FROM Scans WHERE Scans.precursor_id={0};".format(id))
+        scans = [Scan.from_dict(row) for row in scans_rows]
+        scan_ids = [scan.scan_id for scan in scans]
+        tandem_rows = cursor.execute("SELECT * FROM ObservedTandemSpectrum WHERE\
+         ObservedTandemSpectrum.precursor_id={0};".format(id))
         tandem_spectra = [ObservedTandemSpectrum.from_sql(row, cursor) for row in tandem_rows]
         instance = cls(scans, scan_ids, charge, neutral_mass, tandem_spectra, **other_data)
-        instance._iterkey = _iterkey
+        instance.id = id
         return instance
 
     @classmethod
     def add_index(cls):
-        stmt = '''create index if not exists neutral_mass_index on ObservedPrecursorSpectrum(neutral_mass desc);
+        stmt = '''CREATE INDEX IF NOT EXISTS neutral_mass_index ON ObservedPrecursorSpectrum(neutral_mass DESC);
         '''
         yield stmt
-
-
-class ObservedPrecursorSpectrum(ObservedPrecursorSpectrumBase):
-    '''Uses a denormalized storage scheme to dramatically accelerate intact mass to fragments queries'''
-    @classmethod
-    def sql_schema(cls):
-        return '''
-    drop table if exists  ObservedPrecursorSpectrum;
-    create table ObservedPrecursorSpectrum (
-    precursor_id integer unique primary key not null,
-    charge integer,
-    neutral_mass float,
-    scan_data text,
-    tandem_data text,
-    other_data text
-    );
-
-    drop table if exists Scans;
-    create table Scans(
-    scan_id integer unique primary key not null,
-    mz float,
-    z integer,
-    precursor_id integer,
-    foreign key(precursor_id) references ObservedPrecursorSpectrum(precursor_id));'''
-
-    def to_sql(self):
-        stmt = '''insert into {table} (precursor_id, neutral_mass, charge, scan_data, tandem_data, other_data)
-        VALUES ({id}, {neutral_mass}, {charge}, '{scan_data}', '{tandem_data}', '{other_data}');'''.format(
-            table="ObservedPrecursorSpectrum",
-            id=self._iterkey, neutral_mass=self.neutral_mass, charge=self.charge,
-            scan_data=json.dumps(self.scans, default=lambda x: x.to_json()),
-            tandem_data=json.dumps(self.tandem_data, default=lambda x: x.to_json()),
-            other_data=json.dumps(self.other_data))
-        yield stmt
-
-        for scan in self.scans:
-            insert_stmt = '''insert into {table} (scan_id, mz, z, precursor_id)
-            values ({id}, {mz}, {z},{precursor_id});'''.format(
-                table="Scans", precursor_id=self._iterkey,  **scan)
-            yield (insert_stmt)
-
-    @classmethod
-    def from_sql(cls, row, cursor):
-        neutral_mass = row['neutral_mass']
-        charge = row['charge']
-        _iterkey = row['precursor_id']
-        other_data = json.loads(row['other_data'])
-        scan_data = json.loads(row['scan_data'])
-        tandem_data = [ObservedTandemSpectrum(**d) for d in json.loads(row['tandem_data'])]
-        inst = cls(scan_data, [s['id'] for s in scan_data],
-                   charge, neutral_mass, tandem_data, **other_data)
-        inst._iterkey = _iterkey
-        return inst
-
-    @classmethod
-    def _from_base(cls, inst):
-        return cls(inst.scans, inst.scan_ids, inst.charge,
-                   inst.neutral_mass, inst.tandem_data, **inst.other_data)
-
-    @classmethod
-    def _to_base(cls, inst):
-        return super(cls)(inst.scans, inst.scan_ids, inst.charge,
-                          inst.neutral_mass, inst.tandem_data, **inst.other_data)
+        for stmt in ObservedTandemSpectrum.add_index():
+            yield stmt
 
 
 class ObservedTandemSpectrum(object):
@@ -273,16 +213,16 @@ class ObservedTandemSpectrum(object):
     @classmethod
     def sql_schema(cls):
         return '''
-    drop table if exists ObservedTandemSpectrum;
-    create table ObservedTandemSpectrum (
-    tandem_id integer unique primary key not null,
-    intensity float,
-    charge integer,
-    neutral_mass float,
-    annotation text,
-    other_data text,
-    precursor_id integer,
-    foreign key(precursor_id) references ObservedPrecursorSpectrum(precursor_id));
+    DROP TABLE IF EXISTS ObservedTandemSpectrum;
+    CREATE TABLE ObservedTandemSpectrum (
+    tandem_id INTEGER UNIQUE PRIMARY KEY NOT NULL,
+    intensity FLOAT,
+    charge INTEGER,
+    neutral_mass FLOAT,
+    annotation TEXT,
+    other_data TEXT,
+    precursor_id INTEGER,
+    FOREIGN KEY(precursor_id) REFERENCES ObservedPrecursorSpectrum(precursor_id));
     '''
 
     def __init__(self, mass, charge, intensity, id=None, annotation=None, **data):
@@ -295,6 +235,7 @@ class ObservedTandemSpectrum(object):
         self.id = data.pop("id", None) or id
         self.annotation = annotation
         self.other_data = data
+        self.precursor_id = data.pop("precursor_id", None)
 
     def __repr__(self):
         return "<ObservedTandemSpectra {neutral_mass}, {charge}, {intensity}>".format(**self.__dict__)
@@ -303,11 +244,21 @@ class ObservedTandemSpectrum(object):
         return self.__dict__
 
     def to_sql(self, precursor_id=None):
-        return '''insert into {table} (tandem_id, intensity, charge, neutral_mass, annotation, other_data, precursor_id)
+        return '''INSERT INTO {table} (tandem_id, intensity, charge, neutral_mass, annotation, other_data, precursor_id)
         VALUES ({id}, {intensity}, {charge}, {neutral_mass}, '{annotation}', '{other_data}', {precursor_id});'''.format(
             table="ObservedTandemSpectrum",
             id=self.id, charge=self.charge, neutral_mass=self.neutral_mass, intensity=self.intensity,
             other_data=json.dumps(self.other_data), precursor_id=precursor_id, annotation=json.dumps(self.annotation)
+        )
+
+    def update(self, db_handle):
+        return '''UPDATE {table} SET intensity={intensity}, charge={charge}, neutral_mass={neutral_mass},
+                                     annotation={annotation}, other_data={other_data}
+                                 WHERE tandem_id = {id};'''.format(
+                                    table="ObservedTandemSpectrum",
+                                    id=self.id, charge=self.charge, neutral_mass=self.neutral_mass,
+                                    intensity=self.intensity, other_data=json.dumps(self.other_data),
+                                    precursor_id=self.precursor_id, annotation=json.dumps(self.annotation)
         )
 
     @classmethod
@@ -320,6 +271,10 @@ class ObservedTandemSpectrum(object):
         id = row['tandem_id']
         instance = cls(mass, charge, intensity, id=id, annotation=annotation, **other_data)
         return instance
+
+    @classmethod
+    def add_index(cls):
+        yield "CREATE INDEX IF NOT EXISTS parent_spectrum ON ObservedTandemSpectrum(precursor_id DESC);"
 
 
 def extract_annotations(*spectra):
