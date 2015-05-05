@@ -175,8 +175,7 @@ class CrossRingFragment(Monosaccharide):
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
             dup = sub.clone()
-            Link(residue, dup, link.parent_position, link.child_position,
-                 link.parent_loss, link.child_loss)
+            link.clone(residue, dup)
 
         return residue
 

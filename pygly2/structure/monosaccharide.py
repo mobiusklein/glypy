@@ -143,7 +143,6 @@ def graph_clone(monosaccharide, visited=None):
     # print("Begin")
     index = {}
     visited = set() if visited is None else visited
-    link_visited = defaultdict(list)
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
     # if hasattr(clone_root, 'kind'):
@@ -157,18 +156,7 @@ def graph_clone(monosaccharide, visited=None):
         links = [link for pos, link in ref.links.items()]
         for link in links:
             terminal = link.to(ref)
-            if link.id in link_visited:
-                link_visited[link.id].append(link)
-                ids = (set(map(id, link_visited[link.id])))
-                if len(ids) > 1:
-                    print("Revisited the same link id, {}".format(link.id))
-                    print(ids)
-            link_visited[link.id].append(link)
-            # print(terminal, terminal.id)
-            # if hasattr(terminal, "kind"):
-            #     print "Terminal: {} {} | {} | {}".format(terminal, terminal.id, visited, terminal.composition)
-            #     print "Is Child: {}. Is Parent: {}".format(link.is_child(terminal), link.is_parent(terminal))
-            #     print "Parent Loss: {}, Child Loss: {}".format(link.parent_loss, link.child_loss)
+
             if terminal.id in visited:
                 continue
             # Handle cycles where the same node is linked many times
@@ -309,6 +297,7 @@ class Monosaccharide(SaccharideBase):
         if composition is None:
             composition = _get_standard_composition(self)
         self.composition = composition
+        self._order = len(self.links) + len(self.substituent_links)
 
     @property
     def anomer(self):
@@ -375,14 +364,13 @@ class Monosaccharide(SaccharideBase):
             ring_end=self.ring_end,
             modifications=modifications,
             anomer=self.anomer,
-            reduced=self.reducing_end.clone() if self.reducing_end is not None else None,
+            reduced=self._reducing_end.clone() if self._reducing_end is not None else None,
             id=self.id if prop_id else None,
             fast=fast)
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
             dup = sub.clone()
-            Link(monosaccharide, dup, link.parent_position, link.child_position,
-                 link.parent_loss, link.child_loss)
+            link.clone(monosaccharide, dup)
         return monosaccharide
 
     @property
@@ -1066,7 +1054,7 @@ class Monosaccharide(SaccharideBase):
         self.superclass = state['_superclass']
         self.stem = state['_stem']
         self.configuration = state['_configuration']
-
+        self._order = state["_order"]
         self.ring_start = state['ring_start']
         self.ring_end = state['ring_end']
         self.id = state['id']
@@ -1188,20 +1176,18 @@ class Monosaccharide(SaccharideBase):
         for pos, link in self.substituent_links.items():
             yield pos, link.to(self)
 
-    def order(self, include_substituents=True):
+    def order(self):
         '''
         Return the "graph theory" order of this residue
-
-        Parameters
-        ----------
-        include_substituents: bool
-            Include the number of substituent_links in order calculations. Defaults to |True|
 
         Returns
         -------
         int
         '''
-        return len(list(self.children())) + (len(self.substituent_links) if include_substituents else 0)
+        #res = len(self.links) + len(self.substituent_links)
+        # if hasattr(self, "_order"):
+        #   assert res == self._order
+        return self._order
 
     def __iter__(self):
         return self.children()
@@ -1234,6 +1220,7 @@ class ReducedEnd(object):
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
         self.id = id or uuid4().int
+        self._order = len(self.links)
 
     def is_occupied(self, position):
         '''

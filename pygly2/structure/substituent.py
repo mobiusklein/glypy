@@ -1,3 +1,4 @@
+from warnings import warn
 from uuid import uuid4
 
 from .base import SubstituentBase
@@ -84,6 +85,7 @@ class Substituent(SubstituentBase):
             composition = substituent_compositions[self.name]
         self.composition = composition
         self.id = id or uuid4().int
+        self._order = self.order()
         try:
             if can_nh_derivatize is is_nh_derivatizable is None:
                 self.can_nh_derivatize = derivatize_info[self.name].can_nh_derivatize
@@ -251,7 +253,7 @@ class Substituent(SubstituentBase):
         :meth:`.structure.Monosaccharide.clone`
         '''
 
-        substituent = Substituent(self.name)
+        substituent = Substituent(self.name, id=self.id if prop_id else None)
         if hasattr(self, "_derivatize"):
             substituent._derivatize = True
         for pos, link in self.links.items():
@@ -259,9 +261,7 @@ class Substituent(SubstituentBase):
                 continue
             sub = link.to(self)
             dup = sub.clone()
-            Link(substituent, dup, link.parent_position, link.child_position,
-                 link.parent_loss, link.child_loss)
-            substituent.id = self.id if prop_id else uuid4().int
+            link.clone(substituent, dup)
         return substituent
 
     def order(self):

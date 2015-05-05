@@ -828,209 +828,6 @@ class Glycan(SaccharideBase):
                     frag.name = str(frag)
                 yield frag
 
-    def break_links(self, n_links=0, kind=(
-            'B', 'Y'), average=False, charge=0, mass_data=None, visited=None):
-        '''
-        A recursive co-routine that generates all `kind` fragments of a glycan graph to a
-        depth of `n_links`. If `n_links` > 1, then internal fragments are generated.
-
-        Called by :meth:`Glycan.fragments`
-
-        Parameters
-        ----------
-        n_links: int
-            The number of bonds remaining to break for each fragment generated
-        kind: sequence of strings
-            An iterable containing any entries of "ABCXYZ", which select the Domon and Costello
-            fragment types to generate.
-        average: bool
-            Generate masses based on average isotopic composition? Defaults to |False|
-        charge: int
-            Generate m/z instead of neutral mass where this value is z, z != 0. Defaults to 0
-            which results in theoretical neutral mass
-        mass_data: dict
-            If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise
-            the contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information
-        visited: set
-            A set of link ids to not visit by :meth:`iterlinks`. If |None| will be the empty set.
-
-
-        Yields
-        ------
-            ion_type: str
-                The string identifying the types of cleavages involved in creating this fragment
-            link_ids: list
-                A list of the link ids and crossring-cleaved residue ids involved in creating
-                this fragment
-            include: list
-                A list of the |Monosaccharide| id values included in this fragment
-            mass: float
-                The mass or m/z of the fragment
-
-        '''
-        if n_links < 0:  # pragma: no cover
-            raise ValueError("Cannot break a negative number of Links")
-        n_links -= 1
-
-        kind = set(kind)
-        if visited is None:
-            visited = set()
-        for pos, link in self.iterlinks():
-            try:
-                if link.id in visited:
-                    continue
-                if not link.is_attached():
-                    continue
-                parent, child = link.break_link(refund=True)
-                break_id = link.id
-                logger.debug("Breaking %d", break_id)
-                parent_tree = Glycan(root=parent, index_method=None)
-                child_tree = Glycan(root=child, index_method=None)
-
-                # If there are more cleavages to make,
-                if n_links > 0:
-                    # Recursively call :meth:`break_link` with the decremented `n_links` counter,
-                    # and propagate all other parameters.
-                    parent_frags = list(parent_tree.break_links(
-                        n_links, kind=(kind), average=average, charge=charge, mass_data=mass_data, visited=visited))
-                    child_frags = list(child_tree.break_links(
-                        n_links, kind=(kind), average=average, charge=charge, mass_data=mass_data, visited=visited))
-                    for k in (kind) & set("YZ"):
-                        offset = _fragment_shift[k].calc_mass(
-                            average=average, mass_data=mass_data)
-                        for ion_type, link_ids, include, mass in parent_frags:
-                            yield ion_type + k, link_ids + [break_id], include, mass - offset
-
-                    for k in (kind) & set("BC"):
-                        offset = _fragment_shift[k].calc_mass(
-                            average=average, mass_data=mass_data)
-                        for ion_type, link_ids, include, mass in child_frags:
-                            yield ion_type + k, link_ids + [break_id], include, mass - offset
-
-                    # If generating crossring cleavages
-                    ring_type = child.ring_type
-                    if len((kind) & set(
-                            "AX")) > 0 and ring_type is not RingType.x and ring_type is not RingType.open:
-                        # Re-apply the broken link temporarily
-                        link.apply()
-                        try:
-                            # For each pair of cleavage sites available
-                            for c1, c2 in enumerate_cleavage_pairs(child):
-                                # Generate both A and X fragments of the child
-                                # residue
-                                a_fragment, x_fragment = crossring_fragments(
-                                    child, c1, c2, copy=False)
-                                # Mask the child residue so that only its fragments are bound
-                                # to the glycan graph
-                                child_link_mask = residue_toggle(child)
-                                child_link_mask.next()
-                                if "A" in kind:
-                                    a_tree = Glycan(
-                                        a_fragment,
-                                        index_method=None)
-                                    # Recursively generate fragments from
-                                    # crossring cleavage-bound subtree
-                                    for ion_type, link_ids, include, mass in a_tree.break_links(
-                                            n_links, kind=kind, average=average, charge=charge,
-                                            mass_data=mass_data, visited=visited):
-                                        yield ion_type + '{},{}A'.format(c1, c2), link_ids + [child.id], include, mass
-                                # Remove all links connecting subtrees through A fragment.
-                                # logger.debug("Releasing %r", a_fragment)
-                                a_fragment.release()
-
-                                if "X" in kind:
-                                    x_tree = Glycan(
-                                        x_fragment,
-                                        index_method=None)
-                                    # Recursively generate fragments from
-                                    # crossring cleavage-bound subtree
-                                    for ion_type, link_ids, include, mass in x_tree.break_links(
-                                            n_links, kind=kind, average=average, charge=charge,
-                                            mass_data=mass_data, visited=visited):
-                                        yield ion_type + '{},{}X'.format(c1, c2), link_ids + [child.id], include, mass
-                                # Remove all links connecting subtrees trough the X fragment.
-                                # logger.debug("Releasing %r", x_fragment)
-                                x_fragment.release()
-
-                                # Unmask the original residue, re-connecting
-                                # all of its subtrees
-                                child_link_mask.next()
-                        finally:
-                            # Re-break the link for release in the later
-                            # `finally` block
-                            if link.is_attached():
-                                link.break_link(refund=True)
-                else:
-                    parent_include = [n.id for n in parent_tree]
-                    child_include = [n.id for n in child_tree]
-                    for k in (kind) & set("YZ"):
-                        offset = _fragment_shift[k].calc_mass(
-                            average=average, mass_data=mass_data)
-                        mass = parent_tree.mass(
-                            average=average, charge=charge, mass_data=mass_data) - offset
-                        yield (k, [break_id], parent_include, mass)
-
-                    for k in (kind) & set("BC"):
-                        offset = _fragment_shift[k].calc_mass(
-                            average=average, mass_data=mass_data)
-                        mass = child_tree.mass(
-                            average=average, charge=charge, mass_data=mass_data) - offset
-                        yield (k, [break_id], child_include, mass)
-
-                    ring_type = child.ring_type
-                    if len((kind) & set(
-                            "AX")) > 0 and ring_type is not RingType.x and ring_type is not RingType.open:
-                        # Re-apply the broken link temporarily
-                        link.apply()
-                        try:
-                            # For each pair of cleavage sites available
-                            for c1, c2 in enumerate_cleavage_pairs(child):
-                                # Generate crossring fragments
-                                a_fragment, x_fragment = crossring_fragments(
-                                    child, c1, c2, copy=False)
-                                # Mask child residue, connecting subtrees only through the
-                                # fragments
-                                child_link_mask = residue_toggle(child)
-                                child_link_mask.next()
-                                if "A" in kind:
-                                    a_tree = Glycan(
-                                        a_fragment,
-                                        index_method=None)
-                                    a_include = [n.id for n in a_tree]
-                                    # Only yield crossring fragments that include more than
-                                    # the fragment residue itself
-                                    if len(a_include) > 1:
-                                        yield '{},{}A'.format(c1, c2), [child.id],\
-                                            a_include, a_tree.mass(
-                                                average=average, charge=charge, mass_data=mass_data)
-                                # logger.debug("Releasing %r", a_fragment)
-                                a_fragment.release()
-
-                                if "X" in kind:
-                                    x_tree = Glycan(
-                                        x_fragment,
-                                        index_method=None)
-                                    x_include = [n.id for n in x_tree]
-                                    # Only yield crossring fragments that include more than
-                                    # the fragment residue itself
-                                    if len(x_include) > 1:
-                                        yield '{},{}X'.format(c1, c2), [child.id],\
-                                            x_include, x_tree.mass(
-                                                average=average, charge=charge, mass_data=mass_data)
-                                # logger.debug("Releasing %r", x_fragment)
-                                x_fragment.release()
-
-                                child_link_mask.next()
-                        finally:
-                            if link.is_attached():
-                                link.break_link(refund=True)
-
-            finally:
-                # Unmask the Link and apply its composition shifts
-                if not link.is_attached():
-                    logger.debug("Reapplying %d", link.id)
-                    link.apply()
-
     def substructures(self, max_cleavages=1, min_cleavages=1, inplace=False):
         '''
         Generate disjoint subtrees from this glycan by examining by removing one or
@@ -1116,29 +913,24 @@ class Glycan(SaccharideBase):
     def break_links_subtrees(self, n_links):
         links = list(self.link_index)
         for breaks in itertools.combinations(links, n_links):
-            parents = []
-            children = []
+
+            subtrees = []
             for link in breaks:
                 parent, child = link.break_link(refund=True)
                 parent_tree = Glycan(parent, index_method=None)
                 child_tree = Glycan(child, index_method=None)
-                parents.append(parent_tree)
-                children.append(child_tree)
+                subtrees.append(parent_tree)
+                subtrees.append(child_tree)
 
-            unique_subtrees = []
-            for parent in parents:
-                for unique in unique_subtrees:
-                    if parent == unique:
-                        break
-                else:
-                    unique_subtrees.append(parent)
+            # unique_subtrees = []
+            # for subtree in subtrees:
+            #     for unique in unique_subtrees:
+            #         if subtree == unique:
+            #             break
+            #     else:
+            #         unique_subtrees.append(subtree)
+            unique_subtrees = subtrees
 
-            for child in children:
-                for unique in unique_subtrees:
-                    if child == unique:
-                        break
-                else:
-                    unique_subtrees.append(child)
             for subtree in unique_subtrees:
                 subtree = subtree.clone(
                     index_method=None).reroot(
@@ -1176,13 +968,14 @@ class Glycan(SaccharideBase):
                         subtrees.append(parent_tree)
                         subtrees.append(child_tree)
 
-                    unique_subtrees = []
-                    for tree in subtrees:
-                        for unique in unique_subtrees:
-                            if tree == unique:
-                                break
-                        else:
-                            unique_subtrees.append(tree)
+                    # unique_subtrees = []
+                    # for tree in subtrees:
+                    #     for unique in unique_subtrees:
+                    #         if tree == unique:
+                    #             break
+                    #     else:
+                    #         unique_subtrees.append(tree)
+                    unique_subtrees = subtrees
 
                     if n_links - i > 0:
                         for subtree in unique_subtrees:

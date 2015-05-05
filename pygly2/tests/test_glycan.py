@@ -16,7 +16,7 @@ class GlycanTests(unittest.TestCase):
         structure = load("branchy_glycan")
         dup = structure.clone()
         self.assertEqual(structure, dup)
-        list(dup.fragments('ABY', 1))
+        list(dup.fragments('ABY', 2))
 
         self.assertEqual(structure, dup)
 
