@@ -15,12 +15,14 @@ if sys.platform == 'win32':
 
 try:
     from Cython.Build import cythonize
-    extensions = cythonize([Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"])],
-                           annotate=True)
+    extensions = cythonize(
+      [Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"]),
+       ],
+      annotate=True)
 except ImportError, AttributeError:
     print("No Cython")
     extensions = [
-      Extension('pygly2.composition.ccomposition', sources=['pygly2/composition/ccomposition.c'])
+      Extension('pygly2.composition.ccomposition', sources=['pygly2/composition/ccomposition.c']),
     ]
 
 cmdclass = {}

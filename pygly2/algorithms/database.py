@@ -6,6 +6,7 @@ from collections import Counter, Iterable
 
 import pygly2
 from pygly2.utils import pickle, classproperty, make_struct
+from pygly2.structure import Monosaccharide
 from pygly2.io.nomenclature import identity
 from pygly2.algorithms import subtree_search
 
@@ -445,6 +446,8 @@ def naive_name_monosaccharide(monosaccharide):
     '''
     try:
         c = monosaccharide.clone()
+        if not isinstance(c, Monosaccharide):
+            return None
         for psub, pcopy in zip(monosaccharide.substituents(), c.substituents()):
             _, sub = psub
             _, copy = pcopy
@@ -529,7 +532,9 @@ class GlycanRecord(GlycanRecordBase):
         :func:`extract_composition`
         :func:`naive_name_monosaccharide`
         '''
-        return Counter(map(naive_name_monosaccharide, self.structure))
+        res = Counter(map(naive_name_monosaccharide, self.structure))
+        res.pop(None, None)
+        return res
 
     @property
     def is_n_glycan(self):

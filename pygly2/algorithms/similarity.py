@@ -1,6 +1,7 @@
 import operator
 from collections import defaultdict
 
+from pygly2.structure import Monosaccharide, Substituent
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False,
@@ -48,6 +49,11 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         return 0, 0
 
     visited.add((node.id, target.id))
+
+    if isinstance(node, Substituent) or isinstance(target, Substituent):
+        res = int(node.total_composition() == target.total_composition())
+        q = 1
+        return res, q
 
     res = 0
     qs = 0

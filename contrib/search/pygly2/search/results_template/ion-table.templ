@@ -16,7 +16,7 @@
                         {% if loop.index > 1 %}
                             &nbsp;
                         {% endif %}
-                        <span class="labeled-data match-key {{ion.match_key}} label label-primary">
+                        <span class="labeled-data match-key {{ion.match_key|replace(',', '-')}} label label-primary">
                             {{ion.match_key|replace(":", "")}}
                         </span>
                     {% endfor %}
@@ -27,12 +27,12 @@
                 <td>{{ion.intensity | limit_sigfig}}</td>
                 <td>
                     {{ion.matches|length}}
-                    <a class='ion-collapse-caret' data-target='{{ion.match_key|replace(":", "-")}}'>
+                    <a class='ion-collapse-caret' data-target='{{ion.match_key|replace(":", "-")|replace(",", "-")}}'>
                         <span class="glyphicon glyphicon-chevron-down"></span>
                     </a>
                 </td>
             </tr>
-            <tr class='per-observation {{ion.match_key|replace(":", "-")}}' style='display: none;'>
+            <tr class='per-observation {{ion.match_key|replace(":", "-")|replace(",", "-")}}' style='display: none;'>
                 <td colspan=10>
                     <table class='table table-compact'>
                         <thead>

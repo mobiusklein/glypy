@@ -1,7 +1,9 @@
+import gzip
 import logging
 import requests
 from lxml import etree
 
+from pygly2.utils import StringIO
 from pygly2.io import glycoct
 from pygly2.algorithms.database import (Taxon, Aglyca, Motif,
                                         DatabaseEntry, GlycanRecord,
@@ -10,6 +12,27 @@ from pygly2.algorithms.database import (Taxon, Aglyca, Motif,
 logger = logging.getLogger(__name__)
 
 cache = None
+
+
+def download_all_structures(db_path):
+    response = requests.get(u'http://www.glycome-db.org/http-services/getStructureDump.action?user=eurocarbdb')
+    response.raise_for_status()
+    handle = gzip.GzipFile(fileobj=StringIO(response.content))
+    xml = etree.parse(handle)
+    db = RecordDatabase(db_path)
+    for structure in xml.iterfind(".//structure"):
+        try:
+            glycomedb_id = structure.attrib['id']
+            print(glycomedb_id)
+            glycoct_str = structure.find("sequence").text
+            taxa = [Taxon(t.attrib['ncbi'], None, None) for t in structure.iterfind(".//taxon")]
+            glycan = glycoct.loads(glycoct_str).next()
+            record = GlycanRecord(glycan, taxa=taxa, id=glycomedb_id)
+            db.load_data(record, commit=False, set_id=False)
+        except Exception, e:
+            print(e)
+    db.commit()
+    return db
 
 
 def set_cache(path):
@@ -251,3 +274,7 @@ def glycan_record_from_xml(xml_tree, id):
     record.id = id
     add_cache(record)
     return record
+
+if __name__ == "__main__":
+    import sys
+    download_all_structures(sys.argv[1])

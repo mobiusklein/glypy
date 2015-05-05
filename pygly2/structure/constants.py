@@ -104,8 +104,10 @@ class Stem(Enum):
     gal = 14
     #: Talose
     tal = 15
-    #: Unknpwn
+    #: Unknown
     x = None
+
+    thr = 16
 
 
 class Configuration(Enum):

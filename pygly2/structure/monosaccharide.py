@@ -1,5 +1,6 @@
 import logging
 from uuid import uuid4
+from collections import defaultdict
 from itertools import chain, izip_longest
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
@@ -14,6 +15,7 @@ from ..utils.enum import EnumValue
 from ..composition import Composition, calculate_mass
 from ..composition.structure_composition import monosaccharide_composition
 from ..composition.structure_composition import modification_compositions
+
 
 anomer_map = invert_dict(anomer_map)
 superclass_map = invert_dict(superclass_map)
@@ -89,6 +91,38 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
             yield grandchild
 
 
+def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):
+    '''
+    A low-level depth-first traversal method for unwrapped residue
+    graphs when the :attr:`id` attribute may be masking duplicate residues
+
+    Parameters
+    ----------
+    monosaccharide: :class:`Monosaccharide`
+        Residue to start traversing from
+    visited: set or None
+        The collection of node ids to ignore, having already visited them. If |None|, it defaults
+        to the empty set.
+    apply_fn: function
+        Function to apply to each residue before yielding them
+
+    Yields
+    -------
+    :class:`Monosaccharide`
+    '''
+    if visited is None:
+        visited = set()
+    yield apply_fn(monosaccharide)
+    visited.add(id(monosaccharide))
+    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
+    for p, link in outnodes:
+        child = link[monosaccharide]
+        if id(child) in visited:
+            continue
+        for grandchild in traverse(child, visited=visited, apply_fn=apply_fn):
+            yield grandchild
+
+
 def graph_clone(monosaccharide, visited=None):
     '''
     Low-level depth-first duplication method for unwrapped residue graphs
@@ -106,11 +140,15 @@ def graph_clone(monosaccharide, visited=None):
     :class:`Monosaccharide`:
         The root of a newly duplicated and identical residue graph
     '''
+    # print("Begin")
     index = {}
+    visited = set() if visited is None else visited
+    link_visited = defaultdict(list)
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
+    # if hasattr(clone_root, 'kind'):
+    #     print "Root: {} {} | {}".format(clone_root, clone_root.id, visited)
     node_stack = [(clone_root, monosaccharide)]
-    visited = set() if visited is None else visited
     while(len(node_stack) > 0):
         clone, ref = node_stack.pop()
         if ref.id in visited:
@@ -119,6 +157,18 @@ def graph_clone(monosaccharide, visited=None):
         links = [link for pos, link in ref.links.items()]
         for link in links:
             terminal = link.to(ref)
+            if link.id in link_visited:
+                link_visited[link.id].append(link)
+                ids = (set(map(id, link_visited[link.id])))
+                if len(ids) > 1:
+                    print("Revisited the same link id, {}".format(link.id))
+                    print(ids)
+            link_visited[link.id].append(link)
+            # print(terminal, terminal.id)
+            # if hasattr(terminal, "kind"):
+            #     print "Terminal: {} {} | {} | {}".format(terminal, terminal.id, visited, terminal.composition)
+            #     print "Is Child: {}. Is Parent: {}".format(link.is_child(terminal), link.is_parent(terminal))
+            #     print "Parent Loss: {}, Child Loss: {}".format(link.parent_loss, link.child_loss)
             if terminal.id in visited:
                 continue
             # Handle cycles where the same node is linked many times
@@ -128,10 +178,14 @@ def graph_clone(monosaccharide, visited=None):
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
             clone_terminal.id = terminal.id
+            # if hasattr(terminal, "kind"):
+            #     print "Duplicate Compositions", clone_terminal.composition, terminal.composition
             if link.is_child(terminal):
                 link.clone(clone, clone_terminal)
             else:
                 link.clone(clone_terminal, clone)
+            # if hasattr(terminal, "kind"):
+            #     print "Post-link", clone_terminal.composition
 
             node_stack.append((clone_terminal, terminal))
     return clone_root
@@ -329,7 +383,6 @@ class Monosaccharide(SaccharideBase):
             dup = sub.clone()
             Link(monosaccharide, dup, link.parent_position, link.child_position,
                  link.parent_loss, link.child_loss)
-
         return monosaccharide
 
     @property

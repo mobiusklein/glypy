@@ -453,7 +453,7 @@ class DrawTreeNode(object):
     def get_link_pair(self, link_id):
         return get_link_pair(self, link_id)
 
-    def draw_cleavage(self, ax=None, fragment=None, orientation="h", at=(0, 0), scale=0.1, color='red', label=True):
+    def draw_cleavage(self, fragment=None, orientation="h", at=(0, 0), ax=None, scale=0.1, color='red', label=True):
         '''
         .. warning::
             Here be magical numbers

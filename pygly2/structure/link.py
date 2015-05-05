@@ -346,13 +346,18 @@ class Link(object):
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()
         rep = "({parent.id}){parent_loss}({parent_position}+{child_position}){child_loss}({child.id})"
-        return rep.format(
+        rep = rep.format(
             parent=self.parent,
             parent_loss=parent_loss_str,
             parent_position=self.parent_position,
             child=self.child,
             child_loss=child_loss_str,
             child_position=self.child_position)
+        if self.is_attached():
+            rep += "[x]"
+        else:
+            rep += "[ ]"
+        return rep
 
 
 class LinkMaskContext(object):  # pragma: no cover
@@ -371,7 +376,11 @@ class LinkMaskContext(object):  # pragma: no cover
         self.mask() if self.attach else self.unmask()
 
     def mask(self):
-        [link.break_link(refund=True) for link in self.links]
+        for link in self.links:
+            if link.is_attached():
+                link.break_link(refund=True)
 
     def unmask(self):
-        [link.apply() for link in self.links]
+        for link in self.links:
+            if not link.is_attached():
+                link.apply()

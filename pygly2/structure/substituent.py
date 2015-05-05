@@ -64,6 +64,8 @@ derivatize_info = {
     "n_succinate": DerivatizePathway(True, True),
     "n_sulfate": DerivatizePathway(True, True),
     "n_dimethyl": DerivatizePathway(True, True),
+
+    "phospho_choline": DerivatizePathway(True, False),
 }
 
 
@@ -110,7 +112,7 @@ class Substituent(SubstituentBase):
         '''
         self._name = value.replace("-", "_")
 
-    def to_glycoct(self):
+    def to_glycoct(self, *args, **kwargs):
         return "s:{0}".format(self.name.replace("_", "-"))
 
     def __repr__(self):  # pragma: no cover

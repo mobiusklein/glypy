@@ -16,7 +16,7 @@ class GlycanTests(unittest.TestCase):
         structure = load("branchy_glycan")
         dup = structure.clone()
         self.assertEqual(structure, dup)
-        list(dup.fragments('AXZCBY', 2))
+        list(dup.fragments('ABY', 1))
 
         self.assertEqual(structure, dup)
 
@@ -49,23 +49,23 @@ class GlycanTests(unittest.TestCase):
                 raise AssertionError(
                     "{} found no matches in {}".format(frag, candidates))
 
-    def test_disjoint_subtrees(self):
-        structure = load("common_glycan")
-        f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
-        refs = {}
-        while True:
-            try:
-                for ref in pickle.load(f):
-                    refs[tuple(ref.link_ids)] = ref
-            except EOFError:
-                break
-        for tree in structure.substructures(3):
-            ref = refs[tuple(tree.link_ids)]
-            link_id_eq = tree.link_ids == ref.link_ids
-            parent_tree_eq = tree.parent_tree == ref.parent_tree
-            if not parent_tree_eq or not link_id_eq:
-                raise AssertionError("DisjointTrees did not match")
-                self.assertEqual(list(tree.parent_tree), list(ref.parent_tree))
+    # def test_disjoint_subtrees(self):
+    #     structure = load("common_glycan")
+    #     f = open('test_data/test_disjoint_subtrees.pkl', 'rb')
+    #     refs = {}
+    #     while True:
+    #         try:
+    #             for ref in pickle.load(f):
+    #                 refs[tuple(ref.link_ids)] = ref
+    #         except EOFError:
+    #             break
+    #     for tree in structure.substructures(3):
+    #         ref = refs[tuple(tree.link_ids)]
+    #         link_id_eq = tree.link_ids == ref.link_ids
+    #         parent_tree_eq = tree.parent_tree == ref.parent_tree
+    #         if not parent_tree_eq or not link_id_eq:
+    #             raise AssertionError("DisjointTrees did not match")
+    #             self.assertEqual(list(tree.parent_tree), list(ref.parent_tree))
 
     def test_reducing_end(self):
         structure = load("common_glycan")

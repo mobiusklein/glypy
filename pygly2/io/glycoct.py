@@ -9,6 +9,7 @@ from .format_constants_map import (anomer_map, superclass_map,
 
 logger = logging.getLogger(__name__)
 
+
 Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
 Substituent = substituent.Substituent
@@ -221,7 +222,7 @@ class GlycoCT(object):
     def _read(self):
         for line in self.handle:
             for token in re.split(r"\s|;", line):
-                logger.debug(token)
+                # logger.debug(token)
                 if "" == token.strip():
                     continue
                 yield token
@@ -361,10 +362,10 @@ class GlycoCT(object):
         for line in self._read():
             if RES == line.strip():
                 self.state = RES
-                logger.debug("RES")
+                # logger.debug("RES")
                 if self.root is not None and not self.in_repeat:
-                    logger.debug("yielding root")
-                    yield self.structure_class(self.root)
+                    # logger.debug("yielding root")
+                    yield self.structure_class(self.root).reindex()
                     self._reset()
             elif LIN == line.strip():
                 if self.state != RES:
@@ -394,17 +395,17 @@ class GlycoCT(object):
                 raise GlycoCTSectionUnsupported(UND)
 
             elif re.search(r"^(\d+)b", line) and self.state == RES:
-                logger.debug("handling residue")
+                # logger.debug("handling residue")
                 self.handle_residue_line(line)
 
             elif re.search(r"^(\d+)s:", line) and self.state == RES:
-                logger.debug("handling subsituent")
+                # logger.debug("handling subsituent")
                 self.handle_residue_substituent(line)
             elif re.search(r"^(\d+)r:", line) and self.state == RES:
                 raise GlycoCTSectionUnsupported(REP)
                 self.handle_repeat_stub(line)
             elif re.search(r"^(\d+):(\d+)", line) and self.state == LIN:
-                logger.debug("handling linkage")
+                # logger.debug("handling linkage")
                 self.handle_linkage(line)
             else:
                 raise GlycoCTError("Unknown format error: {}".format(line))

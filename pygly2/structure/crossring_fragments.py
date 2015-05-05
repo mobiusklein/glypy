@@ -1,6 +1,7 @@
 import itertools
 
 from . import monosaccharide, constants
+from .link import LinkMaskContext
 from ..composition import Composition, structure_composition
 from ..utils.multimap import OrderedMultiMap
 
@@ -11,10 +12,16 @@ Stem = constants.Stem
 Anomer = constants.Anomer
 
 Monosaccharide = monosaccharide.Monosaccharide
+ReducedEnd = monosaccharide.ReducedEnd
+Modification = monosaccharide.Modification
+Link = monosaccharide.Link
 graph_clone = monosaccharide.graph_clone
 traverse = monosaccharide.traverse
+toggle = monosaccharide.toggle
 SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
+
+ID = id
 
 
 def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
@@ -49,6 +56,55 @@ def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
             yield grandchild
 
 
+class CrossRingPair(object):
+    @classmethod
+    def can_crossring_fragment(cls, link):
+        child = link.child
+        ring_type = child.ring_type
+        return ring_type is not RingType.x and ring_type is not RingType.open
+
+    @classmethod
+    def from_link(cls, link):
+        if not cls.can_crossring_fragment(link):
+            return []
+        return [cls(link.child, c1, c2) for c1, c2 in
+                enumerate_cleavage_pairs(link.child)]
+
+    def __init__(self, residue, c1, c2):
+        self.residue = residue
+        self.id = residue.id
+        self.toggler = None
+        self.parent = None
+        self.child = None
+        self.cleave_1 = c1
+        self.cleave_2 = c2
+
+    def break_link(self, refund=True):
+        a, x = crossring_fragments(self.residue, self.cleave_1, self.cleave_2, copy=False)
+        # Bind the toggler late to pick up any changes to the residue's links after instantiation
+        self.toggler = LinkMaskContext(self.residue)
+        self.toggler.mask()
+        self.parent = x
+        self.child = a
+        self.parent._pair = self
+        self.child._pair = self
+        return self.parent, self.child
+
+    def apply(self):
+        self.toggler.unmask()
+        self.parent.release()
+        self.child.release()
+        self.toggler = None
+
+    def release(self):
+        self.parent.release()
+        self.child.release()
+
+    def __repr__(self):
+        rep = "<CrossRingPair id={} {},{}>".format(self.id, self.cleave_1, self.cleave_2)
+        return rep
+
+
 class CrossRingFragment(Monosaccharide):
     '''
     Describes a fragment formed by cleaving across two bonds of the ring of a
@@ -72,11 +128,13 @@ class CrossRingFragment(Monosaccharide):
                  modifications=None, anomer=Anomer.x,
                  stem=(Stem.x,), configuration=(Configuration.x,), id=None,
                  link_cache=None, source=None):
+        _base_composition = composition.clone()
         super(CrossRingFragment, self).__init__(
             modifications=modifications, ring_start=None, ring_end=None,
             substituent_links=None, links=None, superclass=SuperClass.x, anomer=anomer,
             stem=stem, configuration=configuration, id=id, composition=composition, fast=True)
         self._source = source
+        self._base_composition = _base_composition
         self.kind = kind
         self.cleave_1 = cleave_1
         self.cleave_2 = cleave_2
@@ -95,13 +153,36 @@ class CrossRingFragment(Monosaccharide):
         '''
         Calls :meth:`pygly2.structure.link.Link.break_link` with `refund=True` for each |Link| in :attr:`_link_cache`
         '''
-        for link in self._link_cache:
+        for link in self.links.values():
             if link.is_attached():
                 link.break_link(refund=True)
 
+    def clone(self, prop_id=False, fast=True):
+        modifications = OrderedMultiMap()
+        for k, v in self.modifications.items():
+            if isinstance(v, ReducedEnd):
+                continue
+            modifications[k] = Modification[v]
+
+        residue = CrossRingFragment(
+            self._base_composition.clone(), self.cleave_1, self.cleave_2,
+            self.contains, self.kind,
+            stem=self.stem,
+            configuration=self.configuration,
+            modifications=modifications,
+            anomer=self.anomer,
+            id=self.id if prop_id else None)
+        for pos, link in self.substituent_links.items():
+            sub = link.to(self)
+            dup = sub.clone()
+            Link(residue, dup, link.parent_position, link.child_position,
+                 link.parent_loss, link.child_loss)
+
+        return residue
+
     def __repr__(self):
         return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
-            kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.graph_mass())
+            kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.mass())
 
     def __eq__(self, other):
         if other is None:
@@ -178,7 +259,9 @@ def crossring_fragments(monosaccharide, c1, c2, attach=True, copy=True):
     # the ring should go with the X ion
     if ring_end - (ring_start - 1) == c2:
         c1_fragment.composition -= {"O": 1}
+        c1_fragment._base_composition -= {"O": 1}
         c2_fragment.composition += {"O": 1}
+        c2_fragment._base_composition += {"O": 1}
 
     return a_fragment, x_fragment
 
@@ -255,11 +338,13 @@ def pack_fragment(fragment_parts, c1, c2, include, residue, attach=True, copy=Tr
         else:
             subtree = link[residue]
         # Attach the fragment to the subtree and save the link object to the link cache
+
         if link.is_parent(residue):
             links.append(link.clone(fragment_object, subtree, attach=attach))
         else:
             links.append(link.clone(subtree, fragment_object, attach=attach))
     fragment_object._link_cache = links
+
     return fragment_object
 
 

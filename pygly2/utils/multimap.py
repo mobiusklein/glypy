@@ -1,7 +1,16 @@
 import logging
+import json
 from itertools import izip_longest
 from collections import defaultdict
+
 logger = logging.getLogger(__name__)
+
+
+def _str_dump_multimap(mm):  # pragma: no cover
+    d = defaultdict(list)
+    for k, v in mm.items():
+        d[k].append(repr(v))
+    return json.dumps(d, sort_keys=True, indent=4)
 
 
 class MultiMap(object):
@@ -77,7 +86,7 @@ class MultiMap(object):
         return sum(len(self[k]) for k in self)
 
     def __repr__(self):  # pragma: no cover
-        return repr(self.contents)
+        return _str_dump_multimap(self)
 
     def __eq__(self, other):
         if other is None:
@@ -140,4 +149,4 @@ class OrderedMultiMap(MultiMap):
         self.contents[key].append(value)
 
     def __repr__(self):  # pragma: no cover
-        return ''.join((repr(self.key_order), '\n', repr(self.contents)))
+        return ''.join((repr(self.key_order), '\n', _str_dump_multimap(self)))

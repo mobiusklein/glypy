@@ -6,6 +6,18 @@ from .mass_dict import nist_mass
 from .base import ChemicalCompositionError, composition_factory
 
 cimport cython
+from libc.stdlib cimport malloc, free
+
+
+@cython.freelist(1)
+cdef class Isotope:
+
+    cdef int isotope_number
+    cdef str element_name
+
+    def __cinit__(self, str element_name, int isotope_number):
+        self.isotope_number = isotope_number
+        self.element_name = element_name
 
 
 # Forward Declaration
@@ -18,22 +30,37 @@ cdef:
     object isotope_pattern = re.compile(_isotope_string)
     object formula_pattern = re.compile(_formula)
 
+
 @cython.boundscheck(False)
 cdef inline tuple _parse_isotope_string(str label):
-    """Parse an string with an isotope label and return the element name and
-    the isotope number.
-
-    >>> _parse_isotope_string('C')
-    ('C', 0)
-    >>> _parse_isotope_string('C[12]')
-    ('C', 12)
-    """
     cdef:
-        int isotope_num
+        int isotope_num = 0
+        int i = 0
+        int in_bracket = False
         str element_name
-    element_name, num = isotope_pattern.search(label).groups()
-    isotope_num = int(num) if num else 0
+        str current
+        list name_parts = []
+        list num_parts = []
+        #Isotope result
+    for i in range(len(label)):
+        current = label[i]
+        if in_bracket:
+            if current == "]":
+                break
+            num_parts.append(current)
+        elif current == "[":
+            in_bracket = True
+        else:
+            name_parts.append(current)
+    element_name = ''.join(name_parts)
+    if len(num_parts) > 0:
+        isotope_num = int(''.join(num_parts))
+    else:
+        isotope_num = 0
     return element_name, isotope_num
+    #result = Isotope(element_name, isotope_num)
+    #return result
+
 
 cdef inline str _make_isotope_string(str element_name, int isotope_num):
     """Form a string label for an isotope."""
@@ -427,6 +454,7 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
         double mass, isotope_mass, isotope_frequency
         str isotope_string, element_name
         dict mass_provider
+        #Isotope parsed
     if mass_data is None:
         mass_provider = nist_mass
     else:
@@ -455,6 +483,10 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
     mass = 0.0
     for isotope_string in composition:
         element_name, isotope_num = _parse_isotope_string(isotope_string)
+        #parsed = _parse_isotope_string(isotope_string)
+        #element_name = <str>parsed.element_name.encode("ascii")
+        #isotope_num = parsed.isotope_number
+        #del parsed
         # Calculate average mass if required and the isotope number is
         # not specified.
         if (not isotope_num) and average:
