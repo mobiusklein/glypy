@@ -1195,7 +1195,7 @@ class ReducedEnd(object):
     by reducing a |Monosaccharide|.
 
     Attributes
-    -------
+    ----------
     composition : |Composition|
     substituents: |OrderedMultiMap|
     valence: |int|

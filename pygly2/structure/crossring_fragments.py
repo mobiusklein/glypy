@@ -114,13 +114,15 @@ class CrossRingPair(object):
 
         Sets :attr:`parent` to the resulting `X` fragment and :attr:`child` to the resulting
         `A` fragment.
+
         Sets :attr:`toggler` to an instance of :class:`pygly2.structure.link.LinkMaskContext`
         and calls its :meth:`mask` method to hide the links attached to :attr:`residue` after
         they have been duplicated on the resulting fragments.
-        
+
         Returns
         -------
-        TYPE : Description
+        :class:`CrossRingFragment` parent: The X fragment from :func:`crossring_fragments`
+        :class:`CrossRingFragment` child: The A fragment from :func:`crossring_fragments`
         """
         a, x = crossring_fragments(self.residue, self.cleave_1, self.cleave_2, copy=False)
         # Bind the toggler late to pick up any changes to the residue's links after instantiation
@@ -133,16 +135,32 @@ class CrossRingPair(object):
         return self.parent, self.child
 
     def apply(self):
+        """Emulate |Link| interface for passing state with the removal of
+        links to the associated :class:`CrossRingFragment` objects.
+
+        Calls :meth:`CrossRingFragment.release` on :attr:`parent` and :attr:`child`. 
+
+        Calls :meth:`LinkMaskContext.unmask`.
+
+        .. warning::
+            This method cannot find |Link| objects that are already hidden under another
+            :class:`LinkMaskContext`. If using multiple masks on adjacent nodes, make sure
+            to rerun :meth:`CrossRingPair.release` again after all links are unmasked.
+        
+        """
         self.toggler.unmask()
         self.parent.release()
         self.child.release()
         self.toggler = None
 
     def release(self):
+        """Convenience function to call :meth:`CrossRingFragment.release` on
+        :attr:`parent` and :attr:`child`
+        """
         self.parent.release()
         self.child.release()
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         rep = "<CrossRingPair id={} {},{}>".format(self.id, self.cleave_1, self.cleave_2)
         return rep
 
@@ -200,6 +218,16 @@ class CrossRingFragment(Monosaccharide):
                 link.break_link(refund=True)
 
     def clone(self, prop_id=False, fast=True):
+        """Clone this instance, excluding :attr:`links`
+                
+        Returns
+        -------
+        CrossRingFragment
+
+        See Also
+        --------
+        :meth:`pygly2.structure.monosaccharide.Monosaccharide.clone`
+        """
         modifications = OrderedMultiMap()
         for k, v in self.modifications.items():
             if isinstance(v, ReducedEnd):
@@ -221,11 +249,24 @@ class CrossRingFragment(Monosaccharide):
 
         return residue
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.mass())
 
     def __eq__(self, other):
+        """Test for equality between `self` and `other`.
+
+        .. note::
+            A |Monosaccharide| will test as equal to one of its :class:`CrossRingFragment`
+
+        Parameters
+        ----------
+        other
+
+        Returns
+        -------
+        bool
+        """
         if other is None:
             return False
         res = super(CrossRingFragment, self).__eq__(other)

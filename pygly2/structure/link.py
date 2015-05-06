@@ -379,7 +379,7 @@ class Link(object):
         return rep
 
 
-class LinkMaskContext(object):  # pragma: no cover
+class LinkMaskContext(object):
     '''
     A context manager for masking and unmasking |Link| objects on a residue
     '''
@@ -395,11 +395,19 @@ class LinkMaskContext(object):  # pragma: no cover
         self.mask() if self.attach else self.unmask()
 
     def mask(self):
+        """
+        For each |Link| captured, if that link is attched, call its
+        :meth:`break_link` method with `refund=True`
+        """
         for link in self.links:
             if link.is_attached():
                 link.break_link(refund=True)
 
     def unmask(self):
+        """
+        For each |Link| captured, if that link is not attched, call its
+        :meth:`apply` method
+        """
         for link in self.links:
             if not link.is_attached():
                 link.apply()
