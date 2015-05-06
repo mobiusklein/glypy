@@ -59,12 +59,38 @@ def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
 class CrossRingPair(object):
     @classmethod
     def can_crossring_fragment(cls, link):
+        """Test if the given |Link| object's :attr:`child` supports
+        cross ring fragments.
+        
+        Parameters
+        ----------
+        link : Link
+            |Link| object whose child will be cross ring cleaved
+        
+        Returns
+        -------
+        bool
+        """
         child = link.child
         ring_type = child.ring_type
         return ring_type is not RingType.x and ring_type is not RingType.open
 
     @classmethod
     def from_link(cls, link):
+        """Generate an instance of :class:`CrossRingPair` for each method
+        in which the :attr:`child` of `link` can be cross ring cleaved.
+        
+        Parameters
+        ----------
+        link : Link
+            |Link| object whose child will be cross ring cleaved
+        
+        Yields
+        ------
+        :class:`CrossRingPair` :
+            An instance of :class:`CrossRingPair` for the next viable
+            set of ring coordinates
+        """
         if not cls.can_crossring_fragment(link):
             return []
         return [cls(link.child, c1, c2) for c1, c2 in
@@ -79,7 +105,23 @@ class CrossRingPair(object):
         self.cleave_1 = c1
         self.cleave_2 = c2
 
-    def break_link(self, refund=True):
+    def break_link(self, **kwargs):
+        """Emulate |Link| interface for passing state with a call to
+        :func:`crossring_fragments`.
+
+        Call :func:`crossring_fragments` with :attr:`cleave_1` and :attr:`cleave_2` on
+        :attr:`residue` in-place.
+
+        Sets :attr:`parent` to the resulting `X` fragment and :attr:`child` to the resulting
+        `A` fragment.
+        Sets :attr:`toggler` to an instance of :class:`pygly2.structure.link.LinkMaskContext`
+        and calls its :meth:`mask` method to hide the links attached to :attr:`residue` after
+        they have been duplicated on the resulting fragments.
+        
+        Returns
+        -------
+        TYPE : Description
+        """
         a, x = crossring_fragments(self.residue, self.cleave_1, self.cleave_2, copy=False)
         # Bind the toggler late to pick up any changes to the residue's links after instantiation
         self.toggler = LinkMaskContext(self.residue)
