@@ -2,7 +2,7 @@ import warnings
 import sys
 import gzip
 
-warnings.simplefilter("all")
+warnings.simplefilter("default")
 
 
 def cyclewarning():
