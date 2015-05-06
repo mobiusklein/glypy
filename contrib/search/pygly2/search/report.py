@@ -47,7 +47,7 @@ def cfg_plot(record):
             dtree.draw_cleavage(ax=ax, fragment=fmap[match_key], color='red', label=True)
         else:
             for key in match_key.split("-"):
-                dtree.draw_cleavage(fragment=fmap[key], ax=ax, color=colors.next(), label=True)
+                dtree.draw_cleavage(fragment=fmap[key], ax=ax, color='orange', label=True)
 
     ax.axis('off')
     fig = ax.get_figure()

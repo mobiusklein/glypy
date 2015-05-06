@@ -140,13 +140,11 @@ def graph_clone(monosaccharide, visited=None):
     :class:`Monosaccharide`:
         The root of a newly duplicated and identical residue graph
     '''
-    # print("Begin")
+
     index = {}
     visited = set() if visited is None else visited
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
-    # if hasattr(clone_root, 'kind'):
-    #     print "Root: {} {} | {}".format(clone_root, clone_root.id, visited)
     node_stack = [(clone_root, monosaccharide)]
     while(len(node_stack) > 0):
         clone, ref = node_stack.pop()
@@ -167,14 +165,10 @@ def graph_clone(monosaccharide, visited=None):
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
             clone_terminal.id = terminal.id
-            # if hasattr(terminal, "kind"):
-            #     print "Duplicate Compositions", clone_terminal.composition, terminal.composition
             if link.is_child(terminal):
                 link.clone(clone, clone_terminal)
             else:
                 link.clone(clone_terminal, clone)
-            # if hasattr(terminal, "kind"):
-            #     print "Post-link", clone_terminal.composition
 
             node_stack.append((clone_terminal, terminal))
     return clone_root

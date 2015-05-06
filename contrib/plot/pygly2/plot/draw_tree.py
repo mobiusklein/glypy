@@ -546,7 +546,7 @@ class DrawTreeNode(object):
                 self.data['position'][fragment.name + "_direction"] =\
                     (cx - scale, cx - scale * 2), (cy + scale, cy + scale)
                 if label:
-                    ax.text((cx - scale) - 0.42, (cy + scale) + .01, annotation_name)
+                    ax.text((cx - scale) - 0.32, (cy + scale) + .035, annotation_name)
 
 
 def get_root(structure):
