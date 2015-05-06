@@ -26,19 +26,82 @@ default_mass_transform_parameters = {
 
 
 def mass_transform(record, derivatize_fn=identity, adduct_mass=0, adduct_number=0):
+    """Apply a derivatization to `record`, and add any adducts to the intact mass
+
+    Parameters
+    ----------
+    record : GlycanRecord
+        Record to mutate
+    derivatize_fn : function, optional
+        Function to apply derivatizion and any other mass modifications present on
+        the entire structure and its fragments
+    adduct_mass : float, optional
+        The mass shift induced by the adduct attached to the intact mass
+    adduct_number : int, optional
+        The number of adducts to include
+
+    Returns
+    -------
+    float : intact mass of the derivatized structure
+    """
     derivatize_fn(record)
+    record.adduct_mass = adduct_mass
+    record.adduct_number = adduct_number
     mass = record.mass() + adduct_number * adduct_mass
     return mass
 
 
 def extract_fragments(record, fragmentation_parameters=None):
+    """Generate all fragments for `record` using `fragmentation_parameters`
+
+    Parameters
+    ----------
+    record : GlycanRecord
+        The structure record to generate fragments with
+    fragmentation_parameters : dict, optional
+        A mapping passed as **kwargs to :meth:`Glycan.fragments`. Defaults to :data:`default_fragmentation_parameters`
+
+    Returns
+    -------
+    list : list of :class:`Fragment` objects
+    """
+    default_fragmentation_parameters = {
+        "kind": "ABCYXZ",
+        "max_cleavages": 1,
+        "average": False,
+        "charge": 0
+    }
     fragmentation_parameters = fragmentation_parameters or default_fragmentation_parameters
-    return list(record.structure.fragments(**fragmentation_parameters))
+    fragments = {}
+    for frag in (record.structure.fragments("ABCXYZ", 1)):
+        fragments[frag.name] = frag
+    for frag in record.structure.fragments("BCYZ", 2):
+        fragments[frag.name] = frag
+    return list(fragments.values())
 
 
 def record_handle(record, mass_transform_parameters, fragmentation_parameters):
+    """Summary
+    
+    Parameters
+    ----------
+    record : TYPE
+        Description
+    mass_transform_parameters : TYPE
+        Description
+    fragmentation_parameters : TYPE
+        Description
+    
+    Returns
+    -------
+    TYPE : Description
+    """
     mass = mass_transform(record, **(mass_transform_parameters or {}))
-    fragments = extract_fragments(record, fragmentation_parameters)
+    try:
+        fragments = extract_fragments(record, fragmentation_parameters)
+    except Exception, e:
+        print "An exception, {} for record {}".format(e, record.id)
+        raise e
     record.fragments = fragments
     record.intact_mass = mass
     return record
@@ -62,6 +125,28 @@ def _strip_bound_db_gen(record_iter):
 
 def prepare_database(in_database, out_database=None, mass_transform_parameters=None,
                      fragmentation_parameters=None, n_processes=1):
+    """Translate a database of structures into a new set of experimental structures, including
+    theoretical fragments and modified masses.
+
+    Parameters
+    ----------
+    in_database : str or RecordDatabase
+        Database to translate. If passed a string, it will be treated as a connection string
+    out_database : str or RecordDatabase, optional
+        Storage for the resulting translated records. If passed a string, it will be treated
+        as a connection string. If no value is given, a connection string will be interpolated
+        from `in_database`
+    mass_transform_parameters : dict, optional
+        A dictionary of parameters passed by **kwargs to :func:`mass_transform`
+    fragmentation_parameters : dict, optional
+        A dictionary of parameters passed by **kwargs to :func:`extract_fragments`
+    n_processes : int, optional
+        The number of processes to run on. Defaults to 1.
+
+    Returns
+    -------
+    out_database : RecordDatabase
+    """
     if isinstance(in_database, str):
         in_database = database.RecordDatabase(in_database)
     if out_database is None:
@@ -77,6 +162,7 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
             record.intact_mass = mass
             out_database.load_data([record], commit=False, mass_params={"override": mass})
             logger.info("%d records processed", i)
+            print(i)
     else:
         print("Using pool")
         worker_pool = Pool(n_processes, maxtasksperchild=3)
@@ -94,7 +180,7 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
                 mass = record.intact_mass
                 out_database.load_data([record], set_id=False, commit=False, mass_params={"override": mass})
                 logger.info("%d records processed", i)
-                print(i)
+                print(record.id, i)
             out_database.commit()
             print(len(out_database))
             del job
@@ -103,8 +189,12 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
 
 
 def duplicate_check(db):
-    '''
-    Check the passed iterable of |GlycanRecord| objects for topological duplicates.
+    '''Check the passed iterable of |GlycanRecord| objects for topological duplicates.
+    
+    Parameters
+    ----------
+    db : TYPE
+        Description
     '''
     blacklist = set()
     keepers = []

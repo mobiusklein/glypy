@@ -162,6 +162,7 @@ def graph_clone(monosaccharide, visited=None):
             # Handle cycles where the same node is linked many times
             if terminal.id in index:
                 clone_terminal = index[terminal.id]
+                clone_terminal.maybe_cyclic = True
                 cyclewarning()
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
@@ -1054,7 +1055,7 @@ class Monosaccharide(SaccharideBase):
         self.superclass = state['_superclass']
         self.stem = state['_stem']
         self.configuration = state['_configuration']
-        self._order = state["_order"]
+        self._order = state.get("_order")
         self.ring_start = state['ring_start']
         self.ring_end = state['ring_end']
         self.id = state['id']
@@ -1064,6 +1065,8 @@ class Monosaccharide(SaccharideBase):
         self.substituent_links = state['substituent_links']
         self.composition = state["composition"]
         reduced = state.get('_reducing_end', None)
+        if self._order is None:
+            self._order = len(self.links) + len(self.substituent_links)
         # Make sure that if "aldi" is present, to replace it with
         # the default ReducedEnd
         if reduced is None:

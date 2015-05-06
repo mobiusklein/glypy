@@ -489,6 +489,7 @@ n_glycan_core = pygly2.glycans["N-Linked Core"]
 
 @metadata("composition", "varchar(120)", extract_composition)
 @metadata("is_n_glycan", "boolean", is_n_glycan)
+@metadata("glycoct", "text", lambda x: "\"{}\"".format(str(x.structure)))
 class GlycanRecord(GlycanRecordBase):
     '''
     An extension of :class:`GlycanRecordBase` to add additional features and better support for extension

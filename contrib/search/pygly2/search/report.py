@@ -44,17 +44,10 @@ def cfg_plot(record):
         match_key = match.match_key.split(":")[0]
         order = len(match_key.split("-"))
         if order == 1:
-            dtree.draw_cleavage(ax, fmap[match_key], color='red', label=True)
-        elif order == 2:
-            untruncated = True
-            frag = fmap[match_key]
-            for f in fmap.values():
-                if f.mass == frag.mass and set(f.included_nodes) >= set(frag.included_nodes)\
-                   and f.name != match.match_key:
-                    untruncated = False
-                    break
-            if untruncated:
-                dtree.draw_cleavage(ax, fmap[match_key], at=(0.2, 0.0), scale=0.2, color=colors.next(), label=True)
+            dtree.draw_cleavage(ax=ax, fragment=fmap[match_key], color='red', label=True)
+        else:
+            for key in match_key.split("-"):
+                dtree.draw_cleavage(fragment=fmap[key], ax=ax, color=colors.next(), label=True)
 
     ax.axis('off')
     fig = ax.get_figure()

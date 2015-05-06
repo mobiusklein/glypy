@@ -70,7 +70,6 @@ class Link(object):
         self.child_loss = child_loss
         self.id = id or uuid4().int
         self.label = None
-        self._attached = False
 
         if attach:
             self.apply()
@@ -96,7 +95,6 @@ class Link(object):
         else:
             self.parent.links[self.parent_position] = self
         self.child.links[self.child_position] = self
-        self._attached = True
         self.parent._order += 1
         self.child._order += 1
 
@@ -244,11 +242,13 @@ class Link(object):
             return False
         res = self._flat_equality(other)
         if res:
-            res = (self.parent == other.parent)
+            res = (self.parent == other.parent) and\
+                  (self.parent.id == other.parent.id)
         return res
 
     def _flat_equality(self, other):
-        res = (self.child == other.child)
+        res = (self.child == other.child) and\
+              (self.child.id == other.child.id)
         if res:
             res = (self.parent_position == other.parent_position)
         if res:
@@ -281,7 +281,6 @@ class Link(object):
         self.child.links.pop(self.child_position, self)
         if refund:
             self.refund()
-        self._attached = False
         self.parent._order -= 1
         self.child._order -= 1
         return (self.parent, self.child)
@@ -308,7 +307,6 @@ class Link(object):
 
         if refund:
             self.refund()
-        self._attached = True
         self.parent._order += 1
         self.child._order += 1
 
@@ -329,13 +327,24 @@ class Link(object):
         -------
         |bool|
         '''
-        return self._attached
-        # if self.is_substituent_link():
-        #     parent = self in self.parent.substituent_links[self.parent_position]
-        # else:
-        #     parent = self in self.parent.links[self.parent_position]
-        # child = self in self.child.links[self.child_position]
-        # return parent and child
+        parent = False
+        child = False
+        if self.is_substituent_link():
+            parent_list = self.parent.substituent_links[self.parent_position]
+        else:
+            parent_list = self.parent.links[self.parent_position]
+        for lin in parent_list:
+            if lin.id == self.id:
+                if lin == self:
+                    parent = True
+                    break
+        for lin in self.child.links[self.child_position]:
+            if lin.id == self.id:
+                if lin == self:
+                    child = True
+                    break
+
+        return parent and child
 
     def try_break_link(self, refund=False):
         '''

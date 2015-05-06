@@ -2,9 +2,15 @@ import warnings
 import sys
 import gzip
 
+warnings.simplefilter("error")
+
 
 def cyclewarning():
-    warnings.warn("A cyclic glycan may be present. They may not cross-ring fragment correctly.")
+    '''
+    Used to warn users about the presence of cylcical glycans, which are harder to
+    reason about for crossring_cleavages.
+    '''
+    warnings.warn("A cyclic glycan may be present. They may not cross-ring fragment correctly.", stacklevel=3)
 
 
 def opener(obj, mode='r'):

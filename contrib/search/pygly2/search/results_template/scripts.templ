@@ -28,6 +28,7 @@ function highlightCleavage(handle, svgContainer){
     var cleavageType = handle.text().replace(/\n|\s\s+/g, "").replace(",", "_").split("-")
     handle.hover(function(evt){
         for(var i = 0; i < cleavageType.length; i++){
+            console.log(cleavageType[i])
             var cleavageGroup = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i]).replace(/\n|\s\s+/g, ""))
             var cleavageTag = svgContainer.find(("#" + svgUUID + "-" + cleavageType[i] + " path, " + "#" + svgUUID + "-" + cleavageType[i] + "-direction path").replace(/\n|\s\s/g, ""))
             cleavageGroup.detach()

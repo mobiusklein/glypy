@@ -6,9 +6,8 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
-from .constants import RingType
-from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, _traverse_debug
-from .crossring_fragments import enumerate_cleavage_pairs, crossring_fragments, CrossRingPair, CrossRingFragment
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
+from .crossring_fragments import crossring_fragments, CrossRingPair, CrossRingFragment
 from .fragment import Fragment, Subtree
 from ..utils import make_counter, identity, StringIO, chrinc, make_struct
 from ..composition import Composition
@@ -922,14 +921,13 @@ class Glycan(SaccharideBase):
                 subtrees.append(parent_tree)
                 subtrees.append(child_tree)
 
-            # unique_subtrees = []
-            # for subtree in subtrees:
-            #     for unique in unique_subtrees:
-            #         if subtree == unique:
-            #             break
-            #     else:
-            #         unique_subtrees.append(subtree)
-            unique_subtrees = subtrees
+            unique_subtrees = []
+            for subtree in subtrees:
+                for unique in unique_subtrees:
+                    if subtree == unique:
+                        break
+                else:
+                    unique_subtrees.append(subtree)
 
             for subtree in unique_subtrees:
                 subtree = subtree.clone(
@@ -968,14 +966,13 @@ class Glycan(SaccharideBase):
                         subtrees.append(parent_tree)
                         subtrees.append(child_tree)
 
-                    # unique_subtrees = []
-                    # for tree in subtrees:
-                    #     for unique in unique_subtrees:
-                    #         if tree == unique:
-                    #             break
-                    #     else:
-                    #         unique_subtrees.append(tree)
-                    unique_subtrees = subtrees
+                    unique_subtrees = []
+                    for tree in subtrees:
+                        for unique in unique_subtrees:
+                            if tree == unique:
+                                break
+                        else:
+                            unique_subtrees.append(tree)
 
                     if n_links - i > 0:
                         for subtree in unique_subtrees:
@@ -989,9 +986,11 @@ class Glycan(SaccharideBase):
                                     if crossring.id in part.include_nodes:
                                         xring_residue = part.tree.get(
                                             crossring.id)
-                                        included_crossring[xring_residue.id] = (','.join(
-                                            (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
-                                            xring_residue.kind)
+                                        if isinstance(xring_residue, CrossRingFragment):
+                                            included_crossring[xring_residue.id] = (','.join(
+                                                (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
+                                                xring_residue.kind)
+
                                 part.crossring_cleavages = included_crossring
                                 yield part
                     else:
@@ -1005,9 +1004,10 @@ class Glycan(SaccharideBase):
                             for crossring in breaks:
                                 if crossring.id in include_nodes:
                                     xring_residue = subtree.get(crossring.id)
-                                    included_crossring[xring_residue.id] = (','.join(
-                                        (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
-                                        xring_residue.kind)
+                                    if isinstance(xring_residue, CrossRingFragment):
+                                        included_crossring[xring_residue.id] = (','.join(
+                                            (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
+                                            xring_residue.kind)
                             yield Subtree(subtree, include_nodes, {}, {}, {}, crossring_cleavages=included_crossring)
                     # Re-join the ring, retracting all links from the crossring objects
                     for ring in breaks:
@@ -1035,7 +1035,6 @@ class Glycan(SaccharideBase):
                 yield fragment
 
     def subtrees(self, kind="BY", max_cleavages=1):
-        seen = set()
         source = self.clone()
         gen = source.break_links_subtrees(max_cleavages)
         if len(set("AX") & set(kind)) > 0:
