@@ -8,7 +8,7 @@
             <th>Matches</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody>        
         {% for ion_group in match.matches | sort(attribute="mass") | groupby("mass") %}
             <tr>
                 <td class="matched-ion-names">

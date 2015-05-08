@@ -15,7 +15,8 @@ from pygly2.utils import pickle
 
 from .matching import (find_matches, DEFAULT_MS2_MATCH_TOLERANCE,
                        DEFAULT_MS1_MATCH_TOLERANCE, MassShift,
-                       NoShift, collect_matched_scans)
+                       NoShift, collect_matched_scans, ResultsRecord,
+                       ResultsDatabase)
 from .spectra import bupid_topdown_deconvoluter, spectra
 from .report import render
 
@@ -24,13 +25,14 @@ def main(structure_database, observed_data,
          ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
          ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
          shifts=None,
-         ion_types="ABCXYZ"):
+         ion_types="ABCXYZ", settings={}):
     if shifts is None:
         shifts = [NoShift]
     if isinstance(structure_database, str):
         structure_database = database.RecordDatabase(structure_database)
     if isinstance(observed_data, str):
         if os.path.splitext(observed_data)[1] == ".yaml":
+            logger.info("Indexing Observed Ions")
             observed_db = bupid_topdown_deconvoluter.BUPIDYamlParser(observed_data).to_db()
         elif os.path.splitext(observed_data)[1] == ".db":
             observed_db = spectra.MSMSSqlDB(observed_data)
@@ -40,30 +42,36 @@ def main(structure_database, observed_data,
         observed_db = observed_data
     else:
         raise Exception("Cannot load data: {}".format(observed_data))
-    spectral_match_db = []
+    spectral_matches_list = []
+    matches_db = ResultsDatabase("test.db", flag='w')
+    spectral_match_db = spectra.MSMSSqlDB("test.db")
     matches = []
+    logger.info("Begin Matching")
     for structure in structure_database:
         results, spectral_matches = find_matches(structure, observed_db,
                                                  shifts=shifts,
                                                  ms1_match_tolerance=ms1_match_tolerance,
                                                  ms2_match_tolerance=ms2_match_tolerance,
                                                  ion_types=ion_types)
-        spectral_match_db.append(spectral_matches)
-        # for matched_spec in spectral_matches:
-        #     precursor = spectral_match_db[matched_spec["precursor_id"]]
-        #     if len(precursor) == 0:
-        #         precursor = observed_db[matched_spec["precursor_id"]][0]
-        #     else:
-        #         precursor = precursor[0]
+        matches_db.load_data([ResultsRecord.from_base(results)], set_id=False)
+        spectral_matches_list.append(spectral_matches)
 
         if results.intact_structures_searched > 0:
             matches.append(results)
-    results = {}
-    scans_matched, scans_not_matched = map(list, collect_matched_scans(matches, observed_db))
-    results["count_scans_matched"] = len(scans_matched)
-    results["count_scans_not_matched"] = len(scans_not_matched)
+    logger.info("Matching Complete")
+    experimental_statistics = {}
 
-    return matches, results, scans_matched, scans_not_matched, spectral_match_db
+    scans_matched, scans_not_matched = map(list, collect_matched_scans(matches, observed_db))
+    experimental_statistics["count_scans_matched"] = len(scans_matched)
+    experimental_statistics["count_scans_not_matched"] = len(scans_not_matched)
+
+    matches_db.set_metadata("experimental_statistics", experimental_statistics)
+    matches_db.set_metadata("scans_matched", scans_matched)
+    matches_db.set_metadata("scans_not_matched", scans_not_matched)
+    matches_db.set_metadata("spectral_matches", spectral_matches_list)
+    matches_db.set_metadata("settings", settings)
+
+    return matches, experimental_statistics, scans_matched, scans_not_matched, spectral_matches_list
 
 
 app = argparse.ArgumentParser("pygly-ms2")
@@ -98,7 +106,7 @@ def taskmain():
                    shifts=args.mass_shift,
                    ms1_match_tolerance=args.ms1_tolerance,
                    ms2_match_tolerance=args.ms2_tolerance,
-                   ion_types=args.ion_types)
+                   ion_types=args.ion_types, settings=args.__dict__)
     matches, experimental_statistics, scans_matched, scans_not_matched, spectral_match_db = results
     if args.output is None:
         args.output = os.path.splitext(args.structure_database)[0] + ".results"

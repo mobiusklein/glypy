@@ -1,0 +1,21 @@
+<Glymz>
+    <Settings>
+        
+    </Settings>
+    <ExperimentalStatistics>
+        
+    </ExperimentalStatistics>
+    <DatabaseSearch>
+        {% for structure in structures %}
+        <Structure>
+            <GlycoCT>
+                {{structure.to_glycoct()}}
+            </GlycoCT>
+            <Transformation>
+                <Derivatization value="{{structure.derivatization}}" />
+                <ReducingEnd value="{{structure.reduced_end_type}}"/>
+            </Transformation>
+        </Structure>
+        {% endfor %}
+    </DatabaseSearch>
+</Glymz>

@@ -1,0 +1,17 @@
+{% if settings is not none %}
+    <h2>Settings</h2>
+    {% for key, value in settings.items() %}
+        <div class="settings-item">
+        {% if key == "mass_shift" %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span>
+            {% for shift in value %}
+                {% if shift.name != "" %}
+                    <span class='label label-info'>{{shift.name}}: {{shift.mass}}</span>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span> {{value}}
+        {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}

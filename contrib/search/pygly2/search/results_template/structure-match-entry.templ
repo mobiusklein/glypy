@@ -1,0 +1,45 @@
+    <div id="entry-{{match.id}}" class='structure-match'>
+        <h4>Matches for {{match.id}}</h4>
+        <div>
+            <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
+            <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error[0] | scientific_notation}}</span>
+            <span class='labeled-data'><b>Score: </b> {{match.score | limit_sigfig}} </span>
+            <span class='labeled-data'><b>Fragments <small class='fraction'>Observed / Total</small>: </b> {{(match|collect_fragments|length / match.fragments|length) | limit_sigfig }} </span>
+        </div>  
+        <div>
+            <span class='labeled-data'><b>Scan Range (Density): </b>  <small>{{match.scan_ids | join(", ")}}</small>
+             ({{match.scan_density | scientific_notation }})</span>
+            <span class='labeled-data'><b>Charge States: </b> {{match.charge_states | unique | join(", ") }}</span>
+        </div>
+        <div class='monosaccharides'>
+            {{match.monosaccharides}}
+        </div>
+    {% if match.matches|length > 0 %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <div style='overflow-y: auto;max-height: 1500px;'>
+                        {% include 'ion-table.templ' %}
+                            
+                        </div>
+                    </td>
+                    <td class="right-column" style="padding-left: 20px;">
+                        <div class='glycoct-collapse-container'>
+                            <a class='glycoct-collapse-caret labeled-data label label-primary'>
+                                <span>GlycoCT</span>
+                                <span class="glyphicon glyphicon-chevron-down"></span>
+                            </a>
+                        </div>
+                        <pre class='glycoct-container'>
+{{match|strip_derivatize}}
+                        </pre>
+                        {{match | cfg_plot}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+    <p>No MS2 Matches Found</p>
+    {% endif %}
+    </div>

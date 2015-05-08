@@ -1,12 +1,83 @@
 import re
+import collections
 from math import fabs
 from itertools import chain
+from functools import partial
 from collections import defaultdict
 
 from pygly2 import Composition
-from pygly2.utils import make_struct
 
+from pygly2.utils import make_struct, pickle
+from pygly2.algorithms import database
 from pygly2.search.spectra import MSMSSqlDB
+
+
+def get_intact_mass(record):
+    try:
+        return record.intact_mass
+    except:
+        return record.mass()
+
+
+def get_score(record):
+    try:
+        return record.score
+    except:
+        try:
+            return len(record.matches) / float(len(record.fragments))
+        except:
+            return 0.0
+
+
+def get_match_count(record):
+    try:
+        return len(record.matches)
+    except:
+        return 0
+
+
+def get_search_space_size(record):
+    try:
+        return len(record.fragments)
+    except:
+        return -1
+
+
+def get_scan_count(record):
+    try:
+        return len(record.scan_ids)
+    except:
+        return 0
+
+
+def get_charge_count(record):
+    try:
+        return len(record.charge_states)
+    except:
+        return 0
+
+
+@database.table_data("score", "float", get_score)
+@database.table_data("match_count", "float", get_match_count)
+@database.table_data("scan_count", "float", get_scan_count)
+@database.table_data("charge_count", "float", get_charge_count)
+class ResultsRecord(database.GlycanRecord):
+    @classmethod
+    def from_base(cls, record):
+        instance = cls(record.structure)
+        for name in dir(record):
+            if "_" == name[0] or isinstance(getattr(record, name), collections.Callable):
+                continue
+            try:
+                setattr(instance, name, getattr(record, name))
+            except:
+                pass
+        instance.intact_mass = get_intact_mass(record)
+        instance.score = get_score(record)
+        return instance
+
+
+ResultsDatabase = partial(database.RecordDatabase, record_type=ResultsRecord)
 
 
 def _machine_epsilon(func=float):
@@ -134,7 +205,7 @@ def find_matches(precursor, msms_db, shifts=None,
     return precursor, spectrum_matches
 
 
-def match_fragments(fragments, precursor, shifts=None,
+def match_fragments(fragments, precursor_spectrum, shifts=None,
                     ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
                     spectrum_matches=None):
     '''
@@ -142,7 +213,7 @@ def match_fragments(fragments, precursor, shifts=None,
     '''
     if spectrum_matches is None:
         spectrum_matches = []
-    peak_list = precursor.tandem_data
+    peak_list = precursor_spectrum.tandem_data
     shifts = shifts or [NoShift]
     matches = []
     for shift in shifts:
@@ -153,7 +224,7 @@ def match_fragments(fragments, precursor, shifts=None,
                     matches.append(FragmentMatch(
                         fragment.name + ":" + shift.name, peak.mass,
                         match_error, peak.intensity, peak.charge, peak.id))
-                    spectrum_matches.append({"precursor_id": precursor.id, "peak_id": peak.id,
+                    spectrum_matches.append({"precursor_id": precursor_spectrum.id, "peak_id": peak.id,
                                              "fragment_name": fragment.name + ":" + shift.name})
     return matches
 

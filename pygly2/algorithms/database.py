@@ -18,9 +18,9 @@ DatabaseEntry = make_struct("DatabaseEntry", ("database", "id"))
 Motif = make_struct("Motif", ("name", "id", "motif_class"))
 
 
-def _resolve_metadata_mro(cls):
+def _resolve_table_data_mro(cls):
     '''
-    Given a class with :attr:`__metadata_map` mangled attributes
+    Given a class with :attr:`__table_data_map` mangled attributes
     from its class hierarchy, extract in descending order each
     `dict`, overwriting old settings as it approaches the most
     recently descended class.
@@ -28,48 +28,48 @@ def _resolve_metadata_mro(cls):
     Parameters
     ----------
     cls: type
-        The type to attempt to extract metadata mappings for
+        The type to attempt to extract table_data mappings for
         along the MRO
 
     Returns
     -------
     dict:
-        The metadata mapping describing the entire class hierarchy along
+        The table_data mapping describing the entire class hierarchy along
         `cls`'s MRO.
     '''
     attrs = []
     for attr in dir(cls):
-        if "metadata_map" in attr:
+        if "table_data_map" in attr:
             attrs.append(attr)
-    mapping = {attr[1:].split("__metadata_map")[0]: attr for attr in attrs}
+    mapping = {attr[1:].split("__table_data_map")[0]: attr for attr in attrs}
     meta_map = {}
     for typ in cls.mro()[::-1][1:]:
-        metadata = mapping.get(typ.__name__, "__metadata_map")
-        meta_map.update(getattr(cls, metadata, {}))
+        table_data = mapping.get(typ.__name__, "__table_data_map")
+        meta_map.update(getattr(cls, table_data, {}))
     return meta_map
 
 
-def metadata(name, dtype, transform):
+def table_data(name, dtype, transform):
     '''
-    Decorator for adding metadata to a record class
+    Decorator for adding table_data to a record class
 
     Parameters
     ----------
     name: str
-        Name of the new metadata field
+        Name of the new table_data field
     dtype: str
         The SQL data type to encode the column as
     transform: function
-        The function to extract the value of the metadata from a record
+        The function to extract the value of the table_data from a record
 
     Returns
     -------
     function:
-        Decorator that will call :meth:`.add_metadata` with `name`, `dtype` and
+        Decorator that will call :meth:`.add_table_data` with `name`, `dtype` and
         `transform` on the decorated class after instantiation
     '''
     def func(cls):
-        cls.add_metadata(name, dtype, transform)
+        cls.add_table_data(name, dtype, transform)
         return cls
     return func
 
@@ -77,7 +77,7 @@ def metadata(name, dtype, transform):
 class GlycanRecordBase(object):
     '''
     Defines the base class for SQL serialize-able records carrying
-    glycan structure data and metadata. Includes tools for extending the
+    glycan structure data and table_data. Includes tools for extending the
     SQL schema describing the structure to make new information query-able.
 
     .. warning::
@@ -125,27 +125,30 @@ class GlycanRecordBase(object):
     '''
 
     #: The storage for base-class specific
-    #: metadata mappings. Add metadata here to
+    #: table_data mappings. Add table_data here to
     #: include in all GlycanRecordBase'd objects
-    __metadata_map = {}
+    __table_data_map = {}
 
     @classmethod
-    def add_metadata(cls, name, dtype, transform):
+    def add_table_data(cls, name, dtype, transform):
         '''
         Function-based approach to modifying the class-specific
-        :attr:`.__metadata_map` attribute. Must use :func:`getattr`
+        :attr:`.__table_data_map` attribute. Must use :func:`getattr`
         to prevent class-private name mangling
 
         Parameters
         ----------
         name: str
-            Name of the new metadata field
+            Name of the new table_data field
         dtype: str
             The SQL data type to encode the column as
         transform: function
-            The function to extract the value of the metadata from a record
+            The function to extract the value of the table_data from a record
         '''
-        getattr(cls, "_{}__metadata_map".format(cls.__name__))[name] = (dtype, transform)
+        try:
+            getattr(cls, "_{}__table_data_map".format(cls.__name__))[name] = (dtype, transform)
+        except:
+            setattr(cls, "_{}__table_data_map".format(cls.__name__), {name: (dtype, transform)})
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
@@ -164,7 +167,7 @@ class GlycanRecordBase(object):
             may yield additional statements.
         '''
         ext_stmts = []
-        meta_map = dict(cls.__metadata_map)
+        meta_map = dict(cls.__table_data_map)
         meta_map.update(kwargs.get('inherits', {}))
         for name, type_transformer in meta_map.items():
             template = "{name} {type}\n".format(name=name, type=type_transformer[0])
@@ -235,7 +238,7 @@ class GlycanRecordBase(object):
             Parameters to pass to :meth:`.mass`. The output is stored
             in the SQL record as the `mass` value
         inherits: dict
-            Mapping of inherited metadata properties to include in the record
+            Mapping of inherited table_data properties to include in the record
 
         Yields
         ------
@@ -358,11 +361,11 @@ class GlycanRecordBase(object):
 
     def _collect_ext_data(self, inherits=None):
         '''
-        Apply each metadata mapping transform sequentially, storing each result
+        Apply each table_data mapping transform sequentially, storing each result
         in a |dict| object for generating SQL.
         '''
         meta_map = dict(inherits or {})
-        meta_map.update(dict(self.__metadata_map))
+        meta_map.update(dict(self.__table_data_map))
         data = {}
         for name, type_transformer in meta_map.items():
             ext_type, transformer = type_transformer
@@ -487,16 +490,16 @@ def is_n_glycan(record):
 n_glycan_core = pygly2.glycans["N-Linked Core"]
 
 
-@metadata("composition", "varchar(120)", extract_composition)
-@metadata("is_n_glycan", "boolean", is_n_glycan)
-@metadata("glycoct", "text", lambda x: "\"{}\"".format(str(x.structure)))
+@table_data("composition", "varchar(120)", extract_composition)
+@table_data("is_n_glycan", "boolean", is_n_glycan)
+@table_data("glycoct", "text", lambda x: "\"{}\"".format(str(x.structure)))
 class GlycanRecord(GlycanRecordBase):
     '''
     An extension of :class:`GlycanRecordBase` to add additional features and better support for extension
     by both metaprogramming and inheritance.
     '''
 
-    __metadata_map = {}
+    __table_data_map = {}
 
     @classmethod
     def query_like_composition(cls, conn, record=None, prefix=None):
@@ -548,27 +551,27 @@ class GlycanRecord(GlycanRecordBase):
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
-        meta_map = dict(cls.__metadata_map)
+        meta_map = dict(cls.__table_data_map)
         meta_map.update(kwargs.pop("inherits", {}))
-        return super(GlycanRecord, cls).sql_schema(inherits=_resolve_metadata_mro(cls))
+        return super(GlycanRecord, cls).sql_schema(inherits=_resolve_table_data_mro(cls))
 
     def to_sql(self, *args, **kwargs):
-        inherits = _resolve_metadata_mro(self.__class__)
+        inherits = _resolve_table_data_mro(self.__class__)
         return super(GlycanRecord, self).to_sql(*args, inherits=inherits, **kwargs)
 
     def to_update_sql(self, *args, **kwargs):
-        inherits = _resolve_metadata_mro(self.__class__)
-        inherits = inherits or _resolve_metadata_mro(self.__class__)
+        inherits = _resolve_table_data_mro(self.__class__)
+        inherits = inherits or _resolve_table_data_mro(self.__class__)
         kwargs['inherits'] = inherits
         return super(GlycanRecord, self).to_update_sql(*args, **kwargs)
 
     def update(self, mass_params=None, inherits=None, commit=True, *args, **kwargs):
-        inherits = inherits or _resolve_metadata_mro(self.__class__)
+        inherits = inherits or _resolve_table_data_mro(self.__class__)
         kwargs['inherits'] = inherits
         super(GlycanRecord, self).update(mass_params=mass_params, *args, **kwargs)
 
     def _collect_ext_data(self):
-        inherits = _resolve_metadata_mro(self.__class__)
+        inherits = _resolve_table_data_mro(self.__class__)
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
 
@@ -609,11 +612,18 @@ class RecordDatabase(object):
     records: list
         A list of `record_type` records to insert immediately on table creation.
     '''
-    def __init__(self, connection_string=":memory:", record_type=GlycanRecord, records=None):
+    def __init__(self, connection_string=":memory:", record_type=GlycanRecord, records=None, flag='c'):
 
         created_new = False
         if connection_string == ":memory:" or not os.path.exists(connection_string):
             created_new = True
+
+        if flag == "c":
+            pass
+            # If 'c', create if not present, but don't clear old data
+        elif flag == "w":
+            created_new = True
+            # If 'w', clear the table before taking any operations
 
         self.connection_string = connection_string
         self.connection = sqlite3.connect(connection_string)
@@ -621,11 +631,6 @@ class RecordDatabase(object):
         self.cursor = self.connection.cursor
         self.record_type = record_type
         self._id = 0
-
-        for name in dir(record_type):
-            if "query_" in name:
-                method = getattr(record_type, name)
-                setattr(self, name, functools.partial(method, conn=self))
 
         if records is not None:
             self.apply_schema()
@@ -647,6 +652,12 @@ class RecordDatabase(object):
             The SQL table definition statements generated may drop existing tables. Calling
             this function on an already populated table can cause data loss.
         '''
+        self.executescript('''
+        DROP TABLE IF EXISTS metadata;
+        CREATE TABLE metadata(
+            name VARCHAR(40) PRIMARY KEY,
+            content TEXT
+        );''')
         self.executescript('\n'.join(self.record_type.sql_schema()))
         self.commit()
         self._id = 0
@@ -686,6 +697,21 @@ class RecordDatabase(object):
                     raise
         if commit:
             self.commit()
+
+    def get_metadata(self, key=None):
+        if key is None:
+            return {
+                row[0]: pickle.loads(str(row[1])) for row in self.execute("SELECT name, content FROM metadata")
+            }
+        res = [pickle.loads(str(row[0])) for row in self.execute("SELECT content FROM metadata WHERE name = ?", (key,))]
+        if len(res) > 0:
+            return res[0]
+        else:
+            raise KeyError("Key {} not found".format(key))
+
+    def set_metadata(self, key, value):
+        self.execute("INSERT OR REPLACE INTO metadata (name, content) VALUES (?, ?);", (key, pickle.dumps(value)))
+        self.commit()
 
     def __len__(self):
         """The number of records in the database
@@ -817,6 +843,9 @@ class RecordDatabase(object):
         `sqlite3.rollback <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.rollback>`_
         '''
         self.connection.rollback()
+
+    def close(self):
+        self.connection.close()
 
     def _find_boundaries(self, mass, tolerance):
         spread = mass * tolerance

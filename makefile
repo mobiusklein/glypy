@@ -10,11 +10,11 @@ clean:
 	@rm  pygly2/*/*.pyd
 	@rm  pygly2/*/*.so
 
-docs:
-	make -f Makefile clean -C doc html
+sphinx:
+	python setup.py build_sphinx
 
 develop: clean
 	python setup.py develop
 
 serve-docs:
-	python -m webbrowser -n doc\build\html\index.html
+	python -m webbrowser -n docs\build\html\index.html
