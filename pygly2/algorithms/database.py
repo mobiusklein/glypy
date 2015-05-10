@@ -787,6 +787,7 @@ class RecordDatabase(object):
                     "SELECT * FROM {table_name} WHERE glycan_id BETWEEN ? AND ?", begin, end)))
         if len(results) == 0 and key_type is int:
             raise IndexError("No record found for %r" % keys)
+        list(map(self.bind, results))
         if len(results) > 1:
             return results
         else:
