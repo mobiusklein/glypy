@@ -25,7 +25,7 @@ function highlightCleavage(handle, svgContainer){
     handle = $(handle === undefined ? (this) : handle)
     svgContainer = svgContainer === undefined ? getGlycanSVG(handle) : svgContainer
     var svgUUID = svgContainer.attr("id")
-    var cleavageType = handle.text().replace(/\n|\s\s+/g, "").replace(",", "_").split("-")
+    var cleavageType = handle.text().replace(/\n|\s\s+/g, "").replace(",", "_").split(/-|\+/)
     handle.hover(function(evt){
         for(var i = 0; i < cleavageType.length; i++){
             console.log(cleavageType[i])

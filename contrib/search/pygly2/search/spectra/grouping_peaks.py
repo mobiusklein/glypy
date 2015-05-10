@@ -1,5 +1,5 @@
 import csv
-from spectra import ObservedPrecursorSpectrum, Scan
+from .spectrum_model import ObservedPrecursorSpectrum, Scan
 
 
 def tryfloat(obj):

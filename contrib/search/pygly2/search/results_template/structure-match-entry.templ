@@ -2,27 +2,40 @@
         <h4>Matches for {{match.id}}</h4>
         <div>
             <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
-            <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error[0] | scientific_notation}}</span>
+            <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error | first | scientific_notation}} </span>
             <span class='labeled-data'><b>Score: </b> {{match.score | limit_sigfig}} </span>
             <span class='labeled-data'><b>Fragments <small class='fraction'>Observed / Total</small>: </b> {{(match|collect_fragments|length / match.fragments|length) | limit_sigfig }} </span>
         </div>  
+        <div class='monosaccharides'>
+            <h4>Monosaccharide Composition</h4>
+            <ul class='list-inline list-group'>
+            {% for monosaccharide_name, count in match.monosaccharides.items() %}
+                <li class='list-group-item monosaccharide'>
+                    <span>{{monosaccharide_name}}</span><br>
+                    <span>{{count}}</span>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
         <div>
             <span class='labeled-data'><b>Scan Range (Density): </b>  <small>{{match.scan_ids | join(", ")}}</small>
              ({{match.scan_density | scientific_notation }})</span>
             <span class='labeled-data'><b>Charge States: </b> {{match.charge_states | unique | join(", ") }}</span>
         </div>
-        <div class='monosaccharides'>
-            {{match.monosaccharides}}
-        </div>
-    {% if match.matches|length > 0 %}
         <table>
             <tbody>
                 <tr>
                     <td>
-                        <div style='overflow-y: auto;max-height: 1500px;'>
+                    {% if match.matches|length > 0 %}
+                        <div style='overflow-y: auto;max-height: 900px;'>
                         {% include 'ion-table.templ' %}
                             
                         </div>
+                    {% else %}
+                        <p style='width:550px;'>
+                            <h3>No MS2 Matches Found</h3>
+                        </p>
+                    {% endif %}
                     </td>
                     <td class="right-column" style="padding-left: 20px;">
                         <div class='glycoct-collapse-container'>
@@ -31,7 +44,7 @@
                                 <span class="glyphicon glyphicon-chevron-down"></span>
                             </a>
                         </div>
-                        <pre class='glycoct-container'>
+                        <pre class='glycoct-container' style='z-index: 4; position: absolute; display: none;'>
 {{match|strip_derivatize}}
                         </pre>
                         {{match | cfg_plot}}
@@ -39,7 +52,4 @@
                 </tr>
             </tbody>
         </table>
-    {% else %}
-    <p>No MS2 Matches Found</p>
-    {% endif %}
     </div>

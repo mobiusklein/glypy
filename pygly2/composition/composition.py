@@ -370,7 +370,8 @@ def pcalculate_mass(*args, **kwargs):
                 'Charge is specified both by the number of protons and '
                 '`charge` in kwargs')
         charge = kwargs['charge']
-        composition['H+'] = charge
+        if charge is not None:
+            composition['H+'] = charge
 
     # Calculate mass.
     mass = 0.0

@@ -70,7 +70,7 @@ class Link(object):
         self.child_loss = child_loss
         self.id = id or uuid4().int
         self.label = None
-
+        self._attached = False
         if attach:
             self.apply()
 
@@ -79,6 +79,8 @@ class Link(object):
         Actually alter :attr:`parent` and :attr:`child`'s state. Deduct their respective losses from their
         :attr:`composition` and insert a reference to :obj:`self` into their :attr:`links` or :attr:`substituent_links`
         as appropriate.
+
+        Sets :attr:`_attached` to |True|
 
         See also
         --------
@@ -97,6 +99,7 @@ class Link(object):
         self.child.links[self.child_position] = self
         self.parent._order += 1
         self.child._order += 1
+        self._attached = True
 
     def to(self, mol):
         '''
@@ -242,13 +245,12 @@ class Link(object):
             return False
         res = self._flat_equality(other)
         if res:
-            res = (self.parent == other.parent) and\
-                  (self.parent.id == other.parent.id)
+            res = (self.parent.id == other.parent.id) and\
+                  (self.parent == other.parent)
         return res
 
     def _flat_equality(self, other):
-        res = (self.child == other.child) and\
-              (self.child.id == other.child.id)
+        res = True
         if res:
             res = (self.parent_position == other.parent_position)
         if res:
@@ -257,6 +259,9 @@ class Link(object):
             res = (self.parent_loss == other.parent_loss)
         if res:
             res = (self.child_loss == other.child_loss)
+        if res:
+            res = (self.child.id == other.child.id) and\
+                  (self.child == other.child)
         return res
 
     def __ne__(self, other):
@@ -268,6 +273,8 @@ class Link(object):
         both :attr:`parent` and :attr:`child`'s store of links. If ``refund`` is :const:`True`,
         :meth:`Link.refund` will be called, restoring the lost elemental composition from this
         bond.
+
+        Sets :attr:`_attached` to |False|
 
         Returns
         -------
@@ -283,6 +290,7 @@ class Link(object):
             self.refund()
         self.parent._order -= 1
         self.child._order -= 1
+        self._attached = False
         return (self.parent, self.child)
 
     def reconnect(self, refund=False):
@@ -309,6 +317,7 @@ class Link(object):
             self.refund()
         self.parent._order += 1
         self.child._order += 1
+        self._attached = True
 
     def refund(self):
         '''
@@ -318,7 +327,7 @@ class Link(object):
         self.parent.composition += (self.parent_loss or default_parent_loss)
         self.child.composition += (self.child_loss or default_child_loss)
 
-    def is_attached(self):
+    def is_attached(self, deep=False):
         '''
         Test to see if `self` is present in :attr:`parent` and :attr:`child` link structures.
         Presences indicates the link is attached.
@@ -327,6 +336,8 @@ class Link(object):
         -------
         |bool|
         '''
+        if not deep:
+            return self._attached
         parent = False
         child = False
         if self.is_substituent_link():
@@ -343,8 +354,9 @@ class Link(object):
                 if lin == self:
                     child = True
                     break
-
-        return parent and child
+        assert self._attached == (parent and child)
+        res = self._attached = (parent and child)
+        return res
 
     def try_break_link(self, refund=False):
         '''

@@ -243,6 +243,10 @@ class MonosaccharideTests(unittest.TestCase):
         self.assertEqual(hexose.total_composition(), {"C": 6, "O": 6, "H": 14})
 
 
+class ReducedEndTests(unittest.TestCase):
+    def test_equality(self):
+        self.assertEqual(ReducedEnd(), ReducedEnd())
+        self.assertNotEqual(ReducedEnd(), ReducedEnd("H[2]H"))
 
 
 if __name__ == '__main__':

@@ -26,7 +26,6 @@ def link_ids_splitter(fragment, link_ids, kind):
 
 
 class Fragment(object):
-
     '''
     A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
 
@@ -99,13 +98,13 @@ class Fragment(object):
         """
         return set(self.kind) in set("ABC")
 
-    def __getstate__(self):
+    def __getstate__(self):  # pragma: no cover
         d = {}
         for a in self.__slots__:
             d[a] = getattr(self, a)
         return d
 
-    def __setstate__(self, state):
+    def __setstate__(self, state):  # pragma: no cover
         if isinstance(state, tuple):
             kind, link_ids, included_nodes, mass, name = state
             link_ids_splitter(self, link_ids, kind)
@@ -118,16 +117,16 @@ class Fragment(object):
             for a, v in state.items():
                 setattr(self, a, v)
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pragma: no cover
         for field in self.__slots__:
             if getattr(self, field) != getattr(other, field, NotImplemented):
                 return False
         return True
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # pragma: no cover
         return not self == other
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         rep = "<Fragment "
         for f in self.__slots__:
             rep += " {}={}".format(f, getattr(self, f))

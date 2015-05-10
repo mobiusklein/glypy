@@ -47,7 +47,7 @@ def fragment_to_substructure(fragment, tree):
     >>> n_linked_core = glycan_factory["N-Linked Core"]
     >>> frag = n_linked_core.fragments().next()
     >>> frag
-    <Fragment kind=Y link_ids=[1] included_nodes=[1] mass=221.089937203>
+    <Fragment  mass=221.089937203 kind=Y included_nodes=set([1]) link_ids={1: ('', 'Y')} name=Y1 crossring_cleavages={} score=0.0>
     >>> glycan.fragment_to_substructure(frag, n_linked_core)
     RES
     1b:b-dglc-HEX-1:5
@@ -91,18 +91,15 @@ def fragment_to_substructure(fragment, tree):
         if link.id in break_targets:
             break_targets_nodes.append(link)
 
-    for target in crossring_targets_nodes:
+    for target, c1, c2 in crossring_targets_nodes:
         a_frag, x_frag = crossring_fragments(
             target, c1, c2, attach=True, copy=False)
         residue_toggle(target).next()
 
-        for pos, link in a_frag.links.items():
-            if link[a_frag].id in fragment.included_nodes:
-                anchor = a_frag
-
-        for pos, link in x_frag.links.items():
-            if link[x_frag].id in fragment.included_nodes:
-                anchor = x_frag
+        if crossring_targets[target.id][1] == "A":
+            anchor = a_frag
+        else:
+            anchor = x_frag
 
     for link in break_targets_nodes:
         parent, child = link.break_link(refund=True)
@@ -352,7 +349,7 @@ class Glycan(SaccharideBase):
             res = apply_fn(node)
             if res is not None:
                 yield res
-            node_stack.extend(sorted((terminal for pos, link in node.links.items()
+            node_stack.extend(sorted((terminal for link in node.links.values()
                                       for terminal in link if terminal.id not in visited), key=sort_predicate))
 
     # Convenience aliases and the set up the traversal_methods entry
@@ -396,7 +393,7 @@ class Glycan(SaccharideBase):
             res = apply_fn(node)
             if res is not None:
                 yield res
-            node_queue.extend(sorted((terminal for pos, link in node.links.items()
+            node_queue.extend(sorted((terminal for link in node.links.values()
                                       for terminal in link if terminal.id not in visited), key=sort_predicate))
 
     # Convenience aliases and the set up the traversal_methods entry
@@ -543,7 +540,7 @@ class Glycan(SaccharideBase):
 
         for node in self:
             links = []
-            for pos, link in node.links.items():
+            for link in node.links.values():
                 if link.is_child(node):
                     continue
                 links.append(link)
@@ -910,6 +907,18 @@ class Glycan(SaccharideBase):
         return '-'.join(name_parts)
 
     def break_links_subtrees(self, n_links):
+        """Iteratively generate all subtrees from glycosidic bond cleavages, creating all
+        :math:`2{L \choose n}` subtrees.
+
+        Parameters
+        ----------
+        n_links : int
+            Number of links to break simultaneously
+
+        Yields
+        ------
+        Subtree
+        """
         links = list(self.link_index)
         for breaks in itertools.combinations(links, n_links):
 
@@ -923,13 +932,14 @@ class Glycan(SaccharideBase):
 
             unique_subtrees = []
             for subtree in subtrees:
-                for unique in unique_subtrees:
-                    if subtree == unique:
+                ids = {n.id for n in subtree}
+                for uids, unique in unique_subtrees:
+                    if ids == uids:
                         break
                 else:
-                    unique_subtrees.append(subtree)
+                    unique_subtrees.append((ids, subtree))
 
-            for subtree in unique_subtrees:
+            for ids, subtree in unique_subtrees:
                 subtree = subtree.clone(
                     index_method=None).reroot(
                     index_method=None)
@@ -951,12 +961,32 @@ class Glycan(SaccharideBase):
                 link.apply()
 
     def crossring_subtrees(self, n_links):
+        """Generate all combinations of cross ring fragments and
+        glycosidic cleavages, cleaving between 1 and `n_links`
+        monosaccharides paired with `n_links` - 1 to 0 glycosidic cleavages.
+
+        Parameters
+        ----------
+        n_links : int
+            Total number of breaks to create, between cross ring cleavages and
+            complemenatary glycosidic cleavages.
+
+        Yields
+        ------
+        Subtree
+        """
         links = list(self.link_index)
 
+        # Break at least one ring
         for i in range(1, n_links + 1):
+            # Generate all combinations of i rings to break
             for link_combination in itertools.combinations(links, i):
+                # Creates a list of lists of CrossRingPairs, each inner list for a
+                # single Monosaccharide
                 crossring_combinations = [
                     CrossRingPair.from_link(link) for link in link_combination]
+                # Combinations are splatted to unwrap the outer container so that
+                # the inner lists are multiplexed.
                 for breaks in itertools.product(*crossring_combinations):
                     subtrees = []
                     for ring in breaks:
@@ -968,18 +998,20 @@ class Glycan(SaccharideBase):
 
                     unique_subtrees = []
                     for tree in subtrees:
-                        for unique in unique_subtrees:
-                            if tree == unique:
+                        ids = {n.id for n in tree}
+                        for uids, unique in unique_subtrees:
+                            if ids == uids:
                                 break
                         else:
-                            unique_subtrees.append(tree)
+                            unique_subtrees.append((ids, tree))
 
+                    # If tis iteration hasn't broken all n rings, there are some
+                    # breaks left over to be generated in glycosidic cleavages.
+                    # Generate all possible glycosidic cleavage subtrees of the
+                    # generated cross ring cleavage subtrees.
                     if n_links - i > 0:
-                        for subtree in unique_subtrees:
-                            partitions = list(
-                                subtree.break_links_subtrees(
-                                    n_links -
-                                    i))
+                        for ids, subtree in unique_subtrees:
+                            partitions = subtree.break_links_subtrees(n_links - i)
                             for part in partitions:
                                 included_crossring = {}
                                 for crossring in breaks:
@@ -994,7 +1026,7 @@ class Glycan(SaccharideBase):
                                 part.crossring_cleavages = included_crossring
                                 yield part
                     else:
-                        for subtree in unique_subtrees:
+                        for ids, subtree in unique_subtrees:
                             subtree = subtree.reroot(
                                 index_method=None).clone(
                                 index_method=None)
@@ -1017,7 +1049,39 @@ class Glycan(SaccharideBase):
                     for ring in breaks:
                         ring.release()
 
-    def fragments(self, kind="BY", max_cleavages=1):
+    def fragments(self, kind="BY", max_cleavages=1, average=False, charge=0, mass_data=None):
+        '''
+        Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
+        created by removing one or more monosaccharide-monosaccharide bond.
+
+
+        Parameters
+        ----------
+        kind: `sequence`
+            Any `iterable` or `sequence` of characters corresponding to A/B/C/X/Y/Z
+            as published by :title-reference:`Domon and Costello`
+        max_cleavages: |int|
+            The maximum number of bonds to break per fragment
+        average: bool, optional, defaults to `False`
+            Whether or not to use the average isotopic composition when calculating masses.
+            When ``average == False``, masses are calculated using monoisotopic mass.
+        charge: int, optional, defaults to 0
+            If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
+        mass_data: dict, optional, defaults to `None`
+            If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
+            contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
+
+        Yields
+        ------
+        :class:`Fragment`
+
+        See also
+        --------
+        :func:`pygly2.composition.composition.calculate_mass`
+        :meth:`subtrees`
+        :meth:`crossring_subtrees`
+        :meth:`.Subtree.to_fragments`
+        '''
         seen = set()
         source = self.clone()
         gen = source.break_links_subtrees(max_cleavages)
@@ -1026,7 +1090,8 @@ class Glycan(SaccharideBase):
                 gen,
                 source.crossring_subtrees(max_cleavages))
         for subtree in gen:
-            for fragment in subtree.to_fragments(kind):
+            for fragment in subtree.to_fragments(kind, average=average,
+                                                 charge=charge, mass_data=mass_data):
                 fragment.name = self.name_fragment(fragment)
                 if fragment.name in seen:
                     continue
@@ -1034,10 +1099,24 @@ class Glycan(SaccharideBase):
                     seen.add(fragment.name)
                 yield fragment
 
-    def subtrees(self, kind="BY", max_cleavages=1):
+    def subtrees(self, max_cleavages=1, include_crossring=False):
+        '''
+        Generate subtrees from this tree by breaking `max_cleavages` bonds or rings.
+
+        Parameters
+        ----------
+        max_cleavages: int
+            The maximum number of bonds to break per fragment
+        include_crossring: bool
+            Whether to include cross ring cleavages
+
+        Yields
+        ------
+        Subtree
+        '''
         source = self.clone()
         gen = source.break_links_subtrees(max_cleavages)
-        if len(set("AX") & set(kind)) > 0:
+        if include_crossring:
             gen = itertools.chain(
                 gen,
                 source.crossring_subtrees(max_cleavages))

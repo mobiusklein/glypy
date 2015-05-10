@@ -5,10 +5,11 @@ from collections import Iterable
 
 from pygly2.utils import opener, pickle
 
-from .spectra import (neutral_mass,
+from .spectrum_model import (neutral_mass,
                       mass_charge_ratio,
                       ObservedPrecursorSpectrum,
                       ObservedTandemSpectrum,
+                      IonMatchAnnotation,
                       MSMSSqlDB)
 
 from .constants import constants

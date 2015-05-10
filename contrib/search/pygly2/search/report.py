@@ -1,5 +1,7 @@
+import re
 from itertools import cycle
 from collections import defaultdict
+import base64
 try:
     from lxml import etree as ET
 except:
@@ -12,7 +14,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.colors import cnames
 
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, Undefined
 
 from pygly2.composition import composition_transform
 from pygly2.utils import StringIO
@@ -35,7 +37,8 @@ def strip_derivatize_glycoct(record):
 
 
 def cfg_plot(record):
-    colors = cycle(cnames)
+    if "svg_plot" in record.report_data:
+        return base64.decodestring(record.report_data["svg_plot"])
     s = record.structure.clone()
     composition_transform.strip_derivatization(s)
     dtree, ax = plot.plot(s, orientation='h', squeeze=1.4, scale=.135)
@@ -58,10 +61,15 @@ def cfg_plot(record):
 
     root, ids = ET.XMLID(img_buffer.getvalue())
     root.set("id", dtree.uuid)
-    return ET.tostring(root)
+    svg = ET.tostring(root)
+    record.report_data["svg_plot"] = base64.encodestring(svg)
+    record.update()
+    return svg
 
 
 def scientific_notation(num):
+    if num is None or isinstance(num, Undefined):
+        return "N/A"
     return "%0.3e" % num
 
 
@@ -71,6 +79,10 @@ def limit_sigfig(num):
 
 def unique(iterable):
     return set(iterable)
+
+
+def css_escape(css_string):
+    return re.sub(r"[\+\:,\s]", r'-', css_string)
 
 
 def create_environment():
@@ -84,6 +96,7 @@ def create_environment():
     env.filters["max"] = max
     env.filters["unique"] = unique
     env.filters["limit_sigfig"] = limit_sigfig
+    env.filters['css_escape'] = css_escape
 
     template = env.get_template("results.templ")
     return template

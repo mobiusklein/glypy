@@ -76,7 +76,8 @@ class Substituent(SubstituentBase):
     Represents a non-saccharide molecule commonly found bound to saccharide units.
     '''
 
-    def __init__(self, name, links=None, composition=None, id=None, can_nh_derivatize=None, is_nh_derivatizable=None):
+    def __init__(self, name, links=None, composition=None, id=None,
+                 can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False):
         if links is None:
             links = OrderedMultiMap()
         self.name = name
@@ -95,6 +96,7 @@ class Substituent(SubstituentBase):
                 self.is_nh_derivatizable = is_nh_derivatizable or False
         except KeyError:
             raise KeyError("{} does not have defined derivatization rules. Please specify them.".format(self.name))
+        self._derivatize = derivatize
 
     @property
     def name(self):
@@ -233,6 +235,10 @@ class Substituent(SubstituentBase):
                                charge=charge, mass_data=mass_data)
         return mass
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._derivatize = state.get("_derivatize", False)
+
     def clone(self, prop_id=True):
         '''
         Duplicates this |Substituent| object, recursively copying all children
@@ -253,9 +259,11 @@ class Substituent(SubstituentBase):
         :meth:`.structure.Monosaccharide.clone`
         '''
 
-        substituent = Substituent(self.name, id=self.id if prop_id else None)
-        if hasattr(self, "_derivatize"):
-            substituent._derivatize = True
+        substituent = Substituent(self.name,
+                                  can_nh_derivatize=self.can_nh_derivatize,
+                                  is_nh_derivatizable=self.is_nh_derivatizable,
+                                  id=self.id if prop_id else None,
+                                  derivatize=self._derivatize)
         for pos, link in self.links.items():
             if link.is_child(self):
                 continue

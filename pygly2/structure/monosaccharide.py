@@ -220,6 +220,16 @@ class Monosaccharide(SaccharideBase):
     carbon atom in the carbohydrate backbone that hosts the bond.
     An index of `x` or `-1` represents an unknown location.
 
+
+    .. warning::
+
+        While |Monosaccharide| objects expose their :attr:`modifications`, :attr:`links`, and :attr:`substituent_links` fields as mutable,
+        you should treat them as **read-only**. The methods for altering their contents, :meth:`add_substituent`, :meth:`add_monosaccharide`,
+        :meth:`add_modification`, :meth:`drop_substituent`, :meth:`drop_monosaccharide`, and :meth:`drop_modification` are all responsible
+        for handling these mutations for you. |Link| methods like :meth:`Link.apply`, :meth:`Link.break_link`, and :meth:`Link.reconnect`
+        are used internally.
+
+
     Attributes
     ----------
     anomer: :class:`Anomer`
@@ -259,6 +269,7 @@ class Monosaccharide(SaccharideBase):
     reduced: :class:`ReducedEnd`
         An instance of ReducedEnd, or the value |True|, represents a reduced sugar. May be inferred
         from `modifications` if "aldi" is present
+
     '''
 
     def __init__(self, anomer=None, configuration=None, stem=None,
@@ -342,7 +353,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        :class:`Monosaccharide`
+        Monosaccharide
 
         '''
         modifications = OrderedMultiMap()
@@ -375,7 +386,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        :class:`EnumValue`:
+        EnumValue:
             The appropriate value of :class:`.RingType`
         """
 
@@ -402,7 +413,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        :class:`.ReducedEnd` or |None|
+        ReducedEnd or None
         """
         if self._reducing_end is None:
             for pos, mod in list(self.modifications.items()):
@@ -429,7 +440,7 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        value: True, None, or :class:`.ReducedEnd`
+        value: True, None, or ReducedEnd
 
         """
         red_end = self.reducing_end
@@ -478,7 +489,7 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        max_occupancy: :class:`int`
+        max_occupancy: int
             The number of objects that may already be bound at a site before it
             is considered unavailable for attachment.
 
@@ -634,17 +645,25 @@ class Monosaccharide(SaccharideBase):
         '''
         Adds a :class:`~pygly2.structure.substituent.Substituent` and associated :class:`~pygly2.structure.link.Link`
         to :attr:`substituent_links` at the site given by ``position``. This new substituent is included when
-        calculating mass with substituents included
+        calculating mass with substituents included.
+
+        >>> from pygly2 import monosaccharides
+        >>> hex = monosaccharides.Hex
+        >>> hexnac = monosaccharides.HexNAc
+        >>> hex.add_substituent("n-acetyl", 2, parent_loss="OH")
+        RES 1b:x-xx-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+        >>> hexnac == hex
+        True
 
         Parameters
         ----------
         substituent: str or Substituent
-            The substituent to add. If passed a |str|, it will be
-            translated into an instance of |Substituent|
+            The substituent to add. If passed a |str| it will be
+            translated into an instance of |Substituent|.
         position: int or 'x'
             The location to add the |Substituent| link to :attr:`substituent_links`. Defaults to -1
         child_position: int
-            The location to add the link to in `substituent`'s :attr:`links`. Defaults to -1. Substituent
+            The location to add the link to in `substituent` :attr:`links`. Defaults to -1. Substituent
             indices are currently not checked.
         max_occupancy: int, optional
             The maximum number of items acceptable at ``position``. Defaults to :const:`1`
@@ -685,6 +704,14 @@ class Monosaccharide(SaccharideBase):
 
         If `substituent` is |None|, then the first substituent found at `position` is
         removed.
+
+        >>> from pygly2 import monosaccharides
+        >>> hex = monosaccharides.Hex
+        >>> hexnac = monosaccharides.HexNAc
+        >>> hexnac.drop_substituent(2)
+        RES 1b:x-xx-HEX-1:5
+        >>> hexnac == hex
+        True
 
         Parameters
         ----------
@@ -737,6 +764,14 @@ class Monosaccharide(SaccharideBase):
         Adds a |Monosaccharide| and associated |Link| to :attr:`links` at the site given by
         ``position``.
 
+        >>> from pygly2 import monosaccharides
+        >>> hexnac = monosaccharides.HexNAc
+        >>> hex = monosaccharides.Hex
+        >>> hexnac.add_monosaccharide(hex, 1)
+        RES 1b:x-xx-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+        >>> hexnac.links[1][0].child
+        RES 1b:x-xx-HEX-1:5
+
         Parameters
         ----------
         monosaccharide: Monosaccharide
@@ -783,6 +818,13 @@ class Monosaccharide(SaccharideBase):
         Remove the glycosidic bond at `position`, detatching a connected |Monosaccharide|
 
         If there is more than one glycosidic bond at `position`, an error will be raised.
+
+        >>> from pygly2 import glycans
+        >>> n_linked_core = glycans["N-Linked Core"]
+        >>> n_linked_core.root.drop_monosaccharide(4)
+        RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+        >>> n_linked_core.mass()
+        221.08993720321
 
         Parameters
         ----------
@@ -1099,7 +1141,7 @@ class Monosaccharide(SaccharideBase):
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
         if substituents:
-            for link_pos, substituent_link, in self.substituent_links.items():
+            for substituent_link in self.substituent_links.values():
                 mass += substituent_link[self].mass(
                     average=average, charge=charge, mass_data=mass_data)
         if self.reducing_end is not None:
@@ -1127,7 +1169,16 @@ class Monosaccharide(SaccharideBase):
     def children(self):
         '''
         Returns an iterator over the :class:`Monosaccharide` instancess which are considered
-        the descendants of `self`.  Alias for `__iter__`
+        the descendants of `self`
+
+        Alias for `__iter__`
+
+        >>> from pygly2 import glycans
+        >>> n_linked_core = glycans["N-Linked Core"]
+        >>> ch = n_linked_core.root.children()
+        >>> ch.next()
+        (4, RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n)
+        >>>
 
         Yields
         ------

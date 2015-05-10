@@ -7,9 +7,9 @@ from collections import defaultdict
 
 from pygly2 import Composition
 
-from pygly2.utils import make_struct, pickle
+from pygly2.utils import make_struct
 from pygly2.algorithms import database
-from pygly2.search.spectra import MSMSSqlDB
+from pygly2.search.spectra import IonMatchAnnotation
 
 
 def get_intact_mass(record):
@@ -57,11 +57,17 @@ def get_charge_count(record):
         return 0
 
 
-@database.table_data("score", "float", get_score)
-@database.table_data("match_count", "float", get_match_count)
-@database.table_data("scan_count", "float", get_scan_count)
-@database.table_data("charge_count", "float", get_charge_count)
+@database.column_data("score", "FLOAT", get_score)
+@database.column_data("match_count", "FLOAT", get_match_count)
+@database.column_data("scan_count", "FLOAT", get_scan_count)
+@database.column_data("charge_count", "FLOAT", get_charge_count)
+@database.column_data("search_space_size", "INTEGER", get_search_space_size)
 class ResultsRecord(database.GlycanRecord):
+
+    def __init__(self, *args, **kwargs):
+        super(ResultsRecord, self).__init__(*args, **kwargs)
+        self.report_data = kwargs.get("report_data", {})
+
     @classmethod
     def from_base(cls, record):
         instance = cls(record.structure)
@@ -75,6 +81,11 @@ class ResultsRecord(database.GlycanRecord):
         instance.intact_mass = get_intact_mass(record)
         instance.score = get_score(record)
         return instance
+
+    match_count = property(get_match_count)
+    search_space_size = property(get_search_space_size)
+    scan_count = property(get_scan_count)
+    charge_count = property(get_charge_count)
 
 
 ResultsDatabase = partial(database.RecordDatabase, record_type=ResultsRecord)
@@ -102,6 +113,11 @@ MergedMatch = make_struct("MergedMatch", ["match_key", "mass", "ppm_error", "int
                                           "charge", "peak_id", "matches"])
 MassShift = make_struct("MassShift", ["name", "mass"])
 NoShift = MassShift("", 0.0)
+
+
+def split_match_key(match_key):
+    key, shift = match_key.split(":")
+    return key, shift
 
 
 def strip_shift_label(match_key):
@@ -187,7 +203,7 @@ def find_matches(precursor, msms_db, shifts=None,
             precursor_ppm_errors.append(ppm_error(precursor.mass() + shift.mass, spectrum.neutral_mass))
             precursor_charge_state.append(spectrum.charge)
             scans_searched.update(spectrum.scan_ids)
-            matches = match_fragments(precursor.fragments, spectrum,
+            matches = match_fragments(precursor, spectrum,
                                       shifts=shifts,
                                       ms2_match_tolerance=ms2_match_tolerance,
                                       spectrum_matches=spectrum_matches)
@@ -205,7 +221,7 @@ def find_matches(precursor, msms_db, shifts=None,
     return precursor, spectrum_matches
 
 
-def match_fragments(fragments, precursor_spectrum, shifts=None,
+def match_fragments(precursor, precursor_spectrum, shifts=None,
                     ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
                     spectrum_matches=None):
     '''
@@ -217,15 +233,15 @@ def match_fragments(fragments, precursor_spectrum, shifts=None,
     shifts = shifts or [NoShift]
     matches = []
     for shift in shifts:
-        for fragment in fragments:
+        for fragment in precursor.fragments:
             for peak in peak_list:
                 match_error = fabs(ppm_error(fragment.mass + shift.mass, peak.mass))
                 if match_error <= ms2_match_tolerance:
                     matches.append(FragmentMatch(
                         fragment.name + ":" + shift.name, peak.mass,
                         match_error, peak.intensity, peak.charge, peak.id))
-                    spectrum_matches.append({"precursor_id": precursor_spectrum.id, "peak_id": peak.id,
-                                             "fragment_name": fragment.name + ":" + shift.name})
+                    spectrum_matches.append(IonMatchAnnotation(peak.id, precursor.id,
+                                                                    fragment.name + ":" + shift.name))
     return matches
 
 

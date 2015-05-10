@@ -151,9 +151,9 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
         in_database = database.RecordDatabase(in_database)
     if out_database is None:
         out_database_string = os.path.splitext(in_database.connection_string)[0] + ".out.db"
-        out_database = database.RecordDatabase(out_database_string, record_type=in_database.record_type)
+        out_database = database.RecordDatabase(out_database_string, record_type=in_database.record_type, flag='w')
     elif isinstance(out_database, str):
-        out_database = database.RecordDatabase(out_database, record_type=in_database.record_type)
+        out_database = database.RecordDatabase(out_database, record_type=in_database.record_type, flag='w')
     if n_processes == 1:
         for i, record in enumerate(in_database):
             mass = mass_transform(record, **(mass_transform_parameters or {}))

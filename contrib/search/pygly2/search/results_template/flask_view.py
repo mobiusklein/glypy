@@ -25,11 +25,12 @@ def get_id_list():
 
 
 @app.route("/<int:structure_id>")
-def main(structure_id):
+def match_entry(structure_id):
     try:
         results = [g.db[structure_id]]
+        metadata = g.db.get_metadata()
         print len(results)
-        template = report.render(results)
+        template = report.render(results, **metadata)
     except Exception, e:
         template = '<br>'.join((str(e), traceback.format_exc(sys.exc_info()[2])))
         print e
@@ -54,4 +55,5 @@ if __name__ == "__main__":
     parser.add_argument("results_database")
     args = parser.parse_args()
     DATABASE = args.results_database
+    app.debug = DEBUG
     app.run()

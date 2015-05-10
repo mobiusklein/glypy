@@ -1,7 +1,6 @@
 import operator
 from collections import defaultdict
 
-from pygly2.structure import Monosaccharide, Substituent
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False,
@@ -50,15 +49,17 @@ def monosaccharide_similarity(node, target, include_substituents=True,
 
     visited.add((node.id, target.id))
 
-    if isinstance(node, Substituent) or isinstance(target, Substituent):
+    res = 0
+    qs = 0
+    try:
+        res += (node.anomer == target.anomer) or (target.anomer.value is None)
+        qs += 1
+    except AttributeError:
+        # Handle Substituents
         res = int(node.total_composition() == target.total_composition())
         q = 1
         return res, q
 
-    res = 0
-    qs = 0
-    res += (node.anomer == target.anomer) or (target.anomer.value is None)
-    qs += 1
     res += (node.superclass == target.superclass) or (target.superclass.value is None)
     qs += 1
     res += (node.stem == target.stem) or (target.stem[0].value is None)
@@ -67,7 +68,7 @@ def monosaccharide_similarity(node, target, include_substituents=True,
     qs += 1
     if include_modifications:
         node_mods = list(node.modifications.values())
-        for pos, mod in target.modifications.items():
+        for mod in target.modifications.values():
             check = (mod in node_mods)
             if check:
                 res += 1

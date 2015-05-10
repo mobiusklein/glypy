@@ -2,9 +2,10 @@ import os
 import sqlite3
 import logging
 import functools
-from collections import Counter, Iterable
+from collections import Counter, Iterable, Callable
 
 import pygly2
+from pygly2.composition.composition_transform import strip_derivatization
 from pygly2.utils import pickle, classproperty, make_struct
 from pygly2.structure import Monosaccharide
 from pygly2.io.nomenclature import identity
@@ -18,9 +19,9 @@ DatabaseEntry = make_struct("DatabaseEntry", ("database", "id"))
 Motif = make_struct("Motif", ("name", "id", "motif_class"))
 
 
-def _resolve_table_data_mro(cls):
+def _resolve_column_data_mro(cls):
     '''
-    Given a class with :attr:`__table_data_map` mangled attributes
+    Given a class with :attr:`__column_data_map` mangled attributes
     from its class hierarchy, extract in descending order each
     `dict`, overwriting old settings as it approaches the most
     recently descended class.
@@ -28,48 +29,48 @@ def _resolve_table_data_mro(cls):
     Parameters
     ----------
     cls: type
-        The type to attempt to extract table_data mappings for
+        The type to attempt to extract column_data mappings for
         along the MRO
 
     Returns
     -------
     dict:
-        The table_data mapping describing the entire class hierarchy along
+        The column_data mapping describing the entire class hierarchy along
         `cls`'s MRO.
     '''
     attrs = []
     for attr in dir(cls):
-        if "table_data_map" in attr:
+        if "column_data_map" in attr:
             attrs.append(attr)
-    mapping = {attr[1:].split("__table_data_map")[0]: attr for attr in attrs}
+    mapping = {attr[1:].split("__column_data_map")[0]: attr for attr in attrs}
     meta_map = {}
     for typ in cls.mro()[::-1][1:]:
-        table_data = mapping.get(typ.__name__, "__table_data_map")
-        meta_map.update(getattr(cls, table_data, {}))
+        column_data = mapping.get(typ.__name__, "__column_data_map")
+        meta_map.update(getattr(cls, column_data, {}))
     return meta_map
 
 
-def table_data(name, dtype, transform):
+def column_data(name, dtype, transform):
     '''
-    Decorator for adding table_data to a record class
+    Decorator for adding a new column to the SQL table mapped to a record class
 
     Parameters
     ----------
     name: str
-        Name of the new table_data field
+        Name of the new column
     dtype: str
         The SQL data type to encode the column as
     transform: function
-        The function to extract the value of the table_data from a record
+        The function to extract the value of the column from a record
 
     Returns
     -------
     function:
-        Decorator that will call :meth:`.add_table_data` with `name`, `dtype` and
+        Decorator that will call :meth:`.add_column_data` with `name`, `dtype` and
         `transform` on the decorated class after instantiation
     '''
     def func(cls):
-        cls.add_table_data(name, dtype, transform)
+        cls.add_column_data(name, dtype, transform)
         return cls
     return func
 
@@ -77,7 +78,7 @@ def table_data(name, dtype, transform):
 class GlycanRecordBase(object):
     '''
     Defines the base class for SQL serialize-able records carrying
-    glycan structure data and table_data. Includes tools for extending the
+    glycan structure data and column_data. Includes tools for extending the
     SQL schema describing the structure to make new information query-able.
 
     .. warning::
@@ -116,39 +117,39 @@ class GlycanRecordBase(object):
     #: The default table schema. Additional
     #: items are added on, replacing /*rest*/
     __table_schema__ = '''
-    drop table if exists {table_name};
-    create table {table_name}(
-        glycan_id integer unique primary key not null,
-        mass float not null,
-        structure text not null/*rest*/
+    DROP TABLE IF EXISTS {table_name};
+    CREATE TABLE {table_name}(
+        glycan_id INTEGER UNIQUE PRIMARY KEY NOT NULL,
+        mass float NOT NULL,
+        structure TEXT NOT NULL/*rest*/
     );
     '''
 
     #: The storage for base-class specific
-    #: table_data mappings. Add table_data here to
+    #: column_data mappings. Add column_data here to
     #: include in all GlycanRecordBase'd objects
-    __table_data_map = {}
+    __column_data_map = {}
 
     @classmethod
-    def add_table_data(cls, name, dtype, transform):
+    def add_column_data(cls, name, dtype, transform):
         '''
         Function-based approach to modifying the class-specific
-        :attr:`.__table_data_map` attribute. Must use :func:`getattr`
+        :attr:`.__column_data_map` attribute. Must use :func:`getattr`
         to prevent class-private name mangling
 
         Parameters
         ----------
         name: str
-            Name of the new table_data field
+            Name of the new column_data field
         dtype: str
             The SQL data type to encode the column as
         transform: function
-            The function to extract the value of the table_data from a record
+            The function to extract the value of the column_data from a record
         '''
         try:
-            getattr(cls, "_{}__table_data_map".format(cls.__name__))[name] = (dtype, transform)
+            getattr(cls, "_{}__column_data_map".format(cls.__name__))[name] = (dtype, transform)
         except:
-            setattr(cls, "_{}__table_data_map".format(cls.__name__), {name: (dtype, transform)})
+            setattr(cls, "_{}__column_data_map".format(cls.__name__), {name: (dtype, transform)})
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
@@ -167,7 +168,7 @@ class GlycanRecordBase(object):
             may yield additional statements.
         '''
         ext_stmts = []
-        meta_map = dict(cls.__table_data_map)
+        meta_map = dict(cls.__column_data_map)
         meta_map.update(kwargs.get('inherits', {}))
         for name, type_transformer in meta_map.items():
             template = "{name} {type}\n".format(name=name, type=type_transformer[0])
@@ -189,7 +190,7 @@ class GlycanRecordBase(object):
         str:
             The SQL script block describing the mass_index of the GlycanRecord table
         '''
-        yield '''create index if not exists mass_index on {table_name}(mass desc);'''.format(
+        yield '''CREATE INDEX IF NOT EXISTS mass_index ON {table_name}(mass DESC);'''.format(
             table_name=cls.table_name)
 
     def __init__(self, structure, motifs=None, dbxref=None, aglycones=None, taxa=None, **kwargs):
@@ -200,6 +201,18 @@ class GlycanRecordBase(object):
         self.taxa = taxa or []
         self.id = kwargs.get('id')
         self._bound_db = kwargs.get("bound_db")
+
+    @classmethod
+    def replicate(cls, record):
+        instance = cls(record.structure)
+        for name in dir(record):
+            if "_" == name[0] or isinstance(getattr(record, name), Callable):
+                continue
+            try:
+                setattr(instance, name, getattr(record, name))
+            except:
+                pass
+        return instance
 
     def mass(self, average=False, charge=0, mass_data=None, override=None):
         '''
@@ -238,7 +251,7 @@ class GlycanRecordBase(object):
             Parameters to pass to :meth:`.mass`. The output is stored
             in the SQL record as the `mass` value
         inherits: dict
-            Mapping of inherited table_data properties to include in the record
+            Mapping of inherited column_data properties to include in the record
 
         Yields
         ------
@@ -248,8 +261,8 @@ class GlycanRecordBase(object):
         inherits = dict(inherits or {})
         inherits.update(inherits)
 
-        template = '''insert into {table_name} (glycan_id, mass, structure /*rest*/)
-         values ({id}, {mass}, "{structure}" /*values*/);'''
+        template = '''INSERT INTO {table_name} (glycan_id, mass, structure /*rest*/)
+         VALUES ({id}, {mass}, "{structure}" /*values*/);'''
         ext_names = ', '.join(inherits)
         if len(ext_names) > 0:
             ext_names = ', ' + ext_names
@@ -280,8 +293,8 @@ class GlycanRecordBase(object):
         inherits = dict(inherits or {})
         inherits.update(inherits)
 
-        template = '''update {table_name} set mass = {mass},
-         structure = "{structure}" /*rest*/ where glycan_id = {id};'''
+        template = '''UPDATE {table_name} SET mass = {mass},
+         structure = "{structure}" /*rest*/ WHERE glycan_id = {id};'''
 
         ext_names = list(inherits)
         ext_values = ["{}".format(v) for k, v in self._collect_ext_data().items()]
@@ -361,11 +374,11 @@ class GlycanRecordBase(object):
 
     def _collect_ext_data(self, inherits=None):
         '''
-        Apply each table_data mapping transform sequentially, storing each result
+        Apply each column_data mapping transform sequentially, storing each result
         in a |dict| object for generating SQL.
         '''
         meta_map = dict(inherits or {})
-        meta_map.update(dict(self.__table_data_map))
+        meta_map.update(dict(self.__column_data_map))
         data = {}
         for name, type_transformer in meta_map.items():
             ext_type, transformer = type_transformer
@@ -421,8 +434,8 @@ def _query_composition(prefix=None, **kwargs):
     else:
         prefix += '.'
     col_name = prefix + "composition"
-    composition_list = ["{} like '%{}:{}%'".format(col_name, name, count) for name, count in kwargs.items()]
-    return ' and '.join(composition_list)
+    composition_list = ["{} LIKE '%{}:{}%'".format(col_name, name, count) for name, count in kwargs.items()]
+    return ' AND '.join(composition_list)
 
 
 def naive_name_monosaccharide(monosaccharide):
@@ -451,13 +464,12 @@ def naive_name_monosaccharide(monosaccharide):
         c = monosaccharide.clone()
         if not isinstance(c, Monosaccharide):
             return None
-        for psub, pcopy in zip(monosaccharide.substituents(), c.substituents()):
-            _, sub = psub
-            _, copy = pcopy
-            if hasattr(sub, "_derivatize"):
-                copy._derivatize = True
-        if monosaccharide.superclass.value > 7:
-            return identity.identify(monosaccharide, tolerance=1)
+        strip_derivatization(c)
+        try:
+            if monosaccharide.superclass.value > 6:
+                return identity.identify(c, tolerance=1)
+        except:
+            pass
         c.anomer = None
         return identity.identify(c)
     except identity.IdentifyException:
@@ -468,8 +480,7 @@ def naive_name_monosaccharide(monosaccharide):
         except identity.IdentifyException:
             return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
                    c.superclass.name.title() + ''.join([''.join(map(str.title, subst.name.split("_")))[:3]
-                                                        for p, subst in c.substituents()
-                                                        if not hasattr(subst, "_derivatize")])
+                                                        for p, subst in c.substituents()])
 
 
 def is_n_glycan(record):
@@ -490,16 +501,16 @@ def is_n_glycan(record):
 n_glycan_core = pygly2.glycans["N-Linked Core"]
 
 
-@table_data("composition", "varchar(120)", extract_composition)
-@table_data("is_n_glycan", "boolean", is_n_glycan)
-@table_data("glycoct", "text", lambda x: "\"{}\"".format(str(x.structure)))
+@column_data("composition", "VARCHAR(120)", extract_composition)
+@column_data("is_n_glycan", "BOOLEAN", is_n_glycan)
+@column_data("glycoct", "TEXT", lambda x: "\"{}\"".format(str(x.structure)))
 class GlycanRecord(GlycanRecordBase):
     '''
     An extension of :class:`GlycanRecordBase` to add additional features and better support for extension
     by both metaprogramming and inheritance.
     '''
 
-    __table_data_map = {}
+    __column_data_map = {}
 
     @classmethod
     def query_like_composition(cls, conn, record=None, prefix=None):
@@ -551,27 +562,27 @@ class GlycanRecord(GlycanRecordBase):
 
     @classmethod
     def sql_schema(cls, *args, **kwargs):
-        meta_map = dict(cls.__table_data_map)
+        meta_map = dict(cls.__column_data_map)
         meta_map.update(kwargs.pop("inherits", {}))
-        return super(GlycanRecord, cls).sql_schema(inherits=_resolve_table_data_mro(cls))
+        return super(GlycanRecord, cls).sql_schema(inherits=_resolve_column_data_mro(cls))
 
     def to_sql(self, *args, **kwargs):
-        inherits = _resolve_table_data_mro(self.__class__)
+        inherits = _resolve_column_data_mro(self.__class__)
         return super(GlycanRecord, self).to_sql(*args, inherits=inherits, **kwargs)
 
     def to_update_sql(self, *args, **kwargs):
-        inherits = _resolve_table_data_mro(self.__class__)
-        inherits = inherits or _resolve_table_data_mro(self.__class__)
+        inherits = _resolve_column_data_mro(self.__class__)
+        inherits = inherits or _resolve_column_data_mro(self.__class__)
         kwargs['inherits'] = inherits
         return super(GlycanRecord, self).to_update_sql(*args, **kwargs)
 
     def update(self, mass_params=None, inherits=None, commit=True, *args, **kwargs):
-        inherits = inherits or _resolve_table_data_mro(self.__class__)
+        inherits = inherits or _resolve_column_data_mro(self.__class__)
         kwargs['inherits'] = inherits
         super(GlycanRecord, self).update(mass_params=mass_params, *args, **kwargs)
 
     def _collect_ext_data(self):
-        inherits = _resolve_table_data_mro(self.__class__)
+        inherits = _resolve_column_data_mro(self.__class__)
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
 
@@ -673,7 +684,7 @@ class RecordDatabase(object):
             self.execute(ix_stmt)
         self.commit()
 
-    def load_data(self, record_list, commit=True, set_id=True, **kwargs):
+    def load_data(self, record_list, commit=True, set_id=True, cast=True, **kwargs):
         '''
         Given an iterable of :attr:`.record_type` objects,
         assign each a primary key value and insert them into the
@@ -681,7 +692,13 @@ class RecordDatabase(object):
 
         Forwards all ``**kwargs`` to :meth:`to_sql` calls.
 
-        Commits all pending changes after all data is loaded.
+        Parameters
+        ----------
+        record_list: GlycanRecord or iterable of GlycanRecords
+        commit: bool
+            Whether or not to commit all changes to the database
+        set_id: bool
+        cast: bool
         '''
         if not isinstance(record_list, Iterable):
             record_list = [record_list]
@@ -689,6 +706,8 @@ class RecordDatabase(object):
             if set_id:
                 self._id += 1
                 record.id = self._id
+            if cast and not isinstance(record, self.record_type):
+                record = self.record_type.replicate(record)
             for stmt in record.to_sql(**kwargs):
                 try:
                     self.connection.execute(stmt)
@@ -713,6 +732,9 @@ class RecordDatabase(object):
         self.execute("INSERT OR REPLACE INTO metadata (name, content) VALUES (?, ?);", (key, pickle.dumps(value)))
         self.commit()
 
+    def bind(self, record):
+        record._bound_db = self
+
     def __len__(self):
         """The number of records in the database
 
@@ -720,7 +742,7 @@ class RecordDatabase(object):
         -------
         int
         """
-        res = (self.execute("select count(glycan_id) from {table_name};").next())["count(glycan_id)"]
+        res = (self.execute("SELECT count(glycan_id) FROM {table_name};").next())["count(glycan_id)"]
         return res or 0
 
     def create(self, structure, *args, **kwargs):
@@ -739,7 +761,6 @@ class RecordDatabase(object):
         self.load_data([record], commit=commit)
         return record
 
-    # TODO: Generate more efficient SQL for simple lookups.
     def __getitem__(self, keys):
         '''
         Look up records in the database by primary key. Also accepts :class:`slice` objects.
@@ -750,23 +771,21 @@ class RecordDatabase(object):
         '''
         results = []
         key_type = int
-        if isinstance(keys, int):
-            keys = str(tuple([keys])).replace(',', '')
-        elif isinstance(keys, slice):
+        if isinstance(keys, slice):
             key_type = slice
-            keys = tuple(range(keys.start or 1, keys.stop or self._id, keys.step or 1))
-            if len(keys) == 1:
-                keys = str(keys).replace(",", '')
         else:
-            key_type = type(keys)
-            keys = tuple(keys)
-            if len(keys) == 1:
-                keys = str(tuple([keys])).replace(',', '')
-        stmt = "select * from {table_name} where glycan_id in {keys};".format(
-            table_name=self.record_type.table_name, keys=keys)
-        for record in self.execute(stmt):
-            results.append(self.record_type.from_sql(record, database=self))
-        if len(results) == 0 and key_type == int:
+            keys = int(keys)
+        if key_type is int:
+            results = list(self.from_sql(
+                self.execute("SELECT * FROM {table_name} WHERE glycan_id = ?", (keys,))))
+        else:
+            begin = keys.start or 1
+            end = keys.stop or len(self)
+
+            results = list(self.from_sql(
+                self.execute(
+                    "SELECT * FROM {table_name} WHERE glycan_id BETWEEN ? AND ?", begin, end)))
+        if len(results) == 0 and key_type is int:
             raise IndexError("No record found for %r" % keys)
         if len(results) > 1:
             return results
@@ -805,8 +824,6 @@ class RecordDatabase(object):
         A wrapper around :meth:`sqlite3.Connection.execute`. Will format
         the query string to substitute in the main table name if the {table_name}
         token is present
-
-        `sqlite3.execute <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.execute>`_
         '''
         return self.connection.execute(self.stn(query), *args, **kwargs)
 
@@ -815,32 +832,24 @@ class RecordDatabase(object):
         A wrapper around :meth:`sqlite3.Connection.executemany`. Will format
         the query string to substitute in the main table name if the {table_name}
         token is present.
-
-        `sqlite3.executemany <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.executemany>`_
         '''
         return self.connection.executemany(self.stn(query), param_iter, *args, **kwargs)
 
     def executescript(self, script, *args, **kwargs):
         '''
         A wrapper around :meth:`sqlite3.Connection.executescript`.
-
-        `sqlite3.executescript <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.executescript>`_
         '''
         return self.connection.executescript(script, *args, **kwargs)
 
     def commit(self):
         '''
         A wrapper around :meth:`sqlite3.Connection.commit`. Writes pending changes to the database.
-
-        `sqlite3.commit <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.commit>`_
         '''
         self.connection.commit()
 
     def rollback(self):
         '''
         A wrapper around :meth:`sqlite3.Connection.rollback`. Reverses the last set of changes to the database.
-
-        `sqlite3.rollback <https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.rollback>`_
         '''
         self.connection.rollback()
 
@@ -851,17 +860,41 @@ class RecordDatabase(object):
         spread = mass * tolerance
         return (mass - spread, mass + spread)
 
-    def ppm_match_tolerance_search(self, mass, tolerance, target_table=None, mass_shift=0):
+    def ppm_match_tolerance_search(self, mass, tolerance, mass_shift=0):
         '''
-        Rapidly search the database for entries with a recorded mass within ``tolerance`` ppm of ``mass``.
-        '''
-        target_table = target_table or self.record_type.table_name
-        lower, upper = self._find_boundaries(mass + mass_shift, tolerance)
-        results = self.execute("select * from {table_name}\
-         where mass between {lower} and {upper};".format(
-            lower=lower, upper=upper, table_name=target_table))
-        for result in results:
-            yield self.record_type.from_sql(result)
+        Rapidly search the database for entries with a recorded mass within
+        ``tolerance`` parts per million mass error of ``mass``.
 
-#: Open a database. Alias of :meth:`RecordDatabase.__init__`
+        :math:`[mass - (tolerance * mass), mass + (tolerance * mass)]`
+
+        '''
+        lower, upper = self._find_boundaries(mass + mass_shift, tolerance)
+        results = self.execute("SELECT * FROM {table_name}\
+         WHERE mass BETWEEN ? AND ?;", (lower, upper))
+        for result in results:
+            yield self.record_type.from_sql(result, database=self)
+
+    def from_sql(self, rows, from_sql_fn=None):
+        """Convenience function to convert `rows` into objects through `from_sql_fn`,
+        by default, :meth:`self.record_type.from_sql`
+
+        Parameters
+        ----------
+        rows : sqlite3.Row or an iterable of sqlite3.Row
+            Collection of objects to convert
+        from_sql_fn : function, optional
+            Function to perform the conversion. Defaults to :meth:`self.record_type.from_sql`
+
+        Yields
+        -------
+        Type returned by `from_sql_fn`
+        """
+        if from_sql_fn is None:
+            from_sql_fn = self.record_type.from_sql
+        if isinstance(rows, sqlite3.Row):
+            rows = [rows]
+        for row in rows:
+            yield from_sql_fn(row, self)
+
+#: Open a database
 dbopen = RecordDatabase

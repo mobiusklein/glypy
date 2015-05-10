@@ -134,6 +134,11 @@ class OrderedMultiMap(MultiMap):
     #: Alias of :meth:`__iter__`
     keys = __iter__
 
+    def values(self):
+        for key in self.key_order:
+            for v in self[key]:
+                yield v
+
     def items(self):
         '''
         As in :class:`MultiMap`, but items are yielded in the order their keys were
