@@ -18,7 +18,7 @@ class EnumValue(object):
 
     def __eq__(self, other):
         try:
-            if self.group != other.group:
+            if self.group is not other.group:
                 return False
             if self is other:
                 return True

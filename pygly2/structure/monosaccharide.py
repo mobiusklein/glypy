@@ -1486,3 +1486,7 @@ class ReducedEnd(object):
 
     def __ne__(self, other):
         return not self == other
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._order = state.get("_order", len(self.links))

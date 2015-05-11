@@ -228,3 +228,19 @@ LIN
 3:3o(3+1)4d
 4:4o(6+1)1d
 '''
+
+structures["repeating_glycan"] = '''
+RES
+1b:a-dglc-HEX-1:5
+2b:a-dglc-HEX-1:5
+3r:r1
+4b:b-dara-HEX-2:5|2:keto
+LIN
+1:1o(1+1)2d
+2:2o(6+2)3n
+3:3n(1+2)4d
+REP
+REP1:5o(1+2)5d=-1--1
+RES
+5b:b-dara-HEX-2:5|2:keto
+'''

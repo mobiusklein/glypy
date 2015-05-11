@@ -11,7 +11,7 @@ ReducedEnd = monosaccharide.ReducedEnd
 def make_composition_suite(composition_type):
     class CompositionTests(unittest.TestCase):
         def test_derivatize_bare(self):
-            permethylated_reduced_mass = 1702.8876
+            permethylated_reduced_mass = 1716.9033
             glycan = load("common_glycan")
             glycan.reducing_end = ReducedEnd()
             composition_transform.derivatize(glycan, 'methyl')

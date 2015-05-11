@@ -259,6 +259,9 @@ class GlycoCTParserTests(unittest.TestCase):
         structure = load("cyclical_glycan")
         self.assertAlmostEqual(structure.mass(), 810.2641170925)
 
+    def test_parse_repeating(self):
+        structure = load("repeating_glycan")
+        self.assertAlmostEqual(structure.mass(), 678.18547284898)
 
 class NamedStructureTests(unittest.TestCase):
 

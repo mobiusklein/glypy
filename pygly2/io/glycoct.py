@@ -50,12 +50,24 @@ link_pattern = re.compile(
     (?P<child_atom_replaced>[odhnx])
         ''', re.VERBOSE)
 
+
+internal_link_pattern = re.compile(
+    r'''(?P<parent_residue_index>\d+)
+    (?P<parent_atom_replaced>[odhnx])
+    \((?P<parent_attachment_position>-?[0-9\-\|]+)[\+\-]
+        (?P<child_attachment_position>-?[0-9\-\|]+)\)
+    (?P<child_residue_index>\d+)
+    (?P<child_atom_replaced>[odhnx])
+    ''',
+    re.VERBOSE)
+
+
 rep_header_pattern = re.compile(
     r'''REP(?P<repeat_index>\d+):
     (?P<internal_linkage>.+)
     =(?P<lower_multitude>-?\d+)-(?P<higher_multitude>-?\d+)''', re.VERBOSE)
 
-repeat_line_pattern = re.compile("^r(?P<graph_index>\d+):r(?P<repeat_index>\d+)")
+repeat_line_pattern = re.compile("^(?P<graph_index>\d+)r:r(?P<repeat_index>\d+)")
 
 
 def parse_link(line):
@@ -87,90 +99,78 @@ class StructurePrecisionEnum(enum.Enum):
     exact = 2
 
 
-# def find_by_id(glycan, id):
-#     '''
-#     DFS special case to only explore children to avoid
-#     entering other connected graphs from the root node
-#     '''
-#     root = glycan.root
-#     if id == root.id:
-#         return root
-#     stack = list(node for p, node in root.children())
-#     visited = set()
-#     while len(stack) > 0:
-#         node = stack.pop()
-#         visited.add(node.id)
-#         if node.id == id:
-#             return node
-#         stack.extend(c for p, c in node.children() if c.id not in visited)
+class RepeatRecord(object):
+    def __init__(self, graph_index, repeat_index, internal_linkage=None,
+                 external_linkage=None, multitude=(-1, -1), graph=None):
+        if graph is None:
+            graph = {}
+        self.graph_index = graph_index
+        self.repeat_index = repeat_index
+        self.internal_linkage = internal_linkage
+        self.external_linkage = external_linkage
+        self.multitude = multitude
+        self.graph = {}
 
+    def is_exact(self):
+        if -1 in self.multitude:
+            return StructurePrecisionEnum.unknown
+        elif self.multitude[0] == self.multitude[1]:
+            return StructurePrecisionEnum.exact
+        return StructurePrecisionEnum.ranging
 
-# class RepeatRecord(object):
-#     def __init__(self, graph_index, repeat_index, internal_linkage=None,
-#                  external_linkage=None, multitude=(-1, -1), graph=None):
-#         if graph is None:
-#             graph = {}
-#         self.graph_index = graph_index
-#         self.repeat_index = repeat_index
-#         self.internal_linkage = internal_linkage
-#         self.external_linkage = external_linkage
-#         self.multitude = multitude
-#         self.graph = {}
+    def expand_inner(self, n=None):
+        if n is None:
+            if self.multitude[1] != -1:
+                n = self.multitude[1]
+            elif self.multitude[0] != -1:
+                n = self.multitude[0]
+            else:
+                n = 1
+        logger.debug("Multitude is %s", self.multitude)
+        logger.debug("Is Exact? %s", self.is_exact())
+        if self.is_exact() is not StructurePrecisionEnum.unknown:
+            if not (self.multitude[0] <= n <= self.multitude[1]):
+                raise ValueError("{} is not within the range of {}".format(n, self.multitude))
+        sub_unit_indices = sorted(self.graph.keys())
+        glycan_graph = Glycan(self.graph[sub_unit_indices[0]], index_method=None)
 
-#     def is_exact(self):
-#         if -1 in self.multitude:
-#             return StructurePrecisionEnum.unknown
-#         elif self.multitude[0] == self.multitude[1]:
-#             return StructurePrecisionEnum.exact
-#         return StructurePrecisionEnum.ranging
+        graph = {1: glycan_graph.clone(index_method=None)}
+        parent_residue_index = self.internal_linkage["parent_residue_index"]
+        parent_atom_replaced = self.internal_linkage["parent_atom_replaced"]
+        parent_attachment_position = self.internal_linkage["parent_attachment_position"]
+        child_residue_index = self.internal_linkage["child_residue_index"]
+        child_atom_replaced = self.internal_linkage["child_atom_replaced"]
+        child_attachment_position = self.internal_linkage["child_attachment_position"]
 
-#     def expand_inner(self, n=None):
-#         if n is None:
-#             if self.multitude[1] != -1:
-#                 n = self.multitude[1]
-#             elif self.multitude[0] != -1:
-#                 n = self.multitude[0]
-#             else:
-#                 n = 1
-#         if self.is_exact() != StructurePrecisionEnum.unknown:
-#             if not (self.multitude[0] <= n <= self.multitude[1]):
-#                 raise ValueError("{} is not within the range of {}".format(n, self.multitude))
-#         sub_unit_indices = sorted(self.graph.keys())
-#         glycan_graph = Glycan(self.graph[sub_unit_indices[0]], index_method=None)
+        for i in range(2, n + 1):
+            graph[i] = glycan_graph.clone(index_method=None)
+            parent_graph = graph[i-1]
+            child_graph = graph[i]
+            parent_node = parent_graph.get(parent_residue_index)
+            child_node = child_graph.get(child_residue_index)
+            Link(parent_node, child_node, parent_position=parent_attachment_position,
+                 child_position=child_attachment_position,
+                 parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)
+        self.graph = graph
 
-#         graph = {1: glycan_graph.clone(index_method=None)}
-#         id, parent_residue_index, parent_atom_replaced, parent_attachment_position,\
-#             child_residue_index, child_atom_replaced, child_attachment_position = parse_link(self.internal_linkage)
+    def handle_incoming_link(self, parent, child_index, parent_position, parent_loss, child_position, child_loss):
+        sub_unit_indices = sorted(self.graph.keys())
+        child_graph = self.graph[sub_unit_indices[0]]
+        child = Glycan(child_graph, index_method=None).get(int(self.external_linkage['child_residue_index']))
+        Link(parent, child, parent_position=parent_position, child_position=child_position,
+             parent_loss=parent_loss, child_loss=child_loss)
 
-#         for i in range(2, n + 1):
-#             graph[i] = glycan_graph.clone(index_method=None)
-#             parent_graph = graph[i-1]
-#             child_graph = graph[i]
-#             parent_node = find_by_id(parent_graph, parent_residue_index)
-#             child_node = find_by_id(child_graph, child_residue_index)
-#             Link(parent_node, child_node, parent_position=parent_attachment_position,
-#                  child_position=child_attachment_position,
-#                  parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)
-#         self.graph = graph
+    def handle_outgoing_link(self, parent_index, child, parent_position, parent_loss, child_position, child_loss):
+        sub_unit_indices = sorted(self.graph.keys())
+        parent_graph = self.graph[sub_unit_indices[-1]]
+        parent = Glycan(parent_graph, index_method=None).get(int(self.external_linkage['parent_residue_index']))
+        Link(parent, child, parent_position=parent_position, child_position=child_position,
+             parent_loss=parent_loss, child_loss=child_loss)
 
-#     def handle_incoming_link(self, parent, child_index, parent_position, parent_loss, child_position, child_loss):
-#         sub_unit_indices = sorted(self.graph.keys())
-#         child_graph = self.graph[sub_unit_indices[0]]
-#         child = find_by_id(child_graph, child_index)
-#         Link(parent, child, parent_position=parent_position, child_position=child_position,
-#              parent_loss=parent_loss, child_loss=child_loss)
-
-#     def handle_outgoing_link(self, parent_index, child, parent_position, parent_loss, child_position, child_loss):
-#         sub_unit_indices = sorted(self.graph.keys())
-#         parent_graph = self.graph[sub_unit_indices[-1]]
-#         parent = find_by_id(parent_graph, parent_index)
-#         Link(parent, child, parent_position=parent_position, child_position=child_position,
-#              parent_loss=parent_loss, child_loss=child_loss)
-
-#     def prepare_glycan(self):
-#         glycan = self.graph[1]
-#         glycan.deindex()
-#         return glycan
+    def prepare_glycan(self):
+        glycan = self.graph[1]
+        glycan.deindex()
+        return glycan
 
 
 def try_int(v):
@@ -215,6 +215,7 @@ class GlycoCT(object):
         self.current_repeat = None
         self.in_repeat = False
         self.repeats = {}
+        self.postponed = []
         self.root = None
         self._iter = None
         self.structure_class = structure_class
@@ -230,6 +231,7 @@ class GlycoCT(object):
     def _reset(self):
         self.graph = {}
         self.root = None
+        self.postponed = []
 
     def __iter__(self):
         '''
@@ -339,20 +341,43 @@ class GlycoCT(object):
             graph = self.current_repeat.graph
         else:
             graph = self.graph
+
         parent = graph[parent_residue_index]
+        if isinstance(parent, RepeatRecord):
+            self.postponed.append((parent.handle_outgoing_link, parent_residue_index,
+                                   graph[child_residue_index],
+                                   parent_attachment_position, parent_atom_replaced,
+                                   child_attachment_position, child_atom_replaced))
+            return
         child = graph[child_residue_index]
+        if isinstance(child, RepeatRecord):
+            self.postponed.append((child.handle_incoming_link, parent, child_residue_index,
+                                   parent_attachment_position, parent_atom_replaced,
+                                   child_attachment_position, child_atom_replaced))
+            return
 
         Link(
             parent, child,
             parent_position=parent_attachment_position, child_position=child_attachment_position,
             parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)
 
-    # def handle_repeat_stub(self, line):
-    #     match = repeat_line_pattern.search(line).groupdict()
-    #     graph_index = try_int(match['graph_index'])
-    #     repeat_index = try_int(match["repeat_index"])
-    #     repeat = RepeatRecord(graph_index, repeat_index)
-    #     self.graph[graph_index] = repeat
+    def handle_repeat_stub(self, line):
+        match = repeat_line_pattern.search(line).groupdict()
+        graph_index = (match['graph_index'])
+        repeat_index = (match["repeat_index"])
+        repeat = RepeatRecord(graph_index, repeat_index)
+        self.graph[graph_index] = repeat
+        self.repeats[repeat_index] = repeat
+
+    def postprocess(self):
+
+        for postfix in self.postponed:
+            postfix[0](*postfix[1:])
+
+        for repeat_index, repeater in self.repeats.items():
+            repeater.expand_inner()
+
+        return self.structure_class(self.root).reindex()
 
     def parse(self):
         '''
@@ -364,8 +389,7 @@ class GlycoCT(object):
                 self.state = RES
                 # logger.debug("RES")
                 if self.root is not None and not self.in_repeat:
-                    # logger.debug("yielding root")
-                    yield self.structure_class(self.root).reindex()
+                    yield self.postprocess()
                     self._reset()
             elif LIN == line.strip():
                 if self.state != RES:
@@ -373,22 +397,25 @@ class GlycoCT(object):
                 self.state = LIN
 
             elif REP == line.strip():
-                # self.state = REP
-                # logger.debug("REP")
-                # self.in_repeat = True
-                raise GlycoCTSectionUnsupported(REP)
+                self.state = REP
+                logger.debug("REP")
+                self.in_repeat = True
+                #raise GlycoCTSectionUnsupported(REP)
 
-            # elif line.strip()[:3] == REP:
-            #     logger.debug(line)
-            #     if not self.in_repeat:
-            #         raise GlycoCTError("Encountered {} outside of REP".format(line))
-            #     header_dict = rep_header_pattern.search(line).groupdict()
-            #     repeat_index = try_int(header_dict['repeat_index'])
-            #     repeat_record = self.repeats[repeat_index]
-            #     repeat_record.linkage = header_dict['internal_linkage']
-            #     repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
-            #                                                   header_dict['higher_multitude'])))
-            #     self.state = START
+            elif line.strip()[:3] == REP:
+                logger.debug(line)
+                if not self.in_repeat:
+                    raise GlycoCTError("Encountered {} outside of REP".format(line))
+                header_dict = rep_header_pattern.search(line).groupdict()
+                repeat_index = (header_dict['repeat_index'])
+                repeat_record = self.repeats[repeat_index]
+                self.current_repeat = repeat_record
+                linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
+                repeat_record.internal_linkage = linkage
+                repeat_record.external_linkage = linkage
+                repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
+                                                              header_dict['higher_multitude'])))
+                self.state = START
             elif ALT == line.strip():
                 raise GlycoCTSectionUnsupported(ALT)
             elif UND == line.strip():
@@ -402,7 +429,7 @@ class GlycoCT(object):
                 # logger.debug("handling subsituent")
                 self.handle_residue_substituent(line)
             elif re.search(r"^(\d+)r:", line) and self.state == RES:
-                raise GlycoCTSectionUnsupported(REP)
+                # raise GlycoCTSectionUnsupported(REP)
                 self.handle_repeat_stub(line)
             elif re.search(r"^(\d+):(\d+)", line) and self.state == LIN:
                 # logger.debug("handling linkage")
@@ -410,7 +437,7 @@ class GlycoCT(object):
             else:
                 raise GlycoCTError("Unknown format error: {}".format(line))
         self.in_repeat = False
-        yield self.structure_class(self.root)
+        yield self.postprocess()
 
 
 def read(stream, structure_class=Glycan):

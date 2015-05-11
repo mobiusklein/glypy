@@ -309,7 +309,9 @@ class Glycan(SaccharideBase):
             self.root.ring_end = None
             self.root.anomer = None
 
-    reducing_end.setter(set_reducing_end)
+    @reducing_end.setter
+    def reducing_end(self, value):
+        self.set_reducing_end(value)
 
     def depth_first_traversal(
             self, from_node=None, apply_fn=identity, visited=None):
@@ -770,58 +772,6 @@ class Glycan(SaccharideBase):
     def __ne__(self, other):
         return not self == other
 
-    def fragments_old(self, kind=('B', 'Y'), max_cleavages=1, average=False, charge=0, mass_data=None,
-                      min_cleavages=1, inplace=False, visited=None):
-        '''
-        Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
-        created by removing one or more monosaccharide-monosaccharide bond.
-
-
-        Parameters
-        ----------
-        kind: `sequence`
-            Any `iterable` or `sequence` of characters corresponding to A/B/C/X/Y/Z
-            as published by :title-reference:`Domon and Costello`
-        max_cleavages: |int|
-            The maximum number of bonds to break per fragment
-        average: bool, optional, defaults to `False`
-            Whether or not to use the average isotopic composition when calculating masses.
-            When ``average == False``, masses are calculated using monoisotopic mass.
-        charge: int, optional, defaults to 0
-            If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is `charge`
-        mass_data: dict, optional, defaults to `None`
-            If mass_data is |None|, standard NIST mass and isotopic abundance data are used. Otherwise the
-            contents of `mass_data` are assumed to contain elemental mass and isotopic abundance information.
-        inplace: `bool`
-            Whether or not to first copy `self` and generate fragments from the copy, keeping `self` intact.
-
-        Yields
-        ------
-        :class:`Fragment`
-
-        See also
-        --------
-        :func:`pygly2.composition.composition.calculate_mass`
-        '''
-        gen = self
-        if not inplace:
-            gen = self.clone()
-        results_container = Fragment
-        for i in range(min_cleavages, max_cleavages + 1):
-            for frag_type, link_ids, included_nodes, mass in gen.break_links(i, kind, average, charge,
-                                                                             mass_data, visited=visited):
-                frag = results_container(
-                    frag_type,
-                    link_ids,
-                    included_nodes,
-                    mass,
-                    None)
-                try:
-                    frag.name = self.name_fragment(frag)
-                except:
-                    frag.name = str(frag)
-                yield frag
-
     def substructures(self, max_cleavages=1, min_cleavages=1, inplace=False):
         '''
         Generate disjoint subtrees from this glycan by examining by removing one or
@@ -902,7 +852,7 @@ class Glycan(SaccharideBase):
                     ion_type, label_key.replace(MAIN_BRANCH_SYM, ""), inverted_distance)
                 name_parts.append(name)
 
-        return '-'.join(name_parts)
+        return '-'.join(sorted(name_parts))
 
     def break_links_subtrees(self, n_links):
         """Iteratively generate all subtrees from glycosidic bond cleavages, creating all
@@ -1082,20 +1032,21 @@ class Glycan(SaccharideBase):
         '''
         seen = set()
         source = self.clone()
-        gen = source.break_links_subtrees(max_cleavages)
-        if len(set("AX") & set(kind)) > 0:
-            gen = itertools.chain(
-                gen,
-                source.crossring_subtrees(max_cleavages))
-        for subtree in gen:
-            for fragment in subtree.to_fragments(kind, average=average,
-                                                 charge=charge, mass_data=mass_data):
-                fragment.name = self.name_fragment(fragment)
-                if fragment.name in seen:
-                    continue
-                else:
-                    seen.add(fragment.name)
-                yield fragment
+        for i in range(1, max_cleavages + 1):
+            gen = source.break_links_subtrees(i)
+            if len(set("AX") & set(kind)) > 0:
+                gen = itertools.chain(
+                    gen,
+                    source.crossring_subtrees(i))
+            for subtree in gen:
+                for fragment in subtree.to_fragments(kind, average=average,
+                                                     charge=charge, mass_data=mass_data):
+                    fragment.name = self.name_fragment(fragment)
+                    if fragment.name in seen:
+                        continue
+                    else:
+                        seen.add(fragment.name)
+                    yield fragment
 
     def subtrees(self, max_cleavages=1, include_crossring=False):
         '''
@@ -1113,10 +1064,11 @@ class Glycan(SaccharideBase):
         Subtree
         '''
         source = self.clone()
-        gen = source.break_links_subtrees(max_cleavages)
-        if include_crossring:
-            gen = itertools.chain(
-                gen,
-                source.crossring_subtrees(max_cleavages))
-        for subtree in gen:
-            yield subtree
+        for i in range(1, max_cleavages + 1):
+            gen = source.break_links_subtrees(i)
+            if include_crossring:
+                gen = itertools.chain(
+                    gen,
+                    source.crossring_subtrees(i))
+            for subtree in gen:
+                yield subtree

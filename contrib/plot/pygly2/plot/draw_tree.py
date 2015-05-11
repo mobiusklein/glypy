@@ -364,7 +364,6 @@ class DrawTreeNode(object):
                 break
         symbol_nomenclature.draw_text(ax=ax, x=position_x, y=position_y, text=str(position_num))
         anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
-
         anomer_y = ((sy * 0.2 + cy * 0.8))
         if sx == cx:
             anomer_y += 0.006

@@ -101,7 +101,7 @@ class PlotTests(unittest.TestCase):
     def test_plot_glycans(self):
         for name, structure in glycans.items():
             plot.plot(structure)
-            #plt.savefig(plot_dir + os.sep + name + '.png')
+            plt.savefig(plot_dir + os.sep + name + '.png')
             plt.clf()
             plt.close('all')
             #os.remove(plot_dir + os.sep + name + '.png')

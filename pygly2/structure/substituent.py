@@ -237,6 +237,7 @@ class Substituent(SubstituentBase):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
+        self._order = state.get("_order", len(self.links))
         self._derivatize = state.get("_derivatize", False)
 
     def clone(self, prop_id=True):

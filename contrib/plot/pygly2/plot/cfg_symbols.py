@@ -139,7 +139,7 @@ class ResidueColor(Enum):
     neuac = rgb2hex((200/255., 0/255., 200/255.))  # purple
     neugc = rgb2hex((233/255., 255/255., 255/255.))  # light blue
     kdn = rgb2hex((0, 200/255., 50/255.))  # green
-    glca = rgb2hex((255/255., 0/255., 0/255.))  # blue
+    glca = rgb2hex((0/255., 0/255., 255/255.))  # blue
     idoa = rgb2hex((150/255., 100/255., 50/255.))  # tan
     gala = rgb2hex((255/255., 255/255., 0/255.))  # yellow
     mana = rgb2hex((0, 200/255., 50/255.))  # green
