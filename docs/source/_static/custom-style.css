@@ -3,7 +3,7 @@
 }
 
 .descclassname {
-    display: none;
+    
 }
 
 .docutils.literal {
@@ -21,7 +21,7 @@
 }
 
 .py-attr {
-    background-color: lightsteelblue;
+    background-color: lightsteelblue !important;
 }
 
 .py-class {
@@ -30,4 +30,17 @@
 
 dl.class > dt > em.property ~ code.descname {
     font-size: 1.3em;
+}
+
+div.related {
+    background: #395891 !important;
+}
+
+div.footer {
+    color: #EFE9E9 !important;
+}
+
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+    font-family: Helvetica !important;
+    background-color: #B8ACF0 !important;
 }

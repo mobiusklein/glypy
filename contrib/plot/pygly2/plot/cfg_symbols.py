@@ -74,7 +74,7 @@ def get_relevant_substituents(residue, shape=None):
                 relevant_substituents[sub.name] -= 1
         return buffer
 
-    return list((p, sub.name) for p, sub in residue.substituents())
+    return list((p, sub.name) for p, sub in residue.substituents() if not sub._derivatize)
 
 
 def residue_shape(monosaccharide):

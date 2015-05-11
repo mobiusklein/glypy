@@ -19,6 +19,7 @@ Contents:
    io
    algorithms
    utils
+   tutorials
 
 
 Indices and tables

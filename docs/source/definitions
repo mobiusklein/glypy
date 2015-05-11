@@ -2,6 +2,7 @@
 .. |Glycan| replace:: :class:`~pygly2.structure.glycan.Glycan`
 .. |GlycanRecord| replace:: :class:`~pygly2.algorithms.database.GlycanRecord`
 .. |Monosaccharide| replace:: :class:`~pygly2.structure.monosaccharide.Monosaccharide`
+.. |ReducedEnd| replace:: :class:`~pygly2.structure.monosaccharide.ReducedEnd`
 
 .. |Link| replace:: :class:`~pygly2.structure.link.Link`
 

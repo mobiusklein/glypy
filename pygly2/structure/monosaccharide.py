@@ -223,7 +223,7 @@ class Monosaccharide(SaccharideBase):
 
     .. warning::
 
-        While |Monosaccharide| objects expose their :attr:`modifications`, :attr:`links`, and :attr:`substituent_links` fields as mutable,
+        While |Monosaccharide| objects expose their :attr:`.modifications`, :attr:`.links`, and :attr:`.substituent_links` attributes as mutable,
         you should treat them as **read-only**. The methods for altering their contents, :meth:`add_substituent`, :meth:`add_monosaccharide`,
         :meth:`add_modification`, :meth:`drop_substituent`, :meth:`drop_monosaccharide`, and :meth:`drop_modification` are all responsible
         for handling these mutations for you. |Link| methods like :meth:`Link.apply`, :meth:`Link.break_link`, and :meth:`Link.reconnect`

@@ -348,7 +348,15 @@ class DrawTreeNode(object):
         cx, cy = child.coords(orientation, at)
 
         position_x = ((sx * 0.6 + cx * 0.4)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
-        position_y = ((sy * 0.6 + cy * 0.4)) + (sign(sy) if cy <= sy else -sign(sy)) * 0.07
+        position_y = ((sy * 0.6 + cy * 0.4))
+        if sx == cx:
+            position_y += 0.006
+        elif (sy > cy):
+            position_y += -0.11
+        elif (sy < cy):
+            position_y += -0.15
+        else:
+            position_y += -0.12
         position_num = -1
         for pos, link in self.tree.links.items():
             if link.is_child(child.tree):
@@ -356,11 +364,18 @@ class DrawTreeNode(object):
                 break
         symbol_nomenclature.draw_text(ax=ax, x=position_x, y=position_y, text=str(position_num))
         anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
-        anomer_y = ((sy * 0.2 + cy * 0.8)) + (sign(sy) if cy <= sy else -sign(sy)) * 0.07
-        if child.tree.anomer == 'alpha':
-            symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\alpha$', scale=0.13)
-        elif child.tree.anomer == 'beta':
-            symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\beta$', scale=0.13)
+
+        anomer_y = ((sy * 0.2 + cy * 0.8))
+        if sx == cx:
+            anomer_y += 0.006
+        elif (sy > cy):
+            anomer_y += -0.11
+        elif (sy < cy):
+            anomer_y += -0.15
+        else:
+            anomer_y += -0.12
+
+        symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), scale=0.13)
 
     def left(self):
         return self.thread or len(self.children) and self.children[0]
@@ -594,11 +609,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
 
     scale = kwargs.get("scale", DEFAULT_SYMBOL_SCALE_FACTOR)
 
-    root = tree
-    if isinstance(tree, Glycan):
-        root = tree.root
-    elif isinstance(tree, GlycanRecordBase):
-        root = tree.structure.root
+    root = get_root(tree)
     dtree = DrawTreeNode(root)
     buchheim(dtree)
     dtree.fix_special_cases()

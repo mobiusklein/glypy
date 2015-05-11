@@ -39,9 +39,9 @@ def strip_derivatize_glycoct(record):
 def cfg_plot(record):
     if "svg_plot" in record.report_data:
         return base64.decodestring(record.report_data["svg_plot"])
-    s = record.structure.clone()
-    composition_transform.strip_derivatization(s)
-    dtree, ax = plot.plot(s, orientation='h', squeeze=1.4, scale=.135)
+    #s = record.structure.clone()
+    #composition_transform.strip_derivatization(s)
+    dtree, ax = plot.plot(record, orientation='h', squeeze=1.4, scale=.135)
     fmap = {f.name: f for f in record.fragments}
     for match in record.matches:
         match_key = match.match_key.split(":")[0]

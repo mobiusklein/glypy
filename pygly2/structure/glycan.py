@@ -129,8 +129,8 @@ class Glycan(SaccharideBase):
     link_index: |list|
         A list of the |Link| connecting the |Monosaccharide| instances in `self` in the order they
         are encountered by traversal by `traversal_methods[index_method]`
-    reducing_end: |int| or |None|
-        The index of the reducing end on :attr:`root`.
+    reducing_end: |ReducedEnd| or |None|
+        The reducing end on :attr:`root`.
     branch_lengths: |dict|
         A dictionary mapping branch symbols to their lengths
     '''
@@ -278,10 +278,6 @@ class Glycan(SaccharideBase):
         '''
         return self.root.reducing_end
 
-    @reducing_end.setter
-    def reducing_end(self, value):
-        self.root.reducing_end = value
-
     def set_reducing_end(self, value):
         '''
         Sets the reducing end type, and configures the root residue appropriately.
@@ -312,6 +308,8 @@ class Glycan(SaccharideBase):
             self.root.ring_start = None
             self.root.ring_end = None
             self.root.anomer = None
+
+    reducing_end.setter(set_reducing_end)
 
     def depth_first_traversal(
             self, from_node=None, apply_fn=identity, visited=None):
