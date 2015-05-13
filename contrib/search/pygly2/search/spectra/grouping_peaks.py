@@ -9,7 +9,7 @@ def tryfloat(obj):
         return obj
 
 
-class DeconRow(object):
+class MS1DeconRow(object):
     '''
     Describe a row of output from Decon2LS "DeconTools"
     '''
@@ -42,16 +42,22 @@ class DeconRow(object):
         reader = csv.reader(stream)
         reader.next()
         for line in reader:
-            row = DeconRow(*map(tryfloat, line))
+            row = MS1DeconRow(*map(tryfloat, line))
             yield row
 
     def to_observed_spectrum(self):
         scan_ids = [self.scan_number]
         charge = self.charge
-        neutral_mass = self.monoisotopic_abundance
+        neutral_mass = self.monoisotopic_mass_weight
         scan = Scan(self.scan_number, self.charge, self.mz)
         spectrum = ObservedPrecursorSpectrum([scan], scan_ids, charge, neutral_mass, [], **self.__dict__)
         return spectrum
+
+
+class MS2DeconRow(object):
+    def __init__(self, peak_index, scan_num, mz, intensity, fwhm, signal_to_noise, feature_id):
+        self.mz = mz
+        self.intensity = intensity
 
 
 class ResultsGroup(object):

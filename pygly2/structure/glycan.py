@@ -9,7 +9,7 @@ from .base import SaccharideBase
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import crossring_fragments, CrossRingPair, CrossRingFragment
 from .fragment import Fragment, Subtree
-from ..utils import make_counter, identity, StringIO, chrinc, make_struct
+from ..utils import make_counter, identity, StringIO, chrinc
 from ..composition import Composition
 
 methodcaller = operator.methodcaller
@@ -32,10 +32,6 @@ _fragment_direction = {
 }
 
 MAIN_BRANCH_SYM = '-'
-
-
-DisjointTrees = make_struct("DisjointTrees", ("parent_tree", "parent_include_nodes",
-                                              "child_tree", "child_include_nodes", "link_ids"))
 
 
 def fragment_to_substructure(fragment, tree):

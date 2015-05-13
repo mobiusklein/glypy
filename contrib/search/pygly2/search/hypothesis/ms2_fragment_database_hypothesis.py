@@ -73,6 +73,7 @@ def extract_fragments(record, fragmentation_parameters=None):
     }
     fragmentation_parameters = fragmentation_parameters or default_fragmentation_parameters
     fragments = {}
+    record.structure = record.structure.clone()
     for frag in (record.structure.fragments("ABCXYZ", 1)):
         fragments[frag.name] = frag
     for frag in record.structure.fragments("BCYZ", 2):
@@ -185,6 +186,7 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
             print(len(out_database))
             del job
     out_database.commit()
+    out_database.apply_indices()
     return out_database
 
 
@@ -208,7 +210,8 @@ def duplicate_check(db):
             anomers.append(node.anomer)
             node.anomer = None
         m = rec.mass()
-        isobarics = list(db.ppm_match_tolerance_search(m, 0))
+        isobarics = list(db.ppm_match_tolerance_search(m, 1e-5))
+        print len(isobarics)
         for iso in isobarics:
             if iso.id == rec.id:
                 continue

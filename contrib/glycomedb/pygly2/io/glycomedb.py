@@ -14,20 +14,20 @@ logger = logging.getLogger(__name__)
 cache = None
 
 
-def download_all_structures(db_path):
+def download_all_structures(db_path, record_type=GlycanRecord):
     response = requests.get(u'http://www.glycome-db.org/http-services/getStructureDump.action?user=eurocarbdb')
     response.raise_for_status()
     handle = gzip.GzipFile(fileobj=StringIO(response.content))
     xml = etree.parse(handle)
-    db = RecordDatabase(db_path)
+    db = RecordDatabase(db_path, record_type=record_type)
     for structure in xml.iterfind(".//structure"):
         try:
-            glycomedb_id = structure.attrib['id']
+            glycomedb_id = int(structure.attrib['id'])
             print(glycomedb_id)
             glycoct_str = structure.find("sequence").text
             taxa = [Taxon(t.attrib['ncbi'], None, None) for t in structure.iterfind(".//taxon")]
             glycan = glycoct.loads(glycoct_str).next()
-            record = GlycanRecord(glycan, taxa=taxa, id=glycomedb_id)
+            record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
         except Exception, e:
             print(e)

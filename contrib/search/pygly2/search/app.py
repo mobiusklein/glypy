@@ -53,7 +53,6 @@ def main(structure_database, observed_data,
     spectral_match_db = spectrum_model.MSMSSqlDB(store_file)
     for line in observed_db.connection.iterdump():
         spectral_match_db.executescript(line)
-    matches = []
     logger.info("Begin Matching")
     for structure in structure_database:
         structure = ResultsRecord.from_base(structure)
@@ -70,7 +69,7 @@ def main(structure_database, observed_data,
     matches_db.apply_indices()
     experimental_statistics = {}
 
-    scans_matched, scans_not_matched = map(list, collect_matched_scans(matches, observed_db))
+    scans_matched, scans_not_matched = map(list, collect_matched_scans(matches_db, observed_db))
     experimental_statistics["count_scans_matched"] = len(scans_matched)
     experimental_statistics["count_scans_not_matched"] = len(scans_not_matched)
 
@@ -79,7 +78,7 @@ def main(structure_database, observed_data,
     matches_db.set_metadata("scans_not_matched", scans_not_matched)
     matches_db.set_metadata("settings", settings)
 
-    return matches, experimental_statistics, scans_matched, scans_not_matched
+    return matches_db, experimental_statistics, scans_matched, scans_not_matched
 
 
 app = argparse.ArgumentParser("pygly-ms2")

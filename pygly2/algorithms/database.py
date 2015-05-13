@@ -75,6 +75,45 @@ def column_data(name, dtype, transform):
     return func
 
 
+class QueryMethod(object):
+    def __init__(self, func=None):
+        self.func = func
+
+    def bind(self, obj):
+        """Binds database parameters to the wrapped function
+
+        Parameters
+        ----------
+        obj: RecordDatabase
+
+        Returns
+        -------
+        function: The partially parameterized function bound to `obj`
+        """
+        @functools.wraps(self.func)
+        def forward_binding(*args, **kwargs):
+            return self.func(obj.record_type, obj, *args, **kwargs)
+        return forward_binding
+
+    def __call__(self, record_type, conn, *args, **kwargs):
+            return self.func(record_type, conn, *args, **kwargs)
+
+
+def querymethod(func):
+    """Decorator for creating patching methods onto databases
+
+    Parameters
+    ----------
+    func : method
+        Method to be bound
+
+    Returns
+    -------
+    QueryMethod
+    """
+    return QueryMethod(func)
+
+
 class GlycanRecordBase(object):
     '''
     Defines the base class for SQL serialize-able records carrying
@@ -512,11 +551,11 @@ class GlycanRecord(GlycanRecordBase):
 
     __column_data_map = {}
 
-    @classmethod
+    @querymethod
     def query_like_composition(cls, conn, record=None, prefix=None):
         stmt = "select * from {table_name} where " + _query_composition(prefix, **record.monosaccharides) + ";"
-        for result in conn.execute(stmt):
-            yield cls.from_sql(result, conn)
+        for result in conn.from_sql(conn.execute(stmt)):
+            yield result
 
     @classmethod
     def add_index(cls, *args, **kwargs):
@@ -585,6 +624,40 @@ class GlycanRecord(GlycanRecordBase):
         inherits = _resolve_column_data_mro(self.__class__)
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
+
+    @querymethod
+    def test(self, *args, **kwargs):
+        print self, args, kwargs
+
+
+class GlycanRecordWithTaxon(GlycanRecord):
+    __taxa_table_schema__ = '''
+    DROP TABLE IF EXISTS RecordTaxonomy;
+    CREATE TABLE RecordTaxonomy(
+        glycan_id INTEGER NOT NULL,
+        taxon_id INTEGER NOT NULL
+    );
+    '''
+
+    @classmethod
+    def sql_schema(cls, *args, **kwargs):
+        for line in super(GlycanRecordWithTaxon, cls).sql_schema(*args, **kwargs):
+            yield line
+        yield cls.__taxa_table_schema__
+
+    @classmethod
+    def add_index(cls, *args, **kwargs):
+        for line in super(GlycanRecordWithTaxon, cls).add_index(*args, **kwargs):
+            yield line
+        yield "CREATE INDEX IF NOT EXISTS TaxonomyIndex ON RecordTaxonomy(taxon_id);"
+        yield "CREATE INDEX IF NOT EXISTS TaxonomyIndex2 ON RecordTaxonomy(glycan_id);"
+
+    def to_sql(self, *args, **kwargs):
+        for line in super(GlycanRecordWithTaxon, self).to_sql(*args, **kwargs):
+            yield line
+        for taxon in self.taxa:
+            yield "INSERT OR REPLACE INTO RecordTaxonomy (glycan_id, taxon_id) VALUES ({}, {});".format(
+                self.id, int(taxon.tax_id))
 
 
 class RecordDatabase(object):
@@ -735,6 +808,11 @@ class RecordDatabase(object):
     def bind(self, record):
         record._bound_db = self
 
+    def _patch_querymethods(self):
+        for name, value in self.record_type.__dict__.items():
+            if isinstance(value, QueryMethod):
+                setattr(self, name, value.bind(self))
+
     def __len__(self):
         """The number of records in the database
 
@@ -797,8 +875,8 @@ class RecordDatabase(object):
         '''
         Iterate sequentially over each entry in the database.
         '''
-        for row in self.execute(self.stn("select * from {table_name};")):
-            yield self.record_type.from_sql(row, database=self)
+        for row in self.from_sql(self.execute(self.stn("select * from {table_name};"))):
+            yield row
 
     def __contains__(self, key):
         try:
@@ -895,7 +973,9 @@ class RecordDatabase(object):
         if isinstance(rows, sqlite3.Row):
             rows = [rows]
         for row in rows:
-            yield from_sql_fn(row, self)
+            record = from_sql_fn(row, self)
+            self.bind(record)
+            yield record
 
 #: Open a database
 dbopen = RecordDatabase

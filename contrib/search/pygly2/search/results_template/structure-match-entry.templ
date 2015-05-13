@@ -18,7 +18,8 @@
             </ul>
         </div>
         <div>
-            <span class='labeled-data'><b>Scan Range (Density): </b>  <small>{{match.scan_ids | join(", ")}}</small>
+            <span class='labeled-data'><b>Scan Range (Density): </b>
+            <small class='scan-numbers'>{{match.scan_ids | sort | join(", ")}}</small>
              ({{match.scan_density | scientific_notation }})</span>
             <span class='labeled-data'><b>Charge States: </b> {{match.charge_states | unique | join(", ") }}</span>
         </div>

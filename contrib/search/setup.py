@@ -7,7 +7,8 @@ setup(
     entry_points={
         'console_scripts': [
                 "pygly-ms2 = pygly2.search.app:taskmain",
-                "pygly-render = pygly2.search.app:rerendermain"
+                "pygly-render = pygly2.search.app:rerendermain",
+                "pygly-serve = pygly2.search.flask_view:main"
         ],
     },
     namespace_packages=["pygly2", "pygly2.search", "pygly2.tests"]
