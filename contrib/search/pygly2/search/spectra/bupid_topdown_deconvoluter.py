@@ -2,8 +2,9 @@ import yaml
 import itertools
 
 from . import DeconIOBase
-from . import ObservedPrecursorSpectrum
-from . import ObservedTandemSpectrum
+from .spectrum_model import ObservedPrecursorSpectrum
+from .spectrum_model import ObservedTandemSpectrum
+from .spectrum_model import Scan
 from . import neutral_mass
 from .constants import constants as ms_constants
 
@@ -47,7 +48,7 @@ class BUPIDYamlParser(DeconIOBase):
                 tand.id = ion_id
                 ion_id += 1
 
-            observed_spectra = ObservedPrecursorSpectrum(peak_data["scans"],
+            observed_spectra = ObservedPrecursorSpectrum([Scan(s['id'], s['z'], s['mz']) for s in peak_data["scans"]],
                                                          scan_id_range,
                                                          precursor_charge,
                                                          precursor_neutral_mass,

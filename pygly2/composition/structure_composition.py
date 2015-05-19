@@ -15,7 +15,7 @@ class CompositionRule(object):
 
     def __call__(self, position=-1):
         # Implicitly copies
-        return (self.composition + Composition(self.position_shifts[position]))
+        return self.composition + Composition(self.position_shifts[position])
 
 
 class CompositionIndex(dict):

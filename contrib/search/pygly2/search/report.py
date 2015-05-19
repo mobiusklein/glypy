@@ -22,7 +22,7 @@ from pygly2 import plot
 
 from pygly2.search.spectra import spectrum_model
 
-matplotlib.rcParams['svg.fonttype'] = 'none'
+matplotlib.rcParams['svg.fonttype'] = 'path'
 
 
 def collect_fragments(record):
@@ -69,6 +69,42 @@ def cfg_plot(record):
     return svg
 
 
+greek_symbol_map = {
+    "a": "&alpha;",
+    "b": "&beta;",
+    "c": "&gamma;",
+    "d": "&delta;",
+    "e": "&epsilon;",
+    "f": "&zeta;",
+    "g": "&eta;",
+    "h": "&iota;",
+    "i": "&kappa;",
+    "j": "&lambda;",
+    "k": "&mu;",
+    "l": "&nu;",
+    "m": "&xi;",
+    "n": "&varsigma;",
+    "o": "&pi;",
+    "p": "&rho;",
+    "q": "&sigma;",
+    "r": "&tau;",
+    "s": "&upsilon;",
+    "t": "&phi;",
+    "u": "&psi;",
+    "v": "&omega;"
+}
+
+
+def greek_fragment_names(fragment_name):
+    buff = []
+    for c in fragment_name:
+        if c in greek_symbol_map:
+            buff.append(greek_symbol_map[c])
+        else:
+            buff.append(c)
+    return ''.join(buff)
+
+
 def spectrum_plot(precursor_spectrum):
     fig = spectrum_model.plot_observed_spectra(precursor_spectrum)
     img_buffer = StringIO()
@@ -109,6 +145,7 @@ def create_environment():
     env.filters["unique"] = unique
     env.filters["limit_sigfig"] = limit_sigfig
     env.filters['css_escape'] = css_escape
+    env.filters['greek_fragment_name'] = greek_fragment_names
 
     template = env.get_template("results.templ")
     return template

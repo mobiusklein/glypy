@@ -1,5 +1,6 @@
 import re
 import collections
+import operator
 from math import fabs
 from itertools import chain
 from functools import partial
@@ -7,7 +8,7 @@ from collections import defaultdict
 
 from pygly2 import Composition
 
-from pygly2.utils import make_struct
+from pygly2.utils import make_struct, identity
 from pygly2.algorithms import database
 from pygly2.search.spectra import IonMatchAnnotation
 
@@ -99,6 +100,26 @@ def _machine_epsilon(func=float):
     return machine_epsilon_last
 
 
+get_intensity = operator.attrgetter('intensity')
+
+
+def top_n_peaks(peak_list, n=200):
+    return sorted(peak_list, key=get_intensity, reverse=True)[:n]
+
+
+def percent_of_max(peak_list, percentage=0.01):
+    max_intensity = max(peak_list, key=get_intensity).intensity
+    return [peak for peak in peak_list if peak.intensity > percentage * max_intensity]
+
+
+thresholding_strategy_map = {
+    None: identity,
+    "all": identity,
+    "top_n_peaks": top_n_peaks,
+    "percent_of_max": percent_of_max
+}
+
+
 crossring_pattern = re.compile(r"\d,\d")
 
 PROTON = Composition("H+").mass
@@ -156,7 +177,7 @@ def find_matches(precursor, msms_db, shifts=None,
                  ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
                  ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
                  ion_types=('A', 'B', 'C', 'X', 'Y', 'Z'),
-                 spectrum_matches=None):
+                 spectrum_matches=None, thresholding_strategy=identity):
     '''Find all MS1 matches, find all MS2 matches in these matches, and merge the fragments found.
 
     Parameters
@@ -198,15 +219,15 @@ def find_matches(precursor, msms_db, shifts=None,
     precursor.fragments = [f for f in precursor.fragments
                            if ''.join(sorted(crossring_pattern.sub("", f.kind))) in (ion_types)]
     for shift in shifts:
-        for row in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):
-            spectrum = msms_db.precursor_type.from_sql(row, msms_db)
+        for spectrum in msms_db.ppm_match_tolerance_search(precursor.intact_mass + shift.mass, ms1_match_tolerance):
             precursor_ppm_errors.append(ppm_error(precursor.mass() + shift.mass, spectrum.neutral_mass))
             precursor_charge_state.append(spectrum.charge)
             scans_searched.update(spectrum.scan_ids)
             matches = match_fragments(precursor, spectrum,
                                       shifts=shifts,
                                       ms2_match_tolerance=ms2_match_tolerance,
-                                      spectrum_matches=spectrum_matches)
+                                      spectrum_matches=spectrum_matches,
+                                      thresholding_strategy=thresholding_strategy)
             results.append(matches)
             i += 1
 
@@ -223,25 +244,26 @@ def find_matches(precursor, msms_db, shifts=None,
 
 def match_fragments(precursor, precursor_spectrum, shifts=None,
                     ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
-                    spectrum_matches=None):
+                    spectrum_matches=None, thresholding_strategy=identity):
     '''
     Match theoretical MS2 fragments against the observed peaks.
     '''
     if spectrum_matches is None:
         spectrum_matches = []
     peak_list = precursor_spectrum.tandem_data
+    thresholded_peak_list = thresholding_strategy(peak_list)
     shifts = shifts or [NoShift]
     matches = []
     for shift in shifts:
         for fragment in precursor.fragments:
-            for peak in peak_list:
+            for peak in thresholded_peak_list:
                 match_error = fabs(ppm_error(fragment.mass + shift.mass, peak.mass))
                 if match_error <= ms2_match_tolerance:
                     matches.append(FragmentMatch(
                         fragment.name + ":" + shift.name, peak.mass,
                         match_error, peak.intensity, peak.charge, peak.id))
                     spectrum_matches.append(IonMatchAnnotation(peak.id, precursor.id,
-                                                                    fragment.name + ":" + shift.name))
+                                                               fragment.name + ":" + shift.name))
     return matches
 
 
@@ -293,7 +315,7 @@ def collect_matched_scans(matches, msms_db):
 def simple_score(record):
     total_mass = record.mass()
     for fragment in record.fragments:
-        fragment.score = fragment.mass / total_mass
+        fragment.score = fragment.mass / total_mass if fragment.mass > 100.0 else 0
     total_score = sum(fragment.score for fragment in record.fragments)
 
     for fragment in record.fragments:

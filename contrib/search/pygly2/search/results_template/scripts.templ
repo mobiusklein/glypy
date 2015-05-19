@@ -21,11 +21,17 @@ function getGlycanSVG(handle){
     return svgContainer
 }
 
+/**
+ *   Set an
+ *    
+ *   @param handle: - Element containing the complete name of the observed cleavage. Target to be given a :event:`hover` handle for.
+ *   @param {jQuery} svgContainer - The container of the <svg></svg> tag that holds the glycan structure image.
+ */
 function highlightCleavage(handle, svgContainer){
     handle = $(handle === undefined ? (this) : handle)
     svgContainer = svgContainer === undefined ? getGlycanSVG(handle) : svgContainer
     var svgUUID = svgContainer.attr("id")
-    var cleavageType = handle.text().replace(/\n|\s\s+/g, "").replace(",", "_").split(/-|\+/)
+    var cleavageType = handle.attr("data-target").replace(/\n|\s\s+/g, "").replace(",", "_").split(/-|\+/)
     handle.hover(function(evt){
         for(var i = 0; i < cleavageType.length; i++){
             console.log(cleavageType[i])

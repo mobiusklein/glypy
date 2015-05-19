@@ -39,3 +39,6 @@ class Modification(ModificationBase):
 
     def to_glycoct(self):
         return glycoct_map.get(self.name, self.name)
+
+    def clone(self):
+        return Modification(self.name, self.position, self.composition)

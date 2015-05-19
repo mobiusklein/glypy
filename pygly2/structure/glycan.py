@@ -15,13 +15,6 @@ from ..composition import Composition
 methodcaller = operator.methodcaller
 logger = logging.getLogger("Glycan")
 
-_fragment_shift = {
-    "B": Composition(O=1, H=2),
-    "Y": Composition(),
-    "C": Composition(),
-    "Z": Composition(H=2, O=1),
-}
-
 _fragment_direction = {
     "A": -1,
     "B": -1,
@@ -244,6 +237,8 @@ class Glycan(SaccharideBase):
 
     def __setstate__(self, state):
         self.__dict__ = state
+        if "_root" in state:
+            self.root = self._root
 
     def get(self, ix):
         for node in self:
@@ -258,14 +253,6 @@ class Glycan(SaccharideBase):
                 return link
         raise IndexError(
             "Could not find a link with the given id or label {}".format(ix))
-
-    @property
-    def root(self):
-        return self._root
-
-    @root.setter
-    def root(self, value):
-        self._root = value
 
     @property
     def reducing_end(self):
@@ -540,6 +527,7 @@ class Glycan(SaccharideBase):
                 if link.is_child(node):
                     continue
                 links.append(link)
+
             if len(links) == 1:
                 label_key = get_parent_link(node)
                 self.branch_lengths[label_key] += 1
@@ -550,13 +538,20 @@ class Glycan(SaccharideBase):
                 last_label_key = label_key = get_parent_link(node)
                 count = self.branch_lengths[last_label_key]
                 for link in links:
-                    last_branch_label = chrinc(
-                        last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
-                    new_label_key = last_branch_label
-                    self.branch_lengths[new_label_key] = count + 1
-                    label = "{}{}".format(
-                        new_label_key, self.branch_lengths[new_label_key])
-                    link.label = label
+                    if len(list(link.child.children())) < 2:
+                        label_key = get_parent_link(node)
+                        self.branch_lengths[label_key] += 1
+                        label = "{}{}".format(
+                            label_key, self.branch_lengths[label_key])
+                        link.label = label
+                    else:
+                        last_branch_label = chrinc(
+                            last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
+                        new_label_key = last_branch_label
+                        self.branch_lengths[new_label_key] = count + 1
+                        label = "{}{}".format(
+                            new_label_key, self.branch_lengths[new_label_key])
+                        link.label = label
         self.branch_lengths["-"] = max(self.branch_lengths.values())
 
     def count_branches(self):

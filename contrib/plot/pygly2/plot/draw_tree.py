@@ -455,9 +455,16 @@ class DrawTreeNode(object):
             visited = set()
         if self.id in visited:
             return
+        try:
+            if len(factor) == 1:
+                xfactor = yfactor = factor
+            else:
+                xfactor, yfactor = factor
+        except TypeError:
+            xfactor = yfactor = factor
         visited.add(self.id)
-        self.x *= factor
-        self.y *= factor
+        self.x *= xfactor
+        self.y *= yfactor
         for child in self:
             child.scale(factor, visited)
 
@@ -523,7 +530,7 @@ class DrawTreeNode(object):
                 self.data['patches'][fragment.name + "_direction"] = line[0]
                 self.data['position'][fragment.name + "_direction"] = label_x, (ly1, ly1)
                 if label:
-                    text = ax.text(label_x[0] - .4, ly1 + 0.05, fragment.name)
+                    text = ax.text(label_x[0] - .4, ly1 + 0.05, fragment.fname)
                     self.data['patches'][fragment.name + "_text"] = text
                     self.data['position'][fragment.name + "_text"] = label_x[0] - .4, ly1 + 0.05
             else:
@@ -533,7 +540,7 @@ class DrawTreeNode(object):
                 self.data['position'][fragment.name + "_direction"] = (lx2, lx2 + scale), (ly2, ly2)
 
                 if label:
-                    self.data['patches'][fragment.name + "_text"] = ax.text(lx2 + 0.05, ly2 - 0.15, fragment.name)
+                    self.data['patches'][fragment.name + "_text"] = ax.text(lx2 + 0.05, ly2 - 0.15, fragment.fname)
                     self.data['position'][fragment.name + "_text"] = lx2 + 0.05, ly2 - 0.15
 
         for crossring in crossring_targets:
@@ -543,7 +550,7 @@ class DrawTreeNode(object):
             self.data['patches'][fragment.name] = line[0]
             self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
             line[0].set_gid(self.uuid + '-' + fragment.name.replace(",", '_'))
-            annotation_name = re.sub(r'\d,\d', '', fragment.name)
+            annotation_name = re.sub(r'\d,\d', '', fragment.fname)
             if fragment.kind[-1] == "X":
                 line = ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
@@ -604,15 +611,24 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
         be set to |True| if `ax` is |None|
     label: bool
         Should the bond annotations for `tree` be drawn? Defaults to |False|
+    scale: (float, float) or float
+        Node scale coefficients. Pass a pair to scale x and y dimensions respectively.
+    stretch: (float, float) or float
+        Edge length coefficients. Pass a pair to scale x and y dimensions respectively. Order is
+        affected by `orientation`
     '''
 
     scale = kwargs.get("scale", DEFAULT_SYMBOL_SCALE_FACTOR)
+
+    # if ax is not None and "scale" not in kwargs:
+    #     x_max = ax.get_xlim()[1]
+    #     y_max = ax.get_ylim()[1]
 
     root = get_root(tree)
     dtree = DrawTreeNode(root)
     buchheim(dtree)
     dtree.fix_special_cases()
-    dtree.scale(kwargs.get("squeeze", DEFAULT_TREE_SCALE_FACTOR))
+    dtree.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)))
     fig = None
     # Create a figure if no axes are provided
     if ax is None:

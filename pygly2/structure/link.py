@@ -1,4 +1,7 @@
+import itertools
 from uuid import uuid4
+from collections import Iterable
+
 from ..composition import Composition
 from .base import SaccharideBase, SubstituentBase
 
@@ -423,3 +426,55 @@ class LinkMaskContext(object):
         for link in self.links:
             if not link.is_attached():
                 link.apply()
+
+
+class AmbiguousLink(Link):
+    def __init__(self, parent, child, parent_position=(-1,), child_position=(-1,),
+                 parent_loss=None, child_loss=None, id=None, attach=True):
+        if not isinstance(parent, (list, tuple)):
+            parent = [parent]
+        if not isinstance(child, (list, tuple)):
+            child = [child]
+        if not isinstance(parent_position, Iterable):
+            parent_position = [parent_position]
+        if not isinstance(child_position, Iterable):
+            child_position = [child_position]
+
+        self.parent_choices = list(parent)
+        self.parent_position_choices = list(parent_position)
+
+        self.child_choices = list(child)
+        self.child_position_choices = list(child_position)
+
+        super(AmbiguousLink, self).__init__(
+            self.parent_choices[0],
+            self.child_choices[0],
+            self.parent_position_choices[0],
+            self.child_position_choices[0],
+            parent_loss, child_loss, id, attach)
+
+    def iterconfiguration(self):
+        configurations = itertools.product(self.parent_choices, self.child_choices,
+                                           self.parent_position_choices,
+                                           self.child_position_choices)
+        for parent_o, child_o, parent_position_o, child_position_o in configurations:
+            self.break_link(refund=True)
+            self.parent = parent_o
+            self.child = child_o
+            self.parent_position = parent_position_o
+            self.child_position = child_position_o
+            self.apply()
+            yield parent_o, child_o, parent_position_o, child_position_o
+
+    def clone(self, parent, child, prop_id=True, attach=True):
+        if not isinstance(parent, (list, tuple)):
+            parent = [parent]
+        if not isinstance(child, (list, tuple)):
+            child = [child]
+        link = AmbiguousLink(
+            parent, child,
+            self.parent_position_choices,
+            self.child_position_choices,
+            self.parent_loss, self.child_loss, self.id if prop_id else None,
+            attach)
+        return link

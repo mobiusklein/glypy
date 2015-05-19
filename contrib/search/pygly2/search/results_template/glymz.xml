@@ -7,14 +7,23 @@
     </ExperimentalStatistics>
     <DatabaseSearch>
         {% for structure in structures %}
-        <Structure>
+        <Structure id="{{structure.id}}">
             <GlycoCT>
                 {{structure.to_glycoct()}}
             </GlycoCT>
+            <Parameter name="score" value="{{structure.score}}" />
+            <Parameter name="scan-density" value="{{structure.scan_density}}" />
+            <Parameter name="charge-state-count" value="{{structure.charge_states|length}}" />
+            <Parameter name="" />
             <Transformation>
                 <Derivatization value="{{structure.derivatization}}" />
                 <ReducingEnd value="{{structure.reduced_end_type}}"/>
             </Transformation>
+            <Matches>
+                <Scan>
+                    
+                </Scan>
+            </Matches>
         </Structure>
         {% endfor %}
     </DatabaseSearch>

@@ -22,7 +22,7 @@ def get_all_residue_types(db):
 def pack_composition_string(record, residues):
     composition = record.monosaccharides
     return "[{}]".format(
-        ';'.join(str(composition.get(residue, 0)) if residue != "Water" else 1 for residue in residues))
+        ';'.join(str(composition.get(residue, 0)) if residue != "Water" else "1" for residue in residues))
 
 
 def prepare_row(row, residues, adduct_mass, num_adducts, mass_fn=lambda x: x.mass()):

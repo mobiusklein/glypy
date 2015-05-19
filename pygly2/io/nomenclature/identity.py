@@ -1,6 +1,14 @@
+from collections import defaultdict
+import operator
+
 from ...structure import named_structures, Monosaccharide, Substituent
 from ...algorithms.similarity import monosaccharide_similarity
+from ...composition.composition_transform import strip_derivatization
 from .synonyms import monosaccharides as monosaccharide_synonyms
+
+
+# A static copy of monosaccharide names to structures for copy-free comparison
+monosaccharides = dict(named_structures.monosaccharides)
 
 
 def get_preferred_name(name, selector=min, key=len):
@@ -54,7 +62,7 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
     res = 0
     qs = 0
     if isinstance(target, basestring):
-        target = named_structures.monosaccharides[target]
+        target = monosaccharides[target]
     if isinstance(node, Substituent):
         if not isinstance(target, Substituent):
             return False
@@ -106,7 +114,7 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
     '''
     if blacklist is None:
         blacklist = ["Hex"]
-    for name, structure in named_structures.monosaccharides.items():
+    for name, structure in monosaccharides.items():
         if name in blacklist:
             continue
         if is_a(node, structure, tolerance, include_modifications, include_substituents):
@@ -116,3 +124,64 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
 
 class IdentifyException(Exception):
     pass
+
+
+def naive_name_monosaccharide(monosaccharide):
+    '''
+    Generate a generic name for `monosaccharide`, based loosely on IUPAC
+    naming schema without including information about linkage.
+
+    The tendency for monosaccharides of superclass > 7 to have special names,
+    which will be used preferentially if possible.
+
+    Parameters
+    ----------
+    monosaccharide: Monosaccharide
+
+    Returns
+    -------
+    str:
+        A simple name based on `SuperClass`, modifications, and substituents.
+
+    See Also
+    --------
+    :func:`pygly2.io.nomenclature.identity.identify`
+
+    '''
+    try:
+        c = monosaccharide.clone()
+        if not isinstance(c, Monosaccharide):
+            return None
+        strip_derivatization(c)
+        try:
+            if monosaccharide.superclass.value > 6:
+                return identify(c, tolerance=1)
+        except:
+            pass
+        c.anomer = None
+        return identify(c)
+    except IdentifyException:
+        try:
+            c.stem = None
+            c.configuration = None
+            return identify(c)
+        except IdentifyException:
+            return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
+                   c.superclass.name.title() + ''.join([''.join(map(str.title, subst.name.split("_")))[:3]
+                                                        for p, subst in c.substituents()])
+
+
+def split_along_axis(monosaccharides, axis):
+    groups = defaultdict(list)
+    getter = operator.attrgetter(axis)
+    for monosaccharide in monosaccharides:
+        groups[getter(monosaccharide)].append(monosaccharide)
+    return groups
+
+
+def residue_list_to_tree(monosaccharides, axes=('anomer', 'superclass', 'stem', 'configuration')):
+    root = split_along_axis(monosaccharides, axes[0])
+    if len(axes) > 1:
+        for level, group in root.items():
+            root[level] = residue_list_to_tree(group, axes[1:])
+    return root

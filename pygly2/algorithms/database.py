@@ -5,10 +5,9 @@ import functools
 from collections import Counter, Iterable, Callable
 
 import pygly2
-from pygly2.composition.composition_transform import strip_derivatization
+
 from pygly2.utils import pickle, classproperty, make_struct
-from pygly2.structure import Monosaccharide
-from pygly2.io.nomenclature import identity
+from pygly2.io.nomenclature.identity import naive_name_monosaccharide
 from pygly2.algorithms import subtree_search
 
 logger = logging.getLogger(__name__)
@@ -475,51 +474,6 @@ def _query_composition(prefix=None, **kwargs):
     col_name = prefix + "composition"
     composition_list = ["{} LIKE '%{}:{}%'".format(col_name, name, count) for name, count in kwargs.items()]
     return ' AND '.join(composition_list)
-
-
-def naive_name_monosaccharide(monosaccharide):
-    '''
-    Generate a generic name for `monosaccharide`, based loosely on IUPAC
-    naming schema without including information about linkage.
-
-    The tendency for monosaccharides of superclass > 7 to have special names,
-    which will be used preferentially if possible.
-
-    Parameters
-    ----------
-    monosaccharide: Monosaccharide
-
-    Returns
-    -------
-    str:
-        A simple name based on `SuperClass`, modifications, and substituents.
-
-    See Also
-    --------
-    :func:`pygly2.io.nomenclature.identity.identify`
-
-    '''
-    try:
-        c = monosaccharide.clone()
-        if not isinstance(c, Monosaccharide):
-            return None
-        strip_derivatization(c)
-        try:
-            if monosaccharide.superclass.value > 6:
-                return identity.identify(c, tolerance=1)
-        except:
-            pass
-        c.anomer = None
-        return identity.identify(c)
-    except identity.IdentifyException:
-        try:
-            c.stem = None
-            c.configuration = None
-            return identity.identify(c)
-        except identity.IdentifyException:
-            return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
-                   c.superclass.name.title() + ''.join([''.join(map(str.title, subst.name.split("_")))[:3]
-                                                        for p, subst in c.substituents()])
 
 
 def is_n_glycan(record):

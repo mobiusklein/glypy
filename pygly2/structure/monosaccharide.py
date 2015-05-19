@@ -1,6 +1,5 @@
 import logging
 from uuid import uuid4
-from collections import defaultdict
 from itertools import chain, izip_longest
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
@@ -360,7 +359,10 @@ class Monosaccharide(SaccharideBase):
         for k, v in self.modifications.items():
             if isinstance(v, ReducedEnd):
                 continue
-            modifications[k] = Modification[v]
+            try:
+                modifications[k] = v.clone()
+            except:
+                modifications[k] = Modification[v]
 
         monosaccharide = Monosaccharide(
             superclass=self.superclass,

@@ -25,6 +25,32 @@ def link_ids_splitter(fragment, link_ids, kind):
         node_id in pairings if ion_type[0] != ""}
 
 
+latex_symbol_map = {
+    "a": r"\alpha",
+    "b": r"\beta",
+    "c": r"\gamma",
+    "d": r"\delta",
+    "e": r"\epsilon",
+    "f": r"\zeta",
+    "g": r"\eta",
+    "h": r"\iota",
+    "i": r"\kappa",
+    "j": r"\lambda",
+    "k": r"\mu",
+    "l": r"\nu",
+    "m": r"\xi",
+    "n": r"\varsigma",
+    "o": r"\pi",
+    "p": r"\rho",
+    "q": r"\sigma",
+    "r": r"\tau",
+    "s": r"\upsilon",
+    "t": r"\phi",
+    "u": r"\psi",
+    "v": r"\omega"
+}
+
+
 class Fragment(object):
     '''
     A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
@@ -97,6 +123,19 @@ class Fragment(object):
         |bool|
         """
         return set(self.kind) in set("ABC")
+
+    def is_internal(self):
+        return not (self.is_reducing() or self.is_non_reducing())
+
+    @property
+    def fname(self):
+        buff = []
+        for c in self.name:
+            if c in latex_symbol_map:
+                buff.append("${}$".format(latex_symbol_map[c]))
+            else:
+                buff.append(c)
+        return ''.join(buff)
 
     def __getstate__(self):  # pragma: no cover
         d = {}

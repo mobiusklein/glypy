@@ -13,11 +13,9 @@
             <tr>
                 <td class="matched-ion-names">
                     {% for ion in ion_group.list %}
-                        {% if loop.index > 1 %}
-                            
-                        {% endif %}
-                        <span class="labeled-data match-key {{ion.match_key|replace(',', '-')}} label label-primary">
-                            {{ion.match_key|replace(":", "")}}
+                        {% set match_key = ion.match_key|replace(":", "") %}
+                        <span class="labeled-data match-key label label-primary" data-target='{{match_key}}'>
+                            {{match_key|greek_fragment_name}}
                         </span>
                     {% endfor %}
                 </td>

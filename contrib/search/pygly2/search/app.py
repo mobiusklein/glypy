@@ -11,12 +11,12 @@ try:
 except:
     pass
 from pygly2.algorithms import database
-from pygly2.utils import pickle
+from pygly2.utils import identity
 
 from .matching import (find_matches, DEFAULT_MS2_MATCH_TOLERANCE,
                        DEFAULT_MS1_MATCH_TOLERANCE, MassShift,
                        NoShift, collect_matched_scans, ResultsRecord,
-                       ResultsDatabase)
+                       ResultsDatabase, thresholding_strategy_map)
 from .spectra import bupid_topdown_deconvoluter, spectrum_model
 from .report import render
 
@@ -25,7 +25,9 @@ def main(structure_database, observed_data,
          ms1_match_tolerance=DEFAULT_MS1_MATCH_TOLERANCE,
          ms2_match_tolerance=DEFAULT_MS2_MATCH_TOLERANCE,
          shifts=None,
-         ion_types="ABCXYZ", settings=None):
+         ion_types="ABCXYZ",
+         thresholding_strategy=identity,
+         settings=None):
     if settings is None:
         settings = {}
     if shifts is None:
@@ -60,7 +62,8 @@ def main(structure_database, observed_data,
                                                  shifts=shifts,
                                                  ms1_match_tolerance=ms1_match_tolerance,
                                                  ms2_match_tolerance=ms2_match_tolerance,
-                                                 ion_types=ion_types)
+                                                 ion_types=ion_types,
+                                                 thresholding_strategy=thresholding_strategy)
         matches_db.load_data([results], set_id=False)
         matches_db.bind(results)
         spectral_match_db.load_data(spectral_matches)
@@ -91,6 +94,8 @@ app.add_argument("-i", "--ion-types", action="append", default=[],
                  are considered as a comma separated list. Defaults to A,B,C,X,Y,Z.')
 app.add_argument("-m", "--mass-shift", action='append', nargs=2, default=[])
 app.add_argument("-o", "--output", default=None)
+app.add_argument("-f", "--thresholding-strategy", choices=thresholding_strategy_map.keys(), default="percent_of_max", help='Controls the peaks considered to\
+    control the number of noise peaks matched.')
 
 
 def taskmain():
@@ -115,7 +120,9 @@ def taskmain():
                    shifts=args.mass_shift,
                    ms1_match_tolerance=args.ms1_tolerance,
                    ms2_match_tolerance=args.ms2_tolerance,
-                   ion_types=args.ion_types, settings=args.__dict__)
+                   ion_types=args.ion_types,
+                   thresholding_strategy=thresholding_strategy_map[args.thresholding_strategy],
+                   settings=args.__dict__)
     matches, experimental_statistics, scans_matched, scans_not_matched = results
     packed_results = {
         "matches": matches.from_sql(
