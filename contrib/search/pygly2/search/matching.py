@@ -20,7 +20,7 @@ def get_intact_mass(record):
         return record.mass()
 
 
-def get_score(record):
+def get_tandem_score(record):
     try:
         return record.score
     except:
@@ -30,39 +30,55 @@ def get_score(record):
             return 0.0
 
 
-def get_match_count(record):
+def get_tandem_match_count(record):
     try:
         return len(record.matches)
     except:
         return 0
 
 
-def get_search_space_size(record):
+def get_tandem_search_space_size(record):
     try:
         return len(record.fragments)
     except:
         return -1
 
 
-def get_scan_count(record):
+def get_tandem_scan_count(record):
     try:
         return len(record.scan_ids)
     except:
         return 0
 
 
-def get_charge_count(record):
+def get_tandem_charge_count(record):
     try:
         return len(record.charge_states)
     except:
         return 0
 
 
-@database.column_data("score", "FLOAT", get_score)
-@database.column_data("match_count", "FLOAT", get_match_count)
-@database.column_data("scan_count", "FLOAT", get_scan_count)
-@database.column_data("charge_count", "FLOAT", get_charge_count)
-@database.column_data("search_space_size", "INTEGER", get_search_space_size)
+def get_precursor_match_count(record):
+    try:
+        return sum(len(group.members) for adduct, group in record.precursor_matches.items())
+    except:
+        return 0
+
+
+def get_precursor_scan_count(record):
+    try:
+        return len(record.precursor_scans_searched)
+    except:
+        return 0
+
+
+@database.column_data("precursor_scan_count", "INTEGER", get_precursor_scan_count)
+@database.column_data("precursor_match_count", "INTEGER", get_precursor_match_count)
+@database.column_data("tandem_score", "FLOAT", get_tandem_score)
+@database.column_data("tandem_match_count", "INTEGER", get_tandem_match_count)
+@database.column_data("tandem_scan_count", "INTEGER", get_tandem_scan_count)
+@database.column_data("tandem_charge_count", "INTEGER", get_tandem_charge_count)
+@database.column_data("tandem_search_space_size", "INTEGER", get_tandem_search_space_size)
 class ResultsRecord(database.GlycanRecord):
 
     def __init__(self, *args, **kwargs):
@@ -80,13 +96,16 @@ class ResultsRecord(database.GlycanRecord):
             except:
                 pass
         instance.intact_mass = get_intact_mass(record)
-        instance.score = get_score(record)
+        instance.score = get_tandem_score(record)
         return instance
 
-    match_count = property(get_match_count)
-    search_space_size = property(get_search_space_size)
-    scan_count = property(get_scan_count)
-    charge_count = property(get_charge_count)
+    tandem_match_count = property(get_tandem_match_count)
+    tandem_search_space_size = property(get_tandem_search_space_size)
+    tandem_scan_count = property(get_tandem_scan_count)
+    tandem_charge_count = property(get_tandem_charge_count)
+
+    precursor_scan_count = property(get_precursor_scan_count)
+    precursor_match_count = property(get_precursor_match_count)
 
 
 ResultsDatabase = partial(database.RecordDatabase, record_type=ResultsRecord)
@@ -238,7 +257,10 @@ def find_matches(precursor, msms_db, shifts=None,
 
     precursor.scan_density = scan_density(precursor)
     precursor.matches = collect_matches(chain.from_iterable(results))
-    precursor.score = simple_score(precursor)
+
+    precursor.simple_score = simple_score(precursor)
+    precursor.score = score_towards_mean_mass(precursor)
+
     return precursor, spectrum_matches
 
 
@@ -316,6 +338,30 @@ def simple_score(record):
     total_mass = record.mass()
     for fragment in record.fragments:
         fragment.score = fragment.mass / total_mass if fragment.mass > 100.0 else 0
+    total_score = sum(fragment.score for fragment in record.fragments)
+
+    for fragment in record.fragments:
+        fragment.score /= total_score
+
+    fmap = {f.name: f for f in record.fragments}
+
+    score = 0
+    observed = set()
+    for match in record.matches:
+        key = strip_shift_label(match.match_key)
+        if key in observed:
+            continue
+        observed.add(key)
+        score += fmap[key].score
+    return score
+
+
+def score_towards_mean_mass(record):
+    total_mass = record.mass()
+    half_mass = total_mass / 2.
+    for fragment in record.fragments:
+        fragment.score = 1 - (abs(fragment.mass - half_mass) / total_mass) if fragment.mass > 100.0 else 0
+
     total_score = sum(fragment.score for fragment in record.fragments)
 
     for fragment in record.fragments:

@@ -240,6 +240,9 @@ class Glycan(SaccharideBase):
         if "_root" in state:
             self.root = self._root
 
+    def __root__(self):
+        return self.root
+
     def get(self, ix):
         for node in self:
             if node.id == ix:

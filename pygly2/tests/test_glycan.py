@@ -4,6 +4,7 @@ from common import load, glycoct, glycan, multimap, pickle, named_structures, mo
 Glycan = glycan.Glycan
 Fragment = glycan.Fragment
 
+
 class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 

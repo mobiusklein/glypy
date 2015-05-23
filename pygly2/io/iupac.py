@@ -26,8 +26,42 @@ anomer_map_to = invert_dict(anomer_map_from)
 
 
 Stem = constants.Stem
+Configuration = constants.Configuration
 Modification = constants.Modification
 SuperClass = constants.SuperClass
+
+
+def extract_modifications(modifications, base_type):
+    buff = []
+    template = '{position}-{name}'
+    pos_mod_pairs = list(modifications.items())
+    pos, mods = map(list, zip(*pos_mod_pairs))
+    if "Neu" in base_type or "Kd" in base_type:
+        for mod in [Modification.d, Modification.keto, Modification.a]:
+            pop_ix = mods.index(mod)
+            pos.pop(pop_ix)
+            mods.pop(pop_ix)
+    elif "Fuc" in base_type:
+        for mod in [Modification.d]:
+            pop_ix = mods.index(mod)
+            pos.pop(pop_ix)
+            mods.pop(pop_ix)
+
+    pos_mod_pairs = zip(pos, mods)
+    for pos, mod in pos_mod_pairs:
+        buff.append(template.format(position=pos, name=mod.name))
+    return ','.join(buff)
+
+
+def parse_modifications(modification_string):
+    buff = modification_string.split(",")
+    pairs = []
+    for token in buff:
+        if token == '':
+            continue
+        pos, mod = token.split("-")
+        pairs.append((int(pos), Modification[mod]))
+    return pairs
 
 
 def monosaccharide_to_iupac(residue):
@@ -38,9 +72,7 @@ def monosaccharide_to_iupac(residue):
     base_type = resolve_special_base_type(residue)
     if base_type is None:
         base_type = residue.stem[0].name.title()
-    if Modification.d in residue.modifications.values() and\
-       ("Neu" not in base_type) and ("Kd" not in base_type):
-        modification = 'd'
+    modification = extract_modifications(residue.modifications, base_type)
     ring_type = residue.ring_type.name[0]
     substituent = resolve_substituent(residue)
     return template.format(
@@ -110,12 +142,20 @@ def get_relevant_substituents(residue):
 def resolve_special_base_type(residue):
     if residue.superclass == SuperClass.non:
         if residue.stem == (Stem.gro, Stem.gal):
-            substituents = [sub.name for p, sub in residue.substituents()]
+            if len(residue.substituent_links) == 0:
+                return "Kdn"
+            positions, substituents = zip(*[(p, sub.name) for p, sub in residue.substituents()])
             if 'n_acetyl' in substituents:
-                return "NeuAc"
+                ix = substituents.index("n_acetyl")
+                return "Neu{}Ac".format(positions[ix])
             elif 'n_glycolyl' in substituents:
-                return "NeuGc"
+                ix = substituents.index("n_glycolyl")
+                return "Neu{}Gc".format(positions[ix])
             return "Neu"
+    if residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
+        if Modification.d in residue.modifications.values():
+            return "Fuc"
+
     return None
 
 
@@ -191,7 +231,7 @@ def to_iupac(structure):
 
 monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
                                        (?P<configuration>[LD?])-
-                                       (?P<modification>[a-z0-9_]*)
+                                       (?P<modification>[a-z0-9_\-,]*)
                                        (?P<base_type>[^-]+?)
                                        (?P<ring_type>[pfo?])
                                        (?P<substituent>[^-]*)
@@ -207,7 +247,9 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     base_type = match_dict["base_type"]
     configuration = match_dict["configuration"].lower()
     ring_type = match_dict['ring_type']
+
     modification = match_dict['modification']
+
     linkage = [d for d in match_dict.get('linkage') or "" if d.isdigit() or d == "?"]
 
     residue = named_structures.monosaccharides[base_type]
@@ -225,8 +267,8 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     else:
         residue.ring_end = residue.ring_start = None
 
-    if modification != "":
-        residue.add_modification(modification, 3)
+    for pos, mod in parse_modifications(modification):
+        residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
         residue.add_substituent(substituent, position)
 

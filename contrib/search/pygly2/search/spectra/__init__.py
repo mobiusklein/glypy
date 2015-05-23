@@ -61,7 +61,7 @@ class DeconIOBase(object):
         db = MSMSSqlDB(file_path)
         if (exists and overwrite) or not exists:
             decon_io_logger.debug("Initializing database")
-            db.init_schema()
+            db.apply_schema()
             db.load_data(self.data.values())
             db.apply_indices()
         return db

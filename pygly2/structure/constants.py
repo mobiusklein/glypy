@@ -130,21 +130,21 @@ class Modification(Enum):
 
     Is an |Enum|
     '''
-    #: Alditol
-    d = 1
-    #: Acidic
-    keto = 2
     #: Deoxygenated
-    en = 3
+    d = 1
     #: Ketone
-    a = 4
+    keto = 2
     #: DoubleBond
+    en = 3
+    #: Acidic
+    a = 4
+    #: Alditol
     aldi = 5
-    #: Geminal
+    #: SP2
     sp2 = 6
     #: SP
     sp = 7
-    #: SP2
+    #: Geminal
     geminal = 8
 
 #: alias of `aldi`

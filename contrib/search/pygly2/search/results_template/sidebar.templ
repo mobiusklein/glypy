@@ -1,0 +1,19 @@
+<div class='sidebar'>
+    <h4>Matches</h4>
+    <table class='table table-compact header'>
+        <tr>
+            <th>Structure ID</th>
+            <th>Score</th>
+        </tr>
+    </table>
+    <div class='structure-list'>
+        <table class='table table-striped table-compact structure-list'>
+        {% for structure in database | all_matches %}
+            <tr>
+                <td data-target='{{structure.id}}'><a href="#entry-{{structure.id}}">{{structure.id}}</td>
+                <td>{{structure.score | limit_sigfig}}</td>
+            </tr>
+        {% endfor %}
+        </table>   
+    </div>
+</div>

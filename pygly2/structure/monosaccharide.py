@@ -1244,6 +1244,7 @@ class Monosaccharide(SaccharideBase):
 
 
 class ReducedEnd(object):
+    node_type = object()
     """Represents the composition shift and conformation change created
     by reducing a |Monosaccharide|.
 

@@ -14,6 +14,7 @@ Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
 Substituent = substituent.Substituent
 Link = link.Link
+AmbiguousLink = link.AmbiguousLink
 
 START = "!START"
 RES = "RES"
@@ -79,18 +80,25 @@ def parse_link(line):
     id = link_dict['doc_index']
     parent_residue_index = link_dict['parent_residue_index']
     child_residue_index = link_dict['child_residue_index']
-    if "|" in link_dict["parent_attachment_position"]:
-        warnings.warn("%s has ambiguity, using only the first option" % link_dict["parent_attachment_position"])
-    parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
-    parent_attachment_position = int(link_dict["parent_attachment_position"].split("|")[0])
 
-    if "|" in link_dict["child_attachment_position"]:
-        warnings.warn("%s has ambiguity, using only the first option" % link_dict["child_attachment_position"])
+    parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
+    parent_attachment_position = map(int, link_dict["parent_attachment_position"].split("|"))
 
     child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
-    child_attachment_position = int(link_dict["child_attachment_position"].split("|")[0])
+    child_attachment_position = map(int, link_dict["child_attachment_position"].split("|"))
     return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
             child_residue_index, child_atom_replaced, child_attachment_position)
+
+
+def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
+    if len(parent_position) > 1 or len(parent_position) > 1:
+        AmbiguousLink(parent, child,
+                      parent_position=parent_position, child_position=parent_position,
+                      parent_loss=parent_loss, child_loss=child_loss, id=id)
+    else:
+        Link(parent, child, parent_position=parent_position[0],
+             child_position=child_position[0],
+             parent_loss=parent_loss, child_loss=child_loss)
 
 
 class StructurePrecisionEnum(enum.Enum):
@@ -148,24 +156,24 @@ class RepeatRecord(object):
             child_graph = graph[i]
             parent_node = parent_graph.get(parent_residue_index)
             child_node = child_graph.get(child_residue_index)
-            Link(parent_node, child_node, parent_position=parent_attachment_position,
-                 child_position=child_attachment_position,
-                 parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)
+            form_link(parent_node, child_node, parent_position=parent_attachment_position,
+                      child_position=child_attachment_position,
+                      parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)
         self.graph = graph
 
     def handle_incoming_link(self, parent, child_index, parent_position, parent_loss, child_position, child_loss):
         sub_unit_indices = sorted(self.graph.keys())
         child_graph = self.graph[sub_unit_indices[0]]
         child = Glycan(child_graph, index_method=None).get(int(self.external_linkage['child_residue_index']))
-        Link(parent, child, parent_position=parent_position, child_position=child_position,
-             parent_loss=parent_loss, child_loss=child_loss)
+        form_link(parent, child, parent_position=parent_position, child_position=child_position,
+                  parent_loss=parent_loss, child_loss=child_loss)
 
     def handle_outgoing_link(self, parent_index, child, parent_position, parent_loss, child_position, child_loss):
         sub_unit_indices = sorted(self.graph.keys())
         parent_graph = self.graph[sub_unit_indices[-1]]
         parent = Glycan(parent_graph, index_method=None).get(int(self.external_linkage['parent_residue_index']))
-        Link(parent, child, parent_position=parent_position, child_position=child_position,
-             parent_loss=parent_loss, child_loss=child_loss)
+        form_link(parent, child, parent_position=parent_position, child_position=child_position,
+                  parent_loss=parent_loss, child_loss=child_loss)
 
     def prepare_glycan(self):
         glycan = self.graph[1]
@@ -356,7 +364,7 @@ class GlycoCT(object):
                                    child_attachment_position, child_atom_replaced))
             return
 
-        Link(
+        form_link(
             parent, child,
             parent_position=parent_attachment_position, child_position=child_attachment_position,
             parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)

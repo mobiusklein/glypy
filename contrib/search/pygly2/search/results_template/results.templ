@@ -5,20 +5,30 @@
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cosmo/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script>
-    </script>
     {% include "style.templ" %}
     {% include "scripts.templ" %}
 </head>
 <body class='container'>
 {% include "header.templ" %}
 {% include "settings.templ" %}
-{% include "experiment_statistics.templ" %}
+{% include "experiment-statistics.templ" %}
 
 <h2>Matching Results</h2>
-{% for match in matches | sort(attribute='intact_mass')%}
+{% include "sidebar.templ" %}
+{% set last_mass=0 %}
+{% if matches is undefined %}
+    {% set matches = database | all_matches %}
+{% endif %}
+{% for match in matches %}
+    {% if (match.intact_mass | limit_sigfig) != last_mass %}
+        <div class='new-mass-group'></div>
+    {% endif %}
+    {% set last_mass= match.intact_mass | limit_sigfig %}
+
     {% include "structure-match-entry.templ" %}
+
 {% endfor %}
 {% include "footer.templ" %}
+{% include "plot-modal.templ" %}
 </body>
 </html>

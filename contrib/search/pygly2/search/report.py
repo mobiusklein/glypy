@@ -32,6 +32,10 @@ def collect_fragments(record):
     return matches.keys()
 
 
+def fetch_all_matches(db):
+    return db.from_sql(db.execute("SELECT * FROM {table_name} WHERE (tandem_scan_count + precursor_scan_count) > 0 ORDER BY mass ASC"))
+
+
 def strip_derivatize_glycoct(record):
     s = record.structure.clone()
     composition_transform.strip_derivatization(s)
@@ -106,7 +110,7 @@ def greek_fragment_names(fragment_name):
 
 
 def spectrum_plot(precursor_spectrum):
-    fig = spectrum_model.plot_observed_spectra(precursor_spectrum)
+    fig = spectrum_model.plot_observed_spectra(precursor_spectrum, annotation_source=None)
     img_buffer = StringIO()
     fig.savefig(img_buffer, format='svg')
     plt.close(fig)
@@ -137,6 +141,7 @@ def create_environment():
     loader = PackageLoader("pygly2", "search/results_template")
     env = Environment(loader=loader)
     env.filters["collect_fragments"] = collect_fragments
+    env.filters["all_matches"] = fetch_all_matches
     env.filters["strip_derivatize"] = strip_derivatize_glycoct
     env.filters["scientific_notation"] = scientific_notation
     env.filters["cfg_plot"] = cfg_plot
@@ -151,9 +156,9 @@ def create_environment():
     return template
 
 
-def render(matches, experimental_statistics=None, settings=None, **kwargs):
+def render(database, experimental_statistics=None, settings=None, live=False, **kwargs):
     template = create_environment()
     return template.render(
-        matches=matches,
+        database=database,
         experimental_statistics=experimental_statistics,
-        settings=settings, **kwargs)
+        settings=settings, live=live, **kwargs)

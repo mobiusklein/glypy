@@ -18,8 +18,13 @@ except:  # pragma: no cover
         from StringIO import StringIO
     except:
         from io import StringIO
-from .base import opener, make_counter, invert_dict, identity, nullop, chrinc, make_struct, classproperty, cyclewarning
 
-__all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop']
+from .base import (opener, make_counter, invert_dict, identity,
+                   nullop, chrinc, make_struct, classproperty, cyclewarning,
+                   root, groupby)
+
+__all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop',
+           "chrinc", "make_struct", "classproperty", "cyclewarning",
+           "root", "groupby"]
 
 pkg_resources.declare_namespace('pygly2.utils')

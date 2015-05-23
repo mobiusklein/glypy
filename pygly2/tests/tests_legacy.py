@@ -263,6 +263,7 @@ class GlycoCTParserTests(unittest.TestCase):
         structure = load("repeating_glycan")
         self.assertAlmostEqual(structure.mass(), 678.18547284898)
 
+
 class NamedStructureTests(unittest.TestCase):
 
     def test_accessors(self):
@@ -272,6 +273,8 @@ class NamedStructureTests(unittest.TestCase):
                             named_structures.monosaccharides.Hex)
         self.assertEqual(named_structures.glycans["N-Linked Core"],
                          named_structures.glycans["N-Linked Core"])
+        self.assertEqual(named_structures.motifs["N-Glycan hybrid 1"],
+                         named_structures.motifs["N-Glycan hybrid 1"])
 
 
 class StructureCompositionTests(unittest.TestCase):

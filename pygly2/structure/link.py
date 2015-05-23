@@ -144,7 +144,7 @@ class Link(object):
             parent_loss_str = 'd'
 
         if self.child_loss == Composition(
-                H=1) and isinstance(self.child, SubstituentBase):
+                H=1) and (self.child.node_type is SubstituentBase.node_type):
             child_loss_str = "n"
             if self.parent_loss == Composition(O=1, H=1):
                 parent_loss_str = "d"
@@ -199,8 +199,10 @@ class Link(object):
         -------
         bool
         '''
-        return isinstance(self.child, SubstituentBase) and isinstance(
-            self.parent, SaccharideBase)
+        # return isinstance(self.child, SubstituentBase) and isinstance(
+        #     self.parent, SaccharideBase)
+        return (self.child.node_type is SubstituentBase.node_type) and\
+            (self.parent.node_type is SaccharideBase.node_type)
 
     def is_parent(self, mol):
         '''
@@ -478,3 +480,25 @@ class AmbiguousLink(Link):
             self.parent_loss, self.child_loss, self.id if prop_id else None,
             attach)
         return link
+
+    def to_glycoct(self, ix, parent_ix, child_ix):
+        '''
+        Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
+        the textual indices of its parent and child lines.
+
+        See also
+        --------
+        :meth:`pygly2.structure.monosaccharide.Monosaccharide.to_glycoct`
+        :meth:`pygly2.structure.glycan.Glycan.to_glycoct`
+        '''
+
+        parent_loss_str, child_loss_str = self._glycoct_sigils()
+        rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
+        return rep.format(
+            ix=ix,
+            parent_ix=parent_ix,
+            parent_loss=parent_loss_str,
+            parent_position='|'.join(map(str, self.parent_position_choices)),
+            child_ix=child_ix,
+            child_loss=child_loss_str,
+            child_position='|'.join(map(str, self.child_position_choices)))

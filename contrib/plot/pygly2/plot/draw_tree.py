@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import matplotlib.pyplot as plt
 from pygly2 import monosaccharides
+from pygly2.utils import root
 from pygly2.structure import Glycan
 from pygly2.io.nomenclature import identity
 from pygly2.algorithms.database import GlycanRecordBase
@@ -570,19 +571,10 @@ class DrawTreeNode(object):
                     ax.text((cx - scale) - 0.32, (cy + scale) + .035, annotation_name)
 
 
-def get_root(structure):
-    root = structure
-    if isinstance(structure, Glycan):
-        root = structure.root
-    elif isinstance(structure, GlycanRecordBase):
-        root = structure.structure.root
-    return root
-
-
 class DrawTree(object):
     def __init__(self, structure, figure=None, ax=None, **kwargs):
         self.structure = structure
-        self.root = DrawTreeNode(get_root(structure))
+        self.root = DrawTreeNode(root(structure))
         self.figure = figure
         self.axes = ax
         self.layout = kwargs.get("layout", buchheim)
@@ -624,8 +616,8 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
     #     x_max = ax.get_xlim()[1]
     #     y_max = ax.get_ylim()[1]
 
-    root = get_root(tree)
-    dtree = DrawTreeNode(root)
+    tree_root = root(tree)
+    dtree = DrawTreeNode(tree_root)
     buchheim(dtree)
     dtree.fix_special_cases()
     dtree.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)))

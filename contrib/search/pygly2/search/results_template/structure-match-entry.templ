@@ -17,9 +17,21 @@
             {% endfor %}
             </ul>
         </div>
+        {% if match.precursor_matches %}
+            {% include "precursor-statistics.templ" %}
+        {% endif %}
         <div>
-            <span class='labeled-data'><b>Scan Range (Density): </b>
-            <small class='scan-numbers'>{{match.scan_ids | sort | join(", ")}}</small>
+            <span class='labeled-data'><b>Tandem Scan Range (Density): </b>
+            <small class='scan-numbers'>
+                {% for scan_id in match.scan_ids | sort %}
+                    <span>
+                        <span>{{scan_id}}</span>
+                    {% if not loop.last %}
+                        ,&nbsp;
+                    {% endif %}
+                    </span>
+                {% endfor %}
+            </small>
              ({{match.scan_density | scientific_notation }})</span>
             <span class='labeled-data'><b>Charge States: </b> {{match.charge_states | unique | join(", ") }}</span>
         </div>

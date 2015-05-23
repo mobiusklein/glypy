@@ -1,7 +1,7 @@
 import logging
 import itertools
 from .similarity import monosaccharide_similarity
-from ..utils import make_struct
+from ..utils import make_struct, root
 from ..structure import Glycan, Monosaccharide
 logger = logging.getLogger(__name__)
 
@@ -125,8 +125,9 @@ def subtree_of(subtree, tree, exact=False, tolerance=0):
         comparator = exact_ordering_inclusion
     else:
         comparator = topological_inclusion
+    tree_root = root(subtree)
     for node in tree:
-        if comparator(subtree.root, node):
+        if comparator(tree_root, node):
             return node.id
     return None
 
@@ -148,8 +149,7 @@ def edit_distance(seq_a, seq_b, exact=False):  # pragma: no cover
 
 
 def to_nested_sequence(node=None, p=None):  # pragma: no cover
-    if isinstance(node, Glycan):
-        node = node.root
+    node = root(node)
     return [node, map(lambda x: to_nested_sequence(*x[::-1]), list(node.children()))]
 
 

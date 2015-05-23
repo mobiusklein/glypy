@@ -259,3 +259,6 @@ child_breaks={} crossring_cleavages={}>\n{}".format(
             self.include_nodes, self.link_ids, self.parent_breaks,
             self.child_breaks, self.crossring_cleavages, self.tree)
         return rep
+
+    def __root__(self):
+        return self.tree.root

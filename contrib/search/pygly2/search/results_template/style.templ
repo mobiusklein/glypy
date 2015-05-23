@@ -7,6 +7,26 @@ table *{
     z-index: 1;
 }
 
+.table.header {
+    margin-bottom: 0px !important;
+}
+
+.sidebar{
+    position: fixed;
+    top: 20px;
+    left: 50px;
+    height: 80%;
+    width: 200px;
+    border: 1px solid lightgrey;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.structure-list{
+    height: 89%;
+    overflow-y: scroll;
+}
+
 svg {
     margin: -100px;
     z-index: -1 !important;
@@ -16,6 +36,11 @@ svg #patch_1 {
     display: none;
 }
 
+.spectrum-plot{
+    width: 950px;
+    padding-left: 80px;
+}
+
 .monosaccharide{
     text-align: center;
     width: 80px;
@@ -23,8 +48,31 @@ svg #patch_1 {
 
 .scan-numbers{
     max-width: 500px;
+    position: relative;
     display: inline-block;
     vertical-align: text-top;
+    max-height: 200px;
+    padding: 2px;
+    overflow-y: auto;
+}
+
+.scan-numbers span span{
+    {% if live %}
+    text-decoration: underline;
+    cursor: pointer;
+    {% endif %}
+}
+
+.scan-numbers span{
+    float: left;
+}
+
+.precursor-groups-table tr :not(:first-child){
+    text-align: right;
+}
+
+.new-mass-group{
+    border-top: 2px solid #2780e3;
 }
 
 .structure-match{

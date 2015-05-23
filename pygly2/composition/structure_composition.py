@@ -189,7 +189,11 @@ _substituent_compositions = {
     "n_methyl": Composition("NHCH3H"),
     "n_succinate": Composition("NCOCH2CH2COOHH"),
     "n_trifluoroacetyl": Composition("NHCOCF3H"),
-    "thio": Composition("SHH")
+    "thio": Composition("SHH"),
+    "(r)_pyruvate": Composition("CH2CCOOH"),
+    "(s)_pyruvate": Composition("CH2CCOOH"),
+    "(r)_lactate": Composition("CH3CHCO"),
+    "(s)_lactate": Composition("CH3CHCO")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

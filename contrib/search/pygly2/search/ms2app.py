@@ -84,7 +84,7 @@ def main(structure_database, observed_data,
     return matches_db, experimental_statistics, scans_matched, scans_not_matched
 
 
-app = argparse.ArgumentParser("pygly-ms2")
+app = argparse.ArgumentParser("glycan-ms2")
 app.add_argument("-s", "--structure-database", help='Path to the structure databse to search against', required=True)
 app.add_argument("-d", "--observed-data", help='Path to the observed ion data to search against', required=True)
 app.add_argument("-t1", "--ms1-tolerance", type=float, default=DEFAULT_MS1_MATCH_TOLERANCE, help='PPM match tolerance for MS1 Matching')
@@ -123,11 +123,9 @@ def taskmain():
                    ion_types=args.ion_types,
                    thresholding_strategy=thresholding_strategy_map[args.thresholding_strategy],
                    settings=args.__dict__)
-    matches, experimental_statistics, scans_matched, scans_not_matched = results
+    database, experimental_statistics, scans_matched, scans_not_matched = results
     packed_results = {
-        "matches": matches.from_sql(
-            matches.execute(
-                "SELECT * FROM {table_name} WHERE scan_count > 0 ORDER BY mass ASC")),
+        "database": database,
         "experimental_statistics": experimental_statistics,
         "settings": args.__dict__,
         "scans_matched": scans_matched,
@@ -145,9 +143,9 @@ def rerender(data_path, output_path=None):
         output_path = os.path.splitext(data_path)[0] + ".html"
     db = ResultsDatabase(data_path)
     metadata = db.get_metadata()
-    matches = db.from_sql(db.execute("SELECT * FROM {table_name} WHERE scan_count > 0 ORDER BY mass ASC"))
+    database = db
     with open(output_path, 'w') as outfile:
-        outfile.write(render(matches=matches, **metadata))
+        outfile.write(render(database=database, **metadata))
 
 
 def rerendermain():

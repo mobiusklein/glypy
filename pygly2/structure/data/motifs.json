@@ -1,0 +1,440 @@
+[
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dglc-HEX-1:5\n3b:b-dglc-HEX-1:5\nLIN\n1:1o(3+1)2d\n2:2o(3+1)3d\n",
+    "class": "Bacterial class",
+    "name": "Beta-glucan"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dglc-HEX-1:5\n3b:b-dglc-HEX-1:5\n4b:b-dglc-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3o(4+1)4d\n",
+    "class": "Plant class",
+    "name": "Cellulose like Glc(1-4)n"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dman-HEX-1:5\n3b:a-dman-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3o(2+1)4d\n4:4d(2+1)5n\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Mollu series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2b:a-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Gala series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5|6:a\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\n6b:b-dglc-HEX-1:5|6:a\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(4+1)4d\n4:4d(2+1)5n\n5:4o(3+1)6d\n",
+    "class": "Glyosaminoglycan",
+    "name": "Hyluronan"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5|6:a\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\n6b:b-dglc-HEX-1:5|6:a\n7s:sulfate\n8s:sulfate\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(4+1)4d\n4:4d(2+1)5n\n5:4o(3+1)6d\n6:4o(4+1)7n\n7:1o(4+1)8n\n",
+    "class": "Glyosaminoglycan",
+    "name": "Chondroitin 4S"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dido-HEX-1:5|6:a\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\n6b:b-dido-HEX-1:5|6:a\n7s:sulfate\n8s:sulfate\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(4+1)4d\n4:4d(2+1)5n\n5:4o(3+1)6d\n6:4o(4+1)7n\n7:1o(4+1)8n\n",
+    "class": "Glyosaminoglycan",
+    "name": "Dermatansulfate"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n",
+    "class": "Epitope",
+    "name": "LacDiNAc"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 5 fuzzy"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\n6b:b-dgal-HEX-1:5\n7s:sulfate\n8s:sulfate\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n5:4o(4+1)6d\n6:4o(6+1)7n\n7:1o(6+1)8n\n",
+    "class": "Glyosaminoglycan",
+    "name": "Keratansulfate"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:sulfate\n3s:n-acetyl\n4b:a-dido-HEX-1:5|6:a\n5s:sulfate\n6b:b-dglc-HEX-1:5\n7s:sulfate\n8s:n-acetyl\n9b:a-dido-HEX-1:5|6:a\n10s:sulfate\n11s:sulfate\nLIN\n1:1o(-1+-1)2n\n2:1d(2+1)3n\n3:1o(4+1)4d\n4:4o(2+-1)5n\n5:4o(4+1)6d\n6:6o(-1+-1)7n\n7:6d(2+1)8n\n8:6o(4+1)9d\n9:6o(6+1)10n\n10:1o(6+1)11n\n",
+    "class": "Glyosaminoglycan",
+    "name": "Heparin"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-1:5\n2s:amino\n3b:b-dglc-HEX-1:5\n4s:amino\n5b:b-dman-OCT-2:6|1:a|2:keto|3:d\n6b:x-HEP-x:x\n7b:x-HEP-x:x\n8b:x-HEP-x:x\n9b:x-HEP-x:x\n10b:x-dman-OCT-2:6|1:a|2:keto|3:d\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n4:3o(6+2)5d\n5:5o(-1+-1)6d\n6:6o(-1+-1)7d\n7:7o(-1+-1)8d\n8:7o(-1+-1)9d\n9:5o(-1+2)10d\n",
+    "class": "Bacterial class",
+    "name": "LPS core"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5s:(r)-lactate\n6b:b-dglc-HEX-1:5\n7s:n-acetyl\n8b:b-dglc-HEX-1:5\n9s:n-acetyl\n10s:(r)-lactate\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(3+1)5n\n5:3o(4+1)6d\n6:6d(2+1)7n\n7:6o(4+1)8d\n8:8d(2+1)9n\n9:8o(3+1)10n\n",
+    "class": "Bacterial class",
+    "name": "Peptidoglycan"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Neo-lacto series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:b-dgal-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3d(2+1)4n\n4:3o(3+1)5d\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Ganglio series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:b-dgal-HEX-1:5\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Globo series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:a-dgal-HEX-1:5\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Isoglobo series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:b-dgal-HEX-1:5\n4b:b-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3o(3+1)4d\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Muco series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dman-HEX-1:5\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\n6s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5d(2+1)6n\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Arthro series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:a-dgal-HEX-1:5\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\n6b:a-dglc-HEX-1:5\n7s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n5:4o(3+1)6d\n6:6d(2+1)7n\n",
+    "class": "Epitope",
+    "name": "Forssmann"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n5s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(3+2)4d\n4:4d(5+1)5n\n",
+    "class": "Epitope",
+    "name": "VIM"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dgal-HEX-1:5\n2b:a-lgal-HEX-1:5|6:d\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1o(2+1)2d\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "Epitope",
+    "name": "Blood group A"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dgal-HEX-1:5\n2b:a-lgal-HEX-1:5|6:d\n3b:b-dgal-HEX-1:5\nLIN\n1:1o(2+1)2d\n2:1o(3+1)3d\n",
+    "class": "Epitope",
+    "name": "Blood group B"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dgal-HEX-1:5\n2b:a-lgal-HEX-1:5|6:d\nLIN\n1:1o(2+1)2d\n",
+    "class": "Epitope",
+    "name": "Blood group H"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 6"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2b:b-dgal-HEX-1:5\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(3+1)5d\n",
+    "class": "Glycosphingolipid",
+    "name": "Glycosphingolipid Lacto series"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:a-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n",
+    "class": "Epitope",
+    "name": "Pk-Antigen"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:b-dgal-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\n6b:a-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(4+1)6d\n",
+    "class": "Epitope",
+    "name": "P1-Antigen"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:a-dgal-HEX-1:5\n4b:b-dgal-HEX-1:5\n5s:n-acetyl\nLIN\n1:1o(4+1)2d\n2:2o(4+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n",
+    "class": "Epitope",
+    "name": "P-Antigen"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dgal-HEX-1:5\n2b:b-dglc-HEX-1:5\n3s:n-acetyl\n4b:b-dgal-HEX-1:5\n5b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n6s:n-acetyl\n7b:b-dgal-HEX-1:5\n8s:n-acetyl\nLIN\n1:1o(3+1)2d\n2:2d(2+1)3n\n3:2o(4+1)4d\n4:4o(3+2)5d\n5:5d(5+1)6n\n6:4o(4+1)7d\n7:7d(2+1)8n\n",
+    "class": "Epitope",
+    "name": "SDA"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\n6b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(3+1)4d\n4:4d(2+1)5n\n5:4o(4+1)6d\n",
+    "class": "Epitope",
+    "name": "Polylactosamine"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n5s:n-acetyl\n6b:b-dgal-HEX-1:5\n7s:n-acetyl\n8b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n9s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(3+2)4d\n4:4d(5+1)5n\n5:3o(4+1)6d\n6:6d(2+1)7n\n7:1o(6+2)8d\n8:8d(5+1)9n\n",
+    "class": "Epitope",
+    "name": "CAD"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:a-lgal-HEX-1:5|6:d\n4b:b-dgal-HEX-1:5\n5b:a-lgal-HEX-1:5|6:d\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(4+1)4d\n4:4o(2+1)5d\n",
+    "class": "Epitope",
+    "name": "Lewis Y"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n5s:n-acetyl\n6b:a-lgal-HEX-1:5|6:d\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(3+2)4d\n4:4d(5+1)5n\n5:1o(4+1)6d\n",
+    "class": "Epitope",
+    "name": "Sialyl Lewis A"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:a-lgal-HEX-1:5|6:d\n4b:b-dgal-HEX-1:5\n5b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n6s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(4+1)4d\n4:4o(3+2)5d\n5:5d(5+1)6n\n",
+    "class": "Epitope",
+    "name": "Sialyl Lewis X"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n",
+    "class": "Epitope",
+    "name": "Lactosamine motif"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n",
+    "class": "Epitope",
+    "name": "Neo Lactosamine"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:a-lgal-HEX-1:5|6:d\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(4+1)4d\n",
+    "class": "Epitope",
+    "name": "Lewis A"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:a-lgal-HEX-1:5|6:d\n5b:a-lgal-HEX-1:5|6:d\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3o(2+1)4d\n4:1o(4+1)5d\n",
+    "class": "Epitope",
+    "name": "Lewis B"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(3+1)5d\n",
+    "class": "Epitope",
+    "name": "Lewis C"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2b:b-dgal-HEX-1:5\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dgal-HEX-1:5\n6b:a-lgal-HEX-1:5|6:d\nLIN\n1:1o(4+1)2d\n2:2o(3+1)3d\n3:3d(2+1)4n\n4:3o(3+1)5d\n5:5o(2+1)6d\n",
+    "class": "Epitope",
+    "name": "Lewis D"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:a-lgal-HEX-1:5|6:d\n4b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(4+1)4d\n",
+    "class": "Epitope",
+    "name": "Lewis X"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 5 fuzzy"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 6 Fuzzy"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 6 Fuzzy"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 7"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 7 fuzzy"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(6+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 7 fuzzy"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:amino\n3b:a-dman-HEX-1:5\n4b:a-dman-HEX-1:5\n5b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(6+1)4d\n4:4o(2+1)5d\n",
+    "class": "GPI",
+    "name": "GPI anchor core"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x|1:aldi\n2s:amino\n3b:a-dman-HEX-1:5\n4b:a-dman-HEX-1:5\n5b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(6+1)4d\n4:4o(2+1)5d\n",
+    "class": "GPI",
+    "name": "GPI anchor core"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2b:a-dgal-HEX-1:5\nLIN\n1:1o(3+1)2d\n",
+    "class": "Epitope",
+    "name": "Gal-alpha-1-3Gal epitope"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(6+1)4d\n4:4d(2+1)5n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 2 fuzzy 1"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(6+1)4d\n4:4d(2+1)5n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 2 fuzzy 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 3"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 3 fuzzy 1"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 3 fuzzy 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dglc-HEX-1:5\n6s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n4:1o(6+1)5d\n5:5d(2+1)6n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 4"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dglc-HEX-1:5\n6s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n4:1o(6+1)5d\n5:5d(2+1)6n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 4 fuzzy 1"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dglc-HEX-1:5\n6s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n4:1o(6+1)5d\n5:5d(2+1)6n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 4 fuzzy 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:a-dgal-HEX-1:5\n4s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:3d(2+1)4n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 5"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:b-dglc-HEX-1:5\n8s:n-acetyl\n9b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:6o(2|4+1)7d\n7:7d(2+1)8n\n8:5o(6+1)9d\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan hybrid 1"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:b-dglc-HEX-1:5\n8s:n-acetyl\n9b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:6o(2|4+1)7d\n7:7d(2+1)8n\n8:5o(6+1)9d\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan hybrid 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:b-dglc-HEX-1:5\n8s:n-acetyl\n9b:a-dman-HEX-1:5\n10b:b-dglc-HEX-1:5\n11s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:6o(2|4+1)7d\n7:7d(2+1)8n\n8:5o(6+1)9d\n9:9o(2|4+1)10d\n10:10d(2+1)11n\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan complex 1"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:b-dglc-HEX-1:5\n8s:n-acetyl\n9b:a-dman-HEX-1:5\n10b:b-dglc-HEX-1:5\n11s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:6o(2+1)7d\n7:7d(2+1)8n\n8:5o(6+1)9d\n9:9o(2+1)10d\n10:10d(2+1)11n\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan complex 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 1"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 1 fuzzy 1"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:x-dgal-HEX-x:x\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 1 fuzzy 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:a-dgal-HEX-1:5\n2s:n-acetyl\n3b:b-dgal-HEX-1:5\n4b:b-dglc-HEX-1:5\n5s:n-acetyl\nLIN\n1:1d(2+1)2n\n2:1o(3+1)3d\n3:1o(6+1)4d\n4:4d(2+1)5n\n",
+    "class": "O-Glycan",
+    "name": "O-Glycan core 2"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:5o(6+1)7d\n",
+    "class": "N-Glycan",
+    "name": "N-Glycan core basic 1"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:5o(6+1)7d\n",
+    "class": "N-Glycan",
+    "name": "N-Glycan core basic 2"
+  },
+  {
+    "category": "ambigious",
+    "glycoct": "RES\n1b:b-dglc-HEX-1:5\n2s:n-acetyl\n3b:b-dman-HEX-1:5\n4b:a-dman-HEX-1:5\n5b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3o(3+1)4d\n4:3o(6+1)5d\n",
+    "class": "N-Glycan",
+    "name": "N-Glycan truncated motif. First GlcpNAC cut off"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:a-dman-HEX-1:5\n8b:a-dman-HEX-1:5\n9b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:5o(6+1)7d\n7:7o(3+1)8d\n8:7o(6+1)9d\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan high mannose 1"
+  },
+  {
+    "category": "full",
+    "glycoct": "RES\n1b:x-dglc-HEX-x:x|1:aldi\n2s:n-acetyl\n3b:b-dglc-HEX-1:5\n4s:n-acetyl\n5b:b-dman-HEX-1:5\n6b:a-dman-HEX-1:5\n7b:a-dman-HEX-1:5\n8b:a-dman-HEX-1:5\n9b:a-dman-HEX-1:5\nLIN\n1:1d(2+1)2n\n2:1o(4+1)3d\n3:3d(2+1)4n\n4:3o(4+1)5d\n5:5o(3+1)6d\n6:5o(6+1)7d\n7:7o(3+1)8d\n8:7o(6+1)9d\n",
+    "class": "N-Glycan Subclass",
+    "name": "N-Glycan high mannose 2"
+  }
+]

@@ -1,5 +1,41 @@
 <script>
 
+{% if live %}
+    live = true;
+{% else %}
+    live = false;
+{% endif %}
+
+function followMatchLink(evt){
+    evt.preventDefault();
+    var handle = $(this).parent()
+    var id = handle.attr("data-target")
+    window.location.replace("\/" + id) 
+}
+
+function configureFollowMatchLink(){
+    $(".structure-list a").click(followMatchLink)
+}
+
+function getSpectrumPlot(){
+    var handle = $(this);
+    var scanId = handle.text().replace(/,|\s/g, '')
+    console.log("Plotting " + scanId)
+    $.get('/tandem_spectrum/' + scanId).success(function(plotSVG){
+        var plotContent = $(plotSVG)
+        plotContent.attr('class', 'spectrum-plot')
+        var modal = $('.modal');
+        modal.find(".modal-title").text("Tandem Spectrum for " + scanId);
+        modal.find(".modal-body").html(plotContent)
+        modal.modal('show')
+    })
+}
+
+function configureSpectrumPlot(){
+    $('.scan-numbers span').click(getSpectrumPlot)
+}
+
+
 function getEntryContainer(handle){
     var handle = $(handle === undefined ? (this) : handle)
     origin = handle
@@ -22,7 +58,7 @@ function getGlycanSVG(handle){
 }
 
 /**
- *   Set an
+ *   
  *    
  *   @param handle: - Element containing the complete name of the observed cleavage. Target to be given a :event:`hover` handle for.
  *   @param {jQuery} svgContainer - The container of the <svg></svg> tag that holds the glycan structure image.
@@ -111,6 +147,10 @@ $(function(){
             $this.html('<span class="frac-top">'+split[0]+'</span><span class="frac-bottom">'+split[1]+'</span>')
         }    
     });
+    if(live){
+        configureSpectrumPlot()
+        configureFollowMatchLink()
+    }
 })
 
 

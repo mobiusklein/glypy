@@ -2,7 +2,7 @@
     <h2>Settings</h2>
     {% for key, value in settings.items() %}
         <div class="settings-item">
-        {% if key == "mass_shift" %}
+        {% if key == "mass_shift" or key == "mass_shift_1" or key == "mass_shift_2" %}
             <span class='label label-default'>{{key | replace("_", " ") | title}}:</span>
             {% for shift in value %}
                 {% if shift.name != "" %}

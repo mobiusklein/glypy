@@ -2,6 +2,8 @@ import warnings
 import sys
 import gzip
 
+from collections import defaultdict
+
 
 def cyclewarning():
     '''
@@ -176,3 +178,31 @@ def classproperty(func):
         func = classmethod(func)
 
     return ClassPropertyDescriptor(func)
+
+
+def root(structure):
+    """The `root` protocol function.
+
+    Creates a generic method for obtaining the root of a structure representing
+    or containing a glycan graph with a single distinct root.
+
+    Parameters
+    ----------
+    structure : any
+        An object that implements the `root` protocol, containing
+        a tree structure somewhere inside it.
+
+    Returns
+    -------
+    Monosaccharide : The root of the |Glycan| tree
+    """
+    root = structure.__root__()
+    return root
+
+
+def groupby(ungrouped_list, key_fn=identity):
+    groups = defaultdict(list)
+    for item in ungrouped_list:
+        key_value = key_fn(item)
+        groups[key_value].append(item)
+    return groups

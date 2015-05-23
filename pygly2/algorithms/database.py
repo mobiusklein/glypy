@@ -11,6 +11,7 @@ from pygly2.io.nomenclature.identity import naive_name_monosaccharide
 from pygly2.algorithms import subtree_search
 
 logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 Taxon = make_struct("Taxon", ("tax_id", "name", 'entries'))
 Aglyca = make_struct("Aglyca", ("name", "reducing", 'entries'))
@@ -47,6 +48,21 @@ def _resolve_column_data_mro(cls):
         column_data = mapping.get(typ.__name__, "__column_data_map")
         meta_map.update(getattr(cls, column_data, {}))
     return meta_map
+
+
+def _extract_querymethods(cls):
+    methods = {}
+    for name, value in cls.__dict__.items():
+        if isinstance(value, QueryMethod):
+            methods[name] = value
+    return methods
+
+
+def _resolve_querymethods_mro(cls):
+    methods = {}
+    for typ in cls.__mro__[::-1]:
+        methods.update(_extract_querymethods(typ))
+    return methods
 
 
 def column_data(name, dtype, transform):
@@ -436,6 +452,9 @@ class GlycanRecordBase(object):
     def __ne__(self, other):
         return not self == other
 
+    def __root__(self):
+        return self.structure.root
+
 
 def extract_composition(record, max_size=120):
     '''
@@ -579,10 +598,6 @@ class GlycanRecord(GlycanRecordBase):
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
         return data
 
-    @querymethod
-    def test(self, *args, **kwargs):
-        print self, args, kwargs
-
 
 class GlycanRecordWithTaxon(GlycanRecord):
     __taxa_table_schema__ = '''
@@ -667,6 +682,25 @@ class RecordDatabase(object):
         self.connection = sqlite3.connect(connection_string)
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor
+
+        # Check to see if the record type matches what is already
+        # stored in the database.
+        try:
+            if record_type is None:
+                self.record_type = GlycanRecord
+            else:
+                self.record_type = record_type
+            rec = iter(self).next()
+            if not type(rec) == record_type:
+                if record_type is not None:
+                    logger.warn("Record class {0} is not the same as {1}. Using {0}".format(type(rec), record_type))
+                    print("Record class {0} is not the same as {1}. Using {0}".format(type(rec), record_type))
+                record_type = type(rec)
+        except (StopIteration, sqlite3.OperationalError):
+            # If record_type is None and no types were inferred, use GlycanRecord
+            if record_type is None:
+                record_type = GlycanRecord
+
         self.record_type = record_type
         self._id = 0
 
@@ -763,7 +797,7 @@ class RecordDatabase(object):
         record._bound_db = self
 
     def _patch_querymethods(self):
-        for name, value in self.record_type.__dict__.items():
+        for name, value in _resolve_querymethods_mro(self.record_type).items():
             if isinstance(value, QueryMethod):
                 setattr(self, name, value.bind(self))
 
@@ -805,18 +839,27 @@ class RecordDatabase(object):
         key_type = int
         if isinstance(keys, slice):
             key_type = slice
+        if isinstance(keys, (tuple, list, set)):
+            key_type = tuple
         else:
             keys = int(keys)
         if key_type is int:
             results = list(self.from_sql(
                 self.execute("SELECT * FROM {table_name} WHERE glycan_id = ?", (keys,))))
-        else:
+        elif key_type is slice:
             begin = keys.start or 1
             end = keys.stop or len(self)
 
             results = list(self.from_sql(
                 self.execute(
                     "SELECT * FROM {table_name} WHERE glycan_id BETWEEN ? AND ?", begin, end)))
+        elif key_type is tuple:
+            group = tuple(map(int, keys))
+            results = list(self.from_sql(
+                self.execute(
+                    "SELECT * FROM {table_name} WHERE glycan_id IN {}".format(
+                        group, table_name=self.record_type.table_name))))
+
         if len(results) == 0 and key_type is int:
             raise IndexError("No record found for %r" % keys)
         list(map(self.bind, results))
