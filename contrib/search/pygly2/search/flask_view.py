@@ -42,15 +42,38 @@ def plot_spectrum(spectrum_id):
 
 @app.route("/matches")
 def get_id_list():
-    return jsonify(matches=(map(dict, g.results_db.execute("select glycan_id, match_count, score from {table_name};"))))
+    return jsonify(matches=(map(dict, g.results_db.execute("select glycan_id from {table_name};"))))
 
 
-@app.route("/<int:structure_id>")
+@app.route("/mass_range/<lower>,<upper>")
+def mass_range(lower, upper):
+    try:
+        print "Begin ", lower, upper
+        results = g.results_db.from_sql(g.results_db.execute(
+            "SELECT * FROM {table_name} WHERE mass BETWEEN ? AND ?", map(float, (lower, upper))))
+        print results
+        print "Fetch Record Complete"
+        metadata = g.results_db.get_metadata()
+        print "Fetch Metadata Complete"
+        template = report.render(matches=results, live=True, database=g.results_db, **metadata)
+        print "Render Template Complete"
+    except Exception, e:
+        template = '<br>'.join((str(e), traceback.format_exc(sys.exc_info()[2])))
+        print e
+    return (template)
+
+
+@app.route("/<structure_id>")
 def match_entry(structure_id):
     try:
-        results = [g.results_db[structure_id]]
+        print "Begin ", structure_id
+        results = g.results_db[structure_id.split(',')]
+        print results
+        print "Fetch Record Complete"
         metadata = g.results_db.get_metadata()
+        print "Fetch Metadata Complete"
         template = report.render(matches=results, live=True, database=g.results_db, **metadata)
+        print "Render Template Complete"
     except Exception, e:
         template = '<br>'.join((str(e), traceback.format_exc(sys.exc_info()[2])))
         print e

@@ -779,6 +779,21 @@ class RecordDatabase(object):
             self.commit()
 
     def get_metadata(self, key=None):
+        """Retrieve a value from the key-value store
+        in the database's metadata table.
+
+        If `key` is |None| all of the keys will be retrieved
+        and returned as a |dict|.
+
+        Parameters
+        ----------
+        key : str, optional
+            The key value to retrieve.
+
+        Returns
+        -------
+        any or |dict|
+        """
         if key is None:
             return {
                 row[0]: pickle.loads(str(row[1])) for row in self.execute("SELECT name, content FROM metadata")
@@ -790,6 +805,15 @@ class RecordDatabase(object):
             raise KeyError("Key {} not found".format(key))
 
     def set_metadata(self, key, value):
+        """Set a key-value pair in the database's metadata table
+
+        Parameters
+        ----------
+        key : str
+            Key naming value
+        value : any
+            Value to store in the metadata table
+        """
         self.execute("INSERT OR REPLACE INTO metadata (name, content) VALUES (?, ?);", (key, pickle.dumps(value)))
         self.commit()
 
@@ -797,6 +821,8 @@ class RecordDatabase(object):
         record._bound_db = self
 
     def _patch_querymethods(self):
+        """Patch on additional methods defined on :attr:`record_type`
+        """
         for name, value in _resolve_querymethods_mro(self.record_type).items():
             if isinstance(value, QueryMethod):
                 setattr(self, name, value.bind(self))
@@ -855,6 +881,8 @@ class RecordDatabase(object):
                     "SELECT * FROM {table_name} WHERE glycan_id BETWEEN ? AND ?", begin, end)))
         elif key_type is tuple:
             group = tuple(map(int, keys))
+            if len(group) == 1:
+                group = str(group).replace(',', '')
             results = list(self.from_sql(
                 self.execute(
                     "SELECT * FROM {table_name} WHERE glycan_id IN {}".format(
@@ -865,8 +893,10 @@ class RecordDatabase(object):
         list(map(self.bind, results))
         if len(results) > 1:
             return results
-        else:
+        elif key_type is int:
             return results[0]
+        else:
+            return results
 
     def __iter__(self):
         '''

@@ -91,6 +91,12 @@ def parse_link(line):
 
 
 def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
+    if parent.node_type is Substituent.node_type and\
+     child.node_type is Monosaccharide.node_type:
+        warnings.warn(
+            "A monosaccharide with a substituent parent has been detected. "
+            "These structures are not fully supported and may not traverse as expected "
+            "by default.", stacklevel=7)
     if len(parent_position) > 1 or len(parent_position) > 1:
         AmbiguousLink(parent, child,
                       parent_position=parent_position, child_position=parent_position,
@@ -185,7 +191,7 @@ def try_int(v):
     try:
         return int(v)
     except:
-        return v
+        return None
 
 
 class GlycoCTError(Exception):

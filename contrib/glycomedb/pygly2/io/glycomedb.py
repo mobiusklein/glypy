@@ -20,6 +20,7 @@ def download_all_structures(db_path, record_type=GlycanRecord):
     handle = gzip.GzipFile(fileobj=StringIO(response.content))
     xml = etree.parse(handle)
     db = RecordDatabase(db_path, record_type=record_type)
+    misses = []
     for structure in xml.iterfind(".//structure"):
         try:
             glycomedb_id = int(structure.attrib['id'])
@@ -30,7 +31,9 @@ def download_all_structures(db_path, record_type=GlycanRecord):
             record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
         except Exception, e:
+            misses.append((glycomedb_id, e))
             print(e)
+    db.set_metadata("misses", misses)
     db.commit()
     return db
 

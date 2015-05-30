@@ -32,8 +32,10 @@ def collect_fragments(record):
     return matches.keys()
 
 
-def fetch_all_matches(db):
-    return db.from_sql(db.execute("SELECT * FROM {table_name} WHERE (tandem_scan_count + precursor_scan_count) > 0 ORDER BY mass ASC"))
+def fetch_all_matches(db, attr='mass', order="ASC"):
+    order_by = " ORDER BY {} {}".format(attr, order)
+    return db.from_sql(db.execute("SELECT * FROM {table_name} WHERE \
+        (tandem_scan_count + precursor_scan_count) > 0 " + order_by))
 
 
 def strip_derivatize_glycoct(record):
@@ -70,6 +72,20 @@ def cfg_plot(record):
     svg = ET.tostring(root)
     record.report_data["svg_plot"] = base64.encodestring(svg)
     record.update()
+    return svg
+
+
+def simple_plot(record):
+    dtree, ax = plot.plot(record, orientation='h', squeeze=1.4, scale=.135)
+    ax.axis('off')
+    fig = ax.get_figure()
+    fig.tight_layout(pad=0.2)
+    img_buffer = StringIO()
+    fig.savefig(img_buffer, format="svg")
+    plt.close(fig)
+    root, ids = ET.XMLID(img_buffer.getvalue())
+    root.set("id", dtree.uuid)
+    svg = ET.tostring(root)
     return svg
 
 
@@ -126,6 +142,8 @@ def scientific_notation(num):
 
 
 def limit_sigfig(num):
+    if num is None or isinstance(num, Undefined):
+        return "N/A"
     return "%0.4f" % num
 
 
@@ -137,7 +155,7 @@ def css_escape(css_string):
     return re.sub(r"[\+\:,\s]", r'-', css_string)
 
 
-def create_environment():
+def prepare_environment():
     loader = PackageLoader("pygly2", "search/results_template")
     env = Environment(loader=loader)
     env.filters["collect_fragments"] = collect_fragments
@@ -145,19 +163,25 @@ def create_environment():
     env.filters["strip_derivatize"] = strip_derivatize_glycoct
     env.filters["scientific_notation"] = scientific_notation
     env.filters["cfg_plot"] = cfg_plot
+    env.filters["simple_cfg_plot"] = simple_plot
     env.filters["min"] = min
     env.filters["max"] = max
     env.filters["unique"] = unique
     env.filters["limit_sigfig"] = limit_sigfig
     env.filters['css_escape'] = css_escape
     env.filters['greek_fragment_name'] = greek_fragment_names
+    return env
+
+
+def prepare_template():
+    env = prepare_environment()
 
     template = env.get_template("results.templ")
     return template
 
 
 def render(database, experimental_statistics=None, settings=None, live=False, **kwargs):
-    template = create_environment()
+    template = prepare_template()
     return template.render(
         database=database,
         experimental_statistics=experimental_statistics,

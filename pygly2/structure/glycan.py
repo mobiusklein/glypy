@@ -6,9 +6,9 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
-from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
-from .crossring_fragments import crossring_fragments, CrossRingPair, CrossRingFragment
-from .fragment import Fragment, Subtree
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth
+from .crossring_fragments import crossring_fragments, CrossRingPair
+from .fragment import Subtree
 from ..utils import make_counter, identity, StringIO, chrinc
 from ..composition import Composition
 
@@ -918,7 +918,8 @@ class Glycan(SaccharideBase):
         Subtree
         """
         links = list(self.link_index)
-
+        # Localize globals
+        _str = str
         # Break at least one ring
         for i in range(1, n_links + 1):
             # Generate all combinations of i rings to break
@@ -960,10 +961,13 @@ class Glycan(SaccharideBase):
                                     if crossring.id in part.include_nodes:
                                         xring_residue = part.tree.get(
                                             crossring.id)
-                                        if isinstance(xring_residue, CrossRingFragment):
+                                        try:
                                             included_crossring[xring_residue.id] = (','.join(
-                                                (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
+                                                (_str(xring_residue.cleave_1), _str(xring_residue.cleave_2))),
                                                 xring_residue.kind)
+                                        except AttributeError:
+                                            pass
+                                            # Not a CrossRingFragment in this instance
 
                                 part.crossring_cleavages = included_crossring
                                 yield part
@@ -978,10 +982,13 @@ class Glycan(SaccharideBase):
                             for crossring in breaks:
                                 if crossring.id in include_nodes:
                                     xring_residue = subtree.get(crossring.id)
-                                    if isinstance(xring_residue, CrossRingFragment):
+                                    try:
                                         included_crossring[xring_residue.id] = (','.join(
-                                            (str(xring_residue.cleave_1), str(xring_residue.cleave_2))),
+                                            (_str(xring_residue.cleave_1), _str(xring_residue.cleave_2))),
                                             xring_residue.kind)
+                                    except AttributeError:
+                                        pass
+                                        # Not a CrossRingFragment in this instance
                             yield Subtree(subtree, include_nodes, {}, {}, {}, crossring_cleavages=included_crossring)
                     # Re-join the ring, retracting all links from the crossring objects
                     for ring in breaks:

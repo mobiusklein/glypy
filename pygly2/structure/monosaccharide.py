@@ -204,6 +204,21 @@ def toggle(monosaccharide):
     yield False
 
 
+def depth(monosaccharide, visited=None):
+    '''
+    Calculate  the distance from `monosaccharide` to its furthest grand-child node.
+    '''
+    if visited is None:
+        visited = set()
+    if monosaccharide.id in visited:
+        return 0
+    visited.add(monosaccharide.id)
+    d = 1
+    if(len(monosaccharide.links) > 1):
+        d += max(depth(ch, visited) for p, ch in monosaccharide.children())
+    return d
+
+
 class Monosaccharide(SaccharideBase):
 
     '''

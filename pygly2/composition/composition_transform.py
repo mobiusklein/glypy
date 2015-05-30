@@ -88,8 +88,12 @@ def strip_derivatization_monosaccharide(monosaccharide_obj):
         else:
             sub_node = subst_link.child
             for sub_pos, subst_link in sub_node.links.items():
-                if subst_link.child._derivatize:
-                    sub_node.drop_substituent(sub_pos, subst_link.child)
+                try:
+                    if subst_link.child._derivatize:
+                        sub_node.drop_substituent(sub_pos, subst_link.child)
+                except AttributeError:
+                    if subst_link.child.node_type is Monosaccharide.node_type:
+                        strip_derivatization_monosaccharide(subst_link.child)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
         for pos, subst_link in red_end.links.items():

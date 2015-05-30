@@ -221,6 +221,8 @@ class Subtree(object):
         crossring_contained = {
             kind for pos,
             kind in self.crossring_cleavages.values()}
+        # Do not proceed if crossring fragments are included and
+        # were not requested.
         if len(crossring_contained & crossring_type) == 0 and len(
                 crossring_contained) != 0:
             raise StopIteration()

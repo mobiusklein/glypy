@@ -1,6 +1,7 @@
 import re
 import collections
 import operator
+import logging
 from math import fabs
 from itertools import chain
 from functools import partial
@@ -11,6 +12,9 @@ from pygly2 import Composition
 from pygly2.utils import make_struct, identity
 from pygly2.algorithms import database
 from pygly2.search.spectra import IonMatchAnnotation
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_intact_mass(record):
@@ -127,9 +131,12 @@ def top_n_peaks(peak_list, n=200):
 
 
 def percent_of_max(peak_list, percentage=0.01):
-    max_intensity = max(peak_list, key=get_intensity).intensity
-    return [peak for peak in peak_list if peak.intensity > percentage * max_intensity]
-
+    try:
+        max_intensity = max(peak_list, key=get_intensity).intensity
+        return [peak for peak in peak_list if peak.intensity > percentage * max_intensity]
+    except ValueError, e:
+        logger.error("Peak List: %r", peak_list, exc_info=e)
+        return peak_list
 
 thresholding_strategy_map = {
     None: identity,

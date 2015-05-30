@@ -122,10 +122,9 @@ class Link(object):
         KeyError:
             If `mol` is not the parent or child of this |Link|
         '''
-        hmol = id(mol)
-        if hmol == id(self.parent):
+        if mol is (self.parent):
             return self.child
-        elif hmol == id(self.child):
+        elif mol is (self.child):
             return self.parent
         else:
             raise KeyError("Could not find connection for {0}".format(mol))
@@ -212,7 +211,7 @@ class Link(object):
         -------
         bool
         '''
-        return id(mol) == id(self.parent)
+        return (mol) is (self.parent)
 
     def is_child(self, mol):
         '''
@@ -222,7 +221,7 @@ class Link(object):
         -------
         bool
         '''
-        return id(mol) == id(self.child)
+        return (mol) is (self.child)
 
     def clone(self, parent, child, prop_id=True, attach=True):
         '''
@@ -313,8 +312,8 @@ class Link(object):
             self.parent.substituent_links[self.parent_position] = self
         else:
             self.parent.links[self.parent_position] = self
-            sorted(
-                self.parent.links[self.parent_position], key=lambda x: x.child.order())
+            # sorted(
+            #     self.parent.links[self.parent_position], key=lambda x: x.child.order())
 
         self.child.links[self.child_position] = self
 

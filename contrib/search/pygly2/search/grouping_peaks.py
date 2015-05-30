@@ -28,6 +28,17 @@ def density(x):
 
 
 def combine_results(group):
+    """Given a set of matches to a single composition, construct a ResultsGroup.
+
+    Parameters
+    ----------
+    group : list[PrecursorMatch]
+        A list of matches to a single composition under a single modification state
+
+    Returns
+    -------
+    ResultsGroup
+    """
     n = len(group)
     mass = 0
     ppm_error = 0
@@ -83,3 +94,41 @@ def match_decon2ls_isos(spectrum_db, hypothesis, adducts=None, ms1_match_toleran
     results.commit()
     results.apply_indices()
     return results
+
+
+scan_number_getter = operator.attrgetter("scan_number")
+
+
+def mean(args):
+    return sum(args) / float(len(args))
+
+
+# The current method only considers groups that match the hypothesis
+# while the desired method first groups all peaks into overlapping
+# clusters, then matches the hypothesis on these clusers.
+class PeakGroup(list):
+    __table_name__ = 'PeakGroup'
+
+    def __init__(self, *peaks):
+        super(PeakGroup, self).__init__(peaks)
+        self.sort(key=scan_number_getter)
+
+    @property
+    def start_scan(self):
+        return self[0].scan_number
+
+    @property
+    def end_scan(self):
+        return self[-1].scan_number
+
+    @property
+    def scans(self):
+        return {p.scan_number for p in self}
+
+    @property
+    def monoisotopic_mass(self):
+        return self[0].monoisotopic_mass
+
+
+def group_peaks(spectrum_db, grouping_error=8e-5):
+    pass

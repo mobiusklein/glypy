@@ -1,7 +1,3 @@
-'''
-Currently experiencing issues resolving implicit positioning
-'''
-
 import re
 from collections import deque
 
@@ -35,7 +31,10 @@ def extract_modifications(modifications, base_type):
     buff = []
     template = '{position}-{name}'
     pos_mod_pairs = list(modifications.items())
-    pos, mods = map(list, zip(*pos_mod_pairs))
+    try:
+        pos, mods = map(list, zip(*pos_mod_pairs))
+    except ValueError:
+        pos, mods = [], []
     if "Neu" in base_type or "Kd" in base_type:
         for mod in [Modification.d, Modification.keto, Modification.a]:
             pop_ix = mods.index(mod)
@@ -159,7 +158,8 @@ def resolve_special_base_type(residue):
     return None
 
 
-def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-', open_branch='[', close_branch=']', is_branch=False):
+def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-',
+                    open_branch='[', close_branch=']', is_branch=False):
     '''
     Translate a |Glycan| structure into IUPAC Three Letter Code.
     Recursively operates on branches.
@@ -233,7 +233,7 @@ monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
                                        (?P<configuration>[LD?])-
                                        (?P<modification>[a-z0-9_\-,]*)
                                        (?P<base_type>[^-]+?)
-                                       (?P<ring_type>[pfo?])
+                                       (?P<ring_type>[xpfo?])
                                        (?P<substituent>[^-]*)
                                        (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
 
@@ -270,7 +270,7 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
-        residue.add_substituent(substituent, position)
+        residue.add_substituent(substituent, position, parent_loss="OH", child_loss='H')
 
     def tryint(i):
         try:
@@ -307,7 +307,7 @@ def glycan_from_iupac(text):
     branch_stack = []
 
     while len(text) > 0:
-        print text
+
         # If starting a new branch
         if text[-1] == ']':
             branch_stack.append((last_residue, root, last_outedge))
@@ -341,6 +341,11 @@ def glycan_from_iupac(text):
                 raise IUPACException("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
 
     res = Glycan(root)
+    return res
+
+
+def from_iupac(text):
+    res = glycan_from_iupac(text)
     if len(res) > 1:
         return res
     else:

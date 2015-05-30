@@ -4,7 +4,7 @@
             <span class='labeled-data'><b>Theoretical Precursor Mass:</b> {{match.intact_mass | limit_sigfig }}</span>
             <span class='labeled-data'><b>PPM Error:</b> {{match.ppm_error | first | scientific_notation}} </span>
             <span class='labeled-data'><b>Score: </b> {{match.score | limit_sigfig}} </span>
-            <span class='labeled-data'><b>Fragments <small class='fraction'>Observed / Total</small>: </b> {{(match|collect_fragments|length / match.fragments|length) | limit_sigfig }} </span>
+            <span class='labeled-data'><b>Fragments <small class='fraction'>Observed / Total</small>: </b> {{(match|collect_fragments|length / match.fragments|length) | limit_sigfig if (match.fragments|length) != 0 else "N/A"}} </span>
         </div>  
         <div class='monosaccharides'>
             <h4>Monosaccharide Composition</h4>

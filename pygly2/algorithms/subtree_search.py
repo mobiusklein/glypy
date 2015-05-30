@@ -3,6 +3,7 @@ import itertools
 from .similarity import monosaccharide_similarity
 from ..utils import make_struct, root
 from ..structure import Glycan, Monosaccharide
+from ..structure.monosaccharide import depth
 logger = logging.getLogger(__name__)
 
 
@@ -220,16 +221,16 @@ def maximum_common_subgraph(seq_a, seq_b, exact=False):
         for j, b_node in enumerate(seq_b):
             res = compare_nodes(a_node, b_node, exact=exact)
             solution_matrix[i][j] = res
-    score, ix_a, ix_b = find_max(solution_matrix)
+    score, ix_a, ix_b = _find_max_of_matrix(solution_matrix)
     node_a = seq_a[ix_a]
     node_b = seq_b[ix_b]
     return MaximumCommonSubtreeResults(
         score,
-        extract_maximum_common_subgraph(node_a, node_b, exact=exact),
+        _extract_maximum_common_subgraph(node_a, node_b, exact=exact),
         solution_matrix)
 
 
-def find_max(solution_matrix):
+def _find_max_of_matrix(solution_matrix):
     '''
     Given the `solution_matrix`, find the coordinates of the maximum score
 
@@ -252,22 +253,7 @@ def find_max(solution_matrix):
     return score, ix_a, ix_b
 
 
-def depth(monosaccharide, visited=None):
-    '''
-    Calculate  the distance from `monosaccharide` to its furthest grand-child node.
-    '''
-    if visited is None:
-        visited = set()
-    if monosaccharide.id in visited:
-        return 0
-    visited.add(monosaccharide.id)
-    d = 1
-    if(len(monosaccharide.links) > 1):
-        d += max(depth(ch, visited) for p, ch in monosaccharide.children())
-    return d
-
-
-def extract_maximum_common_subgraph(node_a, node_b, exact=False):
+def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
     '''
     Given a pair of matched starting nodes from two separate glycan structures,
     traverse them together, copying the best matching branches into a new |Glycan|
