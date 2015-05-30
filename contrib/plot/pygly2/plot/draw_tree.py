@@ -3,11 +3,11 @@ from collections import defaultdict
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
-from pygly2 import monosaccharides
-from pygly2.utils import root
-from pygly2.structure import Glycan
-from pygly2.io.nomenclature import identity
-from pygly2.algorithms.database import GlycanRecordBase
+from glypy import monosaccharides
+from glypy.utils import root
+from glypy.structure import Glycan
+from glypy.io.nomenclature import identity
+from glypy.algorithms.database import GlycanRecordBase
 
 from .buchheim import buchheim
 from . import cfg_symbols

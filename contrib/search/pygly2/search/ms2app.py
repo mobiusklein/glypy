@@ -10,8 +10,8 @@ try:
     logger = logging.getLogger()
 except:
     pass
-from pygly2.algorithms import database
-from pygly2.utils import identity
+from glypy.algorithms import database
+from glypy.utils import identity
 
 from .matching import (find_matches, DEFAULT_MS2_MATCH_TOLERANCE,
                        DEFAULT_MS1_MATCH_TOLERANCE, MassShift,

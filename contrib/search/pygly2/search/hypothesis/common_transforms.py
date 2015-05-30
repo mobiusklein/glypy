@@ -1,5 +1,5 @@
-from pygly2.composition import composition_transform
-from pygly2.structure.monosaccharide import ReducedEnd
+from glypy.composition import composition_transform
+from glypy.structure.monosaccharide import ReducedEnd
 
 
 # Mass Transform Functions

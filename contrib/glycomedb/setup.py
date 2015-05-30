@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='pygly2-glycomedb',
+    name='glypy-glycomedb',
     version='0.0.5',
     packages=find_packages(),
-    namespace_packages=["pygly2", "pygly2.io", "pygly2.algorithms"]
+    namespace_packages=["glypy", "glypy.io", "glypy.algorithms"]
 )

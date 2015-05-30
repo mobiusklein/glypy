@@ -3,9 +3,9 @@ import logging
 import requests
 from lxml import etree
 
-from pygly2.utils import StringIO
-from pygly2.io import glycoct
-from pygly2.algorithms.database import (Taxon, Aglyca, Motif,
+from glypy.utils import StringIO
+from glypy.io import glycoct
+from glypy.algorithms.database import (Taxon, Aglyca, Motif,
                                         DatabaseEntry, GlycanRecord,
                                         RecordDatabase)
 

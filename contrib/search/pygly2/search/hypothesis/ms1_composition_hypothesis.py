@@ -2,7 +2,7 @@ import argparse
 import sys
 import csv
 
-from pygly2.algorithms import database
+from glypy.algorithms import database
 
 from .common_transforms import (monoisotopic_mass, reduced_mass,
                                 permethelylated_mass,

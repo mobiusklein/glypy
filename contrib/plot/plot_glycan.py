@@ -3,8 +3,8 @@ import matplotlib
 matplotlib.use("Qt4Agg")
 matplotlib.interactive(True)
 from matplotlib import pyplot as plt
-from pygly2 import plot
-from pygly2.io import glycoct
+from glypy import plot
+from glypy.io import glycoct
 
 try:
     print sys.argv

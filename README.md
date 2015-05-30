@@ -1,4 +1,4 @@
-# pygly2
+# glypy
 Glycan Analysis and Glycominformatics Library for Python
 
 ## Features

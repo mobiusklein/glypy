@@ -5,9 +5,9 @@ from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, Markup, make_response, jsonify
 import argparse
 
-from pygly2.search import matching
-from pygly2.search import report
-from pygly2.search.spectra import spectrum_model
+from glypy.search import matching
+from glypy.search import report
+from glypy.search.spectra import spectrum_model
 
 app = Flask(__name__)
 

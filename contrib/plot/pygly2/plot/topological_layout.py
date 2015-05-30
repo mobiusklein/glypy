@@ -1,6 +1,6 @@
 import numpy as np
 
-from pygly2.structure.constants import Anomer
+from glypy.structure.constants import Anomer
 
 
 index_position_shift = {

@@ -3,7 +3,7 @@ import json
 import logging
 from collections import Iterable
 
-from pygly2.utils import opener, pickle
+from glypy.utils import opener, pickle
 
 from .spectrum_model import (neutral_mass,
                       mass_charge_ratio,

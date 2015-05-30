@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pygly2 documentation build configuration file, created by
+# glypy documentation build configuration file, created by
 # sphinx-quickstart on Tue Feb 03 08:00:16 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -58,7 +58,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pygly2'
+project = u'glypy'
 copyright = u'2015, J. Klein, Dr. N. Edwards, Dr. J. Zaia'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -108,7 +108,7 @@ rst_epilog = open("./definitions").read()
 pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
-modindex_common_prefix = ['pygly2']
+modindex_common_prefix = ['glypy']
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
@@ -197,7 +197,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pygly2doc'
+htmlhelp_basename = 'glypydoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -217,7 +217,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'pygly2.tex', u'pygly2 Documentation',
+  ('index', 'glypy.tex', u'glypy Documentation',
    u'J. Klein, Dr. N. Edwards', "Dr. J. Zaia", 'manual'),
 ]
 
@@ -247,7 +247,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pygly2', u'pygly2 Documentation',
+    ('index', 'glypy', u'glypy Documentation',
      [u'J. Klein, Dr. N. Edwards', "Dr. J. Zaia"], 1)
 ]
 
@@ -261,8 +261,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pygly2', u'pygly2 Documentation',
-   u'J. Klein, Dr. N. Edwards, Dr. J. Zaia', 'pygly2', 'One line description of project.',
+  ('index', 'glypy', u'glypy Documentation',
+   u'J. Klein, Dr. N. Edwards, Dr. J. Zaia', 'glypy', 'One line description of project.',
    'Miscellaneous'),
 ]
 

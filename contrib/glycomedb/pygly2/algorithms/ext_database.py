@@ -2,8 +2,8 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import PickleType, Numeric, String, create_engine, Column, Integer, ForeignKey, Text
 
-from pygly2 import Glycan
-from pygly2.io import glycoct as glycoct_parser
+from glypy import Glycan
+from glypy.io import glycoct as glycoct_parser
 
 
 Base = declarative_base()

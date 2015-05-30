@@ -1,8 +1,8 @@
 
 import operator
 
-from pygly2.algorithms.database import RecordDatabase
-from pygly2.utils import groupby
+from glypy.algorithms.database import RecordDatabase
+from glypy.utils import groupby
 from .spectra.spectrum_model import MSMSSqlDB
 from .spectra.decon2ls import parse_to_database, Decon2LSPeak
 from .matching import MassShift, NoShift, make_struct, ppm_error

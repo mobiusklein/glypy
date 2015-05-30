@@ -16,11 +16,11 @@ from matplotlib.colors import cnames
 
 from jinja2 import Environment, PackageLoader, Undefined
 
-from pygly2.composition import composition_transform
-from pygly2.utils import StringIO
-from pygly2 import plot
+from glypy.composition import composition_transform
+from glypy.utils import StringIO
+from glypy import plot
 
-from pygly2.search.spectra import spectrum_model
+from glypy.search.spectra import spectrum_model
 
 matplotlib.rcParams['svg.fonttype'] = 'path'
 
@@ -156,7 +156,7 @@ def css_escape(css_string):
 
 
 def prepare_environment():
-    loader = PackageLoader("pygly2", "search/results_template")
+    loader = PackageLoader("glypy", "search/results_template")
     env = Environment(loader=loader)
     env.filters["collect_fragments"] = collect_fragments
     env.filters["all_matches"] = fetch_all_matches

@@ -1,1 +1,1 @@
-recursive-include pygly2/search *.templ
+recursive-include glypy/search *.templ

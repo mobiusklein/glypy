@@ -7,11 +7,11 @@ from itertools import chain
 from functools import partial
 from collections import defaultdict
 
-from pygly2 import Composition
+from glypy import Composition
 
-from pygly2.utils import make_struct, identity
-from pygly2.algorithms import database
-from pygly2.search.spectra import IonMatchAnnotation
+from glypy.utils import make_struct, identity
+from glypy.algorithms import database
+from glypy.search.spectra import IonMatchAnnotation
 
 
 logger = logging.getLogger(__name__)

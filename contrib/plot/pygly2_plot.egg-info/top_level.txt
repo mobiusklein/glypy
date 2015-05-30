@@ -1,1 +1,1 @@
-pygly2
+glypy

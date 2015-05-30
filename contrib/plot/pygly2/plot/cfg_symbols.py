@@ -9,9 +9,9 @@ import matplotlib.patches as patches
 import matplotlib
 from matplotlib.colors import rgb2hex
 
-from pygly2.structure import Modification, Stem, SuperClass
-from pygly2.utils.enum import Enum
-from pygly2.io.nomenclature import identity
+from glypy.structure import Modification, Stem, SuperClass
+from glypy.utils.enum import Enum
+from glypy.io.nomenclature import identity
 
 logger = logging.getLogger(__name__)
 

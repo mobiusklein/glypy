@@ -2,9 +2,9 @@ import os
 import unittest
 from matplotlib import pyplot as plt
 
-from pygly2 import monosaccharides, glycans
-from pygly2.io import glycoct
-from pygly2 import plot
+from glypy import monosaccharides, glycans
+from glypy.io import glycoct
+from glypy import plot
 
 
 def outplot_dir():

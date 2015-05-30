@@ -1,8 +1,8 @@
 import os
 import logging
-from pygly2.algorithms import database
+from glypy.algorithms import database
 from .common_transforms import monoisotopic_mass
-from pygly2.utils import identity, pickle
+from glypy.utils import identity, pickle
 
 from multiprocessing import Pool
 from functools import partial
