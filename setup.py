@@ -16,13 +16,13 @@ if sys.platform == 'win32':
 try:
     from Cython.Build import cythonize
     extensions = cythonize(
-      [Extension("pygly2.composition.ccomposition", ["pygly2/composition/ccomposition.pyx"]),
+      [Extension("glypy.composition.ccomposition", ["glypy/composition/ccomposition.pyx"]),
        ],
       annotate=True)
 except ImportError, AttributeError:
     print("No Cython")
     extensions = [
-      Extension('pygly2.composition.ccomposition', sources=['pygly2/composition/ccomposition.c']),
+      Extension('glypy.composition.ccomposition', sources=['glypy/composition/ccomposition.c']),
     ]
 
 cmdclass = {}
@@ -69,23 +69,23 @@ def status_msgs(*msgs):
 
 def run_setup(include_cext=True):
     setup(
-          name='pygly2',
+          name='glypy',
           version='0.0.5',
           packages=find_packages(),
           include_package_data=True,
           package_data={
-              "pygly2.structure": ["pygly2/structure/data/*"],
-              "pygly2.io.nomenclature": ["pygly2/io/nomenclature/data/*"]
+              "glypy.structure": ["glypy/structure/data/*"],
+              "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
           },
           namespace_packages=[
-            "pygly2",
-            "pygly2.algorithms",
-            "pygly2.io",
-            "pygly2.io.nomenclature",
-            "pygly2.structure",
-            "pygly2.composition",
-            "pygly2.utils",
-            "pygly2.tests"
+            "glypy",
+            "glypy.algorithms",
+            "glypy.io",
+            "glypy.io.nomenclature",
+            "glypy.structure",
+            "glypy.composition",
+            "glypy.utils",
+            "glypy.tests"
           ],
           cmdclass=cmdclass,
           zip_safe=False,

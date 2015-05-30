@@ -2,7 +2,7 @@
 ccopy_reg
 _reconstructor
 p2
-(cpygly2.structure.glycan
+(cglypy.structure.glycan
 DisjointTrees
 p3
 c__builtin__
@@ -10,7 +10,7 @@ object
 p4
 NtRp5
 (g2
-(cpygly2.structure.glycan
+(cglypy.structure.glycan
 Glycan
 p6
 g4
@@ -25,7 +25,7 @@ ssS'index'
 p11
 (lp12
 g2
-(cpygly2.structure.monosaccharide
+(cglypy.structure.monosaccharide
 Monosaccharide
 p13
 g4
@@ -34,7 +34,7 @@ NtRp14
 S'modifications'
 p16
 g2
-(cpygly2.utils.multimap
+(cglypy.utils.multimap
 OrderedMultiMap
 p17
 g4
@@ -57,7 +57,7 @@ p26
 NsS'_configuration'
 p27
 (g2
-(cpygly2.utils.enum
+(cglypy.utils.enum
 EnumValue
 p28
 g4
@@ -65,7 +65,7 @@ NtRp29
 (dp30
 S'group'
 p31
-cpygly2.structure.constants
+cglypy.structure.constants
 Configuration
 p32
 sS'name'
@@ -120,7 +120,7 @@ g4
 NtRp52
 (dp53
 g31
-cpygly2.structure.constants
+cglypy.structure.constants
 Stem
 p54
 sg33
@@ -142,7 +142,7 @@ g4
 NtRp60
 (dp61
 g31
-cpygly2.structure.constants
+cglypy.structure.constants
 SuperClass
 p62
 sg33
@@ -163,7 +163,7 @@ g4
 NtRp67
 (dp68
 g31
-cpygly2.structure.constants
+cglypy.structure.constants
 Anomer
 p69
 sg33
@@ -178,7 +178,7 @@ g70
 atRp72
 sbsS'composition'
 p73
-cpygly2.composition.composition
+cglypy.composition.composition
 Composition
 p74
 (c__builtin__
@@ -261,7 +261,7 @@ tRp97
 I3
 (lp98
 g2
-(cpygly2.structure.link
+(cglypy.structure.link
 Link
 p99
 g4
@@ -368,7 +368,7 @@ g4
 NtRp132
 (dp133
 g31
-cpygly2.structure.constants
+cglypy.structure.constants
 Modification
 p134
 sg33
@@ -832,7 +832,7 @@ Nsg107
 I1
 sg108
 g2
-(cpygly2.structure.substituent
+(cglypy.structure.substituent
 Substituent
 p250
 g4

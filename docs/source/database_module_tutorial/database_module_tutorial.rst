@@ -1,12 +1,12 @@
 
 .. code-block:: python
 
-    import pygly2
-    from pygly2.io import glycoct
-    from pygly2.structure import (glycan, monosaccharide, substituent)
+    import glypy
+    from glypy.io import glycoct
+    from glypy.structure import (glycan, monosaccharide, substituent)
     
-    from pygly2 import plot
-    from pygly2.algorithms import subtree_search, database
+    from glypy import plot
+    from glypy.algorithms import subtree_search, database
     
     %matplotlib inline
     from matplotlib import rcParams
@@ -27,7 +27,7 @@ annotate, and test.
 The ``database`` module is here for provide a convenient and performant
 container for glycan structures, implemented on top of ``sqlite3``.
 We've pre-package all of the definite structures in Glycome-DB, which
-you can download from PyPI or with the ``pygly2.io.glycomedb`` module,
+you can download from PyPI or with the ``glypy.io.glycomedb`` module,
 directly from `www.glycome-db.org <www.glycome-db.org>`__.
 
 Let's assume you've downloaded the database and it's in your current
@@ -47,7 +47,7 @@ directory
 
 
 
-Depending upon the version of ``pygly2`` you have, you may see fewer or
+Depending upon the version of ``glypy`` you have, you may see fewer or
 more records as the library matures to handle more irregular structures.
 As of this moment, it doesn't attempt to represent structures with
 ``REP`` repeating elements or ``UND`` undefined subgraphs. This version
@@ -314,7 +314,7 @@ let's reduce them and derivatize them.
 
 .. code:: python
 
-    from pygly2.composition.composition_transform import derivatize
+    from glypy.composition.composition_transform import derivatize
     
     for record in human_n_glycans:
         record.structure.set_reducing_end(True)

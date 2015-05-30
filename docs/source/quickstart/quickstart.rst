@@ -12,8 +12,8 @@ you full control over the gross structure of the object.
 
 .. code:: python
 
-    import pygly2
-    monosaccharide = pygly2.Monosaccharide(anomer='beta', superclass='hex', configuration='d', stem='glc', ring_start=1, ring_end=5)
+    import glypy
+    monosaccharide = glypy.Monosaccharide(anomer='beta', superclass='hex', configuration='d', stem='glc', ring_start=1, ring_end=5)
     print(monosaccharide)
     monosaccharide.mass()
 
@@ -47,7 +47,7 @@ you can also create new common monosaccharides by:
 
 .. code:: python
 
-    pygly2.monosaccharides['Glucose']
+    glypy.monosaccharides['Glucose']
 
 
 
@@ -62,11 +62,11 @@ synonyms.
 
 .. code:: python
 
-    print(pygly2.monosaccharides["Glc"])
+    print(glypy.monosaccharides["Glc"])
     print('--')
-    print(pygly2.monosaccharides["Glucose"])
+    print(glypy.monosaccharides["Glucose"])
     print('--')
-    print(pygly2.monosaccharides["bdGlc"])
+    print(glypy.monosaccharides["bdGlc"])
 
 .. parsed-literal::
 
@@ -83,7 +83,7 @@ a name you do not recognize
 
 .. code:: python
 
-    from pygly2.io.nomenclature import synonyms, identity
+    from glypy.io.nomenclature import synonyms, identity
     
     print(synonyms.monosaccharides['Glc'])
     identity.is_a(monosaccharide, "Glucose")
@@ -106,7 +106,7 @@ Putting Pieces Together
 
 .. code:: python
 
-    monosaccharides = pygly2.monosaccharides
+    monosaccharides = glypy.monosaccharides
     
     glcnac1 = monosaccharides["GlcNAc"]
     glcnac2 = monosaccharides["GlcNAc"]
@@ -119,7 +119,7 @@ Putting Pieces Together
     adman2 = monosaccharides["adMan"]
     bdman.add_monosaccharide(adman2, position=6)
     
-    n_linked_core = pygly2.Glycan(root=glcnac1)
+    n_linked_core = glypy.Glycan(root=glcnac1)
     print(n_linked_core)
     print(n_linked_core.mass())
     print(n_linked_core.total_composition())
@@ -161,7 +161,7 @@ and an image of the tree
 
 .. code:: python
 
-    from pygly2.plot import plot
+    from glypy.plot import plot
     %matplotlib inline
     
     plot(n_linked_core)
@@ -194,12 +194,12 @@ and an image of the tree
 
 The process of putting together all of those building blocks can be
 repetative as well, so the N-glycan core structure is made available in
-``pygly2.glycans`` just as ``pygly2.monosaccharides`` provided a
+``glypy.glycans`` just as ``glypy.monosaccharides`` provided a
 shortcut for creating individual monosaccharides
 
 .. code:: python
 
-    premade_core = pygly2.glycans['N-Linked Core']
+    premade_core = glypy.glycans['N-Linked Core']
     premade_core == n_linked_core
 
 
@@ -300,7 +300,7 @@ Like breaking them.
 Glycan Fragmentation
 ^^^^^^^^^^^^^^^^^^^^
 
-A core goal of ``pygly2`` is supporting flexible glycan fragmentation.
+A core goal of ``glypy`` is supporting flexible glycan fragmentation.
 An example of this operation with the N-linked core:
 
 .. code:: python
@@ -327,7 +327,7 @@ function ``fragment_to_substructure`` in the ``glycan`` module.
 .. code:: python
 
     from matplotlib import pyplot as plt
-    from pygly2.structure.glycan import fragment_to_substructure
+    from glypy.structure.glycan import fragment_to_substructure
     
     for links, frags in itertools.groupby(n_linked_core.clone().fragments(), lambda f: f.link_ids):
         
@@ -365,7 +365,7 @@ The ``Glycan.fragments()`` algorithm mutates the object, iteratively as
 removing and restoring links between the constituent ``Monosaccharide``
 objects. Because we want to use the object's structure for
 ``fragment_to_substructure``, it is important to copy the object before
-fragmenting it. All of ``pygly2``'s common structures,
+fragmenting it. All of ``glypy``'s common structures,
 ``Glycan, Monosaccharide, Link, Substituent,`` and ``ReducedEnd`` have a
 ``clone`` method.
 
@@ -377,11 +377,11 @@ Taking `Entry
 we can get something a little more complicated.
 
 It would be a nuisance to have to manually create each residue, and as
-we've already seen, ``pygly2`` knows about ``GlycoCT``
+we've already seen, ``glypy`` knows about ``GlycoCT``
 
 .. code:: python
 
-    from pygly2.io import glycoct
+    from glypy.io import glycoct
     
     glycomedb183_glycoct = '''
     RES
@@ -534,7 +534,7 @@ for glycan analysis in glycan mass spectrometry.
 
 .. code:: python
 
-    from pygly2.composition.composition_transform import derivatize
+    from glypy.composition.composition_transform import derivatize
     
     case = glycomedb183.clone()
     print("Clone is identical? {}".format(case == glycomedb183))

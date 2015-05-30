@@ -2,7 +2,7 @@
 GlycoCT
 =======
 
-.. currentmodule:: pygly2.io.glycoct
+.. currentmodule:: glypy.io.glycoct
 
-.. automodule:: pygly2.io.glycoct
+.. automodule:: glypy.io.glycoct
     :members:

@@ -2,16 +2,16 @@ all: develop test docs
 
 
 test:
-	nosetests --with-coverage --cover-package=pygly2 --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
+	nosetests --with-coverage --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
 
 testall:
-	nosetests --traverse-namespace --with-coverage --cover-package=pygly2,pygly2.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
+	nosetests --traverse-namespace --with-coverage --cover-package=glypy,glypy.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
 
 retest:
-	nosetests --traverse-namespace --cover-package=pygly2,pygly2.plot --logging-level=DEBUG -v --with-id --failed
+	nosetests --traverse-namespace --cover-package=glypy,glypy.plot --logging-level=DEBUG -v --with-id --failed
 clean:
-	@rm  pygly2/*/*.pyd
-	@rm  pygly2/*/*.so
+	@rm  glypy/*/*.pyd
+	@rm  glypy/*/*.so
 
 sphinx:
 	python setup.py build_sphinx

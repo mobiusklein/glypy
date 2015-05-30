@@ -4,5 +4,5 @@ Constants and Enumerations
 
 This module
 
-.. automodule:: pygly2.structure.constants
+.. automodule:: glypy.structure.constants
     :members:

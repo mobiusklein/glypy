@@ -1,3 +1,0 @@
-glypy
-glypy.plot
-glypy.tests

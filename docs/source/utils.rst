@@ -6,11 +6,11 @@ Many helper functions used throughout the rest of the library.
 
 .. currentmodule:: pygl2.utils
 
-.. automodule:: pygly2.utils.base
+.. automodule:: glypy.utils.base
     :members:
 
-.. automodule:: pygly2.utils.enum
+.. automodule:: glypy.utils.enum
     :members:
 
-.. automodule:: pygly2.utils.multimap
+.. automodule:: glypy.utils.multimap
     :members:

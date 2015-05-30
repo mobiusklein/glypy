@@ -1,7 +1,7 @@
 import sqlitedict
 import os
-from pygly2.io import glycoct
-from pygly2.io.nomenclature import identity
+from glypy.io import glycoct
+from glypy.io.nomenclature import identity
 from collections import Counter
 
 

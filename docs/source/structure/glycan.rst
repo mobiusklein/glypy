@@ -4,7 +4,7 @@ Glycan
 
 Represent polysaccharide molecules and their associated functions
 
-.. automodule:: pygly2.structure.glycan
+.. automodule:: glypy.structure.glycan
     :members:
     :exclude-members: Glycan
 
