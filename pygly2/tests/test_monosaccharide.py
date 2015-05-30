@@ -2,14 +2,14 @@ import unittest
 import json
 import itertools
 
-from pygly2.structure import named_structures, constants, monosaccharide, substituent, glycan
-from pygly2.composition import structure_composition, Composition, composition_transform
-from pygly2.io import glycoct
+from glypy.structure import named_structures, constants, monosaccharide, substituent, glycan
+from glypy.composition import structure_composition, Composition, composition_transform
+from glypy.io import glycoct
 
 from common import StringIO, load, pickle
 
 monosaccharide_structures = json.load(
-    open("./pygly2/structure/data/monosaccharides.json"))
+    open("./glypy/structure/data/monosaccharides.json"))
 
 wiki_masses = {
     "Iduronic Acid": 194.04,

@@ -31,8 +31,8 @@ def fragment_to_substructure(fragment, tree):
     """Extract the substructure of `tree` which is contained in `fragment`
 
 
-    >>> from pygly2 import glycans as glycan_factory
-    >>> from pygly2.structure import glycan
+    >>> from glypy import glycans as glycan_factory
+    >>> from glypy.structure import glycan
     >>> n_linked_core = glycan_factory["N-Linked Core"]
     >>> frag = n_linked_core.fragments().next()
     >>> frag
@@ -590,7 +590,7 @@ class Glycan(SaccharideBase):
         '''
         Serialize the |Glycan| graph object into condensed GlycoCT, using
         `buffer` to store the result. If `buffer` is |None|, then the
-        function will operate on a newly created :class:`~pygly2.utils.StringIO` object.
+        function will operate on a newly created :class:`~glypy.utils.StringIO` object.
 
         Parameters
         ----------
@@ -693,7 +693,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         '''
         return sum(
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
@@ -704,7 +704,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        :class:`~pygly2.composition.Composition`
+        :class:`~glypy.composition.Composition`
         '''
 
         return sum((node.total_composition() for node in self), Composition())
@@ -715,7 +715,7 @@ class Glycan(SaccharideBase):
 
         Returns
         -------
-        :class:`~pygly2.structure.glycan.Glycan`
+        :class:`~glypy.structure.glycan.Glycan`
         '''
         clone_root = graph_clone(self.root, visited=visited)
         duplicate = Glycan(clone_root, index_method=index_method)
@@ -728,7 +728,7 @@ class Glycan(SaccharideBase):
 
         Parameters
         ----------
-        self, other: :class:`~pygly2.structure.glycan.Glycan`
+        self, other: :class:`~glypy.structure.glycan.Glycan`
 
         Returns
         -------
@@ -736,7 +736,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :meth:`pygly2.structure.Monosaccharide.exact_ordering_equality`
+        :meth:`glypy.structure.Monosaccharide.exact_ordering_equality`
         '''
         if other is None:
             return False
@@ -759,7 +759,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :meth:`pygly2.structure.Monosaccharide.topological_equality`
+        :meth:`glypy.structure.Monosaccharide.topological_equality`
         '''
         return self.root.topological_equality(other.root)
 
@@ -783,7 +783,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         '''
         structure = self
         if not inplace:
@@ -1026,7 +1026,7 @@ class Glycan(SaccharideBase):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         :meth:`subtrees`
         :meth:`crossring_subtrees`
         :meth:`.Subtree.to_fragments`

@@ -1,17 +1,17 @@
 import json
 from collections import defaultdict
 
-import pygly2
+import glypy
 
 def main():
     store = defaultdict(list)
-    for name, glycoct in pygly2.monosaccharides.items():
+    for name, glycoct in glypy.monosaccharides.items():
         store[str(glycoct)].append(name)
     json.dump(store.values(), open("monosaccharide_synonyms.json", 'wb'), indent=2)
 
 def schematize():
     store = defaultdict(list)
-    for name, glycoct in pygly2.monosaccharides.items():
+    for name, glycoct in glypy.monosaccharides.items():
         store[str(glycoct)].append(name)
 
     json.dump([{"structure": glycoct, "names": names} for glycoct, names in store.items()], 

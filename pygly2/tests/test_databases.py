@@ -1,6 +1,6 @@
 import unittest
-from pygly2.composition import composition_transform
-from pygly2.algorithms import database
+from glypy.composition import composition_transform
+from glypy.algorithms import database
 from common import load
 
 

@@ -44,7 +44,7 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
         Object to be identified
     target: Monosaccharide, Substituent or str
         The reference type. May be a |str| object which is used to look up a |Monosaccharide| by name in
-        :obj:`pygly2.monosaccharides`
+        :obj:`glypy.monosaccharides`
     tolerance: int
         The error tolerance for the search
     include_modifications: bool
@@ -82,7 +82,7 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
     '''
     Attempt to find a common usage name for the given |Monosaccharide|, `node`. The name is determined by
     performing an incremental comparison of the traits of `node` with each named residue in the database
-    accessed at :obj:`pygly2.monosaccharides`.
+    accessed at :obj:`glypy.monosaccharides`.
 
     Parameters
     ----------
@@ -145,7 +145,7 @@ def naive_name_monosaccharide(monosaccharide):
 
     See Also
     --------
-    :func:`pygly2.io.nomenclature.identity.identify`
+    :func:`glypy.io.nomenclature.identity.identify`
 
     '''
     try:

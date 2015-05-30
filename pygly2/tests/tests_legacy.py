@@ -7,21 +7,21 @@ import json
 import itertools
 from collections import defaultdict
 
-import pygly2
-from pygly2.structure import constants, substituent, glycan, monosaccharide
-from pygly2.structure import link, named_structures, structure_composition
-from pygly2.structure import crossring_fragments
-from pygly2.io import glycoct, linear_code
-from pygly2.io.nomenclature import identity, synonyms
-from pygly2.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
-from pygly2.composition import Composition, composition_transform
-from pygly2.algorithms import subtree_search
-from pygly2.algorithms import similarity
+import glypy
+from glypy.structure import constants, substituent, glycan, monosaccharide
+from glypy.structure import link, named_structures, structure_composition
+from glypy.structure import crossring_fragments
+from glypy.io import glycoct, linear_code
+from glypy.io.nomenclature import identity, synonyms
+from glypy.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
+from glypy.composition import Composition, composition_transform
+from glypy.algorithms import subtree_search
+from glypy.algorithms import similarity
 
 from common import emit, load
 
 ReducedEnd = monosaccharide.ReducedEnd
-Substituent = pygly2.Substituent
+Substituent = glypy.Substituent
 Glycan = glycan.Glycan
 
 def debug_on(*exceptions):
@@ -44,7 +44,7 @@ glycans = named_structures.glycans
 
 # monosaccharide_masses = json.load(open("./test_data/monosaccharide_masses.json"))
 monosaccharide_structures = json.load(
-    open("./pygly2/structure/data/monosaccharides.json"))
+    open("./glypy/structure/data/monosaccharides.json"))
 
 wiki_masses = {
     "Iduronic Acid": 194.04,

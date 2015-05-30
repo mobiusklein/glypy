@@ -1,7 +1,7 @@
 import unittest
 
-from pygly2.tests import common
-from pygly2.io import iupac
+from glypy.tests import common
+from glypy.io import iupac
 
 monosaccharides = common.monosaccharides
 

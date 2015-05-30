@@ -4,11 +4,11 @@ import logging
 import functools
 from collections import Counter, Iterable, Callable
 
-import pygly2
+import glypy
 
-from pygly2.utils import pickle, classproperty, make_struct
-from pygly2.io.nomenclature.identity import naive_name_monosaccharide
-from pygly2.algorithms import subtree_search
+from glypy.utils import pickle, classproperty, make_struct
+from glypy.io.nomenclature.identity import naive_name_monosaccharide
+from glypy.algorithms import subtree_search
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -275,7 +275,7 @@ class GlycanRecordBase(object):
 
         See Also
         --------
-        :meth:`pygly2.structure.glycan.Glycan.mass`
+        :meth:`glypy.structure.glycan.Glycan.mass`
         '''
         if override is not None:
             return override
@@ -506,11 +506,11 @@ def is_n_glycan(record):
 
     See Also
     --------
-    :func:`pygly2.algorithms.subtree_search.subtree_of`
+    :func:`glypy.algorithms.subtree_search.subtree_of`
     '''
     return int(subtree_search.subtree_of(
         n_glycan_core, record.structure, exact=False) == 1)
-n_glycan_core = pygly2.glycans["N-Linked Core"]
+n_glycan_core = glypy.glycans["N-Linked Core"]
 
 
 @column_data("composition", "VARCHAR(120)", extract_composition)

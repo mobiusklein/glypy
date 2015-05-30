@@ -1,4 +1,4 @@
-from pygly2.composition import Composition
+from glypy.composition import Composition
 from collections import defaultdict
 import warnings
 

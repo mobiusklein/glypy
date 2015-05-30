@@ -61,7 +61,7 @@ def topological_inclusion(self, other, substituents=True, tolerance=0, visited=N
 
 def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visited=None):
     '''
-    A generalization of :meth:`~pygly2.structure.monosaccharide.Monosaccharide.exact_ordering_equality` which
+    A generalization of :meth:`~glypy.structure.monosaccharide.Monosaccharide.exact_ordering_equality` which
     allows for ``self`` to be matched to ``other``, but for ``other`` to include more. Consequently, this method is
     not commutative.
     '''

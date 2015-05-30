@@ -1,7 +1,7 @@
 import unittest
 
-from pygly2.composition import composition, composition_transform
-from pygly2.structure import monosaccharide
+from glypy.composition import composition, composition_transform
+from glypy.structure import monosaccharide
 
 from common import load
 
@@ -81,10 +81,10 @@ def make_composition_suite(composition_type):
                 composition.ChemicalCompositionError, lambda: protonated.calc_mass(charge=1))
     return CompositionTests
 
-from pygly2.composition.composition import PComposition
+from glypy.composition.composition import PComposition
 PCompositionTests = make_composition_suite(PComposition)
 try:
-    from pygly2.composition.composition import CComposition
+    from glypy.composition.composition import CComposition
     CCompositionTests = make_composition_suite(CComposition)
 except ImportError:
     pass

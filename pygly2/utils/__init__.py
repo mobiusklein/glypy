@@ -27,4 +27,4 @@ __all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop',
            "chrinc", "make_struct", "classproperty", "cyclewarning",
            "root", "groupby"]
 
-pkg_resources.declare_namespace('pygly2.utils')
+pkg_resources.declare_namespace('glypy.utils')

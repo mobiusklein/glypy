@@ -10,10 +10,10 @@ Currently does not handle the sigils indicating deviation from the common forms.
 import re
 from collections import OrderedDict, deque
 
-from pygly2.io import format_constants_map
-from pygly2.io.nomenclature import identity
-from pygly2.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
-from pygly2.utils import invert_dict
+from glypy.io import format_constants_map
+from glypy.io.nomenclature import identity
+from glypy.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
+from glypy.utils import invert_dict
 
 Stem = constants.Stem
 Configuration = constants.Configuration

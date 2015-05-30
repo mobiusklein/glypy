@@ -1,11 +1,11 @@
 import re
 from collections import deque
 
-from pygly2.structure import Monosaccharide, Glycan, constants, named_structures
-from pygly2.composition.structure_composition import substituent_compositions
-from pygly2.io import format_constants_map
-from pygly2.io.nomenclature import identity
-from pygly2.utils import invert_dict
+from glypy.structure import Monosaccharide, Glycan, constants, named_structures
+from glypy.composition.structure_composition import substituent_compositions
+from glypy.io import format_constants_map
+from glypy.io.nomenclature import identity
+from glypy.utils import invert_dict
 
 
 class IUPACException(Exception):

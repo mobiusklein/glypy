@@ -1,7 +1,7 @@
 import itertools
 import re
 
-from pygly2.composition import Composition
+from glypy.composition import Composition
 
 _fragment_shift = {
     "B": Composition(O=1, H=2),

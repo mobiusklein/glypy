@@ -5,9 +5,9 @@ import re
 
 from copy import deepcopy
 
-from pygly2.utils import StringIO, identity
-from pygly2.utils.lazy import ProxyObject
-from pygly2.io import glycoct
+from glypy.utils import StringIO, identity
+from glypy.utils.lazy import ProxyObject
+from glypy.io import glycoct
 
 
 class StructureIndex(dict):

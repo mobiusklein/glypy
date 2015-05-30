@@ -1,7 +1,7 @@
 import unittest
 from common import load, glycoct, glycan, multimap, pickle, named_structures, monosaccharides
 
-from pygly2.structure.fragment import Fragment
+from glypy.structure.fragment import Fragment
 
 Glycan = glycan.Glycan
 

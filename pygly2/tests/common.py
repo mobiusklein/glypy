@@ -1,12 +1,12 @@
-import pygly2
-from pygly2.structure import constants, substituent, glycan
-from pygly2.structure import link, named_structures, structure_composition
-from pygly2.io import glycoct, linear_code
-from pygly2.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
+import glypy
+from glypy.structure import constants, substituent, glycan
+from glypy.structure import link, named_structures, structure_composition
+from glypy.io import glycoct, linear_code
+from glypy.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
 
 structures = {}
 
-monosaccharides = pygly2.monosaccharides
+monosaccharides = glypy.monosaccharides
 
 
 def emit(arg):

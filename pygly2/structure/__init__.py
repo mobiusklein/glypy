@@ -7,4 +7,4 @@ from .glycan import Glycan, Monosaccharide
 from .substituent import Substituent
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification
 
-pkg_resources.declare_namespace('pygly2.structure')
+pkg_resources.declare_namespace('glypy.structure')

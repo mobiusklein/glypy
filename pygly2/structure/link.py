@@ -17,8 +17,8 @@ class Link(object):
 
     Attributes
     ----------
-    parent: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
-    child: :class:`~pygly2.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
+    parent: :class:`~glypy.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
+    child: :class:`~glypy.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
     parent_position: int
         Position of link on :attr:`parent`
     child_position: int
@@ -164,8 +164,8 @@ class Link(object):
 
         See also
         --------
-        :meth:`pygly2.structure.monosaccharide.Monosaccharide.to_glycoct`
-        :meth:`pygly2.structure.glycan.Glycan.to_glycoct`
+        :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
+        :meth:`glypy.structure.glycan.Glycan.to_glycoct`
         '''
 
         parent_loss_str, child_loss_str = self._glycoct_sigils()
@@ -487,8 +487,8 @@ class AmbiguousLink(Link):
 
         See also
         --------
-        :meth:`pygly2.structure.monosaccharide.Monosaccharide.to_glycoct`
-        :meth:`pygly2.structure.glycan.Glycan.to_glycoct`
+        :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
+        :meth:`glypy.structure.glycan.Glycan.to_glycoct`
         '''
 
         parent_loss_str, child_loss_str = self._glycoct_sigils()

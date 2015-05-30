@@ -38,7 +38,7 @@ def _get_standard_composition(monosaccharide):
 
     Returns
     -------
-    :class:`~pygly2.composition.composition.Composition`:
+    :class:`~glypy.composition.composition.Composition`:
         The baseline composition from `monosaccharide.superclass` + `monosaccharide.modifications`
     '''
     base = monosaccharide_composition[monosaccharide.superclass]
@@ -247,10 +247,10 @@ class Monosaccharide(SaccharideBase):
     Attributes
     ----------
     anomer: :class:`Anomer`
-        An entry of :class:`~pygly2.structure.constants.Anomer` that corresponds to the linkage type
+        An entry of :class:`~glypy.structure.constants.Anomer` that corresponds to the linkage type
         of the carbohydrate backbone. Is an entry of a class based on :class:`Enum`
     superclass: :class:`SuperClass`
-        An entry of :class:`~pygly2.structure.constants.SuperClass` that corresponds to the number of
+        An entry of :class:`~glypy.structure.constants.SuperClass` that corresponds to the number of
         carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the
         instance and the number of positions open to be linked to or modified. Is an entry of a class
         based on :class:`Enum`
@@ -588,7 +588,7 @@ class Monosaccharide(SaccharideBase):
             The location to add the :class:`~.constants.Modification` to.
         modification: str or Modification
             The modification to add. If passed a |str|, it will be
-            translated into an instance of :class:`~pygly2.structure.constants.Modification`
+            translated into an instance of :class:`~glypy.structure.constants.Modification`
         max_occupancy: int, optional
             The maximum number of items acceptable at `position`. defaults to :const:`1`
 
@@ -660,11 +660,11 @@ class Monosaccharide(SaccharideBase):
     def add_substituent(self, substituent, position=-1, max_occupancy=0,
                         child_position=1, parent_loss=None, child_loss=None):
         '''
-        Adds a :class:`~pygly2.structure.substituent.Substituent` and associated :class:`~pygly2.structure.link.Link`
+        Adds a :class:`~glypy.structure.substituent.Substituent` and associated :class:`~glypy.structure.link.Link`
         to :attr:`substituent_links` at the site given by ``position``. This new substituent is included when
         calculating mass with substituents included.
 
-        >>> from pygly2 import monosaccharides
+        >>> from glypy import monosaccharides
         >>> hex = monosaccharides.Hex
         >>> hexnac = monosaccharides.HexNAc
         >>> hex.add_substituent("n-acetyl", 2, parent_loss="OH")
@@ -722,7 +722,7 @@ class Monosaccharide(SaccharideBase):
         If `substituent` is |None|, then the first substituent found at `position` is
         removed.
 
-        >>> from pygly2 import monosaccharides
+        >>> from glypy import monosaccharides
         >>> hex = monosaccharides.Hex
         >>> hexnac = monosaccharides.HexNAc
         >>> hexnac.drop_substituent(2)
@@ -781,7 +781,7 @@ class Monosaccharide(SaccharideBase):
         Adds a |Monosaccharide| and associated |Link| to :attr:`links` at the site given by
         ``position``.
 
-        >>> from pygly2 import monosaccharides
+        >>> from glypy import monosaccharides
         >>> hexnac = monosaccharides.HexNAc
         >>> hex = monosaccharides.Hex
         >>> hexnac.add_monosaccharide(hex, 1)
@@ -836,7 +836,7 @@ class Monosaccharide(SaccharideBase):
 
         If there is more than one glycosidic bond at `position`, an error will be raised.
 
-        >>> from pygly2 import glycans
+        >>> from glypy import glycans
         >>> n_linked_core = glycans["N-Linked Core"]
         >>> n_linked_core.root.drop_monosaccharide(4)
         RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
@@ -895,9 +895,9 @@ class Monosaccharide(SaccharideBase):
         Parameters
         ----------
         res_index : function, optional
-            A function to yield index numbers for the *RES* section. If not provided, defaults to :func:`~pygly2.utils.make_counter`
+            A function to yield index numbers for the *RES* section. If not provided, defaults to :func:`~glypy.utils.make_counter`
         lin_index : function, optional
-            A function to yield index numbers for the *LIN* section. If not provided, defaults to :func:`~pygly2.utils.make_counter`
+            A function to yield index numbers for the *LIN* section. If not provided, defaults to :func:`~glypy.utils.make_counter`
         complete : bool, optional
             Format the object completely, returning a self-contained condensed GlycoCT string. Defaults to :const:`True`
 
@@ -1153,7 +1153,7 @@ class Monosaccharide(SaccharideBase):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         '''
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
@@ -1169,11 +1169,11 @@ class Monosaccharide(SaccharideBase):
     def total_composition(self):
         '''
         Computes the sum of the composition of ``self`` and each of its linked
-        :class:`~pygly2.structure.substituent.Substituent`s
+        :class:`~glypy.structure.substituent.Substituent`s
 
         Returns
         -------
-        :class:`~pygly2.composition.Composition`
+        :class:`~glypy.composition.Composition`
         '''
         comp = self.composition.clone()
         for p, sub in self.substituents():
@@ -1190,7 +1190,7 @@ class Monosaccharide(SaccharideBase):
 
         Alias for `__iter__`
 
-        >>> from pygly2 import glycans
+        >>> from glypy import glycans
         >>> n_linked_core = glycans["N-Linked Core"]
         >>> ch = n_linked_core.root.children()
         >>> ch.next()
@@ -1424,7 +1424,7 @@ class ReducedEnd(object):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         '''
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
@@ -1469,7 +1469,7 @@ class ReducedEnd(object):
 
         Returns
         -------
-        :class:`~pygly2.composition.Composition`
+        :class:`~glypy.composition.Composition`
         '''
         comp = self.composition
         for pos, sub in self.children():

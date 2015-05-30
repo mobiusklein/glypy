@@ -115,7 +115,7 @@ class CrossRingPair(object):
         Sets :attr:`parent` to the resulting `X` fragment and :attr:`child` to the resulting
         `A` fragment.
 
-        Sets :attr:`toggler` to an instance of :class:`pygly2.structure.link.LinkMaskContext`
+        Sets :attr:`toggler` to an instance of :class:`glypy.structure.link.LinkMaskContext`
         and calls its :meth:`mask` method to hide the links attached to :attr:`residue` after
         they have been duplicated on the resulting fragments.
 
@@ -203,7 +203,7 @@ class CrossRingFragment(Monosaccharide):
 
     def attach(self):
         '''
-        Calls :meth:`pygly2.structure.link.Link.apply` for each |Link| in :attr:`_link_cache`
+        Calls :meth:`glypy.structure.link.Link.apply` for each |Link| in :attr:`_link_cache`
         '''
         for link in self._link_cache:
             if not link.is_attached():
@@ -211,7 +211,7 @@ class CrossRingFragment(Monosaccharide):
 
     def release(self):
         '''
-        Calls :meth:`pygly2.structure.link.Link.break_link` with `refund=True` for each |Link| in :attr:`_link_cache`
+        Calls :meth:`glypy.structure.link.Link.break_link` with `refund=True` for each |Link| in :attr:`_link_cache`
         '''
         for link in self.links.values():
             if link.is_attached():
@@ -226,7 +226,7 @@ class CrossRingFragment(Monosaccharide):
 
         See Also
         --------
-        :meth:`pygly2.structure.monosaccharide.Monosaccharide.clone`
+        :meth:`glypy.structure.monosaccharide.Monosaccharide.clone`
         """
         modifications = OrderedMultiMap()
         for k, v in self.modifications.items():
@@ -283,7 +283,7 @@ class CrossRingFragment(Monosaccharide):
 
         See Also
         --------
-        pygly2.structure.glycan.Glycan.mass
+        glypy.structure.glycan.Glycan.mass
         '''
         return sum(
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in traverse(self))

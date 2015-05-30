@@ -154,7 +154,7 @@ class Substituent(SubstituentBase):
     def add_substituent(self, substitent, position=2, max_occupancy=1,
                         child_position=1, parent_loss=None, child_loss=None):
         '''
-        Adds a :class:`~pygly2.structure.substituent.Substituent` and associated :class:`~pygly2.structure.link.Link`
+        Adds a :class:`~glypy.structure.substituent.Substituent` and associated :class:`~glypy.structure.link.Link`
         to :attr:`links` at the site given by ``position``. This new substituent is included when calculating mass
         with substituents included
 
@@ -226,7 +226,7 @@ class Substituent(SubstituentBase):
 
         See also
         --------
-        :func:`pygly2.composition.composition.calculate_mass`
+        :func:`glypy.composition.composition.calculate_mass`
         '''
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
@@ -283,7 +283,7 @@ class Substituent(SubstituentBase):
 
         Returns
         -------
-        :class:`~pygly2.composition.Composition`
+        :class:`~glypy.composition.Composition`
         '''
         comp = self.composition
         for pos, sub in self.children():

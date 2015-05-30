@@ -250,8 +250,8 @@ class __Pyx_FakeReference {
 #define _USE_MATH_DEFINES
 #endif
 #include <math.h>
-#define __PYX_HAVE__pygly2__composition__ccomposition
-#define __PYX_HAVE_API__pygly2__composition__ccomposition
+#define __PYX_HAVE__glypy__composition__ccomposition
+#define __PYX_HAVE_API__glypy__composition__ccomposition
 #include "string.h"
 #include "stdlib.h"
 #ifdef _OPENMP
@@ -436,63 +436,63 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "pygly2\\composition\\ccomposition.pyx",
+  "glypy\\composition\\ccomposition.pyx",
 };
 
 /*--- Type declarations ---*/
-struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition;
-struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope;
-struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass;
-struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass;
+struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition;
+struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope;
+struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass;
+struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass;
 
-/* "pygly2\composition\ccomposition.pxd":4
+/* "glypy\composition\ccomposition.pxd":4
  * cdef class CComposition(dict):
  *     cpdef CComposition clone(self)
  *     cpdef double calc_mass(self, int average=?, charge=?, dict mass_data=?) except -1             # <<<<<<<<<<<<<<
  *     cpdef _from_formula(self, str formula, dict mass_data)
  *     cpdef _from_dict(self, comp)
  */
-struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass {
+struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass {
   int __pyx_n;
   int average;
   PyObject *charge;
   PyObject *mass_data;
 };
 
-/* "pygly2\composition\ccomposition.pxd":22
+/* "glypy\composition\ccomposition.pxd":22
  * 
  * 
  * cpdef inline double calculate_mass(CComposition composition=?, str formula=?, int average=?, charge=?, mass_data=?) except -1             # <<<<<<<<<<<<<<
  */
-struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass {
+struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass {
   int __pyx_n;
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *composition;
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *composition;
   PyObject *formula;
   int average;
   PyObject *charge;
   PyObject *mass_data;
 };
 
-/* "pygly2\composition\ccomposition.pxd":2
+/* "glypy\composition\ccomposition.pxd":2
  * 
  * cdef class CComposition(dict):             # <<<<<<<<<<<<<<
  *     cpdef CComposition clone(self)
  *     cpdef double calc_mass(self, int average=?, charge=?, dict mass_data=?) except -1
  */
-struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition {
+struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition {
   PyDictObject __pyx_base;
-  struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *__pyx_vtab;
+  struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *__pyx_vtab;
 };
 
 
-/* "pygly2\composition\ccomposition.pyx":13
+/* "glypy\composition\ccomposition.pyx":13
  * 
  * @cython.freelist(1)
  * cdef class Isotope:             # <<<<<<<<<<<<<<
  * 
  *     cdef int isotope_number
  */
-struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope {
+struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope {
   PyObject_HEAD
   int isotope_number;
   PyObject *element_name;
@@ -500,7 +500,7 @@ struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope {
 
 
 
-/* "pygly2\composition\ccomposition.pyx":73
+/* "glypy\composition\ccomposition.pyx":73
  * 
  * 
  * cdef class CComposition(dict):             # <<<<<<<<<<<<<<
@@ -508,13 +508,13 @@ struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope {
  *     def __str__(self):   # pragma: no cover
  */
 
-struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *(*clone)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch);
-  double (*calc_mass)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args);
-  PyObject *(*_from_formula)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, PyObject *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*_from_dict)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *(*clone)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch);
+  double (*calc_mass)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args);
+  PyObject *(*_from_formula)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, PyObject *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*_from_dict)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *__pyx_vtabptr_6pygly2_11composition_12ccomposition_CComposition;
+static struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *__pyx_vtabptr_6glypy_11composition_12ccomposition_CComposition;
 
 /* --- Runtime support code (head) --- */
 #ifndef CYTHON_REFNANNY
@@ -931,10 +931,10 @@ static int __Pyx_ExportFunction(const char *name, void (*f)(void), const char *s
 
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition_clone(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_formula(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_dict(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp, int __pyx_skip_dispatch); /* proto*/
-static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_mass(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args); /* proto*/
+static struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_f_6glypy_11composition_12ccomposition_12CComposition_clone(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_formula(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_dict(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp, int __pyx_skip_dispatch); /* proto*/
+static double __pyx_f_6glypy_11composition_12ccomposition_12CComposition_calc_mass(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args); /* proto*/
 
 /* Module declarations from 'cython' */
 
@@ -942,53 +942,53 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
 
 /* Module declarations from 'libc.stdlib' */
 
-/* Module declarations from 'pygly2.composition.ccomposition' */
-static PyTypeObject *__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition = 0;
-static PyTypeObject *__pyx_ptype_6pygly2_11composition_12ccomposition_Isotope = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition__atom = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition__formula = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition__isotope_string = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition_isotope_pattern = 0;
-static PyObject *__pyx_v_6pygly2_11composition_12ccomposition_formula_pattern = 0;
-static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__parse_isotope_string(PyObject *); /*proto*/
-static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__make_isotope_string(PyObject *, int); /*proto*/
-static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calculate_mass(int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass *__pyx_optional_args); /*proto*/
-#define __Pyx_MODULE_NAME "pygly2.composition.ccomposition"
-int __pyx_module_is_main_pygly2__composition__ccomposition = 0;
+/* Module declarations from 'glypy.composition.ccomposition' */
+static PyTypeObject *__pyx_ptype_6glypy_11composition_12ccomposition_CComposition = 0;
+static PyTypeObject *__pyx_ptype_6glypy_11composition_12ccomposition_Isotope = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition_std_mol_comp = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition__atom = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition__formula = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition__isotope_string = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition_isotope_pattern = 0;
+static PyObject *__pyx_v_6glypy_11composition_12ccomposition_formula_pattern = 0;
+static CYTHON_INLINE PyObject *__pyx_f_6glypy_11composition_12ccomposition__parse_isotope_string(PyObject *); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_f_6glypy_11composition_12ccomposition__make_isotope_string(PyObject *, int); /*proto*/
+static CYTHON_INLINE double __pyx_f_6glypy_11composition_12ccomposition_calculate_mass(int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args); /*proto*/
+#define __Pyx_MODULE_NAME "glypy.composition.ccomposition"
+int __pyx_module_is_main_glypy__composition__ccomposition = 0;
 
-/* Implementation of 'pygly2.composition.ccomposition' */
+/* Implementation of 'glypy.composition.ccomposition' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_NotImplemented;
 static PyObject *__pyx_builtin_super;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_sorted;
-static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *__pyx_v_self, PyObject *__pyx_v_element_name, int __pyx_v_isotope_number); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___str__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2__repr__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4__iadd__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8__isub__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12__reduce__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14__getstate__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16__setstate__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_d); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22__neg__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24__missing__(CYTHON_UNUSED struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_key); /* proto */
-static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__setitem__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_key, int __pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28copy(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30clone(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32_from_formula(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34_from_formula_parens(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36_from_dict(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38calc_mass(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
-static PyObject *__pyx_tp_new_6pygly2_11composition_12ccomposition_CComposition(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pygly2_11composition_12ccomposition_Isotope(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_6glypy_11composition_12ccomposition_7Isotope___cinit__(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *__pyx_v_self, PyObject *__pyx_v_element_name, int __pyx_v_isotope_number); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition___str__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_2__repr__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4__iadd__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_6__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_8__isub__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_10__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_12__reduce__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_14__getstate__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_16__setstate__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_d); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_18__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_20__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_22__neg__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_24__missing__(CYTHON_UNUSED struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_key); /* proto */
+static int __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_26__setitem__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_key, int __pyx_v_value); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_28copy(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_30clone(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_32_from_formula(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_34_from_formula_parens(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_36_from_dict(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_38calc_mass(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
+static int __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_40__init__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
+static PyObject *__pyx_tp_new_6glypy_11composition_12ccomposition_CComposition(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_6glypy_11composition_12ccomposition_Isotope(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static char __pyx_k_[] = "]";
 static char __pyx_k_A[] = "A";
 static char __pyx_k_C[] = "C";
@@ -1280,7 +1280,7 @@ static PyObject *__pyx_tuple__11;
 static PyObject *__pyx_tuple__12;
 static PyObject *__pyx_tuple__13;
 
-/* "pygly2\composition\ccomposition.pyx":18
+/* "glypy\composition\ccomposition.pyx":18
  *     cdef str element_name
  * 
  *     def __cinit__(self, str element_name, int isotope_number):             # <<<<<<<<<<<<<<
@@ -1289,8 +1289,8 @@ static PyObject *__pyx_tuple__13;
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pygly2_11composition_12ccomposition_7Isotope_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pygly2_11composition_12ccomposition_7Isotope_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_6glypy_11composition_12ccomposition_7Isotope_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_6glypy_11composition_12ccomposition_7Isotope_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_element_name = 0;
   int __pyx_v_isotope_number;
   int __pyx_lineno = 0;
@@ -1338,12 +1338,12 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_7Isotope_1__cinit__(PyO
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.Isotope.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.Isotope.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_element_name), (&PyString_Type), 1, "element_name", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *)__pyx_v_self), __pyx_v_element_name, __pyx_v_isotope_number);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_7Isotope___cinit__(((struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *)__pyx_v_self), __pyx_v_element_name, __pyx_v_isotope_number);
 
   /* function exit code */
   goto __pyx_L0;
@@ -1354,14 +1354,14 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_7Isotope_1__cinit__(PyO
   return __pyx_r;
 }
 
-static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *__pyx_v_self, PyObject *__pyx_v_element_name, int __pyx_v_isotope_number) {
+static int __pyx_pf_6glypy_11composition_12ccomposition_7Isotope___cinit__(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *__pyx_v_self, PyObject *__pyx_v_element_name, int __pyx_v_isotope_number) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_TraceDeclarations(NULL)
   __Pyx_RefNannySetupContext("__cinit__", 0);
   __Pyx_TraceCall("__cinit__", __pyx_f[0], 18);
 
-  /* "pygly2\composition\ccomposition.pyx":19
+  /* "glypy\composition\ccomposition.pyx":19
  * 
  *     def __cinit__(self, str element_name, int isotope_number):
  *         self.isotope_number = isotope_number             # <<<<<<<<<<<<<<
@@ -1370,7 +1370,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(stru
  */
   __pyx_v_self->isotope_number = __pyx_v_isotope_number;
 
-  /* "pygly2\composition\ccomposition.pyx":20
+  /* "glypy\composition\ccomposition.pyx":20
  *     def __cinit__(self, str element_name, int isotope_number):
  *         self.isotope_number = isotope_number
  *         self.element_name = element_name             # <<<<<<<<<<<<<<
@@ -1383,7 +1383,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(stru
   __Pyx_DECREF(__pyx_v_self->element_name);
   __pyx_v_self->element_name = __pyx_v_element_name;
 
-  /* "pygly2\composition\ccomposition.pyx":18
+  /* "glypy\composition\ccomposition.pyx":18
  *     cdef str element_name
  * 
  *     def __cinit__(self, str element_name, int isotope_number):             # <<<<<<<<<<<<<<
@@ -1398,7 +1398,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(stru
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":35
+/* "glypy\composition\ccomposition.pyx":35
  * 
  * @cython.boundscheck(False)
  * cdef inline tuple _parse_isotope_string(str label):             # <<<<<<<<<<<<<<
@@ -1406,7 +1406,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_7Isotope___cinit__(stru
  *         int isotope_num = 0
  */
 
-static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__parse_isotope_string(PyObject *__pyx_v_label) {
+static CYTHON_INLINE PyObject *__pyx_f_6glypy_11composition_12ccomposition__parse_isotope_string(PyObject *__pyx_v_label) {
   int __pyx_v_isotope_num;
   int __pyx_v_i;
   int __pyx_v_in_bracket;
@@ -1430,7 +1430,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __Pyx_RefNannySetupContext("_parse_isotope_string", 0);
   __Pyx_TraceCall("_parse_isotope_string", __pyx_f[0], 35);
 
-  /* "pygly2\composition\ccomposition.pyx":37
+  /* "glypy\composition\ccomposition.pyx":37
  * cdef inline tuple _parse_isotope_string(str label):
  *     cdef:
  *         int isotope_num = 0             # <<<<<<<<<<<<<<
@@ -1439,7 +1439,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
  */
   __pyx_v_isotope_num = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":38
+  /* "glypy\composition\ccomposition.pyx":38
  *     cdef:
  *         int isotope_num = 0
  *         int i = 0             # <<<<<<<<<<<<<<
@@ -1448,7 +1448,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
  */
   __pyx_v_i = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":39
+  /* "glypy\composition\ccomposition.pyx":39
  *         int isotope_num = 0
  *         int i = 0
  *         int in_bracket = False             # <<<<<<<<<<<<<<
@@ -1457,7 +1457,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
  */
   __pyx_v_in_bracket = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":42
+  /* "glypy\composition\ccomposition.pyx":42
  *         str element_name
  *         str current
  *         list name_parts = []             # <<<<<<<<<<<<<<
@@ -1469,7 +1469,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_v_name_parts = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":43
+  /* "glypy\composition\ccomposition.pyx":43
  *         str current
  *         list name_parts = []
  *         list num_parts = []             # <<<<<<<<<<<<<<
@@ -1481,7 +1481,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_v_num_parts = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":45
+  /* "glypy\composition\ccomposition.pyx":45
  *         list num_parts = []
  *         #Isotope result
  *     for i in range(len(label)):             # <<<<<<<<<<<<<<
@@ -1492,7 +1492,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pygly2\composition\ccomposition.pyx":46
+    /* "glypy\composition\ccomposition.pyx":46
  *         #Isotope result
  *     for i in range(len(label)):
  *         current = label[i]             # <<<<<<<<<<<<<<
@@ -1505,7 +1505,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
     __Pyx_XDECREF_SET(__pyx_v_current, ((PyObject*)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":47
+    /* "glypy\composition\ccomposition.pyx":47
  *     for i in range(len(label)):
  *         current = label[i]
  *         if in_bracket:             # <<<<<<<<<<<<<<
@@ -1515,7 +1515,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
     __pyx_t_4 = (__pyx_v_in_bracket != 0);
     if (__pyx_t_4) {
 
-      /* "pygly2\composition\ccomposition.pyx":48
+      /* "glypy\composition\ccomposition.pyx":48
  *         current = label[i]
  *         if in_bracket:
  *             if current == "]":             # <<<<<<<<<<<<<<
@@ -1526,7 +1526,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
       __pyx_t_5 = (__pyx_t_4 != 0);
       if (__pyx_t_5) {
 
-        /* "pygly2\composition\ccomposition.pyx":49
+        /* "glypy\composition\ccomposition.pyx":49
  *         if in_bracket:
  *             if current == "]":
  *                 break             # <<<<<<<<<<<<<<
@@ -1536,7 +1536,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
         goto __pyx_L4_break;
       }
 
-      /* "pygly2\composition\ccomposition.pyx":50
+      /* "glypy\composition\ccomposition.pyx":50
  *             if current == "]":
  *                 break
  *             num_parts.append(current)             # <<<<<<<<<<<<<<
@@ -1547,7 +1547,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
       goto __pyx_L5;
     }
 
-    /* "pygly2\composition\ccomposition.pyx":51
+    /* "glypy\composition\ccomposition.pyx":51
  *                 break
  *             num_parts.append(current)
  *         elif current == "[":             # <<<<<<<<<<<<<<
@@ -1558,7 +1558,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
     __pyx_t_4 = (__pyx_t_5 != 0);
     if (__pyx_t_4) {
 
-      /* "pygly2\composition\ccomposition.pyx":52
+      /* "glypy\composition\ccomposition.pyx":52
  *             num_parts.append(current)
  *         elif current == "[":
  *             in_bracket = True             # <<<<<<<<<<<<<<
@@ -1570,7 +1570,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
     }
     /*else*/ {
 
-      /* "pygly2\composition\ccomposition.pyx":54
+      /* "glypy\composition\ccomposition.pyx":54
  *             in_bracket = True
  *         else:
  *             name_parts.append(current)             # <<<<<<<<<<<<<<
@@ -1583,7 +1583,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   }
   __pyx_L4_break:;
 
-  /* "pygly2\composition\ccomposition.pyx":55
+  /* "glypy\composition\ccomposition.pyx":55
  *         else:
  *             name_parts.append(current)
  *     element_name = ''.join(name_parts)             # <<<<<<<<<<<<<<
@@ -1596,7 +1596,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_v_element_name = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":56
+  /* "glypy\composition\ccomposition.pyx":56
  *             name_parts.append(current)
  *     element_name = ''.join(name_parts)
  *     if len(num_parts) > 0:             # <<<<<<<<<<<<<<
@@ -1607,7 +1607,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_t_4 = ((__pyx_t_2 > 0) != 0);
   if (__pyx_t_4) {
 
-    /* "pygly2\composition\ccomposition.pyx":57
+    /* "glypy\composition\ccomposition.pyx":57
  *     element_name = ''.join(name_parts)
  *     if len(num_parts) > 0:
  *         isotope_num = int(''.join(num_parts))             # <<<<<<<<<<<<<<
@@ -1626,7 +1626,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":59
+    /* "glypy\composition\ccomposition.pyx":59
  *         isotope_num = int(''.join(num_parts))
  *     else:
  *         isotope_num = 0             # <<<<<<<<<<<<<<
@@ -1637,7 +1637,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   }
   __pyx_L7:;
 
-  /* "pygly2\composition\ccomposition.pyx":60
+  /* "glypy\composition\ccomposition.pyx":60
  *     else:
  *         isotope_num = 0
  *     return element_name, isotope_num             # <<<<<<<<<<<<<<
@@ -1659,7 +1659,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":35
+  /* "glypy\composition\ccomposition.pyx":35
  * 
  * @cython.boundscheck(False)
  * cdef inline tuple _parse_isotope_string(str label):             # <<<<<<<<<<<<<<
@@ -1671,7 +1671,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition._parse_isotope_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition._parse_isotope_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_element_name);
@@ -1684,7 +1684,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":65
+/* "glypy\composition\ccomposition.pyx":65
  * 
  * 
  * cdef inline str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
@@ -1692,7 +1692,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__par
  *     if isotope_num == 0:
  */
 
-static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__make_isotope_string(PyObject *__pyx_v_element_name, int __pyx_v_isotope_num) {
+static CYTHON_INLINE PyObject *__pyx_f_6glypy_11composition_12ccomposition__make_isotope_string(PyObject *__pyx_v_element_name, int __pyx_v_isotope_num) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -1705,7 +1705,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
   __Pyx_RefNannySetupContext("_make_isotope_string", 0);
   __Pyx_TraceCall("_make_isotope_string", __pyx_f[0], 65);
 
-  /* "pygly2\composition\ccomposition.pyx":67
+  /* "glypy\composition\ccomposition.pyx":67
  * cdef inline str _make_isotope_string(str element_name, int isotope_num):
  *     """Form a string label for an isotope."""
  *     if isotope_num == 0:             # <<<<<<<<<<<<<<
@@ -1715,7 +1715,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
   __pyx_t_1 = ((__pyx_v_isotope_num == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pygly2\composition\ccomposition.pyx":68
+    /* "glypy\composition\ccomposition.pyx":68
  *     """Form a string label for an isotope."""
  *     if isotope_num == 0:
  *         return element_name             # <<<<<<<<<<<<<<
@@ -1729,7 +1729,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":70
+    /* "glypy\composition\ccomposition.pyx":70
  *         return element_name
  *     else:
  *         return '%s[%d]' % (element_name, isotope_num)             # <<<<<<<<<<<<<<
@@ -1756,7 +1756,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
     goto __pyx_L0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":65
+  /* "glypy\composition\ccomposition.pyx":65
  * 
  * 
  * cdef inline str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
@@ -1768,7 +1768,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition._make_isotope_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition._make_isotope_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1777,7 +1777,7 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":75
+/* "glypy\composition\ccomposition.pyx":75
  * cdef class CComposition(dict):
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1786,19 +1786,19 @@ static CYTHON_INLINE PyObject *__pyx_f_6pygly2_11composition_12ccomposition__mak
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_1__str__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_1__str__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_1__str__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_1__str__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__str__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___str__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition___str__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___str__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition___str__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1814,7 +1814,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___
   __Pyx_RefNannySetupContext("__str__", 0);
   __Pyx_TraceCall("__str__", __pyx_f[0], 75);
 
-  /* "pygly2\composition\ccomposition.pyx":76
+  /* "glypy\composition\ccomposition.pyx":76
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover
  *         return 'Composition({})'.format(dict.__repr__(self))             # <<<<<<<<<<<<<<
@@ -1881,7 +1881,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":75
+  /* "glypy\composition\ccomposition.pyx":75
  * cdef class CComposition(dict):
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1897,7 +1897,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1906,7 +1906,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":78
+/* "glypy\composition\ccomposition.pyx":78
  *         return 'Composition({})'.format(dict.__repr__(self))
  * 
  *     def __repr__(self):  # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1915,19 +1915,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition___
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_3__repr__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_3__repr__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_3__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_3__repr__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2__repr__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_2__repr__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2__repr__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_2__repr__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1939,7 +1939,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2_
   __Pyx_RefNannySetupContext("__repr__", 0);
   __Pyx_TraceCall("__repr__", __pyx_f[0], 78);
 
-  /* "pygly2\composition\ccomposition.pyx":79
+  /* "glypy\composition\ccomposition.pyx":79
  * 
  *     def __repr__(self):  # pragma: no cover
  *         return str(self)             # <<<<<<<<<<<<<<
@@ -1959,7 +1959,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2_
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":78
+  /* "glypy\composition\ccomposition.pyx":78
  *         return 'Composition({})'.format(dict.__repr__(self))
  * 
  *     def __repr__(self):  # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1971,7 +1971,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2_
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1980,7 +1980,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2_
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":81
+/* "glypy\composition\ccomposition.pyx":81
  *         return str(self)
  * 
  *     def __iadd__(CComposition self, other):             # <<<<<<<<<<<<<<
@@ -1989,19 +1989,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_2_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_5__iadd__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_5__iadd__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_5__iadd__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_5__iadd__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iadd__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4__iadd__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_other));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4__iadd__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4__iadd__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4__iadd__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_v_elem = 0;
   int __pyx_v_cnt;
   PyObject *__pyx_r = NULL;
@@ -2023,7 +2023,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
   __Pyx_RefNannySetupContext("__iadd__", 0);
   __Pyx_TraceCall("__iadd__", __pyx_f[0], 81);
 
-  /* "pygly2\composition\ccomposition.pyx":85
+  /* "glypy\composition\ccomposition.pyx":85
  *             str elem
  *             int cnt
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2145,7 +2145,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
     __pyx_t_3 = 0;
     __pyx_v_cnt = __pyx_t_9;
 
-    /* "pygly2\composition\ccomposition.pyx":86
+    /* "glypy\composition\ccomposition.pyx":86
  *             int cnt
  *         for elem, cnt in other.items():
  *             self[elem] += cnt             # <<<<<<<<<<<<<<
@@ -2166,7 +2166,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":85
+    /* "glypy\composition\ccomposition.pyx":85
  *             str elem
  *             int cnt
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2176,7 +2176,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":87
+  /* "glypy\composition\ccomposition.pyx":87
  *         for elem, cnt in other.items():
  *             self[elem] += cnt
  *         return self             # <<<<<<<<<<<<<<
@@ -2188,7 +2188,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":81
+  /* "glypy\composition\ccomposition.pyx":81
  *         return str(self)
  * 
  *     def __iadd__(CComposition self, other):             # <<<<<<<<<<<<<<
@@ -2204,7 +2204,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__iadd__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__iadd__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
@@ -2214,7 +2214,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":89
+/* "glypy\composition\ccomposition.pyx":89
  *         return self
  * 
  *     def __add__(self, other):             # <<<<<<<<<<<<<<
@@ -2223,22 +2223,22 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_7__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_7__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_7__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_7__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__add__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6__add__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_6__add__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_6__add__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_v_elem = 0;
   int __pyx_v_cnt;
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_result = 0;
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_result = 0;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2264,18 +2264,18 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_INCREF(__pyx_v_other);
 
-  /* "pygly2\composition\ccomposition.pyx":94
+  /* "glypy\composition\ccomposition.pyx":94
  *             int cnt
  *             CComposition result
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
  *             other, self = self, other
  *         result = self.clone()
  */
-  __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_self, ((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)); 
+  __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_self, ((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)); 
   __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":95
+    /* "glypy\composition\ccomposition.pyx":95
  *             CComposition result
  *         if not isinstance(self, CComposition):
  *             other, self = self, other             # <<<<<<<<<<<<<<
@@ -2292,7 +2292,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":96
+  /* "glypy\composition\ccomposition.pyx":96
  *         if not isinstance(self, CComposition):
  *             other, self = self, other
  *         result = self.clone()             # <<<<<<<<<<<<<<
@@ -2319,11 +2319,11 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   }
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_6pygly2_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_result = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_t_5);
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_6glypy_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_result = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":97
+  /* "glypy\composition\ccomposition.pyx":97
  *             other, self = self, other
  *         result = self.clone()
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2445,7 +2445,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
     __pyx_t_7 = 0;
     __pyx_v_cnt = __pyx_t_13;
 
-    /* "pygly2\composition\ccomposition.pyx":98
+    /* "glypy\composition\ccomposition.pyx":98
  *         result = self.clone()
  *         for elem, cnt in other.items():
  *             result[elem] += cnt             # <<<<<<<<<<<<<<
@@ -2466,7 +2466,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":97
+    /* "glypy\composition\ccomposition.pyx":97
  *             other, self = self, other
  *         result = self.clone()
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2476,7 +2476,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":99
+  /* "glypy\composition\ccomposition.pyx":99
  *         for elem, cnt in other.items():
  *             result[elem] += cnt
  *         return result             # <<<<<<<<<<<<<<
@@ -2488,7 +2488,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":89
+  /* "glypy\composition\ccomposition.pyx":89
  *         return self
  * 
  *     def __add__(self, other):             # <<<<<<<<<<<<<<
@@ -2504,7 +2504,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_14);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__add__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__add__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
@@ -2517,7 +2517,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":102
+/* "glypy\composition\ccomposition.pyx":102
  * 
  * 
  *     def __isub__(self, other):             # <<<<<<<<<<<<<<
@@ -2526,19 +2526,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_6_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_9__isub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_9__isub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_9__isub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_9__isub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__isub__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8__isub__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_other));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_8__isub__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8__isub__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_8__isub__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_v_elem = NULL;
   PyObject *__pyx_v_cnt = NULL;
   PyObject *__pyx_r = NULL;
@@ -2558,7 +2558,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
   __Pyx_RefNannySetupContext("__isub__", 0);
   __Pyx_TraceCall("__isub__", __pyx_f[0], 102);
 
-  /* "pygly2\composition\ccomposition.pyx":103
+  /* "glypy\composition\ccomposition.pyx":103
  * 
  *     def __isub__(self, other):
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2678,7 +2678,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
     __Pyx_XDECREF_SET(__pyx_v_cnt, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":104
+    /* "glypy\composition\ccomposition.pyx":104
  *     def __isub__(self, other):
  *         for elem, cnt in other.items():
  *             self[elem] -= cnt             # <<<<<<<<<<<<<<
@@ -2696,7 +2696,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":103
+    /* "glypy\composition\ccomposition.pyx":103
  * 
  *     def __isub__(self, other):
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2706,7 +2706,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":105
+  /* "glypy\composition\ccomposition.pyx":105
  *         for elem, cnt in other.items():
  *             self[elem] -= cnt
  *         return self             # <<<<<<<<<<<<<<
@@ -2718,7 +2718,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":102
+  /* "glypy\composition\ccomposition.pyx":102
  * 
  * 
  *     def __isub__(self, other):             # <<<<<<<<<<<<<<
@@ -2733,7 +2733,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__isub__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__isub__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
@@ -2744,7 +2744,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":107
+/* "glypy\composition\ccomposition.pyx":107
  *         return self
  * 
  *     def __sub__(self, other):             # <<<<<<<<<<<<<<
@@ -2753,22 +2753,22 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_8_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_11__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_11__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_11__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_11__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__sub__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10__sub__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_10__sub__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_10__sub__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_v_elem = 0;
   int __pyx_v_cnt;
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_result = 0;
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_result = 0;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2791,18 +2791,18 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   __Pyx_TraceCall("__sub__", __pyx_f[0], 107);
   __Pyx_INCREF(__pyx_v_self);
 
-  /* "pygly2\composition\ccomposition.pyx":112
+  /* "glypy\composition\ccomposition.pyx":112
  *             int cnt
  *             CComposition result
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
  *             self = CComposition(self)
  *         result = self.clone()
  */
-  __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_self, ((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)); 
+  __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_self, ((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)); 
   __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":113
+    /* "glypy\composition\ccomposition.pyx":113
  *             CComposition result
  *         if not isinstance(self, CComposition):
  *             self = CComposition(self)             # <<<<<<<<<<<<<<
@@ -2814,7 +2814,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
     __Pyx_INCREF(__pyx_v_self);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_self);
     __Pyx_GIVEREF(__pyx_v_self);
-    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 113; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 113; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_self, __pyx_t_4);
@@ -2823,7 +2823,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":114
+  /* "glypy\composition\ccomposition.pyx":114
  *         if not isinstance(self, CComposition):
  *             self = CComposition(self)
  *         result = self.clone()             # <<<<<<<<<<<<<<
@@ -2850,11 +2850,11 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   }
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6pygly2_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 114; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_result = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_t_4);
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_6glypy_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 114; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_result = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":115
+  /* "glypy\composition\ccomposition.pyx":115
  *             self = CComposition(self)
  *         result = self.clone()
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -2976,7 +2976,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
     __pyx_t_5 = 0;
     __pyx_v_cnt = __pyx_t_11;
 
-    /* "pygly2\composition\ccomposition.pyx":116
+    /* "glypy\composition\ccomposition.pyx":116
  *         result = self.clone()
  *         for elem, cnt in other.items():
  *             result[elem] -= cnt             # <<<<<<<<<<<<<<
@@ -2997,7 +2997,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":115
+    /* "glypy\composition\ccomposition.pyx":115
  *             self = CComposition(self)
  *         result = self.clone()
  *         for elem, cnt in other.items():             # <<<<<<<<<<<<<<
@@ -3007,7 +3007,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":117
+  /* "glypy\composition\ccomposition.pyx":117
  *         for elem, cnt in other.items():
  *             result[elem] -= cnt
  *         return result             # <<<<<<<<<<<<<<
@@ -3019,7 +3019,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":107
+  /* "glypy\composition\ccomposition.pyx":107
  *         return self
  * 
  *     def __sub__(self, other):             # <<<<<<<<<<<<<<
@@ -3035,7 +3035,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__sub__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__sub__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
@@ -3047,7 +3047,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":119
+/* "glypy\composition\ccomposition.pyx":119
  *         return result
  * 
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -3056,19 +3056,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_10
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_13__reduce__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_13__reduce__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_13__reduce__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_13__reduce__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12__reduce__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_12__reduce__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12__reduce__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_12__reduce__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3083,7 +3083,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12
   __Pyx_RefNannySetupContext("__reduce__", 0);
   __Pyx_TraceCall("__reduce__", __pyx_f[0], 119);
 
-  /* "pygly2\composition\ccomposition.pyx":120
+  /* "glypy\composition\ccomposition.pyx":120
  * 
  *     def __reduce__(self):
  *         return composition_factory, (list(self),), self.__getstate__()             # <<<<<<<<<<<<<<
@@ -3135,7 +3135,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":119
+  /* "glypy\composition\ccomposition.pyx":119
  *         return result
  * 
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -3150,7 +3150,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__reduce__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__reduce__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3159,7 +3159,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":122
+/* "glypy\composition\ccomposition.pyx":122
  *         return composition_factory, (list(self),), self.__getstate__()
  * 
  *     def __getstate__(self):             # <<<<<<<<<<<<<<
@@ -3168,19 +3168,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_12
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_15__getstate__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_15__getstate__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_15__getstate__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_15__getstate__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__getstate__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14__getstate__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_14__getstate__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14__getstate__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_14__getstate__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3192,7 +3192,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14
   __Pyx_RefNannySetupContext("__getstate__", 0);
   __Pyx_TraceCall("__getstate__", __pyx_f[0], 122);
 
-  /* "pygly2\composition\ccomposition.pyx":123
+  /* "glypy\composition\ccomposition.pyx":123
  * 
  *     def __getstate__(self):
  *         return dict(self)             # <<<<<<<<<<<<<<
@@ -3212,7 +3212,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":122
+  /* "glypy\composition\ccomposition.pyx":122
  *         return composition_factory, (list(self),), self.__getstate__()
  * 
  *     def __getstate__(self):             # <<<<<<<<<<<<<<
@@ -3224,7 +3224,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__getstate__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__getstate__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3233,7 +3233,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":125
+/* "glypy\composition\ccomposition.pyx":125
  *         return dict(self)
  * 
  *     def __setstate__(self, d):             # <<<<<<<<<<<<<<
@@ -3242,19 +3242,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_14
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_17__setstate__(PyObject *__pyx_v_self, PyObject *__pyx_v_d); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_17__setstate__(PyObject *__pyx_v_self, PyObject *__pyx_v_d) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_17__setstate__(PyObject *__pyx_v_self, PyObject *__pyx_v_d); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_17__setstate__(PyObject *__pyx_v_self, PyObject *__pyx_v_d) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16__setstate__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_d));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_16__setstate__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_d));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16__setstate__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_d) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_16__setstate__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_d) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3265,18 +3265,18 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16
   __Pyx_RefNannySetupContext("__setstate__", 0);
   __Pyx_TraceCall("__setstate__", __pyx_f[0], 125);
 
-  /* "pygly2\composition\ccomposition.pyx":126
+  /* "glypy\composition\ccomposition.pyx":126
  * 
  *     def __setstate__(self, d):
  *         self._from_dict(d)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_d, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 126; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_d, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 126; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":125
+  /* "glypy\composition\ccomposition.pyx":125
  *         return dict(self)
  * 
  *     def __setstate__(self, d):             # <<<<<<<<<<<<<<
@@ -3289,7 +3289,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__setstate__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__setstate__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3298,7 +3298,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":129
+/* "glypy\composition\ccomposition.pyx":129
  * 
  * 
  *     def __mul__(self, other):             # <<<<<<<<<<<<<<
@@ -3307,19 +3307,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_16
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_19__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_19__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_19__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_19__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__mul__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18__mul__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_18__mul__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_18__mul__(PyObject *__pyx_v_self, PyObject *__pyx_v_other) {
   PyObject *__pyx_v_prod = 0;
   int __pyx_v_rep;
   int __pyx_v_v;
@@ -3348,7 +3348,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_INCREF(__pyx_v_other);
 
-  /* "pygly2\composition\ccomposition.pyx":131
+  /* "glypy\composition\ccomposition.pyx":131
  *     def __mul__(self, other):
  *         cdef:
  *             dict prod = {}             # <<<<<<<<<<<<<<
@@ -3360,18 +3360,18 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __pyx_v_prod = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":135
+  /* "glypy\composition\ccomposition.pyx":135
  *             str k
  * 
  *         if isinstance(other, CComposition):             # <<<<<<<<<<<<<<
  *             self, other = other, self
  * 
  */
-  __pyx_t_2 = __Pyx_TypeCheck(__pyx_v_other, ((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)); 
+  __pyx_t_2 = __Pyx_TypeCheck(__pyx_v_other, ((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)); 
   __pyx_t_3 = (__pyx_t_2 != 0);
   if (__pyx_t_3) {
 
-    /* "pygly2\composition\ccomposition.pyx":136
+    /* "glypy\composition\ccomposition.pyx":136
  * 
  *         if isinstance(other, CComposition):
  *             self, other = other, self             # <<<<<<<<<<<<<<
@@ -3388,7 +3388,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":138
+  /* "glypy\composition\ccomposition.pyx":138
  *             self, other = other, self
  * 
  *         if not isinstance(other, int):             # <<<<<<<<<<<<<<
@@ -3399,7 +3399,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __pyx_t_2 = ((!(__pyx_t_3 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":139
+    /* "glypy\composition\ccomposition.pyx":139
  * 
  *         if not isinstance(other, int):
  *             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -3409,7 +3409,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
     __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
 
-    /* "pygly2\composition\ccomposition.pyx":141
+    /* "glypy\composition\ccomposition.pyx":141
  *             raise ChemicalCompositionError(
  *                 'Cannot multiply Composition by non-integer',
  *                 other)             # <<<<<<<<<<<<<<
@@ -3448,7 +3448,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
     {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "pygly2\composition\ccomposition.pyx":142
+  /* "glypy\composition\ccomposition.pyx":142
  *                 'Cannot multiply Composition by non-integer',
  *                 other)
  *         rep = other             # <<<<<<<<<<<<<<
@@ -3458,7 +3458,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_v_other); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 142; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_rep = __pyx_t_10;
 
-  /* "pygly2\composition\ccomposition.pyx":143
+  /* "glypy\composition\ccomposition.pyx":143
  *                 other)
  *         rep = other
  *         for k, v in self.items():             # <<<<<<<<<<<<<<
@@ -3580,7 +3580,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
     __pyx_t_9 = 0;
     __pyx_v_v = __pyx_t_10;
 
-    /* "pygly2\composition\ccomposition.pyx":144
+    /* "glypy\composition\ccomposition.pyx":144
  *         rep = other
  *         for k, v in self.items():
  *             prod[k] = v * rep             # <<<<<<<<<<<<<<
@@ -3592,7 +3592,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
     if (unlikely(PyDict_SetItem(__pyx_v_prod, __pyx_v_k, __pyx_t_1) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":143
+    /* "glypy\composition\ccomposition.pyx":143
  *                 other)
  *         rep = other
  *         for k, v in self.items():             # <<<<<<<<<<<<<<
@@ -3602,7 +3602,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":146
+  /* "glypy\composition\ccomposition.pyx":146
  *             prod[k] = v * rep
  * 
  *         return CComposition(prod)             # <<<<<<<<<<<<<<
@@ -3615,14 +3615,14 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __Pyx_INCREF(__pyx_v_prod);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_prod);
   __Pyx_GIVEREF(__pyx_v_prod);
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)), __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 146; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)), __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 146; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":129
+  /* "glypy\composition\ccomposition.pyx":129
  * 
  * 
  *     def __mul__(self, other):             # <<<<<<<<<<<<<<
@@ -3637,7 +3637,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__mul__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__mul__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_prod);
@@ -3650,7 +3650,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":149
+/* "glypy\composition\ccomposition.pyx":149
  * 
  * 
  *     def __richcmp__(self, other, int code):             # <<<<<<<<<<<<<<
@@ -3659,19 +3659,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_18
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_21__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_21__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_21__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_21__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__richcmp__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20__richcmp__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other), ((int)__pyx_v_code));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_20__richcmp__(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other), ((int)__pyx_v_code));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_20__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code) {
   PyObject *__pyx_v_self_items = NULL;
   PyObject *__pyx_v_other_items = NULL;
   PyObject *__pyx_v_i = NULL;
@@ -3692,7 +3692,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
   __Pyx_RefNannySetupContext("__richcmp__", 0);
   __Pyx_TraceCall("__richcmp__", __pyx_f[0], 149);
 
-  /* "pygly2\composition\ccomposition.pyx":150
+  /* "glypy\composition\ccomposition.pyx":150
  * 
  *     def __richcmp__(self, other, int code):
  *         if code == 2:             # <<<<<<<<<<<<<<
@@ -3702,7 +3702,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
   __pyx_t_1 = ((__pyx_v_code == 2) != 0);
   if (__pyx_t_1) {
 
-    /* "pygly2\composition\ccomposition.pyx":151
+    /* "glypy\composition\ccomposition.pyx":151
  *     def __richcmp__(self, other, int code):
  *         if code == 2:
  *             if not isinstance(other, dict):             # <<<<<<<<<<<<<<
@@ -3713,7 +3713,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
     __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
     if (__pyx_t_2) {
 
-      /* "pygly2\composition\ccomposition.pyx":152
+      /* "glypy\composition\ccomposition.pyx":152
  *         if code == 2:
  *             if not isinstance(other, dict):
  *                 return False             # <<<<<<<<<<<<<<
@@ -3726,7 +3726,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
       goto __pyx_L0;
     }
 
-    /* "pygly2\composition\ccomposition.pyx":153
+    /* "glypy\composition\ccomposition.pyx":153
  *             if not isinstance(other, dict):
  *                 return False
  *             self_items = set([i for i in self.items() if i[1]])             # <<<<<<<<<<<<<<
@@ -3812,7 +3812,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
     __pyx_v_self_items = ((PyObject*)__pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":154
+    /* "glypy\composition\ccomposition.pyx":154
  *                 return False
  *             self_items = set([i for i in self.items() if i[1]])
  *             other_items = set([i for i in other.items() if i[1]])             # <<<<<<<<<<<<<<
@@ -3898,7 +3898,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
     __pyx_v_other_items = ((PyObject*)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":155
+    /* "glypy\composition\ccomposition.pyx":155
  *             self_items = set([i for i in self.items() if i[1]])
  *             other_items = set([i for i in other.items() if i[1]])
  *             return self_items == other_items             # <<<<<<<<<<<<<<
@@ -3913,7 +3913,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":157
+    /* "glypy\composition\ccomposition.pyx":157
  *             return self_items == other_items
  *         else:
  *             return NotImplemented             # <<<<<<<<<<<<<<
@@ -3926,7 +3926,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
     goto __pyx_L0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":149
+  /* "glypy\composition\ccomposition.pyx":149
  * 
  * 
  *     def __richcmp__(self, other, int code):             # <<<<<<<<<<<<<<
@@ -3940,7 +3940,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__richcmp__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__richcmp__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_self_items);
@@ -3952,7 +3952,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":159
+/* "glypy\composition\ccomposition.pyx":159
  *             return NotImplemented
  * 
  *     def __neg__(self):             # <<<<<<<<<<<<<<
@@ -3961,19 +3961,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_20
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_23__neg__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_23__neg__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_23__neg__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_23__neg__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__neg__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22__neg__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_22__neg__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22__neg__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_22__neg__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3984,7 +3984,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22
   __Pyx_RefNannySetupContext("__neg__", 0);
   __Pyx_TraceCall("__neg__", __pyx_f[0], 159);
 
-  /* "pygly2\composition\ccomposition.pyx":160
+  /* "glypy\composition\ccomposition.pyx":160
  * 
  *     def __neg__(self):
  *         return self * -1             # <<<<<<<<<<<<<<
@@ -3998,7 +3998,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":159
+  /* "glypy\composition\ccomposition.pyx":159
  *             return NotImplemented
  * 
  *     def __neg__(self):             # <<<<<<<<<<<<<<
@@ -4009,7 +4009,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__neg__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__neg__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4018,7 +4018,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":164
+/* "glypy\composition\ccomposition.pyx":164
  *     # Override the default behavior, if a key is not present
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):             # <<<<<<<<<<<<<<
@@ -4027,8 +4027,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_22
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_25__missing__(PyObject *__pyx_v_self, PyObject *__pyx_v_key); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_25__missing__(PyObject *__pyx_v_self, PyObject *__pyx_v_key) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_25__missing__(PyObject *__pyx_v_self, PyObject *__pyx_v_key); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_25__missing__(PyObject *__pyx_v_self, PyObject *__pyx_v_key) {
   CYTHON_UNUSED int __pyx_lineno = 0;
   CYTHON_UNUSED const char *__pyx_filename = NULL;
   CYTHON_UNUSED int __pyx_clineno = 0;
@@ -4036,7 +4036,7 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_25
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__missing__ (wrapper)", 0);
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24__missing__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_24__missing__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key));
 
   /* function exit code */
   goto __pyx_L0;
@@ -4047,14 +4047,14 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_25
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24__missing__(CYTHON_UNUSED struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_key) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_24__missing__(CYTHON_UNUSED struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_key) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_TraceDeclarations(NULL)
   __Pyx_RefNannySetupContext("__missing__", 0);
   __Pyx_TraceCall("__missing__", __pyx_f[0], 164);
 
-  /* "pygly2\composition\ccomposition.pyx":165
+  /* "glypy\composition\ccomposition.pyx":165
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):
  *         return 0             # <<<<<<<<<<<<<<
@@ -4066,7 +4066,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24
   __pyx_r = __pyx_int_0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":164
+  /* "glypy\composition\ccomposition.pyx":164
  *     # Override the default behavior, if a key is not present
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):             # <<<<<<<<<<<<<<
@@ -4082,7 +4082,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":167
+/* "glypy\composition\ccomposition.pyx":167
  *         return 0
  * 
  *     def __setitem__(self, str key, int value):             # <<<<<<<<<<<<<<
@@ -4091,8 +4091,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_24
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_27__setitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_key, PyObject *__pyx_arg_value); /*proto*/
-static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_27__setitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_key, PyObject *__pyx_arg_value) {
+static int __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_27__setitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_key, PyObject *__pyx_arg_value); /*proto*/
+static int __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_27__setitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_key, PyObject *__pyx_arg_value) {
   int __pyx_v_value;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -4105,12 +4105,12 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_27__seti
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__setitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__setitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 167; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__setitem__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key), ((int)__pyx_v_value));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_26__setitem__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key), ((int)__pyx_v_value));
 
   /* function exit code */
   goto __pyx_L0;
@@ -4121,7 +4121,7 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_27__seti
   return __pyx_r;
 }
 
-static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__setitem__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_key, int __pyx_v_value) {
+static int __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_26__setitem__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_key, int __pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -4139,7 +4139,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   __Pyx_RefNannySetupContext("__setitem__", 0);
   __Pyx_TraceCall("__setitem__", __pyx_f[0], 167);
 
-  /* "pygly2\composition\ccomposition.pyx":168
+  /* "glypy\composition\ccomposition.pyx":168
  * 
  *     def __setitem__(self, str key, int value):
  *         if value:  # Will not occur on 0 as 0 is falsey AND an integer             # <<<<<<<<<<<<<<
@@ -4149,7 +4149,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   __pyx_t_1 = (__pyx_v_value != 0);
   if (__pyx_t_1) {
 
-    /* "pygly2\composition\ccomposition.pyx":169
+    /* "glypy\composition\ccomposition.pyx":169
  *     def __setitem__(self, str key, int value):
  *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
  *             super(Composition, self).__setitem__(key, value)             # <<<<<<<<<<<<<<
@@ -4205,7 +4205,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
     goto __pyx_L3;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":170
+  /* "glypy\composition\ccomposition.pyx":170
  *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
  *             super(Composition, self).__setitem__(key, value)
  *         elif key in self:             # <<<<<<<<<<<<<<
@@ -4216,7 +4216,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   __pyx_t_8 = (__pyx_t_1 != 0);
   if (__pyx_t_8) {
 
-    /* "pygly2\composition\ccomposition.pyx":171
+    /* "glypy\composition\ccomposition.pyx":171
  *             super(Composition, self).__setitem__(key, value)
  *         elif key in self:
  *             del self[key]             # <<<<<<<<<<<<<<
@@ -4228,7 +4228,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":167
+  /* "glypy\composition\ccomposition.pyx":167
  *         return 0
  * 
  *     def __setitem__(self, str key, int value):             # <<<<<<<<<<<<<<
@@ -4245,7 +4245,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__setitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__setitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None);
@@ -4253,7 +4253,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":173
+/* "glypy\composition\ccomposition.pyx":173
  *             del self[key]
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -4262,19 +4262,19 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_26__seti
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_29copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_29copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_29copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_29copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("copy (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28copy(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_28copy(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28copy(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_28copy(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4286,7 +4286,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28
   __Pyx_RefNannySetupContext("copy", 0);
   __Pyx_TraceCall("copy", __pyx_f[0], 173);
 
-  /* "pygly2\composition\ccomposition.pyx":174
+  /* "glypy\composition\ccomposition.pyx":174
  * 
  *     def copy(self):
  *         return CComposition(self)             # <<<<<<<<<<<<<<
@@ -4299,14 +4299,14 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 174; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 174; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":173
+  /* "glypy\composition\ccomposition.pyx":173
  *             del self[key]
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -4318,7 +4318,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4327,7 +4327,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":176
+/* "glypy\composition\ccomposition.pyx":176
  *         return CComposition(self)
  * 
  *     cpdef CComposition clone(self):             # <<<<<<<<<<<<<<
@@ -4335,9 +4335,9 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_28
  * 
  */
 
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition_clone(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_r = NULL;
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_f_6glypy_11composition_12ccomposition_12CComposition_clone(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4355,7 +4355,7 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_clone); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_31clone)) {
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_31clone)) {
       __Pyx_XDECREF(((PyObject *)__pyx_r));
       __Pyx_INCREF(__pyx_t_1);
       __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -4376,8 +4376,8 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
       }
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6pygly2_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __pyx_r = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_t_2);
+      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6glypy_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_r = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_t_2);
       __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       goto __pyx_L0;
@@ -4385,7 +4385,7 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":177
+  /* "glypy\composition\ccomposition.pyx":177
  * 
  *     cpdef CComposition clone(self):
  *         return CComposition(self)             # <<<<<<<<<<<<<<
@@ -4398,14 +4398,14 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 177; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 177; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_r = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_t_2);
+  __pyx_r = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":176
+  /* "glypy\composition\ccomposition.pyx":176
  *         return CComposition(self)
  * 
  *     cpdef CComposition clone(self):             # <<<<<<<<<<<<<<
@@ -4419,7 +4419,7 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.clone", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.clone", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF((PyObject *)__pyx_r);
@@ -4429,19 +4429,19 @@ static struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("clone (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30clone(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_30clone(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30clone(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_30clone(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4452,7 +4452,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30
   __Pyx_RefNannySetupContext("clone", 0);
   __Pyx_TraceCall("clone", __pyx_f[0], 176);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_6pygly2_11composition_12ccomposition_12CComposition_clone(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((PyObject *)__pyx_f_6glypy_11composition_12ccomposition_12CComposition_clone(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 176; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4461,7 +4461,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.clone", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.clone", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4470,7 +4470,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":180
+/* "glypy\composition\ccomposition.pyx":180
  * 
  *     @cython.boundscheck(True)
  *     cpdef _from_formula(self, str formula, dict mass_data):             # <<<<<<<<<<<<<<
@@ -4478,8 +4478,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_30
  *             str elem, isotope, number
  */
 
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_formula(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_formula(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_elem = 0;
   PyObject *__pyx_v_isotope = 0;
   PyObject *__pyx_v_number = 0;
@@ -4510,7 +4510,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33_from_formula)) {
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_33_from_formula)) {
       __Pyx_XDECREF(__pyx_r);
       __Pyx_INCREF(__pyx_t_1);
       __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -4548,7 +4548,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":183
+  /* "glypy\composition\ccomposition.pyx":183
  *         cdef:
  *             str elem, isotope, number
  *         if '(' in formula:             # <<<<<<<<<<<<<<
@@ -4559,7 +4559,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   __pyx_t_8 = (__pyx_t_7 != 0);
   if (__pyx_t_8) {
 
-    /* "pygly2\composition\ccomposition.pyx":184
+    /* "glypy\composition\ccomposition.pyx":184
  *             str elem, isotope, number
  *         if '(' in formula:
  *             self._from_formula_parens(formula, mass_data)             # <<<<<<<<<<<<<<
@@ -4599,14 +4599,14 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
     goto __pyx_L3;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":185
+  /* "glypy\composition\ccomposition.pyx":185
  *         if '(' in formula:
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):             # <<<<<<<<<<<<<<
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_6pygly2_11composition_12ccomposition_formula_pattern, __pyx_n_s_match); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_6glypy_11composition_12ccomposition_formula_pattern, __pyx_n_s_match); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_6 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4638,7 +4638,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   __pyx_t_7 = ((!__pyx_t_8) != 0);
   if (__pyx_t_7) {
 
-    /* "pygly2\composition\ccomposition.pyx":186
+    /* "glypy\composition\ccomposition.pyx":186
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)             # <<<<<<<<<<<<<<
@@ -4681,7 +4681,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":188
+    /* "glypy\composition\ccomposition.pyx":188
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):             # <<<<<<<<<<<<<<
@@ -4710,9 +4710,9 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
     if (__pyx_t_2) {
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2); __Pyx_GIVEREF(__pyx_t_2); __pyx_t_2 = NULL;
     }
-    __Pyx_INCREF(__pyx_v_6pygly2_11composition_12ccomposition__atom);
-    PyTuple_SET_ITEM(__pyx_t_3, 0+__pyx_t_5, __pyx_v_6pygly2_11composition_12ccomposition__atom);
-    __Pyx_GIVEREF(__pyx_v_6pygly2_11composition_12ccomposition__atom);
+    __Pyx_INCREF(__pyx_v_6glypy_11composition_12ccomposition__atom);
+    PyTuple_SET_ITEM(__pyx_t_3, 0+__pyx_t_5, __pyx_v_6glypy_11composition_12ccomposition__atom);
+    __Pyx_GIVEREF(__pyx_v_6glypy_11composition_12ccomposition__atom);
     __Pyx_INCREF(__pyx_v_formula);
     PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_5, __pyx_v_formula);
     __Pyx_GIVEREF(__pyx_v_formula);
@@ -4825,7 +4825,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
       __Pyx_XDECREF_SET(__pyx_v_number, ((PyObject*)__pyx_t_6));
       __pyx_t_6 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":189
+      /* "glypy\composition\ccomposition.pyx":189
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):
  *                 if not elem in mass_data:             # <<<<<<<<<<<<<<
@@ -4840,7 +4840,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
       __pyx_t_8 = (__pyx_t_7 != 0);
       if (__pyx_t_8) {
 
-        /* "pygly2\composition\ccomposition.pyx":190
+        /* "glypy\composition\ccomposition.pyx":190
  *             for elem, isotope, number in re.findall(_atom, formula):
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)             # <<<<<<<<<<<<<<
@@ -4882,7 +4882,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
         {__pyx_filename = __pyx_f[0]; __pyx_lineno = 190; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
 
-      /* "pygly2\composition\ccomposition.pyx":191
+      /* "glypy\composition\ccomposition.pyx":191
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)             # <<<<<<<<<<<<<<
@@ -4899,12 +4899,12 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
       } else {
         __pyx_t_12 = 0;
       }
-      __pyx_t_1 = __pyx_f_6pygly2_11composition_12ccomposition__make_isotope_string(__pyx_v_elem, __pyx_t_12); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __pyx_f_6glypy_11composition_12ccomposition__make_isotope_string(__pyx_v_elem, __pyx_t_12); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
       __pyx_t_6 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_1); if (unlikely(__pyx_t_6 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 191; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_6);
 
-      /* "pygly2\composition\ccomposition.pyx":192
+      /* "glypy\composition\ccomposition.pyx":192
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)
  *                         ] += int(number) if number else 1             # <<<<<<<<<<<<<<
@@ -4922,7 +4922,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
         __pyx_t_10 = __pyx_int_1;
       }
 
-      /* "pygly2\composition\ccomposition.pyx":191
+      /* "glypy\composition\ccomposition.pyx":191
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)             # <<<<<<<<<<<<<<
@@ -4937,7 +4937,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":188
+      /* "glypy\composition\ccomposition.pyx":188
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):             # <<<<<<<<<<<<<<
@@ -4949,7 +4949,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":180
+  /* "glypy\composition\ccomposition.pyx":180
  * 
  *     @cython.boundscheck(True)
  *     cpdef _from_formula(self, str formula, dict mass_data):             # <<<<<<<<<<<<<<
@@ -4967,7 +4967,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
@@ -4980,8 +4980,8 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_33_from_formula(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_formula = 0;
   PyObject *__pyx_v_mass_data = 0;
   int __pyx_lineno = 0;
@@ -5029,13 +5029,13 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("_from_formula", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32_from_formula(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_formula, __pyx_v_mass_data);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_32_from_formula(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_formula, __pyx_v_mass_data);
 
   /* function exit code */
   goto __pyx_L0;
@@ -5046,7 +5046,7 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32_from_formula(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_32_from_formula(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5057,7 +5057,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32
   __Pyx_RefNannySetupContext("_from_formula", 0);
   __Pyx_TraceCall("_from_formula", __pyx_f[0], 180);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_formula(__pyx_v_self, __pyx_v_formula, __pyx_v_mass_data, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_formula(__pyx_v_self, __pyx_v_formula, __pyx_v_mass_data, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5066,7 +5066,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5075,7 +5075,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":195
+/* "glypy\composition\ccomposition.pyx":195
  * 
  *     @cython.boundscheck(True)
  *     def _from_formula_parens(self, formula, mass_data):             # <<<<<<<<<<<<<<
@@ -5084,8 +5084,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_32
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_35_from_formula_parens(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_35_from_formula_parens(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_35_from_formula_parens(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_35_from_formula_parens(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_formula = 0;
   PyObject *__pyx_v_mass_data = 0;
   int __pyx_lineno = 0;
@@ -5133,18 +5133,18 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_35
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("_from_formula_parens", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34_from_formula_parens(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_formula, __pyx_v_mass_data);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_34_from_formula_parens(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_formula, __pyx_v_mass_data);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34_from_formula_parens(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_34_from_formula_parens(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_v_prev_chem_symbol_start = NULL;
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_seek_mode = NULL;
@@ -5189,7 +5189,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __Pyx_RefNannySetupContext("_from_formula_parens", 0);
   __Pyx_TraceCall("_from_formula_parens", __pyx_f[0], 195);
 
-  /* "pygly2\composition\ccomposition.pyx":197
+  /* "glypy\composition\ccomposition.pyx":197
  *     def _from_formula_parens(self, formula, mass_data):
  *         # Parsing a formula backwards.
  *         prev_chem_symbol_start = len(formula)             # <<<<<<<<<<<<<<
@@ -5202,7 +5202,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __pyx_v_prev_chem_symbol_start = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":198
+  /* "glypy\composition\ccomposition.pyx":198
  *         # Parsing a formula backwards.
  *         prev_chem_symbol_start = len(formula)
  *         i = len(formula) - 1             # <<<<<<<<<<<<<<
@@ -5215,7 +5215,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __pyx_v_i = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":200
+  /* "glypy\composition\ccomposition.pyx":200
  *         i = len(formula) - 1
  * 
  *         seek_mode = 0             # <<<<<<<<<<<<<<
@@ -5225,7 +5225,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_seek_mode = __pyx_int_0;
 
-  /* "pygly2\composition\ccomposition.pyx":201
+  /* "glypy\composition\ccomposition.pyx":201
  * 
  *         seek_mode = 0
  *         parse_stack = ""             # <<<<<<<<<<<<<<
@@ -5235,7 +5235,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __Pyx_INCREF(__pyx_kp_s__3);
   __pyx_v_parse_stack = __pyx_kp_s__3;
 
-  /* "pygly2\composition\ccomposition.pyx":202
+  /* "glypy\composition\ccomposition.pyx":202
  *         seek_mode = 0
  *         parse_stack = ""
  *         resolve_stack = []             # <<<<<<<<<<<<<<
@@ -5247,7 +5247,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __pyx_v_resolve_stack = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":203
+  /* "glypy\composition\ccomposition.pyx":203
  *         parse_stack = ""
  *         resolve_stack = []
  *         group_coef = None             # <<<<<<<<<<<<<<
@@ -5257,7 +5257,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __Pyx_INCREF(Py_None);
   __pyx_v_group_coef = Py_None;
 
-  /* "pygly2\composition\ccomposition.pyx":205
+  /* "glypy\composition\ccomposition.pyx":205
  *         group_coef = None
  * 
  *         while i >= 0:             # <<<<<<<<<<<<<<
@@ -5270,7 +5270,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (!__pyx_t_3) break;
 
-    /* "pygly2\composition\ccomposition.pyx":206
+    /* "glypy\composition\ccomposition.pyx":206
  * 
  *         while i >= 0:
  *             if seek_mode < 1:             # <<<<<<<<<<<<<<
@@ -5282,7 +5282,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (__pyx_t_3) {
 
-      /* "pygly2\composition\ccomposition.pyx":207
+      /* "glypy\composition\ccomposition.pyx":207
  *         while i >= 0:
  *             if seek_mode < 1:
  *                 if (formula[i] == ")"):             # <<<<<<<<<<<<<<
@@ -5295,7 +5295,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_3) {
 
-        /* "pygly2\composition\ccomposition.pyx":208
+        /* "glypy\composition\ccomposition.pyx":208
  *             if seek_mode < 1:
  *                 if (formula[i] == ")"):
  *                     seek_mode += 1             # <<<<<<<<<<<<<<
@@ -5307,7 +5307,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF_SET(__pyx_v_seek_mode, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":209
+        /* "glypy\composition\ccomposition.pyx":209
  *                 if (formula[i] == ")"):
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5322,7 +5322,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":210
+          /* "glypy\composition\ccomposition.pyx":210
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:
  *                         group_coef = 1             # <<<<<<<<<<<<<<
@@ -5334,7 +5334,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           goto __pyx_L7;
         }
 
-        /* "pygly2\composition\ccomposition.pyx":211
+        /* "glypy\composition\ccomposition.pyx":211
  *                     if i + 1 == prev_chem_symbol_start:
  *                         group_coef = 1
  *                     elif formula[i + 1].isdigit():             # <<<<<<<<<<<<<<
@@ -5371,7 +5371,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":212
+          /* "glypy\composition\ccomposition.pyx":212
  *                         group_coef = 1
  *                     elif formula[i + 1].isdigit():
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])             # <<<<<<<<<<<<<<
@@ -5392,7 +5392,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         }
         __pyx_L7:;
 
-        /* "pygly2\composition\ccomposition.pyx":213
+        /* "glypy\composition\ccomposition.pyx":213
  *                     elif formula[i + 1].isdigit():
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])
  *                     i -= 1             # <<<<<<<<<<<<<<
@@ -5404,7 +5404,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_4);
         __pyx_t_4 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":214
+        /* "glypy\composition\ccomposition.pyx":214
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])
  *                     i -= 1
  *                     continue             # <<<<<<<<<<<<<<
@@ -5414,7 +5414,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         goto __pyx_L3_continue;
       }
 
-      /* "pygly2\composition\ccomposition.pyx":216
+      /* "glypy\composition\ccomposition.pyx":216
  *                     continue
  *                 # Read backwards until a non-number character is met.
  *                 if (formula[i].isdigit() or formula[i] == '-'):             # <<<<<<<<<<<<<<
@@ -5459,7 +5459,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __pyx_L9_bool_binop_done:;
       if (__pyx_t_3) {
 
-        /* "pygly2\composition\ccomposition.pyx":217
+        /* "glypy\composition\ccomposition.pyx":217
  *                 # Read backwards until a non-number character is met.
  *                 if (formula[i].isdigit() or formula[i] == '-'):
  *                     i -= 1             # <<<<<<<<<<<<<<
@@ -5471,7 +5471,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_4);
         __pyx_t_4 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":218
+        /* "glypy\composition\ccomposition.pyx":218
  *                 if (formula[i].isdigit() or formula[i] == '-'):
  *                     i -= 1
  *                     continue             # <<<<<<<<<<<<<<
@@ -5482,7 +5482,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       }
       /*else*/ {
 
-        /* "pygly2\composition\ccomposition.pyx":222
+        /* "glypy\composition\ccomposition.pyx":222
  *                 else:
  *                     # If the number of atoms is omitted then it is 1.
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5497,7 +5497,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":223
+          /* "glypy\composition\ccomposition.pyx":223
  *                     # If the number of atoms is omitted then it is 1.
  *                     if i + 1 == prev_chem_symbol_start:
  *                         num_atoms = 1             # <<<<<<<<<<<<<<
@@ -5510,7 +5510,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         }
         /*else*/ {
 
-          /* "pygly2\composition\ccomposition.pyx":225
+          /* "glypy\composition\ccomposition.pyx":225
  *                         num_atoms = 1
  *                     else:
  *                         try:             # <<<<<<<<<<<<<<
@@ -5524,7 +5524,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_XGOTREF(__pyx_t_9);
             /*try:*/ {
 
-              /* "pygly2\composition\ccomposition.pyx":226
+              /* "glypy\composition\ccomposition.pyx":226
  *                     else:
  *                         try:
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])             # <<<<<<<<<<<<<<
@@ -5551,7 +5551,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":227
+            /* "glypy\composition\ccomposition.pyx":227
  *                         try:
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])
  *                         except ValueError:             # <<<<<<<<<<<<<<
@@ -5560,13 +5560,13 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  */
             __pyx_t_10 = PyErr_ExceptionMatches(__pyx_builtin_ValueError);
             if (__pyx_t_10) {
-              __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
+              __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
               if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
               __Pyx_GOTREF(__pyx_t_5);
               __Pyx_GOTREF(__pyx_t_4);
               __Pyx_GOTREF(__pyx_t_2);
 
-              /* "pygly2\composition\ccomposition.pyx":228
+              /* "glypy\composition\ccomposition.pyx":228
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])
  *                         except ValueError:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -5576,7 +5576,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
               __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
               __Pyx_GOTREF(__pyx_t_12);
 
-              /* "pygly2\composition\ccomposition.pyx":229
+              /* "glypy\composition\ccomposition.pyx":229
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed number of atoms: %s' % formula)             # <<<<<<<<<<<<<<
@@ -5627,7 +5627,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         }
         __pyx_L11:;
 
-        /* "pygly2\composition\ccomposition.pyx":232
+        /* "glypy\composition\ccomposition.pyx":232
  * 
  *                     # Read isotope number if specified, else it is undefined (=0).
  *                     if formula[i] == ']':             # <<<<<<<<<<<<<<
@@ -5640,7 +5640,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":233
+          /* "glypy\composition\ccomposition.pyx":233
  *                     # Read isotope number if specified, else it is undefined (=0).
  *                     if formula[i] == ']':
  *                         brace_pos = formula.rfind('[', 0, i)             # <<<<<<<<<<<<<<
@@ -5682,7 +5682,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_XDECREF_SET(__pyx_v_brace_pos, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":234
+          /* "glypy\composition\ccomposition.pyx":234
  *                     if formula[i] == ']':
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:             # <<<<<<<<<<<<<<
@@ -5694,7 +5694,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           if (__pyx_t_3) {
 
-            /* "pygly2\composition\ccomposition.pyx":235
+            /* "glypy\composition\ccomposition.pyx":235
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -5704,7 +5704,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_4);
 
-            /* "pygly2\composition\ccomposition.pyx":236
+            /* "glypy\composition\ccomposition.pyx":236
  *                         if brace_pos == -1:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)             # <<<<<<<<<<<<<<
@@ -5744,7 +5744,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
 
-          /* "pygly2\composition\ccomposition.pyx":237
+          /* "glypy\composition\ccomposition.pyx":237
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:             # <<<<<<<<<<<<<<
@@ -5758,7 +5758,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_XGOTREF(__pyx_t_7);
             /*try:*/ {
 
-              /* "pygly2\composition\ccomposition.pyx":238
+              /* "glypy\composition\ccomposition.pyx":238
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:
  *                             isotope_num = int(formula[brace_pos + 1:i])             # <<<<<<<<<<<<<<
@@ -5790,7 +5790,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":239
+            /* "glypy\composition\ccomposition.pyx":239
  *                         try:
  *                             isotope_num = int(formula[brace_pos + 1:i])
  *                         except ValueError:             # <<<<<<<<<<<<<<
@@ -5799,13 +5799,13 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  */
             __pyx_t_10 = PyErr_ExceptionMatches(__pyx_builtin_ValueError);
             if (__pyx_t_10) {
-              __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
+              __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
               if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_4, &__pyx_t_12) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 239; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
               __Pyx_GOTREF(__pyx_t_2);
               __Pyx_GOTREF(__pyx_t_4);
               __Pyx_GOTREF(__pyx_t_12);
 
-              /* "pygly2\composition\ccomposition.pyx":240
+              /* "glypy\composition\ccomposition.pyx":240
  *                             isotope_num = int(formula[brace_pos + 1:i])
  *                         except ValueError:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -5815,7 +5815,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
               __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
               __Pyx_GOTREF(__pyx_t_5);
 
-              /* "pygly2\composition\ccomposition.pyx":241
+              /* "glypy\composition\ccomposition.pyx":241
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)             # <<<<<<<<<<<<<<
@@ -5864,7 +5864,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __pyx_L31_try_end:;
           }
 
-          /* "pygly2\composition\ccomposition.pyx":242
+          /* "glypy\composition\ccomposition.pyx":242
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         i = brace_pos - 1             # <<<<<<<<<<<<<<
@@ -5879,7 +5879,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         }
         /*else*/ {
 
-          /* "pygly2\composition\ccomposition.pyx":244
+          /* "glypy\composition\ccomposition.pyx":244
  *                         i = brace_pos - 1
  *                     else:
  *                         isotope_num = 0             # <<<<<<<<<<<<<<
@@ -5891,7 +5891,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         }
         __pyx_L22:;
 
-        /* "pygly2\composition\ccomposition.pyx":247
+        /* "glypy\composition\ccomposition.pyx":247
  * 
  *                     # Match the element name to the mass_data.
  *                     element_found = False             # <<<<<<<<<<<<<<
@@ -5900,7 +5900,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  */
         __pyx_v_element_found = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":250
+        /* "glypy\composition\ccomposition.pyx":250
  *                     # Sort the keys from longest to shortest to workaround
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):             # <<<<<<<<<<<<<<
@@ -5964,7 +5964,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_XDECREF_SET(__pyx_v_element_name, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":251
+          /* "glypy\composition\ccomposition.pyx":251
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):
  *                         if formula.endswith(element_name, 0, i + 1):             # <<<<<<<<<<<<<<
@@ -6009,7 +6009,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           if (__pyx_t_3) {
 
-            /* "pygly2\composition\ccomposition.pyx":253
+            /* "glypy\composition\ccomposition.pyx":253
  *                         if formula.endswith(element_name, 0, i + 1):
  *                             isotope_string = _make_isotope_string(
  *                                 element_name, isotope_num)             # <<<<<<<<<<<<<<
@@ -6019,19 +6019,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             if (!(likely(PyString_CheckExact(__pyx_v_element_name))||((__pyx_v_element_name) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_element_name)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_v_isotope_num); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 253; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-            /* "pygly2\composition\ccomposition.pyx":252
+            /* "glypy\composition\ccomposition.pyx":252
  *                     for element_name in sorted(mass_data, key=len, reverse=True):
  *                         if formula.endswith(element_name, 0, i + 1):
  *                             isotope_string = _make_isotope_string(             # <<<<<<<<<<<<<<
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms
  */
-            __pyx_t_2 = __pyx_f_6pygly2_11composition_12ccomposition__make_isotope_string(((PyObject*)__pyx_v_element_name), __pyx_t_10); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_2 = __pyx_f_6glypy_11composition_12ccomposition__make_isotope_string(((PyObject*)__pyx_v_element_name), __pyx_t_10); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_XDECREF_SET(__pyx_v_isotope_string, __pyx_t_2);
             __pyx_t_2 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":254
+            /* "glypy\composition\ccomposition.pyx":254
  *                             isotope_string = _make_isotope_string(
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms             # <<<<<<<<<<<<<<
@@ -6049,7 +6049,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":255
+            /* "glypy\composition\ccomposition.pyx":255
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms
  *                             i -= len(element_name)             # <<<<<<<<<<<<<<
@@ -6065,7 +6065,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_14);
             __pyx_t_14 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":256
+            /* "glypy\composition\ccomposition.pyx":256
  *                             self[isotope_string] += num_atoms
  *                             i -= len(element_name)
  *                             prev_chem_symbol_start = i + 1             # <<<<<<<<<<<<<<
@@ -6077,7 +6077,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             __Pyx_DECREF_SET(__pyx_v_prev_chem_symbol_start, __pyx_t_14);
             __pyx_t_14 = 0;
 
-            /* "pygly2\composition\ccomposition.pyx":257
+            /* "glypy\composition\ccomposition.pyx":257
  *                             i -= len(element_name)
  *                             prev_chem_symbol_start = i + 1
  *                             element_found = True             # <<<<<<<<<<<<<<
@@ -6086,7 +6086,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  */
             __pyx_v_element_found = 1;
 
-            /* "pygly2\composition\ccomposition.pyx":258
+            /* "glypy\composition\ccomposition.pyx":258
  *                             prev_chem_symbol_start = i + 1
  *                             element_found = True
  *                             break             # <<<<<<<<<<<<<<
@@ -6096,7 +6096,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
             goto __pyx_L35_break;
           }
 
-          /* "pygly2\composition\ccomposition.pyx":250
+          /* "glypy\composition\ccomposition.pyx":250
  *                     # Sort the keys from longest to shortest to workaround
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):             # <<<<<<<<<<<<<<
@@ -6107,7 +6107,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __pyx_L35_break:;
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":260
+        /* "glypy\composition\ccomposition.pyx":260
  *                             break
  * 
  *                     if not element_found:             # <<<<<<<<<<<<<<
@@ -6117,7 +6117,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __pyx_t_3 = ((!(__pyx_v_element_found != 0)) != 0);
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":261
+          /* "glypy\composition\ccomposition.pyx":261
  * 
  *                     if not element_found:
  *                         raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -6127,7 +6127,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __pyx_t_14 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 261; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_14);
 
-          /* "pygly2\composition\ccomposition.pyx":262
+          /* "glypy\composition\ccomposition.pyx":262
  *                     if not element_found:
  *                         raise ChemicalCompositionError(
  *                             'Unknown chemical element in the formula: %s' % formula)             # <<<<<<<<<<<<<<
@@ -6171,7 +6171,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     }
     /*else*/ {
 
-      /* "pygly2\composition\ccomposition.pyx":264
+      /* "glypy\composition\ccomposition.pyx":264
  *                             'Unknown chemical element in the formula: %s' % formula)
  *             else:
  *                 ch = formula[i]             # <<<<<<<<<<<<<<
@@ -6183,7 +6183,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_XDECREF_SET(__pyx_v_ch, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":265
+      /* "glypy\composition\ccomposition.pyx":265
  *             else:
  *                 ch = formula[i]
  *                 parse_stack += ch             # <<<<<<<<<<<<<<
@@ -6195,7 +6195,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_DECREF_SET(__pyx_v_parse_stack, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":266
+      /* "glypy\composition\ccomposition.pyx":266
  *                 ch = formula[i]
  *                 parse_stack += ch
  *                 i -= 1             # <<<<<<<<<<<<<<
@@ -6207,7 +6207,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":267
+      /* "glypy\composition\ccomposition.pyx":267
  *                 parse_stack += ch
  *                 i -= 1
  *                 if(ch == "("):             # <<<<<<<<<<<<<<
@@ -6217,7 +6217,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ch, __pyx_kp_s__4, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 267; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       if (__pyx_t_3) {
 
-        /* "pygly2\composition\ccomposition.pyx":268
+        /* "glypy\composition\ccomposition.pyx":268
  *                 i -= 1
  *                 if(ch == "("):
  *                     seek_mode -= 1             # <<<<<<<<<<<<<<
@@ -6229,7 +6229,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF_SET(__pyx_v_seek_mode, __pyx_t_4);
         __pyx_t_4 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":269
+        /* "glypy\composition\ccomposition.pyx":269
  *                 if(ch == "("):
  *                     seek_mode -= 1
  *                     if seek_mode == 0:             # <<<<<<<<<<<<<<
@@ -6241,7 +6241,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         if (__pyx_t_3) {
 
-          /* "pygly2\composition\ccomposition.pyx":271
+          /* "glypy\composition\ccomposition.pyx":271
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
@@ -6253,7 +6253,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __pyx_t_14 = PyDict_New(); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_14);
 
-          /* "pygly2\composition\ccomposition.pyx":274
+          /* "glypy\composition\ccomposition.pyx":274
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],             # <<<<<<<<<<<<<<
@@ -6268,7 +6268,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           if (PyDict_SetItem(__pyx_t_14, __pyx_n_s_formula, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":275
+          /* "glypy\composition\ccomposition.pyx":275
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],
  *                                              mass_data=mass_data)             # <<<<<<<<<<<<<<
@@ -6277,7 +6277,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  */
           if (PyDict_SetItem(__pyx_t_14, __pyx_n_s_mass_data, __pyx_v_mass_data) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-          /* "pygly2\composition\ccomposition.pyx":271
+          /* "glypy\composition\ccomposition.pyx":271
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
@@ -6289,7 +6289,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":276
+          /* "glypy\composition\ccomposition.pyx":276
  *                                              formula=parse_stack[:-1][::-1],
  *                                              mass_data=mass_data)
  *                                              * group_coef)             # <<<<<<<<<<<<<<
@@ -6300,7 +6300,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_GOTREF(__pyx_t_14);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":271
+          /* "glypy\composition\ccomposition.pyx":271
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
@@ -6310,7 +6310,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __pyx_t_18 = __Pyx_PyList_Append(__pyx_v_resolve_stack, __pyx_t_14); if (unlikely(__pyx_t_18 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":277
+          /* "glypy\composition\ccomposition.pyx":277
  *                                              mass_data=mass_data)
  *                                              * group_coef)
  *                         prev_chem_symbol_start = i + 1             # <<<<<<<<<<<<<<
@@ -6322,7 +6322,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_DECREF_SET(__pyx_v_prev_chem_symbol_start, __pyx_t_14);
           __pyx_t_14 = 0;
 
-          /* "pygly2\composition\ccomposition.pyx":278
+          /* "glypy\composition\ccomposition.pyx":278
  *                                              * group_coef)
  *                         prev_chem_symbol_start = i + 1
  *                         seek_mode = False             # <<<<<<<<<<<<<<
@@ -6332,7 +6332,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
           __Pyx_INCREF(Py_False);
           __Pyx_DECREF_SET(__pyx_v_seek_mode, Py_False);
 
-          /* "pygly2\composition\ccomposition.pyx":279
+          /* "glypy\composition\ccomposition.pyx":279
  *                         prev_chem_symbol_start = i + 1
  *                         seek_mode = False
  *                         parse_stack = ""             # <<<<<<<<<<<<<<
@@ -6347,7 +6347,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
         goto __pyx_L38;
       }
 
-      /* "pygly2\composition\ccomposition.pyx":280
+      /* "glypy\composition\ccomposition.pyx":280
  *                         seek_mode = False
  *                         parse_stack = ""
  *                 elif(formula[i] == ")"):             # <<<<<<<<<<<<<<
@@ -6360,7 +6360,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
       if (__pyx_t_3) {
 
-        /* "pygly2\composition\ccomposition.pyx":281
+        /* "glypy\composition\ccomposition.pyx":281
  *                         parse_stack = ""
  *                 elif(formula[i] == ")"):
  *                     seek_mode += 1             # <<<<<<<<<<<<<<
@@ -6381,7 +6381,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     __pyx_L3_continue:;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":289
+  /* "glypy\composition\ccomposition.pyx":289
  *         # at this level. __add__ operates immutably, so must manually
  *         # loop through each chunk.
  *         for chunk in resolve_stack:             # <<<<<<<<<<<<<<
@@ -6399,7 +6399,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     __Pyx_XDECREF_SET(__pyx_v_chunk, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":290
+    /* "glypy\composition\ccomposition.pyx":290
  *         # loop through each chunk.
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():             # <<<<<<<<<<<<<<
@@ -6519,7 +6519,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_XDECREF_SET(__pyx_v_cnt, __pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":291
+      /* "glypy\composition\ccomposition.pyx":291
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():
  *                 self[elem] += cnt             # <<<<<<<<<<<<<<
@@ -6537,7 +6537,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "pygly2\composition\ccomposition.pyx":290
+      /* "glypy\composition\ccomposition.pyx":290
  *         # loop through each chunk.
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():             # <<<<<<<<<<<<<<
@@ -6547,7 +6547,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":289
+    /* "glypy\composition\ccomposition.pyx":289
  *         # at this level. __add__ operates immutably, so must manually
  *         # loop through each chunk.
  *         for chunk in resolve_stack:             # <<<<<<<<<<<<<<
@@ -6557,7 +6557,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   }
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":195
+  /* "glypy\composition\ccomposition.pyx":195
  * 
  *     @cython.boundscheck(True)
  *     def _from_formula_parens(self, formula, mass_data):             # <<<<<<<<<<<<<<
@@ -6577,7 +6577,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_prev_chem_symbol_start);
@@ -6601,7 +6601,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":293
+/* "glypy\composition\ccomposition.pyx":293
  *                 self[elem] += cnt
  * 
  *     cpdef _from_dict(self, comp):             # <<<<<<<<<<<<<<
@@ -6609,8 +6609,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_34
  * 
  */
 
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp); /*proto*/
-static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_dict(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp); /*proto*/
+static PyObject *__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_dict(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6630,7 +6630,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_dict); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_37_from_dict)) {
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_37_from_dict)) {
       __Pyx_XDECREF(__pyx_r);
       __Pyx_INCREF(__pyx_t_1);
       __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -6666,7 +6666,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":294
+  /* "glypy\composition\ccomposition.pyx":294
  * 
  *     cpdef _from_dict(self, comp):
  *         self.update(comp)             # <<<<<<<<<<<<<<
@@ -6702,7 +6702,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":293
+  /* "glypy\composition\ccomposition.pyx":293
  *                 self[elem] += cnt
  * 
  *     cpdef _from_dict(self, comp):             # <<<<<<<<<<<<<<
@@ -6719,7 +6719,7 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_dict", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_dict", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -6729,19 +6729,19 @@ static PyObject *__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__fr
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_37_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_from_dict (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36_from_dict(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_comp));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_36_from_dict(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject *)__pyx_v_comp));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36_from_dict(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_36_from_dict(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6752,7 +6752,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36
   __Pyx_RefNannySetupContext("_from_dict", 0);
   __Pyx_TraceCall("_from_dict", __pyx_f[0], 293);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_dict(__pyx_v_self, __pyx_v_comp, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_dict(__pyx_v_self, __pyx_v_comp, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6761,7 +6761,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition._from_dict", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_dict", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -6770,7 +6770,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":296
+/* "glypy\composition\ccomposition.pyx":296
  *         self.update(comp)
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
@@ -6778,8 +6778,8 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_36
  * 
  */
 
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_mass(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static double __pyx_f_6glypy_11composition_12ccomposition_12CComposition_calc_mass(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args) {
   int __pyx_v_average = ((int)0);
   PyObject *__pyx_v_charge = ((PyObject *)Py_None);
   PyObject *__pyx_v_mass_data = __pyx_k__9;
@@ -6816,7 +6816,7 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_calc_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39calc_mass)) {
+    if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_39calc_mass)) {
       __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_t_1);
@@ -6859,7 +6859,7 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":297
+  /* "glypy\composition\ccomposition.pyx":297
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
  *         return calculate_mass(self, average=average, charge=charge, mass_data=mass_data)             # <<<<<<<<<<<<<<
@@ -6891,7 +6891,7 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
   __pyx_r = __pyx_t_8;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":296
+  /* "glypy\composition\ccomposition.pyx":296
  *         self.update(comp)
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
@@ -6907,7 +6907,7 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1.0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None);
@@ -6916,8 +6916,8 @@ static double __pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_m
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_39calc_mass(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_average;
   PyObject *__pyx_v_charge = 0;
   PyObject *__pyx_v_mass_data = 0;
@@ -6984,12 +6984,12 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("calc_mass", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38calc_mass(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_38calc_mass(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
 
   /* function exit code */
   goto __pyx_L0;
@@ -7000,11 +7000,11 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38calc_mass(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_38calc_mass(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
-  struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass __pyx_t_2;
+  struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -7017,7 +7017,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38
   __pyx_t_2.average = __pyx_v_average;
   __pyx_t_2.charge = __pyx_v_charge;
   __pyx_t_2.mass_data = __pyx_v_mass_data;
-  __pyx_t_1 = __pyx_vtabptr_6pygly2_11composition_12ccomposition_CComposition->calc_mass(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_vtabptr_6glypy_11composition_12ccomposition_CComposition->calc_mass(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
@@ -7027,7 +7027,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7036,7 +7036,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":300
+/* "glypy\composition\ccomposition.pyx":300
  * 
  *     property mass:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -7045,19 +7045,19 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_38
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_4mass_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_4mass_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_4mass_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_4mass_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4mass___get__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4mass___get__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
@@ -7069,7 +7069,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4m
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_TraceCall("__get__", __pyx_f[0], 300);
 
-  /* "pygly2\composition\ccomposition.pyx":301
+  /* "glypy\composition\ccomposition.pyx":301
  *     property mass:
  *         def __get__(self):
  *             return self.calc_mass()             # <<<<<<<<<<<<<<
@@ -7077,14 +7077,14 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4m
  *     def __init__(self, *args, **kwargs):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->calc_mass(__pyx_v_self, 0, NULL); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->calc_mass(__pyx_v_self, 0, NULL); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":300
+  /* "glypy\composition\ccomposition.pyx":300
  * 
  *     property mass:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -7095,7 +7095,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4m
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.mass.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.mass.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7104,7 +7104,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4m
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":303
+/* "glypy\composition\ccomposition.pyx":303
  *             return self.calc_mass()
  * 
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -7113,12 +7113,12 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_4m
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_41__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygly2_11composition_12ccomposition_12CComposition_40__init__[] = "\n        A Composition object stores a chemical composition of a\n        substance. Basically it is a dict object, in which keys are the names\n        of chemical elements and values contain integer numbers of\n        corresponding atoms in a substance.\n\n        The main improvement over dict is that Composition objects allow\n        addition and subtraction.\n\n        If ``formula`` is not specified, the constructor will look at the first\n        positional argument and try to build the object from it. Without\n        positional arguments, a Composition will be constructed directly from\n        keyword arguments.\n\n        Parameters\n        ----------\n        formula : str, optional\n            A string with a chemical formula. All elements must be present in\n            `mass_data`.\n        mol_comp : dict, optional\n            A dict with the elemental composition of the standard molecules (the\n            default value is std_mol_comp).\n        mass_data : dict, optional\n            A dict with the masses of chemical elements (the default\n            value is :py:data:`nist_mass`). It is used for formulae parsing only.\n        ";
+static int __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_41__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6glypy_11composition_12ccomposition_12CComposition_40__init__[] = "\n        A Composition object stores a chemical composition of a\n        substance. Basically it is a dict object, in which keys are the names\n        of chemical elements and values contain integer numbers of\n        corresponding atoms in a substance.\n\n        The main improvement over dict is that Composition objects allow\n        addition and subtraction.\n\n        If ``formula`` is not specified, the constructor will look at the first\n        positional argument and try to build the object from it. Without\n        positional arguments, a Composition will be constructed directly from\n        keyword arguments.\n\n        Parameters\n        ----------\n        formula : str, optional\n            A string with a chemical formula. All elements must be present in\n            `mass_data`.\n        mol_comp : dict, optional\n            A dict with the elemental composition of the standard molecules (the\n            default value is std_mol_comp).\n        mass_data : dict, optional\n            A dict with the masses of chemical elements (the default\n            value is :py:data:`nist_mass`). It is used for formulae parsing only.\n        ";
 #if CYTHON_COMPILING_IN_CPYTHON
-struct wrapperbase __pyx_wrapperbase_6pygly2_11composition_12ccomposition_12CComposition_40__init__;
+struct wrapperbase __pyx_wrapperbase_6glypy_11composition_12ccomposition_12CComposition_40__init__;
 #endif
-static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_41__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_41__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_args = 0;
   PyObject *__pyx_v_kwargs = 0;
   int __pyx_r;
@@ -7130,7 +7130,7 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_41__init
   __Pyx_GOTREF(__pyx_v_kwargs);
   __Pyx_INCREF(__pyx_args);
   __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init__(((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_args, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_40__init__(((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_args, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
@@ -7139,7 +7139,7 @@ static int __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_41__init
   return __pyx_r;
 }
 
-static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init__(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
+static int __pyx_pf_6glypy_11composition_12ccomposition_12CComposition_40__init__(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
   CYTHON_UNUSED PyObject *__pyx_v_mol_comp = 0;
   PyObject *__pyx_v_mass_data = 0;
   PyObject *__pyx_v_kwa = 0;
@@ -7170,7 +7170,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __Pyx_RefNannySetupContext("__init__", 0);
   __Pyx_TraceCall("__init__", __pyx_f[0], 303);
 
-  /* "pygly2\composition\ccomposition.pyx":330
+  /* "glypy\composition\ccomposition.pyx":330
  *             value is :py:data:`nist_mass`). It is used for formulae parsing only.
  *         """
  *         dict.__init__(self)             # <<<<<<<<<<<<<<
@@ -7206,20 +7206,20 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":334
+  /* "glypy\composition\ccomposition.pyx":334
  *             dict mol_comp, mass_data
  *             str kwa
  *         mol_comp = kwargs.get('mol_comp', std_mol_comp)             # <<<<<<<<<<<<<<
  *         mass_data = kwargs.get('mass_data', nist_mass)
  * 
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_kwargs, __pyx_n_s_mol_comp, __pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_kwargs, __pyx_n_s_mol_comp, __pyx_v_6glypy_11composition_12ccomposition_std_mol_comp); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_mol_comp = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":335
+  /* "glypy\composition\ccomposition.pyx":335
  *             str kwa
  *         mol_comp = kwargs.get('mol_comp', std_mol_comp)
  *         mass_data = kwargs.get('mass_data', nist_mass)             # <<<<<<<<<<<<<<
@@ -7235,7 +7235,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_v_mass_data = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":337
+  /* "glypy\composition\ccomposition.pyx":337
  *         mass_data = kwargs.get('mass_data', nist_mass)
  * 
  *         kw_sources = set(             # <<<<<<<<<<<<<<
@@ -7248,7 +7248,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_v_kw_sources = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":339
+  /* "glypy\composition\ccomposition.pyx":339
  *         kw_sources = set(
  *             ('formula',))
  *         kw_given = kw_sources.intersection(kwargs)             # <<<<<<<<<<<<<<
@@ -7285,7 +7285,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_v_kw_given = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":340
+  /* "glypy\composition\ccomposition.pyx":340
  *             ('formula',))
  *         kw_given = kw_sources.intersection(kwargs)
  *         if len(kw_given) > 1:             # <<<<<<<<<<<<<<
@@ -7296,7 +7296,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_t_6 = ((__pyx_t_5 > 1) != 0);
   if (__pyx_t_6) {
 
-    /* "pygly2\composition\ccomposition.pyx":341
+    /* "glypy\composition\ccomposition.pyx":341
  *         kw_given = kw_sources.intersection(kwargs)
  *         if len(kw_given) > 1:
  *             raise ChemicalCompositionError('Only one of {} can be specified!\n\             # <<<<<<<<<<<<<<
@@ -7306,7 +7306,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
 
-    /* "pygly2\composition\ccomposition.pyx":342
+    /* "glypy\composition\ccomposition.pyx":342
  *         if len(kw_given) > 1:
  *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
  *                 Given: {}'.format(', '.join(kw_sources),             # <<<<<<<<<<<<<<
@@ -7318,7 +7318,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_t_7 = __Pyx_PyString_Join(__pyx_kp_s__10, __pyx_v_kw_sources); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_7);
 
-    /* "pygly2\composition\ccomposition.pyx":343
+    /* "glypy\composition\ccomposition.pyx":343
  *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
  *                 Given: {}'.format(', '.join(kw_sources),
  *                                   ', '.join(kw_given)))             # <<<<<<<<<<<<<<
@@ -7385,7 +7385,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "pygly2\composition\ccomposition.pyx":345
+  /* "glypy\composition\ccomposition.pyx":345
  *                                   ', '.join(kw_given)))
  * 
  *         elif kw_given:             # <<<<<<<<<<<<<<
@@ -7395,7 +7395,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_kw_given); if (unlikely(__pyx_t_6 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   if (__pyx_t_6) {
 
-    /* "pygly2\composition\ccomposition.pyx":346
+    /* "glypy\composition\ccomposition.pyx":346
  * 
  *         elif kw_given:
  *             kwa = kw_given.pop()             # <<<<<<<<<<<<<<
@@ -7408,7 +7408,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_v_kwa = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":347
+    /* "glypy\composition\ccomposition.pyx":347
  *         elif kw_given:
  *             kwa = kw_given.pop()
  *             if kwa == "formula":             # <<<<<<<<<<<<<<
@@ -7419,7 +7419,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_t_11 = (__pyx_t_6 != 0);
     if (__pyx_t_11) {
 
-      /* "pygly2\composition\ccomposition.pyx":348
+      /* "glypy\composition\ccomposition.pyx":348
  *             kwa = kw_given.pop()
  *             if kwa == "formula":
  *                 self._from_formula(kwargs[kwa], mass_data)             # <<<<<<<<<<<<<<
@@ -7429,7 +7429,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
       __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_v_kwa); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_2);
       if (!(likely(PyString_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __pyx_t_1 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -7439,7 +7439,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     goto __pyx_L3;
   }
 
-  /* "pygly2\composition\ccomposition.pyx":350
+  /* "glypy\composition\ccomposition.pyx":350
  *                 self._from_formula(kwargs[kwa], mass_data)
  *         # can't build from kwargs
  *         elif args:             # <<<<<<<<<<<<<<
@@ -7449,7 +7449,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __pyx_t_11 = (__pyx_v_args != Py_None) && (PyTuple_GET_SIZE(__pyx_v_args) != 0);
   if (__pyx_t_11) {
 
-    /* "pygly2\composition\ccomposition.pyx":351
+    /* "glypy\composition\ccomposition.pyx":351
  *         # can't build from kwargs
  *         elif args:
  *             if isinstance(args[0], dict):             # <<<<<<<<<<<<<<
@@ -7463,7 +7463,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_t_6 = (__pyx_t_11 != 0);
     if (__pyx_t_6) {
 
-      /* "pygly2\composition\ccomposition.pyx":352
+      /* "glypy\composition\ccomposition.pyx":352
  *         elif args:
  *             if isinstance(args[0], dict):
  *                 self._from_dict(args[0])             # <<<<<<<<<<<<<<
@@ -7472,14 +7472,14 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
  */
       __pyx_t_1 = PyTuple_GET_ITEM(__pyx_v_args, 0);
       __Pyx_INCREF(__pyx_t_1);
-      __pyx_t_2 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 352; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 352; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       goto __pyx_L5;
     }
 
-    /* "pygly2\composition\ccomposition.pyx":353
+    /* "glypy\composition\ccomposition.pyx":353
  *             if isinstance(args[0], dict):
  *                 self._from_dict(args[0])
  *             elif isinstance(args[0], str):             # <<<<<<<<<<<<<<
@@ -7493,7 +7493,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
     __pyx_t_11 = (__pyx_t_6 != 0);
     if (__pyx_t_11) {
 
-      /* "pygly2\composition\ccomposition.pyx":354
+      /* "glypy\composition\ccomposition.pyx":354
  *                 self._from_dict(args[0])
  *             elif isinstance(args[0], str):
  *                 try:             # <<<<<<<<<<<<<<
@@ -7507,7 +7507,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
         __Pyx_XGOTREF(__pyx_t_14);
         /*try:*/ {
 
-          /* "pygly2\composition\ccomposition.pyx":355
+          /* "glypy\composition\ccomposition.pyx":355
  *             elif isinstance(args[0], str):
  *                 try:
  *                     self._from_formula(args[0], mass_data)             # <<<<<<<<<<<<<<
@@ -7517,7 +7517,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
           if (!(likely(PyString_CheckExact(PyTuple_GET_ITEM(__pyx_v_args, 0)))||((PyTuple_GET_ITEM(__pyx_v_args, 0)) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(PyTuple_GET_ITEM(__pyx_v_args, 0))->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
           __pyx_t_2 = PyTuple_GET_ITEM(__pyx_v_args, 0);
           __Pyx_INCREF(__pyx_t_2);
-          __pyx_t_1 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
+          __pyx_t_1 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -7536,7 +7536,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
         __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "pygly2\composition\ccomposition.pyx":356
+        /* "glypy\composition\ccomposition.pyx":356
  *                 try:
  *                     self._from_formula(args[0], mass_data)
  *                 except ChemicalCompositionError:             # <<<<<<<<<<<<<<
@@ -7548,13 +7548,13 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
         __pyx_t_15 = PyErr_ExceptionMatches(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         if (__pyx_t_15) {
-          __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
           if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_10) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 356; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_GOTREF(__pyx_t_10);
 
-          /* "pygly2\composition\ccomposition.pyx":357
+          /* "glypy\composition\ccomposition.pyx":357
  *                     self._from_formula(args[0], mass_data)
  *                 except ChemicalCompositionError:
  *                     raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
@@ -7564,7 +7564,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
           __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
           __Pyx_GOTREF(__pyx_t_4);
 
-          /* "pygly2\composition\ccomposition.pyx":360
+          /* "glypy\composition\ccomposition.pyx":360
  *                         'Could not create a Composition object from '
  *                         'string: "{}": not a valid sequence or '
  *                         'formula'.format(args[0]))             # <<<<<<<<<<<<<<
@@ -7644,20 +7644,20 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":362
+    /* "glypy\composition\ccomposition.pyx":362
  *                         'formula'.format(args[0]))
  *         else:
  *             self._from_dict(kwargs)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_10 = ((struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_kwargs, 0); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_10 = ((struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_kwargs, 0); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":303
+  /* "glypy\composition\ccomposition.pyx":303
  *             return self.calc_mass()
  * 
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -7678,7 +7678,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_16);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_mol_comp);
@@ -7691,7 +7691,7 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
   return __pyx_r;
 }
 
-/* "pygly2\composition\ccomposition.pyx":427
+/* "glypy\composition\ccomposition.pyx":427
  * @cython.wraparound(False)
  * @cython.boundscheck(False)
  * cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
@@ -7699,9 +7699,9 @@ static int __pyx_pf_6pygly2_11composition_12ccomposition_12CComposition_40__init
  * 
  */
 
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass *__pyx_optional_args) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_composition = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)Py_None);
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static CYTHON_INLINE double __pyx_f_6glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_composition = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)Py_None);
   PyObject *__pyx_v_formula = ((PyObject*)Py_None);
   int __pyx_v_average = ((int)0);
   PyObject *__pyx_v_charge = ((PyObject *)Py_None);
@@ -7757,7 +7757,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __Pyx_INCREF((PyObject *)__pyx_v_composition);
   __Pyx_INCREF(__pyx_v_charge);
 
-  /* "pygly2\composition\ccomposition.pyx":458
+  /* "glypy\composition\ccomposition.pyx":458
  *         dict mass_provider
  *         #Isotope parsed
  *     if mass_data is None:             # <<<<<<<<<<<<<<
@@ -7768,7 +7768,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":459
+    /* "glypy\composition\ccomposition.pyx":459
  *         #Isotope parsed
  *     if mass_data is None:
  *         mass_provider = nist_mass             # <<<<<<<<<<<<<<
@@ -7784,7 +7784,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":461
+    /* "glypy\composition\ccomposition.pyx":461
  *         mass_provider = nist_mass
  *     else:
  *         mass_provider = mass_data             # <<<<<<<<<<<<<<
@@ -7799,7 +7799,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   __pyx_L3:;
 
-  /* "pygly2\composition\ccomposition.pyx":463
+  /* "glypy\composition\ccomposition.pyx":463
  *         mass_provider = mass_data
  * 
  *     if composition is None:             # <<<<<<<<<<<<<<
@@ -7810,7 +7810,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "pygly2\composition\ccomposition.pyx":464
+    /* "glypy\composition\ccomposition.pyx":464
  * 
  *     if composition is None:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -7821,7 +7821,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "pygly2\composition\ccomposition.pyx":465
+      /* "glypy\composition\ccomposition.pyx":465
  *     if composition is None:
  *         if formula is not None:
  *             composition = CComposition(formula)             # <<<<<<<<<<<<<<
@@ -7833,16 +7833,16 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
       __Pyx_INCREF(__pyx_v_formula);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_formula);
       __Pyx_GIVEREF(__pyx_v_formula);
-      __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 465; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition)), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 465; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF_SET(__pyx_v_composition, ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)__pyx_t_4));
+      __Pyx_DECREF_SET(__pyx_v_composition, ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)__pyx_t_4));
       __pyx_t_4 = 0;
       goto __pyx_L5;
     }
     /*else*/ {
 
-      /* "pygly2\composition\ccomposition.pyx":467
+      /* "glypy\composition\ccomposition.pyx":467
  *             composition = CComposition(formula)
  *         else:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")             # <<<<<<<<<<<<<<
@@ -7863,7 +7863,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":469
+    /* "glypy\composition\ccomposition.pyx":469
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")
  *     else:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -7874,7 +7874,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __pyx_t_1 = (__pyx_t_2 != 0);
     if (__pyx_t_1) {
 
-      /* "pygly2\composition\ccomposition.pyx":470
+      /* "glypy\composition\ccomposition.pyx":470
  *     else:
  *         if formula is not None:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument, but not both")             # <<<<<<<<<<<<<<
@@ -7893,7 +7893,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   __pyx_L4:;
 
-  /* "pygly2\composition\ccomposition.pyx":473
+  /* "glypy\composition\ccomposition.pyx":473
  * 
  *     # Get charge.
  *     if charge is None:             # <<<<<<<<<<<<<<
@@ -7904,7 +7904,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":474
+    /* "glypy\composition\ccomposition.pyx":474
  *     # Get charge.
  *     if charge is None:
  *         charge = composition['H+']             # <<<<<<<<<<<<<<
@@ -7919,7 +7919,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   /*else*/ {
 
-    /* "pygly2\composition\ccomposition.pyx":476
+    /* "glypy\composition\ccomposition.pyx":476
  *         charge = composition['H+']
  *     else:
  *         if charge != 0 and composition['H+'] != 0:             # <<<<<<<<<<<<<<
@@ -7944,7 +7944,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __pyx_L9_bool_binop_done:;
     if (__pyx_t_2) {
 
-      /* "pygly2\composition\ccomposition.pyx":477
+      /* "glypy\composition\ccomposition.pyx":477
  *     else:
  *         if charge != 0 and composition['H+'] != 0:
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")             # <<<<<<<<<<<<<<
@@ -7963,7 +7963,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   __pyx_L7:;
 
-  /* "pygly2\composition\ccomposition.pyx":479
+  /* "glypy\composition\ccomposition.pyx":479
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")
  * 
  *     old_charge = composition['H+']             # <<<<<<<<<<<<<<
@@ -7976,7 +7976,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_old_charge = __pyx_t_5;
 
-  /* "pygly2\composition\ccomposition.pyx":480
+  /* "glypy\composition\ccomposition.pyx":480
  * 
  *     old_charge = composition['H+']
  *     composition['H+'] = charge             # <<<<<<<<<<<<<<
@@ -7985,7 +7985,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
  */
   if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_composition), __pyx_kp_s_H, __pyx_v_charge) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 480; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-  /* "pygly2\composition\ccomposition.pyx":483
+  /* "glypy\composition\ccomposition.pyx":483
  * 
  *     # Calculate mass.
  *     mass = 0.0             # <<<<<<<<<<<<<<
@@ -7994,7 +7994,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
  */
   __pyx_v_mass = 0.0;
 
-  /* "pygly2\composition\ccomposition.pyx":484
+  /* "glypy\composition\ccomposition.pyx":484
  *     # Calculate mass.
  *     mass = 0.0
  *     for isotope_string in composition:             # <<<<<<<<<<<<<<
@@ -8042,14 +8042,14 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __Pyx_XDECREF_SET(__pyx_v_isotope_string, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "pygly2\composition\ccomposition.pyx":485
+    /* "glypy\composition\ccomposition.pyx":485
  *     mass = 0.0
  *     for isotope_string in composition:
  *         element_name, isotope_num = _parse_isotope_string(isotope_string)             # <<<<<<<<<<<<<<
  *         #parsed = _parse_isotope_string(isotope_string)
  *         #element_name = <str>parsed.element_name.encode("ascii")
  */
-    __pyx_t_3 = __pyx_f_6pygly2_11composition_12ccomposition__parse_isotope_string(__pyx_v_isotope_string); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 485; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __pyx_f_6glypy_11composition_12ccomposition__parse_isotope_string(__pyx_v_isotope_string); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 485; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     if (likely(__pyx_t_3 != Py_None)) {
       PyObject* sequence = __pyx_t_3;
@@ -8085,7 +8085,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __pyx_t_8 = 0;
     __pyx_v_isotope_num = __pyx_t_5;
 
-    /* "pygly2\composition\ccomposition.pyx":492
+    /* "glypy\composition\ccomposition.pyx":492
  *         # Calculate average mass if required and the isotope number is
  *         # not specified.
  *         if (not isotope_num) and average:             # <<<<<<<<<<<<<<
@@ -8103,7 +8103,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     __pyx_L14_bool_binop_done:;
     if (__pyx_t_2) {
 
-      /* "pygly2\composition\ccomposition.pyx":493
+      /* "glypy\composition\ccomposition.pyx":493
  *         # not specified.
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:             # <<<<<<<<<<<<<<
@@ -8158,7 +8158,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_v_isotope = __pyx_t_5;
 
-        /* "pygly2\composition\ccomposition.pyx":494
+        /* "glypy\composition\ccomposition.pyx":494
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:
  *                 if isotope != 0:             # <<<<<<<<<<<<<<
@@ -8168,7 +8168,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
         __pyx_t_2 = ((__pyx_v_isotope != 0) != 0);
         if (__pyx_t_2) {
 
-          /* "pygly2\composition\ccomposition.pyx":495
+          /* "glypy\composition\ccomposition.pyx":495
  *             for isotope in mass_provider[element_name]:
  *                 if isotope != 0:
  *                     quantity = <int>composition[element_name]             # <<<<<<<<<<<<<<
@@ -8181,7 +8181,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __pyx_v_quantity = ((int)__pyx_t_5);
 
-          /* "pygly2\composition\ccomposition.pyx":496
+          /* "glypy\composition\ccomposition.pyx":496
  *                 if isotope != 0:
  *                     quantity = <int>composition[element_name]
  *                     isotope_mass = <double>mass_provider[element_name][isotope][0]             # <<<<<<<<<<<<<<
@@ -8204,7 +8204,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __pyx_v_isotope_mass = ((double)__pyx_t_12);
 
-          /* "pygly2\composition\ccomposition.pyx":497
+          /* "glypy\composition\ccomposition.pyx":497
  *                     quantity = <int>composition[element_name]
  *                     isotope_mass = <double>mass_provider[element_name][isotope][0]
  *                     isotope_frequency = <double>mass_provider[element_name][isotope][1]             # <<<<<<<<<<<<<<
@@ -8227,7 +8227,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __pyx_v_isotope_frequency = ((double)__pyx_t_12);
 
-          /* "pygly2\composition\ccomposition.pyx":499
+          /* "glypy\composition\ccomposition.pyx":499
  *                     isotope_frequency = <double>mass_provider[element_name][isotope][1]
  * 
  *                     mass += quantity * isotope_mass * isotope_frequency             # <<<<<<<<<<<<<<
@@ -8239,7 +8239,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
         }
         __pyx_L18:;
 
-        /* "pygly2\composition\ccomposition.pyx":493
+        /* "glypy\composition\ccomposition.pyx":493
  *         # not specified.
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:             # <<<<<<<<<<<<<<
@@ -8252,7 +8252,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     }
     /*else*/ {
 
-      /* "pygly2\composition\ccomposition.pyx":501
+      /* "glypy\composition\ccomposition.pyx":501
  *                     mass += quantity * isotope_mass * isotope_frequency
  *         else:
  *             mass += (composition[isotope_string] * mass_provider[element_name][isotope_num][0])             # <<<<<<<<<<<<<<
@@ -8289,7 +8289,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
     }
     __pyx_L13:;
 
-    /* "pygly2\composition\ccomposition.pyx":484
+    /* "glypy\composition\ccomposition.pyx":484
  *     # Calculate mass.
  *     mass = 0.0
  *     for isotope_string in composition:             # <<<<<<<<<<<<<<
@@ -8299,7 +8299,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":504
+  /* "glypy\composition\ccomposition.pyx":504
  * 
  *     # Calculate m/z if required.
  *     if charge != 0:             # <<<<<<<<<<<<<<
@@ -8311,7 +8311,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_2) {
 
-    /* "pygly2\composition\ccomposition.pyx":505
+    /* "glypy\composition\ccomposition.pyx":505
  *     # Calculate m/z if required.
  *     if charge != 0:
  *         mass /= charge             # <<<<<<<<<<<<<<
@@ -8330,7 +8330,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   }
   __pyx_L19:;
 
-  /* "pygly2\composition\ccomposition.pyx":507
+  /* "glypy\composition\ccomposition.pyx":507
  *         mass /= charge
  * 
  *     composition['H+'] = old_charge             # <<<<<<<<<<<<<<
@@ -8341,7 +8341,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_composition), __pyx_kp_s_H, __pyx_t_8) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 507; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":508
+  /* "glypy\composition\ccomposition.pyx":508
  * 
  *     composition['H+'] = old_charge
  *     return mass             # <<<<<<<<<<<<<<
@@ -8349,7 +8349,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __pyx_r = __pyx_v_mass;
   goto __pyx_L0;
 
-  /* "pygly2\composition\ccomposition.pyx":427
+  /* "glypy\composition\ccomposition.pyx":427
  * @cython.wraparound(False)
  * @cython.boundscheck(False)
  * cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
@@ -8364,7 +8364,7 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1.0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_isotope_string);
@@ -8378,10 +8378,10 @@ static CYTHON_INLINE double __pyx_f_6pygly2_11composition_12ccomposition_calcula
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygly2_11composition_12ccomposition_calculate_mass[] = "Calculates the monoisotopic mass of a chemical formula or CComposition object.\n\n    Parameters\n    ----------\n    composition : CComposition\n        A Composition object with the elemental composition of a substance. Exclusive with `formula`\n    formula: str\n        A string describing a chemical composition. Exclusive with `composition`\n    average : bool, optional\n        If :py:const:`True` then the average mass is calculated. Note that mass\n        is not averaged for elements with specified isotopes. Default is\n        :py:const:`False`.\n    charge : int, optional\n        If not 0 then m/z is calculated: the mass is increased\n        by the corresponding number of proton masses and divided\n        by z.\n    mass_data : dict, optional\n        A dict with the masses of the chemical elements (the default\n        value is :py:data:`nist_mass`).\n\n    Returns\n    -------\n        mass : float\n    ";
-static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_composition = 0;
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6glypy_11composition_12ccomposition_calculate_mass[] = "Calculates the monoisotopic mass of a chemical formula or CComposition object.\n\n    Parameters\n    ----------\n    composition : CComposition\n        A Composition object with the elemental composition of a substance. Exclusive with `formula`\n    formula: str\n        A string describing a chemical composition. Exclusive with `composition`\n    average : bool, optional\n        If :py:const:`True` then the average mass is calculated. Note that mass\n        is not averaged for elements with specified isotopes. Default is\n        :py:const:`False`.\n    charge : int, optional\n        If not 0 then m/z is calculated: the mass is increased\n        by the corresponding number of proton masses and divided\n        by z.\n    mass_data : dict, optional\n        A dict with the masses of the chemical elements (the default\n        value is :py:data:`nist_mass`).\n\n    Returns\n    -------\n        mass : float\n    ";
+static PyObject *__pyx_pw_6glypy_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_composition = 0;
   PyObject *__pyx_v_formula = 0;
   int __pyx_v_average;
   PyObject *__pyx_v_charge = 0;
@@ -8395,7 +8395,7 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(P
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_composition,&__pyx_n_s_formula,&__pyx_n_s_average,&__pyx_n_s_charge,&__pyx_n_s_mass_data,0};
     PyObject* values[5] = {0,0,0,0,0};
-    values[0] = (PyObject *)((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)Py_None);
+    values[0] = (PyObject *)((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)Py_None);
     values[1] = ((PyObject*)Py_None);
     values[3] = ((PyObject *)Py_None);
     values[4] = ((PyObject *)Py_None);
@@ -8453,7 +8453,7 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(P
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_composition = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)values[0]);
+    __pyx_v_composition = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)values[0]);
     __pyx_v_formula = ((PyObject*)values[1]);
     if (values[2]) {
       __pyx_v_average = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_average == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
@@ -8467,13 +8467,13 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("calculate_mass", 0, 0, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_composition), __pyx_ptype_6pygly2_11composition_12ccomposition_CComposition, 1, "composition", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_composition), __pyx_ptype_6glypy_11composition_12ccomposition_CComposition, 1, "composition", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(__pyx_self, __pyx_v_composition, __pyx_v_formula, __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
+  __pyx_r = __pyx_pf_6glypy_11composition_12ccomposition_calculate_mass(__pyx_self, __pyx_v_composition, __pyx_v_formula, __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
 
   /* function exit code */
   goto __pyx_L0;
@@ -8484,11 +8484,11 @@ static PyObject *__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass(P
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
+static PyObject *__pyx_pf_6glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
-  struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass __pyx_t_2;
+  struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
@@ -8503,7 +8503,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(CY
   __pyx_t_2.average = __pyx_v_average;
   __pyx_t_2.charge = __pyx_v_charge;
   __pyx_t_2.mass_data = __pyx_v_mass_data;
-  __pyx_t_1 = __pyx_f_6pygly2_11composition_12ccomposition_calculate_mass(0, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_6glypy_11composition_12ccomposition_calculate_mass(0, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 427; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
@@ -8513,7 +8513,7 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(CY
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pygly2.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("glypy.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -8521,18 +8521,18 @@ static PyObject *__pyx_pf_6pygly2_11composition_12ccomposition_calculate_mass(CY
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static struct __pyx_vtabstruct_6pygly2_11composition_12ccomposition_CComposition __pyx_vtable_6pygly2_11composition_12ccomposition_CComposition;
+static struct __pyx_vtabstruct_6glypy_11composition_12ccomposition_CComposition __pyx_vtable_6glypy_11composition_12ccomposition_CComposition;
 
-static PyObject *__pyx_tp_new_6pygly2_11composition_12ccomposition_CComposition(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *p;
+static PyObject *__pyx_tp_new_6glypy_11composition_12ccomposition_CComposition(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *p;
   PyObject *o = (&PyDict_Type)->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *)o);
-  p->__pyx_vtab = __pyx_vtabptr_6pygly2_11composition_12ccomposition_CComposition;
+  p = ((struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *)o);
+  p->__pyx_vtab = __pyx_vtabptr_6glypy_11composition_12ccomposition_CComposition;
   return o;
 }
 
-static void __pyx_tp_dealloc_6pygly2_11composition_12ccomposition_CComposition(PyObject *o) {
+static void __pyx_tp_dealloc_6glypy_11composition_12ccomposition_CComposition(PyObject *o) {
   #if PY_VERSION_HEX >= 0x030400a1
   if (unlikely(Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -8543,20 +8543,20 @@ static void __pyx_tp_dealloc_6pygly2_11composition_12ccomposition_CComposition(P
   (&PyDict_Type)->tp_dealloc(o);
 }
 
-static int __pyx_tp_traverse_6pygly2_11composition_12ccomposition_CComposition(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_6glypy_11composition_12ccomposition_CComposition(PyObject *o, visitproc v, void *a) {
   int e;
   if (!(&PyDict_Type)->tp_traverse); else { e = (&PyDict_Type)->tp_traverse(o,v,a); if (e) return e; }
   return 0;
 }
 
-static int __pyx_tp_clear_6pygly2_11composition_12ccomposition_CComposition(PyObject *o) {
+static int __pyx_tp_clear_6glypy_11composition_12ccomposition_CComposition(PyObject *o) {
   if (!(&PyDict_Type)->tp_clear); else (&PyDict_Type)->tp_clear(o);
   return 0;
 }
 
-static int __pyx_mp_ass_subscript_6pygly2_11composition_12ccomposition_CComposition(PyObject *o, PyObject *i, PyObject *v) {
+static int __pyx_mp_ass_subscript_6glypy_11composition_12ccomposition_CComposition(PyObject *o, PyObject *i, PyObject *v) {
   if (v) {
-    return __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_27__setitem__(o, i, v);
+    return __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_27__setitem__(o, i, v);
   }
   else {
     if ((&PyDict_Type)->tp_as_mapping && (&PyDict_Type)->tp_as_mapping->mp_ass_subscript)
@@ -8567,40 +8567,40 @@ static int __pyx_mp_ass_subscript_6pygly2_11composition_12ccomposition_CComposit
   }
 }
 
-static PyObject *__pyx_getprop_6pygly2_11composition_12ccomposition_12CComposition_mass(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_4mass_1__get__(o);
+static PyObject *__pyx_getprop_6glypy_11composition_12ccomposition_12CComposition_mass(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_4mass_1__get__(o);
 }
 
-static PyMethodDef __pyx_methods_6pygly2_11composition_12ccomposition_CComposition[] = {
-  {"__reduce__", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_13__reduce__, METH_NOARGS, 0},
-  {"__getstate__", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_15__getstate__, METH_NOARGS, 0},
-  {"__setstate__", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_17__setstate__, METH_O, 0},
-  {"__missing__", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_25__missing__, METH_O, 0},
-  {"copy", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_29copy, METH_NOARGS, 0},
-  {"clone", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_31clone, METH_NOARGS, 0},
-  {"_from_formula", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_33_from_formula, METH_VARARGS|METH_KEYWORDS, 0},
-  {"_from_formula_parens", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_35_from_formula_parens, METH_VARARGS|METH_KEYWORDS, 0},
-  {"_from_dict", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_37_from_dict, METH_O, 0},
-  {"calc_mass", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_39calc_mass, METH_VARARGS|METH_KEYWORDS, 0},
+static PyMethodDef __pyx_methods_6glypy_11composition_12ccomposition_CComposition[] = {
+  {"__reduce__", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_13__reduce__, METH_NOARGS, 0},
+  {"__getstate__", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_15__getstate__, METH_NOARGS, 0},
+  {"__setstate__", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_17__setstate__, METH_O, 0},
+  {"__missing__", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_25__missing__, METH_O, 0},
+  {"copy", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_29copy, METH_NOARGS, 0},
+  {"clone", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_31clone, METH_NOARGS, 0},
+  {"_from_formula", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_33_from_formula, METH_VARARGS|METH_KEYWORDS, 0},
+  {"_from_formula_parens", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_35_from_formula_parens, METH_VARARGS|METH_KEYWORDS, 0},
+  {"_from_dict", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_37_from_dict, METH_O, 0},
+  {"calc_mass", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_12CComposition_39calc_mass, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6pygly2_11composition_12ccomposition_CComposition[] = {
-  {(char *)"mass", __pyx_getprop_6pygly2_11composition_12ccomposition_12CComposition_mass, 0, 0, 0},
+static struct PyGetSetDef __pyx_getsets_6glypy_11composition_12ccomposition_CComposition[] = {
+  {(char *)"mass", __pyx_getprop_6glypy_11composition_12ccomposition_12CComposition_mass, 0, 0, 0},
   {0, 0, 0, 0, 0}
 };
 
 static PyNumberMethods __pyx_tp_as_number_CComposition = {
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_7__add__, /*nb_add*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_11__sub__, /*nb_subtract*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_19__mul__, /*nb_multiply*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_7__add__, /*nb_add*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_11__sub__, /*nb_subtract*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_19__mul__, /*nb_multiply*/
   #if PY_MAJOR_VERSION < 3
   0, /*nb_divide*/
   #endif
   0, /*nb_remainder*/
   0, /*nb_divmod*/
   0, /*nb_power*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_23__neg__, /*nb_negative*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_23__neg__, /*nb_negative*/
   0, /*nb_positive*/
   0, /*nb_absolute*/
   0, /*nb_nonzero*/
@@ -8626,8 +8626,8 @@ static PyNumberMethods __pyx_tp_as_number_CComposition = {
   #if PY_MAJOR_VERSION < 3
   0, /*nb_hex*/
   #endif
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_5__iadd__, /*nb_inplace_add*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_9__isub__, /*nb_inplace_subtract*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_5__iadd__, /*nb_inplace_add*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_9__isub__, /*nb_inplace_subtract*/
   0, /*nb_inplace_multiply*/
   #if PY_MAJOR_VERSION < 3
   0, /*nb_inplace_divide*/
@@ -8655,15 +8655,15 @@ static PyNumberMethods __pyx_tp_as_number_CComposition = {
 static PyMappingMethods __pyx_tp_as_mapping_CComposition = {
   0, /*mp_length*/
   0, /*mp_subscript*/
-  __pyx_mp_ass_subscript_6pygly2_11composition_12ccomposition_CComposition, /*mp_ass_subscript*/
+  __pyx_mp_ass_subscript_6glypy_11composition_12ccomposition_CComposition, /*mp_ass_subscript*/
 };
 
-static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_CComposition = {
+static PyTypeObject __pyx_type_6glypy_11composition_12ccomposition_CComposition = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pygly2.composition.ccomposition.CComposition", /*tp_name*/
-  sizeof(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition), /*tp_basicsize*/
+  "glypy.composition.ccomposition.CComposition", /*tp_name*/
+  sizeof(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pygly2_11composition_12ccomposition_CComposition, /*tp_dealloc*/
+  __pyx_tp_dealloc_6glypy_11composition_12ccomposition_CComposition, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8672,35 +8672,35 @@ static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_CComposition
   #else
   0, /*reserved*/
   #endif
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_3__repr__, /*tp_repr*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_3__repr__, /*tp_repr*/
   &__pyx_tp_as_number_CComposition, /*tp_as_number*/
   0, /*tp_as_sequence*/
   &__pyx_tp_as_mapping_CComposition, /*tp_as_mapping*/
   0, /*tp_hash*/
   0, /*tp_call*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_1__str__, /*tp_str*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_1__str__, /*tp_str*/
   0, /*tp_getattro*/
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "Represent arbitrary elemental compositions", /*tp_doc*/
-  __pyx_tp_traverse_6pygly2_11composition_12ccomposition_CComposition, /*tp_traverse*/
-  __pyx_tp_clear_6pygly2_11composition_12ccomposition_CComposition, /*tp_clear*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_21__richcmp__, /*tp_richcompare*/
+  __pyx_tp_traverse_6glypy_11composition_12ccomposition_CComposition, /*tp_traverse*/
+  __pyx_tp_clear_6glypy_11composition_12ccomposition_CComposition, /*tp_clear*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_21__richcmp__, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pygly2_11composition_12ccomposition_CComposition, /*tp_methods*/
+  __pyx_methods_6glypy_11composition_12ccomposition_CComposition, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6pygly2_11composition_12ccomposition_CComposition, /*tp_getset*/
+  __pyx_getsets_6glypy_11composition_12ccomposition_CComposition, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pygly2_11composition_12ccomposition_12CComposition_41__init__, /*tp_init*/
+  __pyx_pw_6glypy_11composition_12ccomposition_12CComposition_41__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pygly2_11composition_12ccomposition_CComposition, /*tp_new*/
+  __pyx_tp_new_6glypy_11composition_12ccomposition_CComposition, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8715,15 +8715,15 @@ static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_CComposition
   #endif
 };
 
-static struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *__pyx_freelist_6pygly2_11composition_12ccomposition_Isotope[1];
-static int __pyx_freecount_6pygly2_11composition_12ccomposition_Isotope = 0;
+static struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *__pyx_freelist_6glypy_11composition_12ccomposition_Isotope[1];
+static int __pyx_freecount_6glypy_11composition_12ccomposition_Isotope = 0;
 
-static PyObject *__pyx_tp_new_6pygly2_11composition_12ccomposition_Isotope(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *p;
+static PyObject *__pyx_tp_new_6glypy_11composition_12ccomposition_Isotope(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *p;
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_6pygly2_11composition_12ccomposition_Isotope > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope)) & ((t->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
-    o = (PyObject*)__pyx_freelist_6pygly2_11composition_12ccomposition_Isotope[--__pyx_freecount_6pygly2_11composition_12ccomposition_Isotope];
-    memset(o, 0, sizeof(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_6glypy_11composition_12ccomposition_Isotope > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope)) & ((t->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
+    o = (PyObject*)__pyx_freelist_6glypy_11composition_12ccomposition_Isotope[--__pyx_freecount_6glypy_11composition_12ccomposition_Isotope];
+    memset(o, 0, sizeof(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope));
     (void) PyObject_INIT(o, t);
   } else {
     if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
@@ -8733,39 +8733,39 @@ static PyObject *__pyx_tp_new_6pygly2_11composition_12ccomposition_Isotope(PyTyp
     }
     if (unlikely(!o)) return 0;
   }
-  p = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *)o);
+  p = ((struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *)o);
   p->element_name = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  if (unlikely(__pyx_pw_6pygly2_11composition_12ccomposition_7Isotope_1__cinit__(o, a, k) < 0)) {
+  if (unlikely(__pyx_pw_6glypy_11composition_12ccomposition_7Isotope_1__cinit__(o, a, k) < 0)) {
     Py_DECREF(o); o = 0;
   }
   return o;
 }
 
-static void __pyx_tp_dealloc_6pygly2_11composition_12ccomposition_Isotope(PyObject *o) {
-  struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *p = (struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *)o;
+static void __pyx_tp_dealloc_6glypy_11composition_12ccomposition_Isotope(PyObject *o) {
+  struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *p = (struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *)o;
   #if PY_VERSION_HEX >= 0x030400a1
   if (unlikely(Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
   }
   #endif
   Py_CLEAR(p->element_name);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_6pygly2_11composition_12ccomposition_Isotope < 1) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope)) & ((Py_TYPE(o)->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
-    __pyx_freelist_6pygly2_11composition_12ccomposition_Isotope[__pyx_freecount_6pygly2_11composition_12ccomposition_Isotope++] = ((struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_6glypy_11composition_12ccomposition_Isotope < 1) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope)) & ((Py_TYPE(o)->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)) == 0))) {
+    __pyx_freelist_6glypy_11composition_12ccomposition_Isotope[__pyx_freecount_6glypy_11composition_12ccomposition_Isotope++] = ((struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static PyMethodDef __pyx_methods_6pygly2_11composition_12ccomposition_Isotope[] = {
+static PyMethodDef __pyx_methods_6glypy_11composition_12ccomposition_Isotope[] = {
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_Isotope = {
+static PyTypeObject __pyx_type_6glypy_11composition_12ccomposition_Isotope = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pygly2.composition.ccomposition.Isotope", /*tp_name*/
-  sizeof(struct __pyx_obj_6pygly2_11composition_12ccomposition_Isotope), /*tp_basicsize*/
+  "glypy.composition.ccomposition.Isotope", /*tp_name*/
+  sizeof(struct __pyx_obj_6glypy_11composition_12ccomposition_Isotope), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pygly2_11composition_12ccomposition_Isotope, /*tp_dealloc*/
+  __pyx_tp_dealloc_6glypy_11composition_12ccomposition_Isotope, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8792,7 +8792,7 @@ static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_Isotope = {
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pygly2_11composition_12ccomposition_Isotope, /*tp_methods*/
+  __pyx_methods_6glypy_11composition_12ccomposition_Isotope, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -8802,7 +8802,7 @@ static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_Isotope = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pygly2_11composition_12ccomposition_Isotope, /*tp_new*/
+  __pyx_tp_new_6glypy_11composition_12ccomposition_Isotope, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8818,7 +8818,7 @@ static PyTypeObject __pyx_type_6pygly2_11composition_12ccomposition_Isotope = {
 };
 
 static PyMethodDef __pyx_methods[] = {
-  {"calculate_mass", (PyCFunction)__pyx_pw_6pygly2_11composition_12ccomposition_1calculate_mass, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pygly2_11composition_12ccomposition_calculate_mass},
+  {"calculate_mass", (PyCFunction)__pyx_pw_6glypy_11composition_12ccomposition_1calculate_mass, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6glypy_11composition_12ccomposition_calculate_mass},
   {0, 0, 0, 0}
 };
 
@@ -8992,7 +8992,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pygly2\composition\ccomposition.pyx":274
+  /* "glypy\composition\ccomposition.pyx":274
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],             # <<<<<<<<<<<<<<
@@ -9006,7 +9006,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__8);
   __Pyx_GIVEREF(__pyx_slice__8);
 
-  /* "pygly2\composition\ccomposition.pyx":467
+  /* "glypy\composition\ccomposition.pyx":467
  *             composition = CComposition(formula)
  *         else:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")             # <<<<<<<<<<<<<<
@@ -9017,7 +9017,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "pygly2\composition\ccomposition.pyx":470
+  /* "glypy\composition\ccomposition.pyx":470
  *     else:
  *         if formula is not None:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument, but not both")             # <<<<<<<<<<<<<<
@@ -9028,7 +9028,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
 
-  /* "pygly2\composition\ccomposition.pyx":477
+  /* "glypy\composition\ccomposition.pyx":477
  *     else:
  *         if charge != 0 and composition['H+'] != 0:
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")             # <<<<<<<<<<<<<<
@@ -9136,14 +9136,14 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   #endif
-  if (__pyx_module_is_main_pygly2__composition__ccomposition) {
+  if (__pyx_module_is_main_glypy__composition__ccomposition) {
     if (PyObject_SetAttrString(__pyx_m, "__name__", __pyx_n_s_main) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    if (!PyDict_GetItemString(modules, "pygly2.composition.ccomposition")) {
-      if (unlikely(PyDict_SetItemString(modules, "pygly2.composition.ccomposition", __pyx_m) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (!PyDict_GetItemString(modules, "glypy.composition.ccomposition")) {
+      if (unlikely(PyDict_SetItemString(modules, "glypy.composition.ccomposition", __pyx_m) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
   }
   #endif
@@ -9152,55 +9152,55 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   /*--- Constants init code ---*/
   if (unlikely(__Pyx_InitCachedConstants() < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   /*--- Global init code ---*/
-  __pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  __pyx_v_6pygly2_11composition_12ccomposition__atom = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  __pyx_v_6pygly2_11composition_12ccomposition__formula = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  __pyx_v_6pygly2_11composition_12ccomposition__isotope_string = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  __pyx_v_6pygly2_11composition_12ccomposition_isotope_pattern = Py_None; Py_INCREF(Py_None);
-  __pyx_v_6pygly2_11composition_12ccomposition_formula_pattern = Py_None; Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition_std_mol_comp = ((PyObject*)Py_None); Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition__atom = ((PyObject*)Py_None); Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition__formula = ((PyObject*)Py_None); Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition__isotope_string = ((PyObject*)Py_None); Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition_isotope_pattern = Py_None; Py_INCREF(Py_None);
+  __pyx_v_6glypy_11composition_12ccomposition_formula_pattern = Py_None; Py_INCREF(Py_None);
   /*--- Variable export code ---*/
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_std_mol_comp, (void *)&__pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_atom, (void *)&__pyx_v_6pygly2_11composition_12ccomposition__atom, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_formula_2, (void *)&__pyx_v_6pygly2_11composition_12ccomposition__formula, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_isotope_string, (void *)&__pyx_v_6pygly2_11composition_12ccomposition__isotope_string, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_isotope_pattern, (void *)&__pyx_v_6pygly2_11composition_12ccomposition_isotope_pattern, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportVoidPtr(__pyx_n_s_formula_pattern, (void *)&__pyx_v_6pygly2_11composition_12ccomposition_formula_pattern, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_std_mol_comp, (void *)&__pyx_v_6glypy_11composition_12ccomposition_std_mol_comp, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_atom, (void *)&__pyx_v_6glypy_11composition_12ccomposition__atom, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_formula_2, (void *)&__pyx_v_6glypy_11composition_12ccomposition__formula, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_isotope_string, (void *)&__pyx_v_6glypy_11composition_12ccomposition__isotope_string, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_isotope_pattern, (void *)&__pyx_v_6glypy_11composition_12ccomposition_isotope_pattern, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportVoidPtr(__pyx_n_s_formula_pattern, (void *)&__pyx_v_6glypy_11composition_12ccomposition_formula_pattern, "PyObject *") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   /*--- Function export code ---*/
-  if (__Pyx_ExportFunction("_parse_isotope_string", (void (*)(void))__pyx_f_6pygly2_11composition_12ccomposition__parse_isotope_string, "PyObject *(PyObject *)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportFunction("_make_isotope_string", (void (*)(void))__pyx_f_6pygly2_11composition_12ccomposition__make_isotope_string, "PyObject *(PyObject *, int)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__Pyx_ExportFunction("calculate_mass", (void (*)(void))__pyx_f_6pygly2_11composition_12ccomposition_calculate_mass, "double (int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_calculate_mass *__pyx_optional_args)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportFunction("_parse_isotope_string", (void (*)(void))__pyx_f_6glypy_11composition_12ccomposition__parse_isotope_string, "PyObject *(PyObject *)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportFunction("_make_isotope_string", (void (*)(void))__pyx_f_6glypy_11composition_12ccomposition__make_isotope_string, "PyObject *(PyObject *, int)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_ExportFunction("calculate_mass", (void (*)(void))__pyx_f_6glypy_11composition_12ccomposition_calculate_mass, "double (int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args)") < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   /*--- Type init code ---*/
-  __pyx_vtabptr_6pygly2_11composition_12ccomposition_CComposition = &__pyx_vtable_6pygly2_11composition_12ccomposition_CComposition;
-  __pyx_vtable_6pygly2_11composition_12ccomposition_CComposition.clone = (struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *(*)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch))__pyx_f_6pygly2_11composition_12ccomposition_12CComposition_clone;
-  __pyx_vtable_6pygly2_11composition_12ccomposition_CComposition.calc_mass = (double (*)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pygly2_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args))__pyx_f_6pygly2_11composition_12ccomposition_12CComposition_calc_mass;
-  __pyx_vtable_6pygly2_11composition_12ccomposition_CComposition._from_formula = (PyObject *(*)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_formula;
-  __pyx_vtable_6pygly2_11composition_12ccomposition_CComposition._from_dict = (PyObject *(*)(struct __pyx_obj_6pygly2_11composition_12ccomposition_CComposition *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6pygly2_11composition_12ccomposition_12CComposition__from_dict;
-  __pyx_type_6pygly2_11composition_12ccomposition_CComposition.tp_base = (&PyDict_Type);
-  if (PyType_Ready(&__pyx_type_6pygly2_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_type_6pygly2_11composition_12ccomposition_CComposition.tp_print = 0;
+  __pyx_vtabptr_6glypy_11composition_12ccomposition_CComposition = &__pyx_vtable_6glypy_11composition_12ccomposition_CComposition;
+  __pyx_vtable_6glypy_11composition_12ccomposition_CComposition.clone = (struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *(*)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch))__pyx_f_6glypy_11composition_12ccomposition_12CComposition_clone;
+  __pyx_vtable_6glypy_11composition_12ccomposition_CComposition.calc_mass = (double (*)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, int __pyx_skip_dispatch, struct __pyx_opt_args_6glypy_11composition_12ccomposition_12CComposition_calc_mass *__pyx_optional_args))__pyx_f_6glypy_11composition_12ccomposition_12CComposition_calc_mass;
+  __pyx_vtable_6glypy_11composition_12ccomposition_CComposition._from_formula = (PyObject *(*)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_formula;
+  __pyx_vtable_6glypy_11composition_12ccomposition_CComposition._from_dict = (PyObject *(*)(struct __pyx_obj_6glypy_11composition_12ccomposition_CComposition *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6glypy_11composition_12ccomposition_12CComposition__from_dict;
+  __pyx_type_6glypy_11composition_12ccomposition_CComposition.tp_base = (&PyDict_Type);
+  if (PyType_Ready(&__pyx_type_6glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_type_6glypy_11composition_12ccomposition_CComposition.tp_print = 0;
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6pygly2_11composition_12ccomposition_CComposition, "__init__"); if (unlikely(!wrapper)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6glypy_11composition_12ccomposition_CComposition, "__init__"); if (unlikely(!wrapper)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
-      __pyx_wrapperbase_6pygly2_11composition_12ccomposition_12CComposition_40__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
-      __pyx_wrapperbase_6pygly2_11composition_12ccomposition_12CComposition_40__init__.doc = __pyx_doc_6pygly2_11composition_12ccomposition_12CComposition_40__init__;
-      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_6pygly2_11composition_12ccomposition_12CComposition_40__init__;
+      __pyx_wrapperbase_6glypy_11composition_12ccomposition_12CComposition_40__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_6glypy_11composition_12ccomposition_12CComposition_40__init__.doc = __pyx_doc_6glypy_11composition_12ccomposition_12CComposition_40__init__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_6glypy_11composition_12ccomposition_12CComposition_40__init__;
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6pygly2_11composition_12ccomposition_CComposition.tp_dict, __pyx_vtabptr_6pygly2_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "CComposition", (PyObject *)&__pyx_type_6pygly2_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_ptype_6pygly2_11composition_12ccomposition_CComposition = &__pyx_type_6pygly2_11composition_12ccomposition_CComposition;
-  if (PyType_Ready(&__pyx_type_6pygly2_11composition_12ccomposition_Isotope) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_type_6pygly2_11composition_12ccomposition_Isotope.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "Isotope", (PyObject *)&__pyx_type_6pygly2_11composition_12ccomposition_Isotope) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_ptype_6pygly2_11composition_12ccomposition_Isotope = &__pyx_type_6pygly2_11composition_12ccomposition_Isotope;
+  if (__Pyx_SetVtable(__pyx_type_6glypy_11composition_12ccomposition_CComposition.tp_dict, __pyx_vtabptr_6glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "CComposition", (PyObject *)&__pyx_type_6glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_ptype_6glypy_11composition_12ccomposition_CComposition = &__pyx_type_6glypy_11composition_12ccomposition_CComposition;
+  if (PyType_Ready(&__pyx_type_6glypy_11composition_12ccomposition_Isotope) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_type_6glypy_11composition_12ccomposition_Isotope.tp_print = 0;
+  if (PyObject_SetAttrString(__pyx_m, "Isotope", (PyObject *)&__pyx_type_6glypy_11composition_12ccomposition_Isotope) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_ptype_6glypy_11composition_12ccomposition_Isotope = &__pyx_type_6glypy_11composition_12ccomposition_Isotope;
   /*--- Type import code ---*/
   /*--- Variable import code ---*/
   /*--- Function import code ---*/
   /*--- Execution code ---*/
 
-  /* "pygly2\composition\ccomposition.pyx":4
+  /* "glypy\composition\ccomposition.pyx":4
  * 
  * # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
  * import re             # <<<<<<<<<<<<<<
@@ -9212,7 +9212,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_re, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 4; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":5
+  /* "glypy\composition\ccomposition.pyx":5
  * # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
  * import re
  * from .mass_dict import nist_mass             # <<<<<<<<<<<<<<
@@ -9233,7 +9233,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":6
+  /* "glypy\composition\ccomposition.pyx":6
  * import re
  * from .mass_dict import nist_mass
  * from .base import ChemicalCompositionError, composition_factory             # <<<<<<<<<<<<<<
@@ -9261,7 +9261,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":25
+  /* "glypy\composition\ccomposition.pyx":25
  * # Forward Declaration
  * cdef:
  *     dict std_mol_comp = {}             # <<<<<<<<<<<<<<
@@ -9270,12 +9270,12 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
  */
   __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp, ((PyObject*)__pyx_t_1));
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition_std_mol_comp);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition_std_mol_comp, ((PyObject*)__pyx_t_1));
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":26
+  /* "glypy\composition\ccomposition.pyx":26
  * cdef:
  *     dict std_mol_comp = {}
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'             # <<<<<<<<<<<<<<
@@ -9283,11 +9283,11 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
  */
   __Pyx_INCREF(__pyx_kp_s_A_Z_a_z_d_d);
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition__atom);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition__atom, __pyx_kp_s_A_Z_a_z_d_d);
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition__atom);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition__atom, __pyx_kp_s_A_Z_a_z_d_d);
   __Pyx_GIVEREF(__pyx_kp_s_A_Z_a_z_d_d);
 
-  /* "pygly2\composition\ccomposition.pyx":27
+  /* "glypy\composition\ccomposition.pyx":27
  *     dict std_mol_comp = {}
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
  *     str _formula = r'^({})*$'.format(_atom)             # <<<<<<<<<<<<<<
@@ -9307,27 +9307,27 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_6pygly2_11composition_12ccomposition__atom); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_6glypy_11composition_12ccomposition__atom); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __Pyx_GIVEREF(__pyx_t_3); __pyx_t_3 = NULL;
-    __Pyx_INCREF(__pyx_v_6pygly2_11composition_12ccomposition__atom);
-    PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_6pygly2_11composition_12ccomposition__atom);
-    __Pyx_GIVEREF(__pyx_v_6pygly2_11composition_12ccomposition__atom);
+    __Pyx_INCREF(__pyx_v_6glypy_11composition_12ccomposition__atom);
+    PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_6glypy_11composition_12ccomposition__atom);
+    __Pyx_GIVEREF(__pyx_v_6glypy_11composition_12ccomposition__atom);
     __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition__formula);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition__formula, ((PyObject*)__pyx_t_1));
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition__formula);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition__formula, ((PyObject*)__pyx_t_1));
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":28
+  /* "glypy\composition\ccomposition.pyx":28
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
  *     str _formula = r'^({})*$'.format(_atom)
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'             # <<<<<<<<<<<<<<
@@ -9335,11 +9335,11 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
  *     object isotope_pattern = re.compile(_isotope_string)
  */
   __Pyx_INCREF(__pyx_kp_s_A_Z_a_z_d);
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition__isotope_string);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition__isotope_string, __pyx_kp_s_A_Z_a_z_d);
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition__isotope_string);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition__isotope_string, __pyx_kp_s_A_Z_a_z_d);
   __Pyx_GIVEREF(__pyx_kp_s_A_Z_a_z_d);
 
-  /* "pygly2\composition\ccomposition.pyx":30
+  /* "glypy\composition\ccomposition.pyx":30
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
  * 
  *     object isotope_pattern = re.compile(_isotope_string)             # <<<<<<<<<<<<<<
@@ -9362,26 +9362,26 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_6pygly2_11composition_12ccomposition__isotope_string); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_6glypy_11composition_12ccomposition__isotope_string); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2); __Pyx_GIVEREF(__pyx_t_2); __pyx_t_2 = NULL;
-    __Pyx_INCREF(__pyx_v_6pygly2_11composition_12ccomposition__isotope_string);
-    PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_6pygly2_11composition_12ccomposition__isotope_string);
-    __Pyx_GIVEREF(__pyx_v_6pygly2_11composition_12ccomposition__isotope_string);
+    __Pyx_INCREF(__pyx_v_6glypy_11composition_12ccomposition__isotope_string);
+    PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_6glypy_11composition_12ccomposition__isotope_string);
+    __Pyx_GIVEREF(__pyx_v_6glypy_11composition_12ccomposition__isotope_string);
     __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition_isotope_pattern);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition_isotope_pattern, __pyx_t_1);
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition_isotope_pattern);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition_isotope_pattern, __pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":31
+  /* "glypy\composition\ccomposition.pyx":31
  * 
  *     object isotope_pattern = re.compile(_isotope_string)
  *     object formula_pattern = re.compile(_formula)             # <<<<<<<<<<<<<<
@@ -9404,26 +9404,26 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_6pygly2_11composition_12ccomposition__formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_6glypy_11composition_12ccomposition__formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4); __Pyx_GIVEREF(__pyx_t_4); __pyx_t_4 = NULL;
-    __Pyx_INCREF(__pyx_v_6pygly2_11composition_12ccomposition__formula);
-    PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_v_6pygly2_11composition_12ccomposition__formula);
-    __Pyx_GIVEREF(__pyx_v_6pygly2_11composition_12ccomposition__formula);
+    __Pyx_INCREF(__pyx_v_6glypy_11composition_12ccomposition__formula);
+    PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_v_6glypy_11composition_12ccomposition__formula);
+    __Pyx_GIVEREF(__pyx_v_6glypy_11composition_12ccomposition__formula);
     __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_XGOTREF(__pyx_v_6pygly2_11composition_12ccomposition_formula_pattern);
-  __Pyx_DECREF_SET(__pyx_v_6pygly2_11composition_12ccomposition_formula_pattern, __pyx_t_1);
+  __Pyx_XGOTREF(__pyx_v_6glypy_11composition_12ccomposition_formula_pattern);
+  __Pyx_DECREF_SET(__pyx_v_6glypy_11composition_12ccomposition_formula_pattern, __pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":296
+  /* "glypy\composition\ccomposition.pyx":296
  *         self.update(comp)
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
@@ -9443,28 +9443,28 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":365
+  /* "glypy\composition\ccomposition.pyx":365
  * 
  * 
  * Composition = CComposition             # <<<<<<<<<<<<<<
  * 
  * std_mol_comp.update({
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Composition_2, ((PyObject *)((PyObject*)__pyx_ptype_6pygly2_11composition_12ccomposition_CComposition))) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Composition_2, ((PyObject *)((PyObject*)__pyx_ptype_6glypy_11composition_12ccomposition_CComposition))) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-  /* "pygly2\composition\ccomposition.pyx":367
+  /* "glypy\composition\ccomposition.pyx":367
  * Composition = CComposition
  * 
  * std_mol_comp.update({             # <<<<<<<<<<<<<<
  *     # Amino Acids
  *     'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_6pygly2_11composition_12ccomposition_std_mol_comp, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_6glypy_11composition_12ccomposition_std_mol_comp, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "pygly2\composition\ccomposition.pyx":369
+  /* "glypy\composition\ccomposition.pyx":369
  * std_mol_comp.update({
  *     # Amino Acids
  *     'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9508,7 +9508,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_A, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":370
+  /* "glypy\composition\ccomposition.pyx":370
  *     # Amino Acids
  *     'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
  *     'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9553,7 +9553,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_C, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":371
+  /* "glypy\composition\ccomposition.pyx":371
  *     'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
  *     'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
  *     'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9597,7 +9597,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_D, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":372
+  /* "glypy\composition\ccomposition.pyx":372
  *     'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
  *     'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
  *     'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9641,7 +9641,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_E, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":373
+  /* "glypy\composition\ccomposition.pyx":373
  *     'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
  *     'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
  *     'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9685,7 +9685,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_F, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":374
+  /* "glypy\composition\ccomposition.pyx":374
  *     'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
  *     'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
  *     'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9729,7 +9729,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_G, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":375
+  /* "glypy\composition\ccomposition.pyx":375
  *     'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
  *     'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
  *     'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),             # <<<<<<<<<<<<<<
@@ -9773,7 +9773,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_H_2, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":376
+  /* "glypy\composition\ccomposition.pyx":376
  *     'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
  *     'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
  *     'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9817,7 +9817,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_I, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":377
+  /* "glypy\composition\ccomposition.pyx":377
  *     'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
  *     'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
  *     'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),             # <<<<<<<<<<<<<<
@@ -9861,7 +9861,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_K, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":378
+  /* "glypy\composition\ccomposition.pyx":378
  *     'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
  *     'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
  *     'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9905,7 +9905,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_L, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":379
+  /* "glypy\composition\ccomposition.pyx":379
  *     'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
  *     'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
  *     'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -9950,7 +9950,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_M, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":380
+  /* "glypy\composition\ccomposition.pyx":380
  *     'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
  *     'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
  *     'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),             # <<<<<<<<<<<<<<
@@ -9994,7 +9994,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_N, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":381
+  /* "glypy\composition\ccomposition.pyx":381
  *     'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
  *     'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
  *     'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10038,7 +10038,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_P, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":382
+  /* "glypy\composition\ccomposition.pyx":382
  *     'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
  *     'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
  *     'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),             # <<<<<<<<<<<<<<
@@ -10082,7 +10082,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_Q, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":383
+  /* "glypy\composition\ccomposition.pyx":383
  *     'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
  *     'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
  *     'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),             # <<<<<<<<<<<<<<
@@ -10126,7 +10126,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_R, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":384
+  /* "glypy\composition\ccomposition.pyx":384
  *     'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
  *     'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
  *     'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10170,7 +10170,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_S, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":385
+  /* "glypy\composition\ccomposition.pyx":385
  *     'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
  *     'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
  *     'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10214,7 +10214,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_T, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":386
+  /* "glypy\composition\ccomposition.pyx":386
  *     'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
  *     'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
  *     'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10258,7 +10258,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_V, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":387
+  /* "glypy\composition\ccomposition.pyx":387
  *     'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
  *     'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
  *     'W':   Composition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),             # <<<<<<<<<<<<<<
@@ -10302,7 +10302,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_W, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":388
+  /* "glypy\composition\ccomposition.pyx":388
  *     'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
  *     'W':   Composition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),
  *     'Y':   Composition({'H': 9, 'C': 9, 'O': 2, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10346,7 +10346,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_Y, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":391
+  /* "glypy\composition\ccomposition.pyx":391
  * 
  *     # Protein Sequence Terminals (modX format)
  *     'H-':  Composition({'H': 1}),             # <<<<<<<<<<<<<<
@@ -10387,7 +10387,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_kp_s_H_3, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":392
+  /* "glypy\composition\ccomposition.pyx":392
  *     # Protein Sequence Terminals (modX format)
  *     'H-':  Composition({'H': 1}),
  *     '-OH': Composition({'O': 1, 'H': 1}),             # <<<<<<<<<<<<<<
@@ -10429,7 +10429,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_kp_s_OH, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":395
+  /* "glypy\composition\ccomposition.pyx":395
  * 
  *     # Glycans
  *     'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),             # <<<<<<<<<<<<<<
@@ -10472,7 +10472,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_Hex, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":396
+  /* "glypy\composition\ccomposition.pyx":396
  *     # Glycans
  *     'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
  *     'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),             # <<<<<<<<<<<<<<
@@ -10515,7 +10515,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_Pen, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":397
+  /* "glypy\composition\ccomposition.pyx":397
  *     'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
  *     'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
  *     'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10559,7 +10559,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_HexNAc, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":398
+  /* "glypy\composition\ccomposition.pyx":398
  *     'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
  *     'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
  *     'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10603,7 +10603,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_NeuAc, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":399
+  /* "glypy\composition\ccomposition.pyx":399
  *     'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
  *     'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
  *     'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),             # <<<<<<<<<<<<<<
@@ -10674,7 +10674,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":402
+  /* "glypy\composition\ccomposition.pyx":402
  * })
  * 
  * std_ion_comp = {             # <<<<<<<<<<<<<<
@@ -10684,7 +10684,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "pygly2\composition\ccomposition.pyx":403
+  /* "glypy\composition\ccomposition.pyx":403
  * 
  * std_ion_comp = {
  *     'M':        Composition(formula=''),             # <<<<<<<<<<<<<<
@@ -10703,7 +10703,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_M, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":404
+  /* "glypy\composition\ccomposition.pyx":404
  * std_ion_comp = {
  *     'M':        Composition(formula=''),
  *     'a':        Composition(formula='H-2O-1' + 'C-1O-1'),             # <<<<<<<<<<<<<<
@@ -10725,7 +10725,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_a, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":405
+  /* "glypy\composition\ccomposition.pyx":405
  *     'M':        Composition(formula=''),
  *     'a':        Composition(formula='H-2O-1' + 'C-1O-1'),
  *     'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10750,7 +10750,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_a_H2O, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":406
+  /* "glypy\composition\ccomposition.pyx":406
  *     'a':        Composition(formula='H-2O-1' + 'C-1O-1'),
  *     'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
  *     'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),             # <<<<<<<<<<<<<<
@@ -10775,7 +10775,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_a_NH3, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":407
+  /* "glypy\composition\ccomposition.pyx":407
  *     'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
  *     'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
  *     'b':        Composition(formula='H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10794,7 +10794,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_b, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":408
+  /* "glypy\composition\ccomposition.pyx":408
  *     'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
  *     'b':        Composition(formula='H-2O-1'),
  *     'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10816,7 +10816,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_b_H2O, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":409
+  /* "glypy\composition\ccomposition.pyx":409
  *     'b':        Composition(formula='H-2O-1'),
  *     'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),
  *     'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),             # <<<<<<<<<<<<<<
@@ -10838,7 +10838,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_b_NH3, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":410
+  /* "glypy\composition\ccomposition.pyx":410
  *     'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),
  *     'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),
  *     'c':        Composition(formula='H-2O-1' + 'NH3'),             # <<<<<<<<<<<<<<
@@ -10860,7 +10860,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_c, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":411
+  /* "glypy\composition\ccomposition.pyx":411
  *     'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),
  *     'c':        Composition(formula='H-2O-1' + 'NH3'),
  *     'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10885,7 +10885,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_c_H2O, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":412
+  /* "glypy\composition\ccomposition.pyx":412
  *     'c':        Composition(formula='H-2O-1' + 'NH3'),
  *     'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
  *     'c-NH3':    Composition(formula='H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10904,7 +10904,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_c_NH3, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":413
+  /* "glypy\composition\ccomposition.pyx":413
  *     'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
  *     'c-NH3':    Composition(formula='H-2O-1'),
  *     'x':        Composition(formula='H-2O-1' + 'CO2'),             # <<<<<<<<<<<<<<
@@ -10926,7 +10926,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_x, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":414
+  /* "glypy\composition\ccomposition.pyx":414
  *     'c-NH3':    Composition(formula='H-2O-1'),
  *     'x':        Composition(formula='H-2O-1' + 'CO2'),
  *     'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),             # <<<<<<<<<<<<<<
@@ -10951,7 +10951,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_x_H2O, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":415
+  /* "glypy\composition\ccomposition.pyx":415
  *     'x':        Composition(formula='H-2O-1' + 'CO2'),
  *     'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
  *     'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),             # <<<<<<<<<<<<<<
@@ -10976,7 +10976,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_x_NH3, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":416
+  /* "glypy\composition\ccomposition.pyx":416
  *     'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
  *     'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
  *     'y':        Composition(formula=''),             # <<<<<<<<<<<<<<
@@ -10995,7 +10995,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_y, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":417
+  /* "glypy\composition\ccomposition.pyx":417
  *     'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
  *     'y':        Composition(formula=''),
  *     'y-H2O':    Composition(formula='H-2O-1'),             # <<<<<<<<<<<<<<
@@ -11014,7 +11014,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_y_H2O, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":418
+  /* "glypy\composition\ccomposition.pyx":418
  *     'y':        Composition(formula=''),
  *     'y-H2O':    Composition(formula='H-2O-1'),
  *     'y-NH3':    Composition(formula='N-1H-3'),             # <<<<<<<<<<<<<<
@@ -11033,7 +11033,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_y_NH3, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":419
+  /* "glypy\composition\ccomposition.pyx":419
  *     'y-H2O':    Composition(formula='H-2O-1'),
  *     'y-NH3':    Composition(formula='N-1H-3'),
  *     'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),             # <<<<<<<<<<<<<<
@@ -11055,7 +11055,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_z, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":420
+  /* "glypy\composition\ccomposition.pyx":420
  *     'y-NH3':    Composition(formula='N-1H-3'),
  *     'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),
  *     'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),             # <<<<<<<<<<<<<<
@@ -11080,7 +11080,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_t_1, __pyx_kp_s_z_H2O, __pyx_t_3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":421
+  /* "glypy\composition\ccomposition.pyx":421
  *     'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),
  *     'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
  *     'z-NH3':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),             # <<<<<<<<<<<<<<
@@ -11107,7 +11107,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_std_ion_comp, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 402; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pygly2\composition\ccomposition.pyx":1
+  /* "glypy\composition\ccomposition.pyx":1
  * #cython: boundscheck=False, debug=True, profile=True             # <<<<<<<<<<<<<<
  * 
  * # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
@@ -11131,11 +11131,11 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_XDECREF(__pyx_t_8);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init pygly2.composition.ccomposition", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init glypy.composition.ccomposition", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_DECREF(__pyx_m); __pyx_m = 0;
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init pygly2.composition.ccomposition");
+    PyErr_SetString(PyExc_ImportError, "init glypy.composition.ccomposition");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
