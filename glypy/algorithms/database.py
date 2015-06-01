@@ -526,7 +526,7 @@ class GlycanRecord(GlycanRecordBase):
 
     @querymethod
     def query_like_composition(cls, conn, record=None, prefix=None):
-        stmt = "select * from {table_name} where " + _query_composition(prefix, **record.monosaccharides) + ";"
+        stmt = "SELECT * FROM {table_name} WHERE " + _query_composition(prefix, **record.monosaccharides) + ";"
         for result in conn.from_sql(conn.execute(stmt)):
             yield result
 
@@ -627,6 +627,26 @@ class GlycanRecordWithTaxon(GlycanRecord):
         for taxon in self.taxa:
             yield "INSERT OR REPLACE INTO RecordTaxonomy (glycan_id, taxon_id) VALUES ({}, {});".format(
                 self.id, int(taxon.tax_id))
+
+    @querymethod
+    def query_by_taxon_id(cls, conn, taxon_ids):
+        # Passed an iterable of taxa to search
+        try:
+            taxon_ids = tuple(taxon_ids)
+            taxon_ids_token = str(taxon_ids)
+            if len(taxon_ids) == 1:
+                taxon_ids_token = taxon_ids_token.replace(',', '')
+
+            return conn.from_sql(conn.execute(
+                """SELECT {table_name}.* FROM {table_name} JOIN RecordTaxonomy taxa ON
+                   taxa.glycan_id = {table_name}.glycan_id WHERE taxa.taxon_id IN [!SUB!];
+                """.replace('[!SUB!]', taxon_ids_token)))
+        # Passed a single taxon
+        except:
+            return conn.from_sql(conn.execute(
+                """SELECT {table_name}.* FROM {table_name} JOIN RecordTaxonomy taxa ON
+                   taxa.glycan_id = {table_name}.glycan_id WHERE taxa.taxon_id = ?;""",
+                (int(taxon_ids),)))
 
 
 class RecordDatabase(object):

@@ -6,15 +6,16 @@ from lxml import etree
 from glypy.utils import StringIO
 from glypy.io import glycoct
 from glypy.algorithms.database import (Taxon, Aglyca, Motif,
-                                        DatabaseEntry, GlycanRecord,
-                                        RecordDatabase)
+                                       DatabaseEntry, GlycanRecord,
+                                       GlycanRecordWithTaxon,
+                                       RecordDatabase)
 
 logger = logging.getLogger(__name__)
 
 cache = None
 
 
-def download_all_structures(db_path, record_type=GlycanRecord):
+def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
     response = requests.get(u'http://www.glycome-db.org/http-services/getStructureDump.action?user=eurocarbdb')
     response.raise_for_status()
     handle = gzip.GzipFile(fileobj=StringIO(response.content))
@@ -28,6 +29,8 @@ def download_all_structures(db_path, record_type=GlycanRecord):
             glycoct_str = structure.find("sequence").text
             taxa = [Taxon(t.attrib['ncbi'], None, None) for t in structure.iterfind(".//taxon")]
             glycan = glycoct.loads(glycoct_str).next()
+            if (glycoct.loads(str(glycan)).next().mass() - glycan.mass()) > 0.00001:
+                raise Exception("Mass did not match on reparse")
             record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
         except Exception, e:

@@ -514,7 +514,7 @@ class Glycan(SaccharideBase):
         last_branch_label = MAIN_BRANCH_SYM
         self.branch_lengths = defaultdict(int)
 
-        def get_parent_link(node):
+        def parent_link_symbol(node):
             try:
                 label = node.links[node.parents().next()[0]][0].label
                 if label is None:
@@ -532,29 +532,30 @@ class Glycan(SaccharideBase):
                 links.append(link)
 
             if len(links) == 1:
-                label_key = get_parent_link(node)
+                label_key = parent_link_symbol(node)
                 self.branch_lengths[label_key] += 1
                 label = "{}{}".format(
                     label_key, self.branch_lengths[label_key])
                 links[0].label = label
             else:
-                last_label_key = label_key = get_parent_link(node)
+                last_label_key = label_key = parent_link_symbol(node)
                 count = self.branch_lengths[last_label_key]
                 for link in links:
-                    if len(list(link.child.children())) < 2:
-                        label_key = get_parent_link(node)
-                        self.branch_lengths[label_key] += 1
-                        label = "{}{}".format(
-                            label_key, self.branch_lengths[label_key])
-                        link.label = label
-                    else:
-                        last_branch_label = chrinc(
-                            last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
-                        new_label_key = last_branch_label
-                        self.branch_lengths[new_label_key] = count + 1
-                        label = "{}{}".format(
-                            new_label_key, self.branch_lengths[new_label_key])
-                        link.label = label
+                    # Does not handle small branches correctly.
+                    # if len(list(link.child.children())) < 2:
+                    #     label_key = parent_link_symbol(node)
+                    #     self.branch_lengths[label_key] += 1
+                    #     label = "{}{}".format(
+                    #         label_key, self.branch_lengths[label_key])
+                    #     link.label = label
+                    # else:
+                    last_branch_label = chrinc(
+                        last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
+                    new_label_key = last_branch_label
+                    self.branch_lengths[new_label_key] = count + 1
+                    label = "{}{}".format(
+                        new_label_key, self.branch_lengths[new_label_key])
+                    link.label = label
         self.branch_lengths["-"] = max(self.branch_lengths.values())
 
     def count_branches(self):

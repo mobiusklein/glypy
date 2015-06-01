@@ -248,22 +248,6 @@ LIN
 '''
 
 
-class GlycoCTParserTests(unittest.TestCase):
-    _file_path = "./test_data/glycoct.txt"
-
-    def test_parse_file(self):
-        for g in glycoct.read(self._file_path):
-            self.assertTrue(isinstance(g, glycan.Glycan))
-
-    def test_parse_cyclical(self):
-        structure = load("cyclical_glycan")
-        self.assertAlmostEqual(structure.mass(), 810.2641170925)
-
-    def test_parse_repeating(self):
-        structure = load("repeating_glycan")
-        self.assertAlmostEqual(structure.mass(), 678.18547284898)
-
-
 class NamedStructureTests(unittest.TestCase):
 
     def test_accessors(self):
@@ -649,57 +633,6 @@ class ConstantTests(unittest.TestCase):
         class E2(enum.Enum):
             A = 1
         self.assertNotEqual(E1.A, E2.A)
-
-
-class LinkTests(unittest.TestCase):
-
-    def test_link_equality(self):
-        parent = named_structures.monosaccharides['Hex']
-        child = named_structures.monosaccharides['Hex']
-        other = named_structures.monosaccharides['Hex']
-        link_1 = link.Link(parent, child, parent_position=3,
-                           child_position=3, parent_loss='H', child_loss='OH')
-        link_2 = link.Link(child, other, parent_position=6,
-                           child_position=3, parent_loss='H', child_loss='OH')
-        self.assertEqual(link_1, link_1)
-        self.assertNotEqual(link_1, link_2)
-        self.assertFalse(link_1 is None)
-
-    def test_loss_composition(self):
-        parent = named_structures.monosaccharides['Hex']
-        child = named_structures.monosaccharides['Hex']
-
-        link_1 = link.Link(parent, child, parent_position=3,
-                           child_position=3, parent_loss='H', child_loss='OH')
-
-        self.assertEqual(link_1.parent_loss, Composition(formula="H"))
-        self.assertEqual(link_1.child_loss, Composition(formula="OH"))
-
-    def test_break_and_reconnect(self):
-        parent = named_structures.monosaccharides['Hex']
-        child = named_structures.monosaccharides['Hex']
-
-        link_1 = link.Link(parent, child, parent_position=3,
-                           child_position=3, parent_loss='H', child_loss='OH')
-        link_1.break_link(refund=True)
-        self.assertTrue(len(parent.links[3]) == 0)
-        self.assertTrue(len(child.links[3]) == 0)
-
-        link_1.reconnect(refund=True)
-        self.assertTrue(len(parent.links[3]) == 1)
-        self.assertTrue(len(child.links[3]) == 1)
-
-    def test_traversal(self):
-        parent = named_structures.monosaccharides['Hex']
-        child = named_structures.monosaccharides['Hex']
-
-        link_1 = link.Link(parent, child, parent_position=3,
-                           child_position=3, parent_loss='H', child_loss='OH')
-        self.assertTrue(link_1.is_parent(parent))
-        self.assertTrue(link_1.is_child(child))
-        self.assertEqual(link_1.to(parent), child)
-        self.assertEqual(link_1.to(child), parent)
-        self.assertRaises(KeyError, lambda: link_1.to(1))
 
 
 class SubtreeSearchTests(unittest.TestCase):

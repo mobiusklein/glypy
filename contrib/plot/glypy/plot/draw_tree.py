@@ -1,4 +1,5 @@
 import re
+import operator
 from collections import defaultdict
 from uuid import uuid4
 
@@ -64,7 +65,7 @@ def breadth_first_traversal(tree, visited=None):
                 yield descend
 
 
-def enumerate_tree(tree, ax):
+def enumerate_tree(tree, ax, labeler=None):
     """Label each node of `tree` on `ax` with the node's :attr:`id`
 
     Parameters
@@ -78,10 +79,12 @@ def enumerate_tree(tree, ax):
     -------
     tree, ax
     """
+    if labeler is None:
+        labeler = operator.attrgetter('id')
     nodes = list(breadth_first_traversal(tree))
     for node in nodes:
         x, y = node.coords('h')
-        ax.text(x, y + 0.2, node.tree.id, color='red')
+        ax.text(x, y + 0.2, labeler(node.tree), color='red')
     # Update the plot
     ax.get_figure().canvas.draw()
     return tree, ax

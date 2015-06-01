@@ -128,6 +128,9 @@ class Substituent(SubstituentBase):
     def __ne__(self, other):
         return not self == other
 
+    def open_attachment_sites(self):
+        return [1, 2]
+
     def is_occupied(self, position):
         '''
         Check to see if `position` is occupied. Unlike |Monosaccharide|, |Substituent| objects

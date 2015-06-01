@@ -128,3 +128,14 @@ def _match_substituents(self, other):
     if len(taken_b) + unknown_cntr != len(b_substituents):
         return False
     return True
+
+
+def reparse_database(database):
+    from glypy.io import glycoct
+    for record in database:
+        ct_str = str(record.structure)
+        structure = glycoct.loads(ct_str).next()
+        assert structure.mass() == record.structure.mass()
+        record.structure = structure
+        record.update()
+        

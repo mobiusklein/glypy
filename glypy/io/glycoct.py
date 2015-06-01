@@ -1,13 +1,35 @@
+'''
+A GlycoCT (Condensed) parser.
+Supports RES, LIN, and un-nested REP sections.
+
+>>>from glypy.io import glycoct
+>>>glycoct.loads("""RES
+1b:o-dman-HEX-0:0|1:aldi
+2b:a-lido-HEX-1:5|6:a
+3s:sulfate
+LIN
+1:1o(3+1)2d
+2:2o(2+1)3n
+3:2o(4+1)4d
+""").next()
+'''
+
 import re
 import logging
 import warnings
 from ..utils import opener, StringIO, enum
 from ..utils.multimap import OrderedMultiMap
-from ..structure import monosaccharide, substituent, link, constants, glycan
+from ..structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
+from ..composition import Composition
 
-logger = logging.getLogger(__name__)
+try:
+    range = xrange
+except:
+    pass
+
+logger = logging.getLogger("glycoct")
 
 
 Glycan = glycan.Glycan
@@ -28,6 +50,8 @@ base_start = "b"
 repeat_start = "r"
 alternative_start = "a"
 
+#: Pattern for parsing the lines of the RES section corresponding
+#: to individual |Monosaccharide| residues
 res_pattern = re.compile(
     '''
     (?P<anomer>[abxo])?
@@ -37,10 +61,16 @@ res_pattern = re.compile(
     (?P<modifications>(\|[0-9x]+:[0-9a-z]+)+)?
     ''', re.VERBOSE)
 
+#: Pattern for parsing the potentially repeated |Configuration| and |Stem|
+#: regions of the lines of the RES section.
 conf_stem_pattern = re.compile(r'(?P<config>[dlx])(?P<stem>[a-z]+)')
 
+#: Pattern for parsing modifications found on monosaccharide residue
+#: lines in the RES section
 modification_pattern = re.compile(r"\|?(\d+):([^\|;\n]+)")
 
+
+#: Pattern for parsing |Link| lines found in the LIN section
 link_pattern = re.compile(
     r'''(?P<doc_index>\d+)?:
     (?P<parent_residue_index>\d+)
@@ -52,6 +82,8 @@ link_pattern = re.compile(
         ''', re.VERBOSE)
 
 
+#: Special truncation of the :data:`link_pattern` which is used on
+#: REP header sections
 internal_link_pattern = re.compile(
     r'''(?P<parent_residue_index>\d+)
     (?P<parent_atom_replaced>[odhnx])
@@ -62,7 +94,7 @@ internal_link_pattern = re.compile(
     ''',
     re.VERBOSE)
 
-
+#: Pattern for interpreting the REP# instance header section
 rep_header_pattern = re.compile(
     r'''REP(?P<repeat_index>\d+):
     (?P<internal_linkage>.+)
@@ -86,21 +118,24 @@ def parse_link(line):
 
     child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
     child_attachment_position = map(int, link_dict["child_attachment_position"].split("|"))
+
     return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
             child_residue_index, child_atom_replaced, child_attachment_position)
 
 
 def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
+    #logger.debug("form_link %s", (parent_loss, child_loss, id))
     if parent.node_type is Substituent.node_type and\
      child.node_type is Monosaccharide.node_type:
         warnings.warn(
             "A monosaccharide with a substituent parent has been detected. "
             "These structures are not fully supported and may not traverse as expected "
             "by default.", stacklevel=7)
-    if len(parent_position) > 1 or len(parent_position) > 1:
-        AmbiguousLink(parent, child,
-                      parent_position=parent_position, child_position=parent_position,
-                      parent_loss=parent_loss, child_loss=child_loss, id=id)
+    if len(parent_position) > 1 or len(child_position) > 1:
+        ambilink = AmbiguousLink(parent, child,
+                                 parent_position=parent_position, child_position=child_position,
+                                 parent_loss=parent_loss, child_loss=child_loss, id=id)
+        ambilink.find_open_position()
     else:
         Link(parent, child, parent_position=parent_position[0],
              child_position=child_position[0],
@@ -140,8 +175,7 @@ class RepeatRecord(object):
                 n = self.multitude[0]
             else:
                 n = 1
-        logger.debug("Multitude is %s", self.multitude)
-        logger.debug("Is Exact? %s", self.is_exact())
+
         if self.is_exact() is not StructurePrecisionEnum.unknown:
             if not (self.multitude[0] <= n <= self.multitude[1]):
                 raise ValueError("{} is not within the range of {}".format(n, self.multitude))
@@ -150,13 +184,14 @@ class RepeatRecord(object):
 
         graph = {1: glycan_graph.clone(index_method=None)}
         parent_residue_index = self.internal_linkage["parent_residue_index"]
-        parent_atom_replaced = self.internal_linkage["parent_atom_replaced"]
+        parent_atom_replaced = link_replacement_composition_map[self.internal_linkage["parent_atom_replaced"]]
         parent_attachment_position = self.internal_linkage["parent_attachment_position"]
         child_residue_index = self.internal_linkage["child_residue_index"]
-        child_atom_replaced = self.internal_linkage["child_atom_replaced"]
+        child_atom_replaced = link_replacement_composition_map[self.internal_linkage["child_atom_replaced"]]
         child_attachment_position = self.internal_linkage["child_attachment_position"]
 
         for i in range(2, n + 1):
+            #logger.debug("Inner Expansion %d", i)
             graph[i] = glycan_graph.clone(index_method=None)
             parent_graph = graph[i-1]
             child_graph = graph[i]
@@ -167,19 +202,25 @@ class RepeatRecord(object):
                       parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)
         self.graph = graph
 
-    def handle_incoming_link(self, parent, child_index, parent_position, parent_loss, child_position, child_loss):
+    def handle_incoming_link(self, parent, child_index, parent_position, parent_loss,
+                             child_position, child_loss, id=None):
         sub_unit_indices = sorted(self.graph.keys())
         child_graph = self.graph[sub_unit_indices[0]]
         child = Glycan(child_graph, index_method=None).get(int(self.external_linkage['child_residue_index']))
+        if parent_loss == Composition("H"):
+            child_loss = Composition("OH")
         form_link(parent, child, parent_position=parent_position, child_position=child_position,
-                  parent_loss=parent_loss, child_loss=child_loss)
+                  parent_loss=parent_loss, child_loss=child_loss, id=id)
+        #logger.debug("Child Graph: %r", child)
 
-    def handle_outgoing_link(self, parent_index, child, parent_position, parent_loss, child_position, child_loss):
+    def handle_outgoing_link(self, parent_index, child, parent_position, parent_loss,
+                             child_position, child_loss, id=None):
         sub_unit_indices = sorted(self.graph.keys())
         parent_graph = self.graph[sub_unit_indices[-1]]
         parent = Glycan(parent_graph, index_method=None).get(int(self.external_linkage['parent_residue_index']))
         form_link(parent, child, parent_position=parent_position, child_position=child_position,
-                  parent_loss=parent_loss, child_loss=child_loss)
+                  parent_loss=parent_loss, child_loss=child_loss, id=id)
+        #logger.debug("Parent Graph: %r", parent)
 
     def prepare_glycan(self):
         glycan = self.graph[1]
@@ -351,6 +392,8 @@ class GlycoCT(object):
         id, parent_residue_index, parent_atom_replaced, parent_attachment_position,\
             child_residue_index, child_atom_replaced, child_attachment_position = parse_link(line)
 
+        if child_atom_replaced == Composition() and parent_atom_replaced == Composition():
+            logger.info("Odd Linkage Detected, %s", line)
         if self.in_repeat:
             graph = self.current_repeat.graph
         else:
@@ -361,13 +404,13 @@ class GlycoCT(object):
             self.postponed.append((parent.handle_outgoing_link, parent_residue_index,
                                    graph[child_residue_index],
                                    parent_attachment_position, parent_atom_replaced,
-                                   child_attachment_position, child_atom_replaced))
+                                   child_attachment_position, child_atom_replaced, id))
             return
         child = graph[child_residue_index]
         if isinstance(child, RepeatRecord):
             self.postponed.append((child.handle_incoming_link, parent, child_residue_index,
                                    parent_attachment_position, parent_atom_replaced,
-                                   child_attachment_position, child_atom_replaced))
+                                   child_attachment_position, child_atom_replaced, id))
             return
 
         form_link(
@@ -385,13 +428,14 @@ class GlycoCT(object):
 
     def postprocess(self):
 
-        for postfix in self.postponed:
-            postfix[0](*postfix[1:])
+        for postop in self.postponed:
+            logger.debug("Postprocessing %s", postop)
+            postop[0](*postop[1:])
 
         for repeat_index, repeater in self.repeats.items():
             repeater.expand_inner()
 
-        return self.structure_class(self.root).reindex()
+        return self.structure_class(self.root)#.reindex()
 
     def parse(self):
         '''
