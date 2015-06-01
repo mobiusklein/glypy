@@ -7,43 +7,43 @@ class SuperClass(Enum):
 
     Is an |Enum|
     '''
-    #: Disaccharide - 2 monosaccharides
+    #: Disaccharide - 2 carbons
     sug = 2
-    #: Triose - 3 monosaccharides
+    #: Triose - 3 carbons
     tri = 3
-    #: Tetrose - 4 monosaccharides
+    #: Tetrose - 4 carbons
     tet = 4
-    #: Pentose - 5 monosaccharides
+    #: Pentose - 5 carbons
     pen = 5
-    #: Hexose - 6 monosaccharides
+    #: Hexose - 6 carbons
     hex = 6
-    #: Heptose - 7 monosaccharides
+    #: Heptose - 7 carbons
     hep = 7
-    #: Octose - 8 monosaccharides
+    #: Octose - 8 carbons
     oct = 8
-    #: Nonose - 9 monosaccharides
+    #: Nonose - 9 carbons
     non = 9
-    #: Decose - 10 monosaccharides
+    #: Decose - 10 carbons
     dec = 10
-    #: 11 monosaccharides
+    #: 11 carbons
     s11 = 11
-    #: 12 monosaccharides
+    #: 12 carbons
     s12 = 12
-    #: 13 monosaccharides
+    #: 13 carbons
     s13 = 13
-    #: 14 monosaccharides
+    #: 14 carbons
     s14 = 14
-    #: 15 monosaccharides
+    #: 15 carbons
     s15 = 15
-    #: 16 monosaccharides
+    #: 16 carbons
     s16 = 16
-    #: 17 monosaccharides
+    #: 17 carbons
     s17 = 17
-    #: 18 monosaccharides
+    #: 18 carbons
     s18 = 18
-    #: 19 monosaccharides
+    #: 19 carbons
     s19 = 19
-    #: 20 monosaccharides
+    #: 20 carbons
     s20 = 20
     #: Unknown
     x = None
