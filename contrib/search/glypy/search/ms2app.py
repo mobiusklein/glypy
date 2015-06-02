@@ -33,7 +33,7 @@ def main(structure_database, observed_data,
     if shifts is None:
         shifts = [NoShift]
     if isinstance(structure_database, str):
-        structure_database = database.RecordDatabase(structure_database)
+        structure_database = database.RecordDatabase(structure_database, record_type=None)
     if isinstance(observed_data, str):
         if os.path.splitext(observed_data)[1] == ".yaml":
             logger.info("Indexing Observed Ions")

@@ -1,4 +1,5 @@
 import itertools
+import collections
 
 from . import monosaccharide, constants
 from .link import LinkMaskContext
@@ -22,6 +23,8 @@ SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
 
 ID = id
+chain = itertools.chain
+Counter = collections.Counter
 
 
 def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
@@ -287,6 +290,29 @@ class CrossRingFragment(Monosaccharide):
         '''
         return sum(
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in traverse(self))
+
+    def open_attachment_sites(self, max_occupancy=0):
+        slots = Counter()
+        for i in self.contains:
+            slots[i] = 0
+        unknowns = 0
+        for pos, obj in chain(self.modifications.items(),
+                              self.links.items(),
+                              self.substituent_links.items()):
+            if obj == Modification.keto:
+                continue
+            if pos in {-1, 'x'}:
+                unknowns += 1
+            else:
+                slots[pos] += 1
+
+        open_slots = []
+
+        for i, count in slots.items():
+            if count <= max_occupancy:
+                open_slots.append(i)
+
+        return open_slots, unknowns
 
 
 def crossring_fragments(monosaccharide, c1, c2, attach=True, copy=True):

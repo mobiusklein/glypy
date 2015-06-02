@@ -22,10 +22,11 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
     xml = etree.parse(handle)
     db = RecordDatabase(db_path, record_type=record_type)
     misses = []
+    i = 0
     for structure in xml.iterfind(".//structure"):
         try:
             glycomedb_id = int(structure.attrib['id'])
-            print(glycomedb_id)
+            i += 1
             glycoct_str = structure.find("sequence").text
             taxa = [Taxon(t.attrib['ncbi'], None, None) for t in structure.iterfind(".//taxon")]
             glycan = glycoct.loads(glycoct_str).next()
@@ -33,9 +34,11 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
                 raise Exception("Mass did not match on reparse")
             record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
+            if i % 1000 == 0:
+                print(i * 1000, "Records parsed.")
         except Exception, e:
             misses.append((glycomedb_id, e))
-            print(e)
+            print(glycomedb_id, e)
     db.set_metadata("misses", misses)
     db.commit()
     return db

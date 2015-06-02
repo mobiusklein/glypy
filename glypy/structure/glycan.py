@@ -508,11 +508,13 @@ class Glycan(SaccharideBase):
 
     def label_branches(self):
         '''
-        Labels each branch point with an alphabetical symbol. Also computes and stores each branch's
-        length and stores it in :attr:`branch_lengths`
+        Labels each branch point with an alphabetical symbol. Also computes and stores
+        each branch's length and stores it in :attr:`branch_lengths`. Sets :attr:`branch_lengths`
+        of `self` and :attr:`Link.label` for each link attached to `self`.
         '''
         last_branch_label = MAIN_BRANCH_SYM
         self.branch_lengths = defaultdict(int)
+        branch_parent_map = {}
 
         def parent_link_symbol(node):
             try:
@@ -552,11 +554,22 @@ class Glycan(SaccharideBase):
                     last_branch_label = chrinc(
                         last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
                     new_label_key = last_branch_label
+                    branch_parent_map[new_label_key] = last_label_key
                     self.branch_lengths[new_label_key] = count + 1
                     label = "{}{}".format(
                         new_label_key, self.branch_lengths[new_label_key])
                     link.label = label
-        self.branch_lengths["-"] = max(self.branch_lengths.values())
+        # Update parent branch lengths
+        longest = 0
+        for branch in sorted(list(self.branch_lengths.keys()), reverse=True):
+            if branch == '-':
+                continue
+            length = self.branch_lengths[branch]
+            longest = max(longest, length)
+            parent = branch_parent_map[branch]
+            self.branch_lengths[parent] = max(length, self.branch_lengths[parent])
+        self.branch_parent_map = branch_parent_map
+        self.branch_lengths["-"] = longest
 
     def count_branches(self):
         '''

@@ -155,7 +155,7 @@ def naive_name_monosaccharide(monosaccharide):
         strip_derivatization(c)
         try:
             if monosaccharide.superclass.value > 6:
-                return identify(c, tolerance=1)
+                return identify(c, tolerance=0)
         except:
             pass
         c.anomer = None

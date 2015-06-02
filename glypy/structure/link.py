@@ -477,9 +477,18 @@ class AmbiguousLink(Link):
             self.parent_position_choices,
             self.child_position_choices,
             self.parent_loss, self.child_loss, self.id if prop_id else None,
-            attach)
-        link.find_open_position()
+            attach=False)
+        link.parent_position = self.parent_position
+        link.child_position = self.child_position
+        if attach:
+            link.apply()
+
         return link
+
+    def break_link(self, refund=True):
+        res = super(AmbiguousLink, self).break_link(refund=refund)
+        assert not self.is_attached(deep=True)
+        return res
 
     def to_glycoct(self, ix, parent_ix, child_ix):
         '''
@@ -507,8 +516,11 @@ class AmbiguousLink(Link):
         rep = super(AmbiguousLink, self).__repr__()
         return "(A)" + rep
 
-    def find_open_position(self):
-        self.break_link(refund=True)
+    def find_open_position(self, attach=True):
+        #print("Before test", self.child.links)
+        if attach:
+            self.break_link(refund=True)
+        #print("After test", self.child.links)
         try:
             open_parent_sites, _ = self.parent.open_attachment_sites()
             parent_site = iter(set(open_parent_sites) & set(self.parent_position_choices)).next()
@@ -516,6 +528,7 @@ class AmbiguousLink(Link):
             child_site = iter(set(open_child_sites) & set(self.child_position_choices)).next()
             self.parent_position = parent_site
             self.child_position = child_site
-            self.apply()
+            if attach:
+                self.apply()
         except StopIteration:
             raise ValueError("Could not find a valid configurations on current parent/child pair")

@@ -73,7 +73,7 @@ def extract_fragments(record, fragmentation_parameters=None):
     }
     fragmentation_parameters = fragmentation_parameters or default_fragmentation_parameters
     fragments = {}
-    record.structure = record.structure.clone()
+    record.structure = record.structure.clone().reindex()
     for frag in (record.structure.fragments("ABCXYZ", 1)):
         fragments[frag.name] = frag
     for frag in record.structure.fragments("BCYZ", 2):
@@ -102,7 +102,8 @@ def record_handle(record, mass_transform_parameters, fragmentation_parameters):
         fragments = extract_fragments(record, fragmentation_parameters)
     except Exception, e:
         print "An exception, {} for record {}".format(e, record.id)
-        raise e
+        # raise e
+        return None
     record.fragments = fragments
     record.intact_mass = mass
     return record
@@ -178,6 +179,8 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
             if len(job) < size:
                 do_work = False
             for i, record in enumerate(worker_pool.imap_unordered(taskfn, job, chunksize=1)):
+                if record is None:
+                    continue
                 mass = record.intact_mass
                 out_database.load_data([record], set_id=False, commit=False, mass_params={"override": mass})
                 logger.info("%d records processed", i)
