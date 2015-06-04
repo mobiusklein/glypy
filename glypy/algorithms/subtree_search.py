@@ -1,10 +1,16 @@
 import logging
 import itertools
+import operator
 from .similarity import monosaccharide_similarity
-from ..utils import make_struct, root
+from ..utils import make_struct, root, groupby
 from ..structure import Glycan, Monosaccharide
 from ..structure.monosaccharide import depth
 logger = logging.getLogger(__name__)
+
+try:
+    filter = itertools.ifilter
+except:
+    pass
 
 
 def topological_inclusion(self, other, substituents=True, tolerance=0, visited=None):
@@ -75,21 +81,21 @@ def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visite
             other_substituents = dict(other.substituents())
             for a_pos, a_sub in self.substituents():
                 b_sub = other_substituents.get(a_pos)
-                if b_sub is None:
+                if b_sub is None:  # pragma: no cover
                     return False
-                if a_sub != b_sub:
+                if a_sub != b_sub:  # pragma: no cover
                     return False
         other_mods = dict(other.modifications.items())
         for a_pos, a_mod in self.modifications.items():
             b_mod = other_mods.get(a_pos)
-            if b_mod is None:
+            if b_mod is None:  # pragma: no cover
                 return False
-            if a_mod != b_mod:
+            if a_mod != b_mod:  # pragma: no cover
                 return False
         other_children = dict(other.children())
         for pos, a_child in self.children():
             b_child = other_children.get(pos)
-            if b_child is None:
+            if b_child is None:  # pragma: no cover
                 return False
             if a_child[0] == b_child[0]:
                 if not exact_ordering_inclusion(a_child, b_child, substituents=substituents,
@@ -133,44 +139,6 @@ def subtree_of(subtree, tree, exact=False, tolerance=0):
     return None
 
 
-def edit_distance(seq_a, seq_b, exact=False):  # pragma: no cover
-    comparator = exact_ordering_inclusion
-    if exact:
-        comparator = Monosaccharide.exact_ordering_equality
-    previous = range(len(seq_b) + 1)
-    for i, new_pos in enumerate(seq_a):
-        current = [i + 1]
-        for j, prev_pos in enumerate(seq_b):
-            insertions = previous[j + 1] + 1
-            deletions = current[j] + 1
-            substitutions = previous[j] + (not comparator(new_pos, prev_pos))
-            current.append(min(insertions, deletions, substitutions))
-        previous = current
-    return previous[-1]
-
-
-def to_nested_sequence(node=None, p=None):  # pragma: no cover
-    node = root(node)
-    return [node, map(lambda x: to_nested_sequence(*x[::-1]), list(node.children()))]
-
-
-def unfold(nested):  # pragma: no cover
-    yield nested[0]
-    for item in nested[1]:
-        for k in unfold(item):
-            yield k
-    yield 1
-
-
-def to_balanced_sequence(tree):  # pragma: no cover
-    return list(unfold(to_nested_sequence(tree)))
-
-
-def nested_sequence_contains(seq_a, seq_b):  # pragma: no cover
-    if seq_a == seq_b:
-        return True
-
-
 #: Results Container for :func:`maximum_common_subgraph`
 MaximumCommonSubtreeResults = make_struct(
     "MaximumCommonSubtreeResults", ("score", "tree", "similarity_matrix"))
@@ -188,7 +156,7 @@ def compare_nodes(node_a, node_b, include_substituents=True, exact=False, visite
     if visited is None:
         visited = set()
     score = 0.
-    if (node_a.id, node_b.id) in visited:
+    if (node_a.id, node_b.id) in visited:  # pragma: no cover
         return score
     visited.add((node_a.id, node_b.id))
 
@@ -207,13 +175,27 @@ def compare_nodes(node_a, node_b, include_substituents=True, exact=False, visite
     return score
 
 
-def maximum_common_subgraph(seq_a, seq_b, exact=False):
+def maximum_common_subgraph(seq_a, seq_b, exact=True):
     '''
     Find the maximum common subgraph between `seq_a` and `seq_b`.
+
+    Parameters
+    ----------
+    seq_a: Glycan
+    seq_b: Glycan
+    exact: bool
+        Whether to use exact equality or fuzzy equality
+
 
     Returns
     -------
     MaximumCommonSubtreeResults
+
+    Reference
+    ---------
+    [1] K. F. Aoki, A. Yamaguchi, Y. Okuno, T. Akutsu, N. Ueda, M. Kanehisa, and H. Mamitsuka,
+    "Efficient tree-matching methods for accurate carbohydrate database queries."
+    Genome Inform. Jan. 2003.
     '''
     solution_matrix = [
         [0. for i in range(len(seq_b))] for j in range(len(seq_a))]
@@ -253,11 +235,29 @@ def _find_max_of_matrix(solution_matrix):
     return score, ix_a, ix_b
 
 
+def _coordinates_for(solution_matrix, value):
+    solutions = []
+    for i in range(len(solution_matrix)):
+        for j in range(len(solution_matrix[0])):
+            if solution_matrix[i][j] == value:
+                solutions.append((i, j))
+    return solutions
+
+
 def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
     '''
     Given a pair of matched starting nodes from two separate glycan structures,
     traverse them together, copying the best matching branches into a new |Glycan|
     object.
+
+    Parameters
+    ----------
+    node_a: Monosaccharide
+    node_b: Monosaccharide
+    exact: bool
+        Whether or not to take exact matches, or just take the best
+        pairing. If `exact` = |True| and there is no exact match, the
+        branch will terminate.
     '''
     root = node_a.clone()
     node_stack = [(root, node_a, node_b)]
@@ -305,3 +305,95 @@ def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
             node_stack.append((terminal, a_child, matched_node))
 
     return Glycan(root)
+
+
+def n_saccharide_similarity(self, other, n=2, exact=False):
+    """Calculate n-saccharide similarity between two structures
+
+    Parameters
+    ----------
+    self: Glycan
+    other: Glycan
+    n: int
+        Size of the fragment saccharide to consider. Defaults to *2*
+    exact: bool
+        Whether to use :meth:`Glycan.exact_ordering_equality` or :meth:`Glycan.topological_equality`.
+        Defaults to `exact_ordering_equality`
+
+    Returns
+    -------
+    score: float
+        How similar these structures are at the n-saccharide level. Ranges between 0 and 1.0 where
+        1.0 is exactly the same, while 0.0 means no shared n-saccharides.
+
+    Reference
+    ---------
+    [1] K. F. Aoki, A. Yamaguchi, Y. Okuno, T. Akutsu, N. Ueda, M. Kanehisa, and H. Mamitsuka,
+    "Efficient tree-matching methods for accurate carbohydrate database queries."
+    Genome Inform. Jan. 2003.
+    """
+    _len = len
+    _id = id
+
+    comparator = Glycan.exact_ordering_equality
+    if not exact:
+        comparator = Glycan.topological_equality
+
+    self_n_saccharides = list(subtree.tree for subtree in self.substructures(
+        max_cleavages=max(self, key=operator.methodcaller('order')).order())
+                              if _len(subtree.tree) == n)
+    other_n_saccharides = list(subtree.tree for subtree in other.substructures(
+        max_cleavages=max(other, key=operator.methodcaller('order')).order())
+                               if _len(subtree.include_nodes) == n)
+
+    n_sacch_max = max(len(self_n_saccharides), len(other_n_saccharides))
+    matched = 0.
+    paired = set()
+    for stree in self_n_saccharides:
+        for otree in other_n_saccharides:
+            tid = _id(otree)
+            if tid in paired:
+                continue
+            if comparator(stree, otree):
+                matched += 1
+                paired.add(tid)
+    return matched / n_sacch_max
+
+
+def distinct_fragments(self, other, fragmentation_parameters=None):
+    """Compute the set of distinct masses observed between two structures
+
+    Parameters
+    ----------
+    self: Glycan or list
+    other : Glycan or list
+        Glycan objects whose fragments will be compared or lists of Fragment
+        to compare.
+    fragmentation_parameters : dict, optional
+        If `self` and `other` are |Glycan| objects, these parameters will be used
+        to call :meth:`Glycan.fragments`.
+
+    Returns
+    -------
+    set: The distinct fragment masses of `self`
+    set: The distinct fragment masses of `other`
+    """
+    self_fragments = []
+    other_fragments = []
+    if isinstance(self, (tuple, list)):
+        self_fragments = self
+        other_fragments = other
+    else:
+        if fragmentation_parameters is None:
+            fragmentation_parameters = dict(kind="BY", max_cleavages=1, average=False, charge=0)
+        self_fragments = list(self.fragments(**fragmentation_parameters))
+        other_fragments = list(other.fragments(**fragmentation_parameters))
+
+    def grouper(fragment):
+        return round(fragment.mass, 4)
+
+    self_masses = set(groupby(self_fragments, grouper))
+    other_masses = set(groupby(other_fragments, grouper))
+    self_unique = self_masses - other_masses
+    other_unique = other_masses - self_masses
+    return self_unique, other_unique

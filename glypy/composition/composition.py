@@ -8,7 +8,7 @@ use_cython = True
 
 try:
     from ccomposition import CComposition, calculate_mass as ccalculate_mass
-except ImportError:
+except ImportError:  # pragma: no cover
     use_cython = False
 
 # Forward Declaration
@@ -144,7 +144,7 @@ class PComposition(defaultdict):
             self[_make_isotope_string(elem, int(isotope) if isotope else 0)
                     ] += int(number) if number else 1
 
-    def _from_formula_parens(self, formula, mass_data):
+    def _from_formula_parens(self, formula, mass_data):  # pragma: no cover
         # Parsing a formula backwards.
         prev_chem_symbol_start = len(formula)
         i = len(formula) - 1
@@ -397,10 +397,10 @@ def pcalculate_mass(*args, **kwargs):
 
 
 # Checks to see if the Cython versions are available
-if use_cython:
+if use_cython:  # pragma: no cover
     Composition = CComposition
     calculate_mass = ccalculate_mass
-else:
+else:  # pragma: no cover
     Composition = PComposition
     calculate_mass = pcalculate_mass
 

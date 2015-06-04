@@ -758,6 +758,8 @@ class Glycan(SaccharideBase):
             return False
         return self.root.exact_ordering_equality(other.root)
 
+    exact_ordering_equality = __eq__
+
     def topological_equality(self, other):
         '''
         Two glycans are considered equal if they are topologically equal.

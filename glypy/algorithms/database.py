@@ -246,6 +246,9 @@ class GlycanRecordBase(object):
         '''
         yield '''CREATE INDEX IF NOT EXISTS mass_index ON {table_name}(mass DESC);'''.format(
             table_name=cls.table_name)
+        for index in cls._collect_ext_indices(kwargs.get("inherits", {})):
+            print index
+            yield index
 
     def __init__(self, structure, motifs=None, dbxref=None, aglycones=None, taxa=None, **kwargs):
         self.structure = structure
@@ -439,20 +442,28 @@ class GlycanRecordBase(object):
             data[name] = transformer(self)
         return data
 
+    @classmethod
+    def _collect_ext_indices(cls, inherits=None):
+        meta_map = dict(inherits or {})
+        meta_map.update(dict(cls.__column_data_map))
+        for name in meta_map:
+            yield "CREATE INDEX IF NOT EXISTS {column_name}_{table_name}_index ON {table_name}({column_name});".format(
+                column_name=name, table_name=cls.table_name)
+
     def __eq__(self, other):
         '''
         Equality testing is done between :attr:`structure`
         '''
         try:
             return self.structure == other.structure
-        except Exception, e:
+        except Exception, e:  # pragma: no cover
             logger.exception(exc_info=e)
             return False
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # pragma: no cover
         return not self == other
 
-    def __root__(self):
+    def __root__(self):  # pragma: no cover
         return self.structure.root
 
 
@@ -542,7 +553,8 @@ class GlycanRecord(GlycanRecordBase):
         '''
         for stmt in super(GlycanRecord, cls).add_index(*args, **kwargs):
             yield stmt
-        yield "create index if not exists n_glycan on {table_name}(is_n_glycan desc);"
+        for stmt in cls._collect_ext_indices(kwargs.get("inherits", {})):
+            yield stmt
 
     @property
     def monosaccharides(self):
@@ -562,6 +574,11 @@ class GlycanRecord(GlycanRecordBase):
         res = Counter(map(naive_name_monosaccharide, self.structure))
         res.pop(None, None)
         return res
+
+    @property
+    def composition(self):
+        return ''.join("{}{}".format(name, number)
+                       for name, number in sorted(self.monosaccharides.items()))
 
     @property
     def is_n_glycan(self):
@@ -596,6 +613,12 @@ class GlycanRecord(GlycanRecordBase):
     def _collect_ext_data(self):
         inherits = _resolve_column_data_mro(self.__class__)
         data = super(GlycanRecord, self)._collect_ext_data(inherits=inherits)
+        return data
+
+    @classmethod
+    def _collect_ext_indices(cls, inherits=None):
+        inherits = _resolve_column_data_mro(cls)
+        data = super(GlycanRecord, cls)._collect_ext_indices(inherits=inherits)
         return data
 
 
@@ -732,6 +755,10 @@ class RecordDatabase(object):
             self.apply_schema()
         else:
             self._id = len(self)
+        try:
+            self._patch_querymethods()
+        except Exception, e:
+            logger.error(exc_info=e)
 
     def apply_schema(self):
         '''
@@ -762,6 +789,7 @@ class RecordDatabase(object):
         May be called during initialization if data was added.
         '''
         for ix_stmt in self.record_type.add_index():
+            print ix_stmt
             self.execute(ix_stmt)
         self.commit()
 

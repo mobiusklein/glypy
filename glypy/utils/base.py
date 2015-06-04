@@ -43,7 +43,7 @@ def invert_dict(d):
     return {v: k for k, v in d.items()}
 
 
-def make_counter(start=1, label=""):
+def make_counter(start=1):
     '''
     Create a functor whose only internal piece of data is a mutable container
     with a reference to an integer, `start`. When the functor is called, it returns

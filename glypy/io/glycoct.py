@@ -393,7 +393,8 @@ class GlycoCT(object):
             child_residue_index, child_atom_replaced, child_attachment_position = parse_link(line)
 
         if child_atom_replaced == Composition() and parent_atom_replaced == Composition():
-            logger.info("Odd Linkage Detected, %s", line)
+            # logger.debug("Odd Linkage Detected, %s", line)
+            pass
         if self.in_repeat:
             graph = self.current_repeat.graph
         else:

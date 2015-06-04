@@ -38,9 +38,15 @@ class LinkTests(unittest.TestCase):
         self.assertTrue(len(parent.links[3]) == 0)
         self.assertTrue(len(child.links[3]) == 0)
 
+        self.assertFalse(link_1.is_attached())
+        self.assertFalse(link_1.is_attached(deep=True))
+
         link_1.reconnect(refund=True)
         self.assertTrue(len(parent.links[3]) == 1)
         self.assertTrue(len(child.links[3]) == 1)
+
+        self.assertTrue(link_1.is_attached())
+        self.assertTrue(link_1.is_attached(deep=True))
 
     def test_traversal(self):
         parent = monosaccharides['Hex']

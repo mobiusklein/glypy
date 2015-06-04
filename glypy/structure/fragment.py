@@ -11,7 +11,7 @@ _fragment_shift = {
 }
 
 
-def link_ids_splitter(fragment, link_ids, kind):
+def link_ids_splitter(fragment, link_ids, kind):  # pragma: no cover
     ion_types = re.findall(r"(\d+,\d+)?(\S)", kind)
     links_broken = link_ids
 
@@ -101,10 +101,6 @@ class Fragment(object):
         self.crossring_cleavages = crossring_cleavages
         self.name = name
         self.score = score
-        # The data fed from :meth:`Glycan.fragments` lumps cross ring cleavages
-        # together with link ids. Separate them out.
-        if crossring_cleavages is None:
-            link_ids_splitter(self, self.link_ids, self.kind)
 
     def is_reducing(self):
         """Is this fragment from the reducing end
@@ -144,17 +140,8 @@ class Fragment(object):
         return d
 
     def __setstate__(self, state):  # pragma: no cover
-        if isinstance(state, tuple):
-            kind, link_ids, included_nodes, mass, name = state
-            link_ids_splitter(self, link_ids, kind)
-            self.kind = kind
-            self.included_nodes = included_nodes
-            self.mass = mass
-            self.name = name
-            self.score = 0.0
-        else:
-            for a, v in state.items():
-                setattr(self, a, v)
+        for a, v in state.items():
+            setattr(self, a, v)
 
     def __eq__(self, other):  # pragma: no cover
         for field in self.__slots__:
@@ -262,5 +249,5 @@ child_breaks={} crossring_cleavages={}>\n{}".format(
             self.child_breaks, self.crossring_cleavages, self.tree)
         return rep
 
-    def __root__(self):
+    def __root__(self):  # pragma: no cover
         return self.tree.root

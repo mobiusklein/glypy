@@ -109,6 +109,23 @@ class Stem(Enum):
 
     thr = 16
 
+Stem.gro.add_name("Glyceraldehyde")
+Stem.ery.add_name("Erythrose")
+Stem.rib.add_name("Ribose")
+Stem.ara.add_name("Arabinose")
+Stem.all.add_name("Allose")
+Stem.alt.add_name("Altose")
+Stem.glc.add_name("Glucose")
+Stem.man.add_name("Mannose")
+Stem.tre.add_name("Threose")
+Stem.xyl.add_name("Xylose")
+Stem.lyx.add_name("Lyxose")
+Stem.gul.add_name("Gulose")
+Stem.ido.add_name("Idose")
+Stem.gal.add_name("Galactose")
+Stem.tal.add_name("Talose")
+Stem.x.add_name("Unknown")
+
 
 class Configuration(Enum):
     '''
@@ -121,6 +138,9 @@ class Configuration(Enum):
     #: L Configuration
     l = 2
     x = None
+
+Configuration.d.add_name("Dextro")
+Configuration.l.add_name("Levo")
 
 
 class Modification(Enum):

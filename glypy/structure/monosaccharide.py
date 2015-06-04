@@ -48,12 +48,15 @@ def _get_standard_composition(monosaccharide):
         if isinstance(mod_val, ReducedEnd):
             monosaccharide.reducing_end = mod_val
             continue
-        elif mod_val is Modification.aldi:
+        # In case the modification is not properly transformed elsewhere
+        elif mod_val is Modification.aldi:  # pragma: no cover
             monosaccharide.reducing_end = True
             continue
+        # Using global constant modification
         try:
             base += modification_compositions[mod_val](mod_pos)
-        except:
+        # Using object-oriented modification
+        except:  # pragma: no cover
             base += mod_val.composition
     return base
 
@@ -90,7 +93,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
             yield grandchild
 
 
-def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):
+def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma: no cover
     '''
     A low-level depth-first traversal method for unwrapped residue
     graphs when the :attr:`id` attribute may be masking duplicate residues
@@ -210,7 +213,7 @@ def depth(monosaccharide, visited=None):
     '''
     if visited is None:
         visited = set()
-    if monosaccharide.id in visited:
+    if monosaccharide.id in visited:  # pragma: no cover
         return 0
     visited.add(monosaccharide.id)
     d = 1
@@ -291,7 +294,7 @@ class Monosaccharide(SaccharideBase):
                  modifications=None, links=None, substituent_links=None,
                  composition=None, reduced=None, id=None, fast=False):
 
-        if modifications is None:
+        if modifications is None:  # pragma: no cover
             modifications = OrderedMultiMap()
 
         if fast:
@@ -606,13 +609,14 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
-        if modification is Modification.aldi:
+        if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = ReducedEnd()
         else:
             try:
                 self.composition += modification_compositions[modification](position)
                 self.modifications[position] = Modification[modification]
-            except:
+            # OO Modification
+            except:  # pragma: no cover
                 self.composition += modification.composition
                 self.modifications[position] = modification
         return self
@@ -647,13 +651,15 @@ class Monosaccharide(SaccharideBase):
             self.modifications.pop(position, modification)
         except IndexError:
             raise ValueError("Modification {} not found at {}".format(modification, position))
-        if modification is Modification.aldi:
+
+        if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = None
         else:
             try:
                 self.composition = self.composition - \
                     modification_compositions[modification](position)
-            except:
+            # OO Modification
+            except:  # pragma: no cover
                 self.composition = self.composition - modification.composition
         return self
 
@@ -822,9 +828,9 @@ class Monosaccharide(SaccharideBase):
         if child_loss is None:
             child_loss = Composition(H=1, O=1)
         if self.is_occupied(position) > max_occupancy:
-            raise ValueError("Parent Site is already occupied")
+            raise ValueError("Parent Site is already occupied")  # pragma: no cover
         if monosaccharide.is_occupied(child_position) > max_occupancy:
-            raise ValueError("Child Site is already occupied")
+            raise ValueError("Child Site is already occupied")  # pragma: no cover
         Link(parent=self, child=monosaccharide,
              parent_position=position, child_position=child_position,
              parent_loss=parent_loss, child_loss=child_loss)
@@ -933,10 +939,14 @@ class Monosaccharide(SaccharideBase):
                                               ring_start=ring_start, ring_end=ring_end)
         res = [residue_str]
         lin = []
+        visited_subst = set()
         # Construct the substituent lines
         # and their links
         for lin_pos, link_obj in self.substituent_links.items():
             sub = link_obj.to(self)
+            if sub.id in visited_subst:
+                continue
+            visited_subst.add(sub.id)
             sub_index = res_index()
             subst_str = str(sub_index) + sub.to_glycoct()
             res.append(subst_str)
@@ -987,7 +997,7 @@ class Monosaccharide(SaccharideBase):
         '''
         if visited is None:
             visited = set()
-        if (self.id, other.id) in visited:
+        if (self.id, other.id) in visited:  # pragma: no cover
             return True
 
         visited.add((self.id, other.id))
@@ -995,17 +1005,17 @@ class Monosaccharide(SaccharideBase):
         if self._flat_equality(other):
             if substituents:
                 for a_sub, b_sub in zip(self.substituents(), other.substituents()):
-                    if a_sub != b_sub:
+                    if a_sub != b_sub:  # pragma: no cover
                         return False
             for a_mod, b_mod in zip(self.modifications.items(), other.modifications.items()):
-                if a_mod != b_mod:
+                if a_mod != b_mod:  # pragma: no cover
                     return False
             for a_child, b_child in zip(self.children(), other.children()):
                 if a_child[0] != b_child[0]:
                     return False
                 if not a_child[1].exact_ordering_equality(b_child[1],
                                                           substituents=substituents,
-                                                          visited=visited):
+                                                          visited=visited):  # pragma: no cover
                     return False
             return True
         return False
@@ -1023,7 +1033,7 @@ class Monosaccharide(SaccharideBase):
         '''
         if visited is None:
             visited = set()
-        if (self.id, other.id) in visited:
+        if (self.id, other.id) in visited:  # pragma: no cover
             return True
         if self._flat_equality(other) and (not substituents or self._match_substituents(other)):
             taken_b = set()
@@ -1042,7 +1052,7 @@ class Monosaccharide(SaccharideBase):
                         break
                 if not matched and len(a_children) > 0:
                     return False
-            if len(taken_b) != len(b_children):
+            if len(taken_b) != len(b_children):  # pragma: no cover
                 return False
             return True
         return False
@@ -1123,7 +1133,7 @@ class Monosaccharide(SaccharideBase):
         # Make sure that if "aldi" is present, to replace it with
         # the default ReducedEnd
         if reduced is None:
-            if self.modifications.popv(Modification.aldi) is not None:
+            if self.modifications.popv(Modification.aldi) is not None:  # pragma: no cover
                 # Deduct the modification mass from the main composition
                 self.composition -= {"H": 2}
                 reduced = True
@@ -1158,8 +1168,13 @@ class Monosaccharide(SaccharideBase):
         mass = calculate_mass(
             self.composition, average=average, charge=charge, mass_data=mass_data)
         if substituents:
+            subst_visited = set()
             for substituent_link in self.substituent_links.values():
-                mass += substituent_link[self].mass(
+                subst = substituent_link[self]
+                if subst.id in subst_visited:
+                    continue
+                subst_visited.add(subst.id)
+                mass += subst.mass(
                     average=average, charge=charge, mass_data=mass_data)
         if self.reducing_end is not None:
             mass += self.reducing_end.mass(
@@ -1238,8 +1253,13 @@ class Monosaccharide(SaccharideBase):
         substituent: Substituent
             |Substituent| at `position`
         '''
+        subst_visited = set()
         for pos, link in self.substituent_links.items():
-            yield pos, link.to(self)
+            subst = link.to(self)
+            if subst.id in subst_visited:
+                continue
+            subst_visited.add(subst)
+            yield pos, subst
 
     def order(self):
         '''
@@ -1302,7 +1322,7 @@ class ReducedEnd(object):
         numeric:
             The number of occupants at ``position``, or `float('inf')` if `position` exceeds :attr:`valence`
         '''
-        if position > self.valence:
+        if position > self.valence:  # pragma: no cover
             return float('inf')
         else:
             return len(self.links[position])
@@ -1338,7 +1358,7 @@ class ReducedEnd(object):
         ValueError
             ``position`` is occupied by more than ``max_occupancy`` elements
         '''
-        if self.is_occupied(position) > max_occupancy:
+        if self.is_occupied(position) > max_occupancy:  # pragma: no cover
             raise ValueError("Site is already occupied")
         if child_loss is None:
             child_loss = Composition("H")
@@ -1381,7 +1401,7 @@ class ReducedEnd(object):
         ReducedEnd:
             `self` for chaining calls
         '''
-        if position > self.valence:
+        if position > self.valence:  # pragma: no cover
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
             substituent = Substituent(substituent)
@@ -1496,9 +1516,9 @@ class ReducedEnd(object):
         if not composition_equal:
             return False
         for spair, opair in izip_longest(self.links.items(), other.links.items()):
-            if spair[0] != opair[0]:
+            if spair[0] != opair[0]:  # pragma: no cover
                 return False
-            if not spair[1]._flat_equality(opair[1]):
+            if not spair[1]._flat_equality(opair[1]):  # pragma: no cover
                 return False
         return True
 

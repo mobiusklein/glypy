@@ -37,7 +37,7 @@ class CompositionRuleIndex(dict):
     def __getitem__(self, key):
         try:
             rule = super(CompositionRuleIndex, self).__getitem__(key)
-        except KeyError:
+        except KeyError:  # pragma: no cover
             rule = CompositionRule()
             if do_warn:
                 warnings.warn("{key} could not be found. It may not have an explicit composition".format(key=key),

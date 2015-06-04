@@ -362,7 +362,7 @@ class Link(object):
         res = self._attached = (parent and child)
         return res
 
-    def try_break_link(self, refund=False):
+    def try_break_link(self, refund=False):  # pragma: no cover
         '''
         Try to break the link if it is attached, otherwise return |False|
         '''
@@ -370,7 +370,7 @@ class Link(object):
             return self.break_link(refund=refund)
         return False
 
-    def try_apply(self):
+    def try_apply(self):  # pragma: no cover
         '''
         Try to apply the link if it is not attached, otherwise return |False|
         '''
@@ -454,7 +454,7 @@ class AmbiguousLink(Link):
             self.child_position_choices[0],
             parent_loss, child_loss, id, attach)
 
-    def iterconfiguration(self):
+    def iterconfiguration(self):  # pragma: no cover
         configurations = itertools.product(self.parent_choices, self.child_choices,
                                            self.parent_position_choices,
                                            self.child_position_choices)
@@ -490,7 +490,7 @@ class AmbiguousLink(Link):
         assert not self.is_attached(deep=True)
         return res
 
-    def to_glycoct(self, ix, parent_ix, child_ix):
+    def to_glycoct(self, ix, parent_ix, child_ix):  # pragma: no cover
         '''
         Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
         the textual indices of its parent and child lines.
@@ -517,10 +517,8 @@ class AmbiguousLink(Link):
         return "(A)" + rep
 
     def find_open_position(self, attach=True):
-        #print("Before test", self.child.links)
         if attach:
             self.break_link(refund=True)
-        #print("After test", self.child.links)
         try:
             open_parent_sites, _ = self.parent.open_attachment_sites()
             parent_site = iter(set(open_parent_sites) & set(self.parent_position_choices)).next()
@@ -530,5 +528,5 @@ class AmbiguousLink(Link):
             self.child_position = child_site
             if attach:
                 self.apply()
-        except StopIteration:
+        except StopIteration:  # pragma: no cover
             raise ValueError("Could not find a valid configurations on current parent/child pair")

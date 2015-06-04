@@ -89,7 +89,7 @@ class MultiMap(object):
         return _str_dump_multimap(self)
 
     def __eq__(self, other):
-        if other is None:
+        if other is None:  # pragma: no cover
             return False
         for a, b in izip_longest(self.items(), other.items()):
             if a != b:

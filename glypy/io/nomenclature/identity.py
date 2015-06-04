@@ -1,6 +1,6 @@
 from collections import defaultdict
 import operator
-
+from ...utils import groupby
 from ...structure import named_structures, Monosaccharide, Substituent
 from ...algorithms.similarity import monosaccharide_similarity
 from ...composition.composition_transform import strip_derivatization
@@ -172,10 +172,8 @@ def naive_name_monosaccharide(monosaccharide):
 
 
 def split_along_axis(monosaccharides, axis):
-    groups = defaultdict(list)
     getter = operator.attrgetter(axis)
-    for monosaccharide in monosaccharides:
-        groups[getter(monosaccharide)].append(monosaccharide)
+    groups = groupby(monosaccharides, getter)
     return groups
 
 

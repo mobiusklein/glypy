@@ -27,38 +27,6 @@ chain = itertools.chain
 Counter = collections.Counter
 
 
-def link_traverse(monosaccharide, visited=None, apply_fn=lambda x: x):
-    '''
-    A low-level depth-first traversal method for unwrapped residue
-    graphs
-
-    Parameters
-    ----------
-    monosaccharide: :class:`Monosaccharide`
-        Residue to start traversing from
-    visited: set or None
-        The collection of node ids to ignore, having already visited them. If |None|, it defaults
-        to the empty set.
-    apply_fn: function
-        Function to apply to each residue before yielding them
-
-    Yields
-    -------
-    :class:`Monosaccharide`
-    '''
-    if visited is None:
-        visited = set()
-    yield apply_fn(monosaccharide)
-    visited.add(monosaccharide.id)
-    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
-    for p, link in outnodes:
-        child = link[monosaccharide]
-        if link.id in visited:
-            continue
-        for grandchild in traverse(child, visited=visited, apply_fn=apply_fn):
-            yield grandchild
-
-
 class CrossRingPair(object):
     @classmethod
     def can_crossring_fragment(cls, link):

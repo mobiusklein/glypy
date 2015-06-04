@@ -33,6 +33,13 @@ class GlycanRecordTest(unittest.TestCase):
         dup = db[1]
         self.assertAlmostEqual(rec.mass(), dup.mass(), 3)
 
+    def test_replicate(self):
+        db = database.RecordDatabase()
+        db.apply_schema()
+        db.create(load("broad_n_glycan"))
+        rec = db[1]
+        self.assertEqual(db.record_type.replicate(rec), rec)
+
 
 class RecordDatabaseTest(unittest.TestCase):
 
@@ -49,6 +56,23 @@ class RecordDatabaseTest(unittest.TestCase):
         db = database.RecordDatabase(records=[rec, rec2])
         self.assertEqual(rec, (db.ppm_match_tolerance_search(rec.mass(), 1e-5)).next())
 
+    def test_record_type_inference(self):
+        db = database.dbopen("./test_data/test.db", database.GlycanRecordWithTaxon, flag='w')
+        db.create(load("complex_glycan"))
+        db.commit()
+        self.assertEqual(db.record_type, database.GlycanRecordWithTaxon)
+        db.close()
+        db = database.dbopen("./test_data/test.db")
+        self.assertEqual(db.record_type, database.GlycanRecordWithTaxon)
+        db.close()
+        db = database.dbopen("./test_data/test.db", record_type=None)
+        self.assertEqual(db.record_type, database.GlycanRecordWithTaxon)
+
+    def test_metadata(self):
+        db = database.dbopen()
+        db.set_metadata("Spam", {"Ham", "Eggs"})
+        self.assertEqual(db.get_metadata("Spam"), {"Ham", "Eggs"})
+        self.assertEqual(len(db), 0)
 
 if __name__ == '__main__':
     unittest.main()

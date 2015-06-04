@@ -574,6 +574,13 @@ class MultiMapTests(unittest.TestCase):
         self.assertNotEqual(omm, mm)
         self.assertFalse('c' in mm)
 
+    def test_has_value(self):
+        mm = multimap.MultiMap(a=1, b=3)
+        self.assertTrue(mm.has_value(1))
+        self.assertFalse(mm.has_value('a'))
+        mm.popv(1)
+        self.assertFalse(mm.has_value(1))
+
 
 class ConstantTests(unittest.TestCase):
 
@@ -647,7 +654,7 @@ class SubtreeSearchTests(unittest.TestCase):
         core = glycans['N-Linked Core']
         tree = glycoct.loads(branchy_glycan).next()
         res = subtree_search.maximum_common_subgraph(core, tree)
-        self.assertEqual(res.score, 6.2)
+        self.assertEqual(res.score, 6.0)
 
     def test_is_n_glycan(self):
         core = glycans['N-Linked Core']
@@ -657,9 +664,31 @@ class SubtreeSearchTests(unittest.TestCase):
         tree = glycoct.loads(complex_glycan).next()
         result = (subtree_search.subtree_of(core, tree, exact=False))
         self.assertTrue(result == 1)
+        result = (subtree_search.subtree_of(core, tree, exact=True))
+        self.assertTrue(result == 1)
         tree = glycoct.loads(branchy_glycan).next()
         result = (subtree_search.subtree_of(core, tree, exact=False))
         self.assertTrue(result is None)
+
+    def test_disaccharide_similarity(self):
+        core = glycans['N-Linked Core']
+        self.assertEqual(subtree_search.n_saccharide_similarity(core, core), 1.0)
+        copy = core.clone()
+        copy.root.add_monosaccharide(monosaccharides.Fucose, 3)
+        self.assertEqual(subtree_search.n_saccharide_similarity(core, copy), 0.7)
+
+    def test_distinct_fragments(self):
+        try:
+            from glypy import glycomedb
+            bi = glycomedb.get(8960)
+            tet = glycomedb.get(576)
+            self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
+            bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
+            self.assertEqual(len(tet_dist), 0)
+            self.assertEqual(len(bi_dist), 13)
+        except ImportError:
+            pass
+
 
 
 class IdentifyTests(unittest.TestCase):
@@ -695,6 +724,13 @@ class IdentifyTests(unittest.TestCase):
         # Will fail because Hex is blacklisted
         self.assertRaises(
             identity.IdentifyException, lambda: identity.identify(monosaccharides.Hex))
+
+    def test_precision(self):
+        self.assertFalse(identity.is_a(monosaccharides.Kdn, monosaccharides.NeuAc))
+        self.assertFalse(identity.is_a(monosaccharides.NeuAc, monosaccharides.Kdn))
+
+    def test_grouping_axes(self):
+        tree = identity.residue_list_to_tree((monosaccharides).values())
 
 
 class LinearCodeTests(unittest.TestCase):

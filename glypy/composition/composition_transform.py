@@ -1,3 +1,5 @@
+
+from ..utils import make_counter
 from ..structure import Substituent
 from ..structure import Glycan
 from ..structure import Monosaccharide
@@ -23,18 +25,38 @@ def derivatize(saccharide, substituent):
     '''
     if isinstance(substituent, basestring):
         substituent = Substituent(substituent)
+    id_base = make_counter(-substituent.id * 32)
     if isinstance(saccharide, Glycan):
         for node in saccharide:
-            derivatize(node, substituent)
+            _derivatize_monosaccharide(node, substituent, id_base)
     elif isinstance(saccharide, Monosaccharide):
-        derivatize_monosaccharide(saccharide, substituent)
+        _derivatize_monosaccharide(saccharide, substituent, id_base)
     return saccharide
 
 
-def derivatize_monosaccharide(monosaccharide_obj, substituent):
+def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
+    '''
+    The internal worker for :func:`derivatize`. It should not be called directly.
+
+    Adds a copy of `substituent` to every open position on `monosaccharide_obj` and
+    its substituents and reducing end
+
+    Parameters
+    ----------
+    monosaccharide_obj: Monosaccharide
+    substituent: Substituent
+    id_base: function or None
+
+    Returns
+    -------
+    monosaccharide_obj
+    '''
+    if id_base is None:
+        id_base = make_counter(-substituent.id * 32)
     open_sites, unknowns = monosaccharide_obj.open_attachment_sites()
     for site in open_sites[unknowns:]:
         s = substituent.clone()
+        s.id = id_base()
         s._derivatize = True
         monosaccharide_obj.add_substituent(
             s, parent_loss=Composition(H=1),
@@ -43,12 +65,14 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
         if subst.is_nh_derivatizable and substituent.can_nh_derivatize:
             s = substituent.clone()
             s._derivatize = True
+            s.id = id_base()
             subst.add_substituent(s, position=2, child_position=1)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
         for i in range(1, red_end.valence + 1):
             s = substituent.clone()
             s._derivatize = True
+            s.id = id_base()
             red_end.add_substituent(
                 s, parent_loss=Composition(H=1), max_occupancy=3,
                 position=i, child_loss=Composition(H=1), child_position=1)
@@ -57,6 +81,7 @@ def derivatize_monosaccharide(monosaccharide_obj, substituent):
         if mod == Modification.a:
             s = substituent.clone()
             s._derivatize = True
+            s.id = id_base()
             monosaccharide_obj.add_substituent(
                 s, position=pos, parent_loss=Composition(H=1), max_occupancy=3,
                 child_loss=Composition(H=1), child_position=1)
