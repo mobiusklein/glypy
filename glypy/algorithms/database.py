@@ -247,7 +247,6 @@ class GlycanRecordBase(object):
         yield '''CREATE INDEX IF NOT EXISTS mass_index ON {table_name}(mass DESC);'''.format(
             table_name=cls.table_name)
         for index in cls._collect_ext_indices(kwargs.get("inherits", {})):
-            print index
             yield index
 
     def __init__(self, structure, motifs=None, dbxref=None, aglycones=None, taxa=None, **kwargs):
@@ -489,7 +488,7 @@ def extract_composition(record, max_size=120):
     str:
         The string representation of `record.monosaccharides`.
     '''
-    composition_list = ["{}:{}".format(name, count) for name, count in record.monosaccharides.items()]
+    composition_list = ["{}:{}".format(name, count) for name, count in sorted(record.monosaccharides.items())]
     if sum(map(len, composition_list)) + len(composition_list) > max_size:
         raise ValueError(
             "The resulting composition string is larger than {} characters.".format(max_size))
@@ -789,7 +788,7 @@ class RecordDatabase(object):
         May be called during initialization if data was added.
         '''
         for ix_stmt in self.record_type.add_index():
-            print ix_stmt
+
             self.execute(ix_stmt)
         self.commit()
 

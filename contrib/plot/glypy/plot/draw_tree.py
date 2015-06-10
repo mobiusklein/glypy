@@ -11,11 +11,12 @@ from glypy.io.nomenclature import identity
 from glypy.algorithms.database import GlycanRecordBase
 
 from .buchheim import buchheim
-from . import cfg_symbols
+from . import cfg_symbols, iupac_symbols
 
 
 nomenclature_map = {
-    "cfg": cfg_symbols
+    "cfg": cfg_symbols,
+    'iupac': iupac_symbols
 }
 
 
@@ -271,7 +272,9 @@ class DrawTreeNode(object):
             cx, cy = child.draw_branches(orientation, at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
                                          label=label, visited=visited, **kwargs)
-            symbol_nomenclature.line_to(ax, x, y, cx, cy, color='black', zorder=1)
+            symbol_nomenclature.line_to(ax, x, y, cx, cy,
+                                        color=kwargs.get('link_color', symbol_nomenclature.default_line_color),
+                                        zorder=1)
             if label:
                 self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
                                               symbol_nomenclature=symbol_nomenclature,
@@ -575,16 +578,48 @@ class DrawTreeNode(object):
 
 
 class DrawTree(object):
-    def __init__(self, structure, figure=None, ax=None, **kwargs):
+    def __init__(self, structure, figure=None, ax=None, layout=buchheim, symbol_nomenclature=cfg_symbols, **kwargs):
         self.structure = structure
         self.root = DrawTreeNode(root(structure))
         self.figure = figure
-        self.axes = ax
-        self.layout = kwargs.get("layout", buchheim)
-        self.symbol_nomenclature = kwargs.get("symbol_nomenclature", cfg_symbols)
+        self.ax = ax
+        self.layout_scheme = layout
+        self.symbol_nomenclature = symbol_nomenclature
+
+    def layout(self, **kwargs):
+        self.layout_scheme.layout(self.root)
+        self.root.fix_special_cases()
+        # self.root.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)) *
+        #                 self.symbol_nomenclature.default_scale_factor)
+
+    def draw(self, ax=None, orientation='h', at=(1, 1), center=True, **kwargs):
+        if ax is not None:
+            self.ax = ax
+            self.figure = ax.get_figure()
+        else:
+            self.figure, self.ax = plt.subplots()
+
+        self.root.draw(ax=self.ax, orientation=orientation, at=at, symbol_nomenclature=self.symbol_nomenclature)
+        if center:
+            xmin, xmax, ymin, ymax = self.root.extrema(orientation=orientation, at=at)
+            ax = self.ax
+            ax.set_xlim(sign(xmin) * (abs(xmin) + 2), (1 * abs(xmax) + 2))
+            ax.set_ylim(sign(ymin) * (abs(ymin) + 2), (1 * abs(ymax) + 2))
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+
+    def run(self, orientation='h', at=(1, 1)):
+        self.layout()
+        self.draw(ax=self.ax, orientation=orientation, at=at)
+        self.figure.canvas.draw()
+
+    def redraw(self, **kwargs):
+        self.draw(**kwargs)
+        self.figure.canvas.draw()
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, **kwargs):
+def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False,
+         symbol_nomenclature='cfg', **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -615,6 +650,9 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
 
     scale = kwargs.get("scale", DEFAULT_SYMBOL_SCALE_FACTOR)
 
+    if isinstance(symbol_nomenclature, basestring):
+        symbol_nomenclature = nomenclature_map.get(symbol_nomenclature)
+
     # if ax is not None and "scale" not in kwargs:
     #     x_max = ax.get_xlim()[1]
     #     y_max = ax.get_ylim()[1]
@@ -623,14 +661,16 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False, *
     dtree = DrawTreeNode(tree_root)
     buchheim(dtree)
     dtree.fix_special_cases()
-    dtree.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)))
+    dtree.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)) *
+                symbol_nomenclature.default_scale_factor)
     fig = None
     # Create a figure if no axes are provided
     if ax is None:
         fig, ax = plt.subplots()
         at = (0, 0)
         center = True
-    dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label)
+    dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label,
+               symbol_nomenclature=symbol_nomenclature)
     # If the figure is stand-alone, center it
     if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)

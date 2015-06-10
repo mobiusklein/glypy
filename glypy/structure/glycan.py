@@ -326,17 +326,22 @@ class Glycan(SaccharideBase):
         --------
         Glycan.breadth_first_traversal
         '''
-        sort_predicate = methodcaller("order")
+        # sort_predicate = methodcaller("order")
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
             node = node_stack.pop()
             visited.add(node.id)
-            res = apply_fn(node)
-            if res is not None:
-                yield res
-            node_stack.extend(sorted((terminal for link in node.links.values()
-                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
+            if apply_fn is identity:
+                yield node
+            else:
+                res = apply_fn(node)
+                if res is not None:
+                    yield res
+            # node_stack.extend(sorted((terminal for link in node.links.values()
+            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
+            node_stack.extend(terminal for link in node.links.values()
+                              for terminal in link if terminal.id not in visited)
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -370,17 +375,23 @@ class Glycan(SaccharideBase):
         --------
         Glycan.depth_first_traversal
         '''
-        sort_predicate = methodcaller("order")
+        # sort_predicate = methodcaller("order")
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
             node = node_queue.popleft()
             visited.add(node.id)
-            res = apply_fn(node)
-            if res is not None:
-                yield res
-            node_queue.extend(sorted((terminal for link in node.links.values()
-                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
+
+            if apply_fn is identity:
+                yield node
+            else:
+                res = apply_fn(node)
+                if res is not None:
+                    yield res
+            # node_queue.extend(sorted((terminal for link in node.links.values()
+            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
+            node_queue.extend(terminal for link in node.links.values()
+                              for terminal in link if terminal.id not in visited)
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal
@@ -401,7 +412,7 @@ class Glycan(SaccharideBase):
         return traversal
 
     def __iter__(self):
-        return self.iternodes()
+        return self.dfs()
 
     def iternodes(
             self, from_node=None, apply_fn=identity, method='dfs', visited=None):
@@ -1049,6 +1060,7 @@ class Glycan(SaccharideBase):
         '''
         seen = set()
         source = self.clone()
+        origin_mass = self.mass()
         for i in range(1, max_cleavages + 1):
             gen = source.break_links_subtrees(i)
             if len(set("AX") & set(kind)) > 0:
@@ -1064,6 +1076,7 @@ class Glycan(SaccharideBase):
                     else:
                         seen.add(fragment.name)
                     yield fragment
+        assert round(source.mass(), 4) == round(origin_mass, 4)
 
     def subtrees(self, max_cleavages=1, include_crossring=False):
         '''

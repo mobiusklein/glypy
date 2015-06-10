@@ -9,12 +9,45 @@
     {% include "scripts.templ" %}
 </head>
 <body class='container'>
-{% include "header.templ" %}
-{% include "settings.templ" %}
-{% include "experiment-statistics.templ" %}
-
+<nav class="navbar navbar-default navbar-fixed-top">
+<div class="container">
+    <!-- Collapsed Navigation Menu For Small Screens -->
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#header-menu-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>        
+    </div>
+    <!--  -->
+    <div class="collapse navbar-collapse" id="header-menu-1">
+        <ul class="nav navbar-nav">
+            <li><a href="#"></a></li>
+            <li><a href="#"></a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    Options <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a id='toggle-sidebar' href="#">Toggle Sidebar</a></li>
+                    <li><a href="#"> Set Score Threshold </a></li>
+                    <li><a href="#"> Preferences </a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+</nav>
+{% cache "header", 30000 %}
+    {% include "header.templ" %}
+    {% include "settings.templ" %}
+    {% include "experiment-statistics.templ" %}
+{% endcache %}
 <h2>Matching Results</h2>
-{% include "sidebar.templ" %}
+{% cache 'sidebar', 30000000 %}
+    {% include "sidebar.templ" %}
+{% endcache %}
 {% set last_mass=0 %}
 {% if matches is undefined %}
     {% set matches = database | all_matches %}
@@ -28,7 +61,9 @@
     {% include "structure-match-entry.templ" %}
 
 {% endfor %}
-{% include "footer.templ" %}
-{% include "plot-modal.templ" %}
+{% cache "footer", 300000 %}
+    {% include "footer.templ" %}
+    {% include "plot-modal.templ" %}
+{% endcache %}
 </body>
 </html>

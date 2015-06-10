@@ -28,6 +28,7 @@ def derivatize(saccharide, substituent):
     id_base = make_counter(-substituent.id * 32)
     if isinstance(saccharide, Glycan):
         for node in saccharide:
+            _strip_derivatization_monosaccharide(node)
             _derivatize_monosaccharide(node, substituent, id_base)
     elif isinstance(saccharide, Monosaccharide):
         _derivatize_monosaccharide(saccharide, substituent, id_base)
@@ -100,13 +101,13 @@ def strip_derivatization(saccharide):
     :func:`.derivatize`
     '''
     if isinstance(saccharide, Glycan):
-        map(strip_derivatization_monosaccharide, saccharide)
+        map(_strip_derivatization_monosaccharide, saccharide)
     else:
-        strip_derivatization_monosaccharide(saccharide)
+        _strip_derivatization_monosaccharide(saccharide)
     return saccharide
 
 
-def strip_derivatization_monosaccharide(monosaccharide_obj):
+def _strip_derivatization_monosaccharide(monosaccharide_obj):
     for pos, subst_link in monosaccharide_obj.substituent_links.items():
         if subst_link.child._derivatize:
             monosaccharide_obj.drop_substituent(pos, subst_link.child)
@@ -118,7 +119,7 @@ def strip_derivatization_monosaccharide(monosaccharide_obj):
                         sub_node.drop_substituent(sub_pos, subst_link.child)
                 except AttributeError:
                     if subst_link.child.node_type is Monosaccharide.node_type:
-                        strip_derivatization_monosaccharide(subst_link.child)
+                        _strip_derivatization_monosaccharide(subst_link.child)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
         for pos, subst_link in red_end.links.items():

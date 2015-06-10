@@ -125,6 +125,10 @@ class MSMSSqlDB(object):
         for result in results:
             yield self.precursor_type.from_sql(result, self)
 
+    def scan_ids(self):
+        for sid in self.execute("SELECT scan_id FROM Scans ORDER BY scan_id;"):
+            yield sid[0]
+
 
 class Scan(object):
     def __init__(self, scan_id, z, mz, **kwargs):
@@ -190,7 +194,10 @@ class ObservedPrecursorSpectrum(object):
             **self.__dict__)
 
     def get(self, name, default=None):
-        return self.other_data.get(name, default)
+        try:
+            return getattr(self, name)
+        except:
+            return self.other_data.get(name, default)
 
     def to_json(self):
         json_dict = deepcopy(self.__dict__)
@@ -283,6 +290,12 @@ class ObservedTandemSpectrum(object):
         self.annotation = annotation
         self.other_data = data
         self.precursor_id = data.pop("precursor_id", None)
+
+    def get(self, name, default=None):
+        try:
+            return getattr(self, name)
+        except:
+            return self.other_data.get(name, default)
 
     def __repr__(self):
         return "<ObservedTandemSpectra {neutral_mass}, {charge}, {intensity}>".format(**self.__dict__)

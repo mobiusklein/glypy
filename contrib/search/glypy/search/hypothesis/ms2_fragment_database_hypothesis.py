@@ -7,7 +7,7 @@ from glypy.utils import identity, pickle
 from multiprocessing import Pool
 from functools import partial
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ms2_fragment_database_hypothesis")
 
 
 default_fragmentation_parameters = {
@@ -76,7 +76,7 @@ def extract_fragments(record, fragmentation_parameters=None):
     record.structure = record.structure.clone().reindex()
     for frag in (record.structure.fragments("ABCXYZ", 1)):
         fragments[frag.name] = frag
-    for frag in record.structure.fragments("BCYZ", 2):
+    for frag in record.structure.fragments("BCYZ", 3):
         fragments[frag.name] = frag
     return list(fragments.values())
 
@@ -156,6 +156,7 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
         out_database = database.RecordDatabase(out_database_string, record_type=in_database.record_type, flag='w')
     elif isinstance(out_database, str):
         out_database = database.RecordDatabase(out_database, record_type=in_database.record_type, flag='w')
+    logger.info("%d records in input database", len(in_database))
     if n_processes == 1:
         for i, record in enumerate(in_database):
             mass = mass_transform(record, **(mass_transform_parameters or {}))
@@ -166,7 +167,7 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
             logger.info("%d records processed", i)
             print(i)
     else:
-        print("Using pool")
+        logger.info("Using pool with %d workers", n_processes)
         worker_pool = Pool(n_processes, maxtasksperchild=3)
         taskfn = partial(record_handle,
                          mass_transform_parameters=mass_transform_parameters,
@@ -183,10 +184,10 @@ def prepare_database(in_database, out_database=None, mass_transform_parameters=N
                     continue
                 mass = record.intact_mass
                 out_database.load_data([record], set_id=False, commit=False, mass_params={"override": mass})
-                logger.info("%d records processed", i)
-                print(record.id, i)
+                logger.info("Finished %d, %d records processed", record.id, i)
+                # print(record.id, i)
             out_database.commit()
-            print(len(out_database))
+            logger.info("There are %d records in the output database", len(out_database))
             del job
     out_database.commit()
     out_database.apply_indices()

@@ -258,7 +258,7 @@ def to_linear_code(structure):
         return ''.join(list(glycan_to_linear_code(structure)))
 
 
-class LinearCodeException(Exception):
+class LinearCodeError(Exception):
     pass
 
 
@@ -312,7 +312,7 @@ def parse_linear_code(text):
 
     Raises
     ------
-    LinearCodeException:
+    LinearCodeError:
         When an error is encountered while parsing resulting from malformed syntax
         or structure
 
@@ -344,7 +344,7 @@ def parse_linear_code(text):
                 last_outedge = old_last_outedge
                 text = text[:-1]
             except IndexError:
-                raise LinearCodeException("Bad branching at {}".format(len(text)))
+                raise LinearCodeError("Bad branching at {}".format(len(text)))
         # Parsing a residue
         else:
             match = re.search(r"([A-Z]+?)(\[[^\]]*?\])?(.)(.)?$", text)
@@ -356,7 +356,7 @@ def parse_linear_code(text):
                 last_residue = next_residue
                 text = text[:match.start()]
             else:
-                raise LinearCodeException("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
+                raise LinearCodeError("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
 
     res = Glycan(root)
     if len(res) > 1:

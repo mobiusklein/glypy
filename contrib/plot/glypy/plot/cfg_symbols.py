@@ -15,6 +15,8 @@ from glypy.io.nomenclature import identity
 
 logger = logging.getLogger(__name__)
 
+default_line_color = 'black'
+default_scale_factor = 1.0
 
 class ResidueShape(Enum):
     circle = 1

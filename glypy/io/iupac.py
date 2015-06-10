@@ -8,7 +8,7 @@ from glypy.io.nomenclature import identity
 from glypy.utils import invert_dict
 
 
-class IUPACException(Exception):
+class IUPACError(Exception):
     pass
 
 
@@ -25,6 +25,13 @@ Stem = constants.Stem
 Configuration = constants.Configuration
 Modification = constants.Modification
 SuperClass = constants.SuperClass
+
+
+def tryint(i):
+    try:
+        return int(i)
+    except:
+        return -1
 
 
 def extract_modifications(modifications, base_type):
@@ -241,7 +248,7 @@ monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
 def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     match = monosaccharide_parser.search(monosaccharide_str)
     if match is None:
-        raise IUPACException("Cannot find monosaccharide pattern in {}".format(monosaccharide_str))
+        raise IUPACError("Cannot find monosaccharide pattern in {}".format(monosaccharide_str))
     match_dict = match.groupdict()
     anomer = anomer_map_from[match_dict['anomer']]
     base_type = match_dict["base_type"]
@@ -271,12 +278,6 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
         residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
         residue.add_substituent(substituent, position, parent_loss="OH", child_loss='H')
-
-    def tryint(i):
-        try:
-            return int(i)
-        except:
-            return -1
 
     linkage = map(tryint, linkage)
 
@@ -326,7 +327,7 @@ def glycan_from_iupac(text):
                 last_outedge = old_last_outedge
                 text = text[:-1]
             except IndexError:
-                raise IUPACException("Bad branching at {}".format(len(text)))
+                raise IUPACError("Bad branching at {}".format(len(text)))
         # Parsing a residue
         else:
             match = monosaccharide_parser.search(text)
@@ -338,7 +339,7 @@ def glycan_from_iupac(text):
                 last_residue = next_residue
                 text = text[:match.start()]
             else:
-                raise IUPACException("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
+                raise IUPACError("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
 
     res = Glycan(root)
     return res

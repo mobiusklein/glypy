@@ -1,5 +1,11 @@
 import re
-from itertools import cycle
+import os
+import time
+import logging
+try:
+    logger = logging.getLogger("search-report")
+except:
+    pass
 from collections import defaultdict
 import base64
 try:
@@ -12,9 +18,8 @@ except:
 
 import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib.colors import cnames
 
-from jinja2 import Environment, PackageLoader, Undefined
+from jinja2 import Environment, PackageLoader, Undefined, FileSystemLoader
 from jinja2 import nodes
 from jinja2.ext import Extension
 
@@ -34,10 +39,11 @@ def collect_fragments(record):
     return matches.keys()
 
 
-def fetch_all_matches(db, attr='mass', order="ASC"):
+def fetch_all_matches(db, attr='mass', order="ASC", threshold=0.0):
     order_by = " ORDER BY {} {}".format(attr, order)
     return db.from_sql(db.execute("SELECT * FROM {table_name} WHERE \
-        (tandem_scan_count + precursor_scan_count) > 0 " + order_by))
+        (tandem_scan_count + precursor_scan_count) > 0 AND tandem_score >= {threshold} {order_by};".format(
+            table_name=db.record_type.table_name, threshold=threshold, order_by=order_by)))
 
 
 def strip_derivatize_glycoct(record):
@@ -157,9 +163,17 @@ def css_escape(css_string):
     return re.sub(r"[\+\:,\s]", r'-', css_string)
 
 
-def prepare_environment():
-    loader = PackageLoader("glypy", "search/results_template")
-    env = Environment(loader=loader)
+def prepare_environment(env=None):
+    try:
+        loader = PackageLoader("glypy", "search/results_template")
+        loader.list_templates()
+    except:
+        loader = FileSystemLoader(os.path.join(os.path.dirname(__file__), 'results_template'))
+    if env is None:
+        env = Environment(loader=loader, extensions=[FragmentCacheExtension])
+    else:
+        env.loader = loader
+        env.add_extension(FragmentCacheExtension)
     env.filters["collect_fragments"] = collect_fragments
     env.filters["all_matches"] = fetch_all_matches
     env.filters["strip_derivatize"] = strip_derivatize_glycoct
@@ -172,6 +186,7 @@ def prepare_environment():
     env.filters["limit_sigfig"] = limit_sigfig
     env.filters['css_escape'] = css_escape
     env.filters['greek_fragment_name'] = greek_fragment_names
+    env.fragment_cache = dict()
     return env
 
 
@@ -232,13 +247,16 @@ class FragmentCacheExtension(Extension):
     def _cache_support(self, name, timeout, caller):
         """Helper callback."""
         key = self.environment.fragment_cache_prefix + name
-
+        print("{} - In cache for {}".format(time.time(), name))
+        print(self.environment.fragment_cache.keys())
         # try to load the block from the cache
         # if there is no fragment in the cache, render it and store
         # it in the cache.
         rv = self.environment.fragment_cache.get(key)
         if rv is not None:
+            print "Cache Hit"
             return rv
+        print "Cache Miss"
         rv = caller()
-        self.environment.fragment_cache.add(key, rv, timeout)
+        self.environment.fragment_cache[key] = rv
         return rv

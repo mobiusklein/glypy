@@ -142,13 +142,13 @@ def graph_clone(monosaccharide, visited=None):
     :class:`Monosaccharide`:
         The root of a newly duplicated and identical residue graph
     '''
-
+    llen = len
     index = {}
     visited = set() if visited is None else visited
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
     node_stack = [(clone_root, monosaccharide)]
-    while(len(node_stack) > 0):
+    while(llen(node_stack) > 0):
         clone, ref = node_stack.pop()
         if ref.id in visited:
             continue
@@ -359,6 +359,9 @@ class Monosaccharide(SaccharideBase):
     @superclass.setter
     def superclass(self, value):
         self._superclass = SuperClass[value]
+
+    def __root__(self):
+        return self
 
     def clone(self, prop_id=False, fast=True):
         '''
@@ -939,19 +942,18 @@ class Monosaccharide(SaccharideBase):
                                               ring_start=ring_start, ring_end=ring_end)
         res = [residue_str]
         lin = []
-        visited_subst = set()
+        visited_subst = dict()
         # Construct the substituent lines
         # and their links
         for lin_pos, link_obj in self.substituent_links.items():
             sub = link_obj.to(self)
-            if sub.id in visited_subst:
-                continue
-            visited_subst.add(sub.id)
-            sub_index = res_index()
-            subst_str = str(sub_index) + sub.to_glycoct()
-            res.append(subst_str)
+            if sub.id not in visited_subst:
+                sub_index = res_index()
+                subst_str = str(sub_index) + sub.to_glycoct()
+                res.append(subst_str)
+                visited_subst[sub.id] = sub_index
             lin.append(
-                link_obj.to_glycoct(lin_index(), monosaccharide_index, sub_index))
+                link_obj.to_glycoct(lin_index(), monosaccharide_index, visited_subst[sub.id]))
 
         # Completely render the data if `complete`
         if complete:
@@ -971,6 +973,7 @@ class Monosaccharide(SaccharideBase):
         require recursively comparing links which in turn compare their
         connected units.
         '''
+        llen = len
         flat = (self.anomer == other.anomer) and\
             (self.ring_start == other.ring_start) and\
             (self.ring_end == other.ring_end) and\
@@ -980,8 +983,8 @@ class Monosaccharide(SaccharideBase):
             (self.stem) == (other.stem)
         if lengths:
             flat = flat and\
-                len(self.links) == len(other.links) and\
-                len(self.substituent_links) == len(other.substituent_links) and\
+                llen(self.links) == llen(other.links) and\
+                llen(self.substituent_links) == llen(other.substituent_links) and\
                 self.total_composition() == other.total_composition()
         return flat
 
@@ -1261,7 +1264,7 @@ class Monosaccharide(SaccharideBase):
             subst_visited.add(subst)
             yield pos, subst
 
-    def order(self):
+    def order(self, deep=False):
         '''
         Return the "graph theory" order of this residue
 
@@ -1269,9 +1272,10 @@ class Monosaccharide(SaccharideBase):
         -------
         int
         '''
-        #res = len(self.links) + len(self.substituent_links)
-        # if hasattr(self, "_order"):
-        #   assert res == self._order
+        if deep:
+            res = len(self.links) + len(self.substituent_links)
+            if hasattr(self, "_order"):
+                assert res == self._order
         return self._order
 
     def __iter__(self):

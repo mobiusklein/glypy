@@ -1,11 +1,5 @@
 # Adapted from https://github.com/llimllib/pymag-trees/blob/master/buchheim.py
 
-special_case_stems = {'fuc', 'xyl'}
-
-
-def childer(tree):
-    return [child for child in tree if len(set(child.tree.stem) & special_case_stems) < 1]
-
 
 def buchheim(tree, visited=None):
     if visited is None:
@@ -16,6 +10,9 @@ def buchheim(tree, visited=None):
     if min < 0:
         third_walk(dt, -min)
     return dt
+
+
+layout = buchheim
 
 
 def third_walk(tree, n, visited=None):
