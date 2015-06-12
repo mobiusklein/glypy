@@ -1,10 +1,13 @@
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
+import math
 from collections import defaultdict
 from .mass_dict import nist_mass
 from .base import ChemicalCompositionError, composition_factory
 
-use_cython = True
+import os
+
+use_cython = bool(int(os.environ.get("USE_CYTHON_COMPOSITION", 1)))
 
 try:
     from ccomposition import CComposition, calculate_mass as ccalculate_mass
@@ -50,7 +53,7 @@ class PComposition(defaultdict):
         return str(self)
 
     def __iadd__(self, other):
-        for elem, cnt in other.items():
+        for elem, cnt in (other.items()):
             self[elem] += cnt
         return self
 
@@ -119,10 +122,9 @@ class PComposition(defaultdict):
     def __setitem__(self, key, value):
         if isinstance(value, float):
             value = int(round(value))
-        elif not isinstance(value, int):
+        elif not isinstance(value, (int, long)):
             raise ChemicalCompositionError(
-                'Only integers allowed as values in \
-                Composition, got {}.'.format(type(value).__name__))
+                'Only integers allowed as values in Composition, got {}.'.format(type(value).__name__))
         if value:  # Will not occur on 0 as 0 is falsey AND an integer
             super(PComposition, self).__setitem__(key, value)
         elif key in self:
@@ -460,3 +462,143 @@ std_ion_comp = {
     'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
     'z-NH3':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),
 }
+
+
+def most_probable_isotopic_composition(*args, **kwargs):
+    """Calculate the most probable isotopic composition of a peptide
+    molecule/ion defined by a sequence string, parsed sequence,
+    chemical formula or :py:class:`Composition` object.
+
+    Note that if a sequence string without terminal groups is supplied then the
+    isotopic composition is calculated for a polypeptide with standard
+    terminal groups (H- and -OH).
+
+    For each element, only two most abundant isotopes are considered.
+
+    Parameters
+    ----------
+    formula : str, optional
+        A string with a chemical formula.
+    sequence : str, optional
+        A polypeptide sequence string in modX notation.
+    parsed_sequence : list of str, optional
+        A polypeptide sequence parsed into a list of amino acids.
+    composition : :py:class:`Composition`, optional
+        A :py:class:`Composition` object with the elemental composition of a
+        substance.
+    elements_with_isotopes : list of str
+        A list of elements to be considered in isotopic distribution
+        (by default, every element has a isotopic distribution).
+    aa_comp : dict, optional
+        A dict with the elemental composition of the amino acids (the
+        default value is :py:data:`std_aa_comp`).
+    mass_data : dict, optional
+        A dict with the masses of chemical elements (the default
+        value is :py:data:`nist_mass`).
+    ion_comp : dict, optional
+        A dict with the relative elemental compositions of peptide ion
+        fragments (default is :py:data:`std_ion_comp`).
+
+    Returns
+    -------
+    out: tuple (Composition, float)
+        A tuple with the most probable isotopic composition and its
+        relative abundance.
+    """
+
+    composition = (dict(kwargs['composition']) if 'composition' in kwargs
+                   else Composition(*args, **kwargs))
+
+    # Removing isotopes from the composition.
+    for isotope_string in composition:
+        element_name, isotope_num = _parse_isotope_string(isotope_string)
+        if isotope_num:
+            composition[element_name] += composition.pop(isotope_string)
+
+    mass_data = kwargs.get('mass_data', nist_mass)
+    elements_with_isotopes = kwargs.get('elements_with_isotopes')
+    isotopic_composition = Composition()
+
+    for element_name in composition:
+        if (not elements_with_isotopes or (element_name in elements_with_isotopes)):
+            # Take the two most abundant isotopes.
+            first_iso, second_iso = sorted(
+                [(i[0], i[1][1])
+                     for i in mass_data[element_name].items() if i[0]],
+                key=lambda x: -x[1])[:2]
+
+            # Write the number of isotopes of the most abundant type.
+            first_iso_str = _make_isotope_string(element_name, first_iso[0])
+            isotopic_composition[first_iso_str] = int(math.ceil(
+                composition[element_name])) * first_iso[1]
+
+            # Write the number of the second isotopes.
+            second_iso_str = _make_isotope_string(element_name, second_iso[0])
+            isotopic_composition[second_iso_str] = (
+                composition[element_name]
+                - isotopic_composition[first_iso_str])
+        else:
+            isotopic_composition[element_name] = composition[element_name]
+
+    return (isotopic_composition,
+            isotopic_composition_abundance(
+                composition=isotopic_composition,
+                mass_data=mass_data))
+
+
+def isotopic_composition_abundance(*args, **kwargs):
+    """Calculate the relative abundance of a given isotopic composition
+    of a molecule.
+
+    Parameters
+    ----------
+    formula : str, optional
+        A string with a chemical formula.
+    composition : Composition, optional
+        A Composition object with the isotopic composition of a substance.
+    mass_data : dict, optional
+        A dict with the masses of chemical elements (the default
+        value is :py:data:`nist_mass`).
+
+    Returns
+    -------
+    relative_abundance : float
+        The relative abundance of a given isotopic composition.
+    """
+
+    composition = (Composition(kwargs['composition'])
+                   if 'composition' in kwargs
+                   else Composition(*args, **kwargs))
+
+    isotopic_composition = defaultdict(dict)
+
+    # Check if there are default and non-default isotopes of the same
+    # element and rearrange the elements.
+    for element in composition:
+        element_name, isotope_num = _parse_isotope_string(element)
+
+        # If there is already an entry for this element and either it
+        # contains a default isotope or newly added isotope is default
+        # then raise an exception.
+        if ((element_name in isotopic_composition)
+             and (isotope_num == 0
+                  or 0 in isotopic_composition[element_name])):
+            raise ChemicalCompositionError(
+                'Please specify the isotopic states of all atoms of '
+                '%s or do not specify them at all.' % element_name)
+        else:
+            isotopic_composition[element_name][isotope_num] = (
+                composition[element])
+
+    # Calculate relative abundance.
+    mass_data = kwargs.get('mass_data', nist_mass)
+    num1, num2, denom = 1, 1, 1
+    for element_name, isotope_dict in isotopic_composition.items():
+        num1 *= math.factorial(sum(isotope_dict.values()))
+        for isotope_num, isotope_content in isotope_dict.items():
+            denom *= math.factorial(isotope_content)
+            if isotope_num:
+                num2 *= (mass_data[element_name][isotope_num][1]
+                         ** isotope_content)
+
+    return num2 * (num1 / denom)

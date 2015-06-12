@@ -92,6 +92,8 @@ class Link(object):
         :meth:`Link.refund`
 
         '''
+        if self.is_attached():
+            raise Exception("Cannot apply an already attached link")
         self.parent.composition -= (self.parent_loss or default_parent_loss)
 
         self.child.composition -= (self.child_loss or default_child_loss)

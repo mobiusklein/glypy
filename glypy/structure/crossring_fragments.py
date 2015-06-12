@@ -73,6 +73,7 @@ class CrossRingPair(object):
         self.toggler = None
         self.parent = None
         self.child = None
+        self.active = False
         self.cleave_1 = c1
         self.cleave_2 = c2
 
@@ -103,6 +104,7 @@ class CrossRingPair(object):
         self.child = a
         self.parent._pair = self
         self.child._pair = self
+        self.active = True
         return self.parent, self.child
 
     def apply(self):
@@ -122,6 +124,7 @@ class CrossRingPair(object):
         self.toggler.unmask()
         self.parent.release()
         self.child.release()
+        self.active = False
         self.toggler = None
 
     def release(self):
@@ -130,10 +133,14 @@ class CrossRingPair(object):
         """
         self.parent.release()
         self.child.release()
+        self.active = False
 
     def __repr__(self):  # pragma: no cover
         rep = "<CrossRingPair id={} {},{}>".format(self.id, self.cleave_1, self.cleave_2)
         return rep
+
+    def is_attached(self, deep=False):
+        return len(self.child.links) + len(self.parent.links) > 0
 
 
 class CrossRingFragment(Monosaccharide):
@@ -187,10 +194,13 @@ class CrossRingFragment(Monosaccharide):
         for link in self.links.values():
             if link.is_attached():
                 link.break_link(refund=True)
+        for link in self._link_cache:
+            if link.is_attached():
+                link.break_link(refund=True)
 
     def clone(self, prop_id=False, fast=True):
         """Clone this instance, excluding :attr:`links`
-                
+
         Returns
         -------
         CrossRingFragment
@@ -227,9 +237,6 @@ class CrossRingFragment(Monosaccharide):
     def __eq__(self, other):
         """Test for equality between `self` and `other`.
 
-        .. note::
-            A |Monosaccharide| will test as equal to one of its :class:`CrossRingFragment`
-
         Parameters
         ----------
         other
@@ -241,8 +248,7 @@ class CrossRingFragment(Monosaccharide):
         if other is None:
             return False
         res = super(CrossRingFragment, self).__eq__(other)
-        if not res:
-            res = self._source == other and self.id == other.id
+
         return res
 
     def __ne__(self, other):

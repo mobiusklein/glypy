@@ -6,18 +6,12 @@ from .mass_dict import nist_mass
 from .base import ChemicalCompositionError, composition_factory
 
 cimport cython
-from libc.stdlib cimport malloc, free
-
-
-@cython.freelist(1)
-cdef class Isotope:
-
-    cdef int isotope_number
-    cdef str element_name
-
-    def __cinit__(self, str element_name, int isotope_number):
-        self.isotope_number = isotope_number
-        self.element_name = element_name
+from cpython.ref cimport PyObject
+from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update
+from cpython.int cimport PyInt_AsLong, PyInt_Check
+from cpython.string cimport PyString_Format
+from cpython.float cimport PyFloat_AsDouble
+from cpython.tuple cimport PyTuple_GetItem
 
 
 # Forward Declaration
@@ -32,12 +26,12 @@ cdef:
 
 
 @cython.boundscheck(False)
-cdef inline tuple _parse_isotope_string(str label):
+cdef inline str _parse_isotope_string(str label, int* isotope_num):
     cdef:
-        int isotope_num = 0
+        # int isotope_num = 0
         int i = 0
         int in_bracket = False
-        str element_name
+        # str element_name
         str current
         list name_parts = []
         list num_parts = []
@@ -52,22 +46,23 @@ cdef inline tuple _parse_isotope_string(str label):
             in_bracket = True
         else:
             name_parts.append(current)
-    element_name = ''.join(name_parts)
+    element_name = (''.join(name_parts))
     if len(num_parts) > 0:
-        isotope_num = int(''.join(num_parts))
+        isotope_num[0] = (int(''.join(num_parts)))
     else:
-        isotope_num = 0
-    return element_name, isotope_num
-    #result = Isotope(element_name, isotope_num)
-    #return result
+        isotope_num[0] = 0
+    return element_name
 
 
 cdef inline str _make_isotope_string(str element_name, int isotope_num):
     """Form a string label for an isotope."""
+    cdef:
+        tuple parts
     if isotope_num == 0:
         return element_name
     else:
-        return '%s[%d]' % (element_name, isotope_num)
+        parts = (element_name, isotope_num)
+        return <str>PyString_Format('%s[%d]', parts)
 
 
 cdef class CComposition(dict):
@@ -81,39 +76,42 @@ cdef class CComposition(dict):
     def __iadd__(CComposition self, other):
         cdef:
             str elem
-            int cnt
+            long cnt
         for elem, cnt in other.items():
-            self[elem] += cnt
+            self.setitem(elem, self.getitem(elem) + cnt)
         return self
 
     def __add__(self, other):
         cdef:
             str elem
-            int cnt
+            long cnt
             CComposition result
         if not isinstance(self, CComposition):
             other, self = self, other
-        result = self.clone()
+        result = CComposition(self)
         for elem, cnt in other.items():
-            result[elem] += cnt
+            result.setitem(elem, result.getitem(elem) + cnt)
         return result
 
 
     def __isub__(self, other):
+        cdef:
+            str elem
+            long cnt
         for elem, cnt in other.items():
-            self[elem] -= cnt
+            self.setitem(elem, self.getitem(elem) - cnt)
         return self
 
     def __sub__(self, other):
         cdef:
             str elem
-            int cnt
+            long cnt
             CComposition result
         if not isinstance(self, CComposition):
             self = CComposition(self)
-        result = self.clone()
+        result = CComposition(self)
         for elem, cnt in other.items():
-            result[elem] -= cnt
+            result.setitem(elem, result.getitem(elem) - cnt)
         return result
 
     def __reduce__(self):
@@ -128,7 +126,7 @@ cdef class CComposition(dict):
 
     def __mul__(self, other):
         cdef:
-            dict prod = {}
+            CComposition prod = CComposition()
             int rep, v
             str k
 
@@ -141,9 +139,8 @@ cdef class CComposition(dict):
                 other)
         rep = other
         for k, v in self.items():
-            prod[k] = v * rep
-
-        return CComposition(prod)
+            prod.setitem(k, v * rep)
+        return prod
 
 
     def __richcmp__(self, other, int code):
@@ -173,10 +170,23 @@ cdef class CComposition(dict):
     def copy(self):
         return CComposition(self)
 
+    cdef inline long getitem(self, str elem):
+        cdef:
+            PyObject* resobj
+            long count
+        resobj = PyDict_GetItem(self, elem)
+        if (resobj == NULL):
+            return 0
+        count = PyInt_AsLong(<object>resobj)
+        return count
+
+    cdef inline void setitem(self, str elem, long val):
+        PyDict_SetItem(self, elem, val)
+
     cpdef CComposition clone(self):
         return CComposition(self)
 
-    @cython.boundscheck(True)
+    @cython.boundscheck(False)
     cpdef _from_formula(self, str formula, dict mass_data):
         cdef:
             str elem, isotope, number
@@ -291,7 +301,9 @@ cdef class CComposition(dict):
                 self[elem] += cnt
 
     cpdef _from_dict(self, comp):
-        self.update(comp)
+        # self.update(comp)
+        PyDict_Update(self, comp)
+
 
     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
         return calculate_mass(self, average=average, charge=charge, mass_data=mass_data)
@@ -331,6 +343,7 @@ cdef class CComposition(dict):
         cdef:
             dict mol_comp, mass_data
             str kwa
+            set kw_sources
         mol_comp = kwargs.get('mol_comp', std_mol_comp)
         mass_data = kwargs.get('mass_data', nist_mass)
 
@@ -452,9 +465,11 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
     cdef:
         int old_charge, isotope_num, isotope, quantity
         double mass, isotope_mass, isotope_frequency
+        long _charge
         str isotope_string, element_name
         dict mass_provider
-        #Isotope parsed
+        PyObject* interm
+
     if mass_data is None:
         mass_provider = nist_mass
     else:
@@ -471,38 +486,40 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
 
     # Get charge.
     if charge is None:
-        charge = composition['H+']
+        charge = composition.getitem('H+')
     else:
-        if charge != 0 and composition['H+'] != 0:
+        if charge != 0 and composition.getitem('H+') != 0:
             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")
-
-    old_charge = composition['H+']
-    composition['H+'] = charge
+    _charge = PyInt_AsLong(charge)
+    old_charge = composition.getitem('H+')
+    composition.setitem('H+', charge)
 
     # Calculate mass.
     mass = 0.0
     for isotope_string in composition:
-        element_name, isotope_num = _parse_isotope_string(isotope_string)
-        #parsed = _parse_isotope_string(isotope_string)
-        #element_name = <str>parsed.element_name.encode("ascii")
-        #isotope_num = parsed.isotope_number
-        #del parsed
+        # element_name, isotope_num = _parse_isotope_string(isotope_string)
+        element_name = _parse_isotope_string(isotope_string, &isotope_num)
+
         # Calculate average mass if required and the isotope number is
         # not specified.
         if (not isotope_num) and average:
             for isotope in mass_provider[element_name]:
                 if isotope != 0:
-                    quantity = <int>composition[element_name]
+                    quantity = <int>composition.getitem(element_name)
                     isotope_mass = <double>mass_provider[element_name][isotope][0]
                     isotope_frequency = <double>mass_provider[element_name][isotope][1]
 
                     mass += quantity * isotope_mass * isotope_frequency
         else:
-            mass += (composition[isotope_string] * mass_provider[element_name][isotope_num][0])
+            interim = PyDict_GetItem(mass_provider, element_name)
+            interim = PyDict_GetItem(<dict>interim, isotope_num)
+            isotope_mass = PyFloat_AsDouble(<object>PyTuple_GetItem(<tuple>interim, 0))
+
+            mass += (composition.getitem(isotope_string) * isotope_mass)
 
     # Calculate m/z if required.
-    if charge != 0:
-        mass /= charge
+    if _charge != 0:
+        mass /= _charge
 
-    composition['H+'] = old_charge
+    composition.setitem('H+', old_charge)
     return mass

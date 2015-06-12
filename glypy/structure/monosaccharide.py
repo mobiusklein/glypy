@@ -121,7 +121,7 @@ def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma:
         child = link[monosaccharide]
         if id(child) in visited:
             continue
-        for grandchild in traverse(child, visited=visited, apply_fn=apply_fn):
+        for grandchild in _traverse_debug(child, visited=visited, apply_fn=apply_fn):
             yield grandchild
 
 

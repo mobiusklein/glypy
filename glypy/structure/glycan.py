@@ -6,7 +6,7 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideBase
-from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth, _traverse_debug
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
 from ..utils import make_counter, identity, StringIO, chrinc
@@ -326,7 +326,7 @@ class Glycan(SaccharideBase):
         --------
         Glycan.breadth_first_traversal
         '''
-        sort_predicate = methodcaller("order")
+        # sort_predicate = methodcaller("order")
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
@@ -338,10 +338,10 @@ class Glycan(SaccharideBase):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            node_stack.extend(sorted((terminal for link in node.links.values()
-                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
-            # node_stack.extend(terminal for link in node.links.values()
-            #                   for terminal in link if terminal.id not in visited)
+            # node_stack.extend(sorted((terminal for link in node.links.values()
+            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
+            node_stack.extend(terminal for link in node.links.values()
+                              for terminal in link if terminal.id not in visited)
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -945,6 +945,7 @@ class Glycan(SaccharideBase):
         Subtree
         """
         links = list(self.link_index)
+        origin_mass = self.mass()
         # Localize globals
         _str = str
         # Break at least one ring
@@ -1022,8 +1023,12 @@ class Glycan(SaccharideBase):
                         ring.apply()
                     # Clean up any lingering links trapped in the closure created by adjacent
                     # crossring pairs that were made visible by `ring.apply()`
+                    while(any(ring.is_attached() for ring in breaks)):
+                        for ring in breaks:
+                            ring.release()
                     for ring in breaks:
                         ring.release()
+                    assert round(self.mass(), 4) == round(origin_mass, 4)
 
     def fragments(self, kind="BY", max_cleavages=1, average=False, charge=0, mass_data=None):
         '''
@@ -1076,7 +1081,7 @@ class Glycan(SaccharideBase):
                     else:
                         seen.add(fragment.name)
                     yield fragment
-        assert round(source.mass(), 4) == round(origin_mass, 4)
+            assert round(source.mass(), 4) == round(origin_mass, 4)
 
     def subtrees(self, max_cleavages=1, include_crossring=False):
         '''

@@ -16,7 +16,7 @@ clean:
 sphinx:
 	python setup.py build_sphinx
 
-develop: clean
+develop:
 	python setup.py develop
 
 serve-docs:
