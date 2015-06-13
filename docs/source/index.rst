@@ -1,13 +1,17 @@
-.. glypy documentation master file, created by
-   sphinx-quickstart on Tue Feb 03 08:00:16 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to glypy's documentation!
 ==================================
 
+Glycobiology is the study of the biological functions, properties, and structures of carbohydrate biomolecules,
+also called *glycans*. These large, tree-like molecules are complex, having a wide variety of building blocks
+as well as modifications and substitutions on those building blocks.
 
-Contents:
+Much in the same way other bioinformatics libraries provide ways to represent DNA, RNA, or Protein sequences,
+this library attempts to provide a representation of glycans. Much of the variation found in the
+building blocks of these structures, monosaccharides, are caused by substitutions of functional groups on a
+common core structure.
+
+
+
 
 .. toctree::
    :maxdepth: 2

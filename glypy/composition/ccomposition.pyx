@@ -412,28 +412,6 @@ std_mol_comp.update({
     'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
 })
 
-std_ion_comp = {
-    'M':        Composition(formula=''),
-    'a':        Composition(formula='H-2O-1' + 'C-1O-1'),
-    'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
-    'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
-    'b':        Composition(formula='H-2O-1'),
-    'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),
-    'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),
-    'c':        Composition(formula='H-2O-1' + 'NH3'),
-    'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
-    'c-NH3':    Composition(formula='H-2O-1'),
-    'x':        Composition(formula='H-2O-1' + 'CO2'),
-    'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
-    'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
-    'y':        Composition(formula=''),
-    'y-H2O':    Composition(formula='H-2O-1'),
-    'y-NH3':    Composition(formula='N-1H-3'),
-    'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),
-    'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
-    'z-NH3':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),
-}
-
 
 @cython.wraparound(False)
 @cython.boundscheck(False)

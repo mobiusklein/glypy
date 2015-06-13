@@ -465,13 +465,8 @@ std_ion_comp = {
 
 
 def most_probable_isotopic_composition(*args, **kwargs):
-    """Calculate the most probable isotopic composition of a peptide
-    molecule/ion defined by a sequence string, parsed sequence,
-    chemical formula or :py:class:`Composition` object.
-
-    Note that if a sequence string without terminal groups is supplied then the
-    isotopic composition is calculated for a polypeptide with standard
-    terminal groups (H- and -OH).
+    """Calculate the most probable isotopic composition of a
+    chemical formula or |Composition| object.
 
     For each element, only two most abundant isotopes are considered.
 
@@ -479,29 +474,18 @@ def most_probable_isotopic_composition(*args, **kwargs):
     ----------
     formula : str, optional
         A string with a chemical formula.
-    sequence : str, optional
-        A polypeptide sequence string in modX notation.
-    parsed_sequence : list of str, optional
-        A polypeptide sequence parsed into a list of amino acids.
-    composition : :py:class:`Composition`, optional
+    composition : |Composition|, optional
         A :py:class:`Composition` object with the elemental composition of a
         substance.
     elements_with_isotopes : list of str
         A list of elements to be considered in isotopic distribution
         (by default, every element has a isotopic distribution).
-    aa_comp : dict, optional
-        A dict with the elemental composition of the amino acids (the
-        default value is :py:data:`std_aa_comp`).
     mass_data : dict, optional
-        A dict with the masses of chemical elements (the default
-        value is :py:data:`nist_mass`).
-    ion_comp : dict, optional
-        A dict with the relative elemental compositions of peptide ion
-        fragments (default is :py:data:`std_ion_comp`).
+        A dict with the masses of chemical elements (.
 
     Returns
     -------
-    out: tuple (Composition, float)
+    out: tuple (|Composition|, float)
         A tuple with the most probable isotopic composition and its
         relative abundance.
     """
@@ -523,8 +507,7 @@ def most_probable_isotopic_composition(*args, **kwargs):
         if (not elements_with_isotopes or (element_name in elements_with_isotopes)):
             # Take the two most abundant isotopes.
             first_iso, second_iso = sorted(
-                [(i[0], i[1][1])
-                     for i in mass_data[element_name].items() if i[0]],
+                [(i[0], i[1][1]) for i in mass_data[element_name].items() if i[0]],
                 key=lambda x: -x[1])[:2]
 
             # Write the number of isotopes of the most abundant type.

@@ -159,6 +159,10 @@ class Fragment(object):
         rep += ">"
         return rep
 
+    @property
+    def __dict__(self):
+        return self.__getstate__()
+
 
 class Subtree(object):
 
