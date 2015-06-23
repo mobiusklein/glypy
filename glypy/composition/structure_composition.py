@@ -172,7 +172,8 @@ _substituent_compositions = {
         "I": 1,
         "H": 1,
     }),
-    "flouro": Composition("FH"),
+    "fluoro": Composition("FH"),
+    "formyl": Composition("CHOH"),
     "imino": Composition("NH2"),
     "chloro": Composition("ClH"),
     "formyl": Composition("CHOH"),
@@ -184,6 +185,8 @@ _substituent_compositions = {
       "N": 2,
       "O": 1
     }),
+    "ethyl": Composition("CH2CH3H"),
+    'n_ethyl': Composition("NHCH2CH3H"),
     "n_dimethyl": Composition("N(CH3)2H"),
     "n_formyl": Composition("NHCHOH"),
     "n_methyl": Composition("NHCH3H"),
@@ -192,8 +195,10 @@ _substituent_compositions = {
     "thio": Composition("SHH"),
     "(r)_pyruvate": Composition("CH2CCOOH"),
     "(s)_pyruvate": Composition("CH2CCOOH"),
+    "pyruvate": Composition("COCOCH3H"),
     "(r)_lactate": Composition("CH3CHCO"),
-    "(s)_lactate": Composition("CH3CHCO")
+    "(s)_lactate": Composition("CH3CHCO"),
+    "ethanolamine": Composition("NHCH2CH2OHH")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

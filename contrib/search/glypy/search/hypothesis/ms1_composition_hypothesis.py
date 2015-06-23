@@ -28,7 +28,7 @@ def pack_composition_string(record, residues):
 def prepare_row(row, residues, adduct_mass, num_adducts, mass_fn=lambda x: x.mass()):
     composition = row.monosaccharides
     return [mass_fn(row) + (adduct_mass * num_adducts), 0, pack_composition_string(row, residues)] +\
-           [composition.get(residue, 0) for residue in residues] +\
+           [composition.get(residue, 0) if residue != "Water" else 1 for residue in residues] +\
            [adduct_mass if adduct_mass > 0.0 else "/0", num_adducts]
 
 

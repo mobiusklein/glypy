@@ -109,9 +109,9 @@ def record_handle(record, mass_transform_parameters, fragmentation_parameters):
     return record
 
 
-def _chunk_iter(iter, size=50):
+def _chunk_iter(iterable, size=50):
     results = []
-    for entry in iter:
+    for entry in iterable:
         results.append(entry)
         if len(results) == size:
             yield results

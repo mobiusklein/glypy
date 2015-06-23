@@ -12,8 +12,8 @@
 
 .. |OrderedMultiMap| replace:: :class:`~glypy.utils.multimap.OrderedMultiMap`
 .. |Enum| replace:: :class:`~glypy.utils.enum.Enum`
-.. |Stem| replace:: :class:`~glypy.structure.constants.Stem`
 .. |SuperClass| replace:: :class:`~glypy.structure.constants.SuperClass`
+.. |Stem| replace:: :class:`~glypy.structure.constants.Stem`
 .. |Modification| replace:: :class:`~glypy.structure.constants.Modification`
 .. |Configuration| replace:: :class:`~glypy.structure.constants.Configuration`
 

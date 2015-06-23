@@ -148,14 +148,16 @@ def graph_clone(monosaccharide, visited=None):
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
     node_stack = [(clone_root, monosaccharide)]
+    node_stack_append = node_stack.append
+    node_stack_pop = node_stack.pop
     while(llen(node_stack) > 0):
-        clone, ref = node_stack.pop()
+        clone, ref = node_stack_pop()
         if ref.id in visited:
             continue
         visited.add(ref.id)
         links = [link for pos, link in ref.links.items()]
         for link in links:
-            terminal = link.to(ref)
+            terminal = link[ref]
 
             if terminal.id in visited:
                 continue
@@ -166,13 +168,12 @@ def graph_clone(monosaccharide, visited=None):
                 cyclewarning()
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
-            clone_terminal.id = terminal.id
             if link.is_child(terminal):
                 link.clone(clone, clone_terminal)
             else:
                 link.clone(clone_terminal, clone)
 
-            node_stack.append((clone_terminal, terminal))
+            node_stack_append((clone_terminal, terminal))
     return clone_root
 
 
@@ -381,9 +382,9 @@ class Monosaccharide(SaccharideBase):
             if isinstance(v, ReducedEnd):
                 continue
             try:
-                modifications[k] = v.clone()
-            except:
                 modifications[k] = Modification[v]
+            except:
+                modifications[k] = v.clone()
 
         monosaccharide = Monosaccharide(
             superclass=self.superclass,

@@ -35,7 +35,7 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
             record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
             if i % 1000 == 0:
-                print(i * 1000, "Records parsed.")
+                print(i, "Records parsed.")
         except Exception, e:
             misses.append((glycomedb_id, e))
             print(glycomedb_id, e)
