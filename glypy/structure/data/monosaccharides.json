@@ -7,7 +7,7 @@
     "Gal": "RES\n1b:b-dgal-HEX-1:5\n",
     "Neu5Gc": "RES\n1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:n-glycolyl\nLIN\n1:1d(5+2)2n\n",
     "LinearCode:E": "RES\n1b:x-dara-HEX-2:5|2:keto\n",
-    "Neuraminic acid": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(-1+-1)2x\n",
+    "Neuraminic acid": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(5+-1)2x\n",
     "GalNac": "RES\n1b:b-dgal-HEX-1:5\n2s:n-acetyl\nLIN\n1:1d(2+1)2n\n",
     "Bac": "RES\n1b:a-lglc-HEX-1:5|6:d\n2s:amino\n3s:amino\nLIN\n1:1d(2+-1)2n\n2:1d(4+-1)3n",
     "bdMan": "RES\n1b:b-dman-HEX-1:5\n",
@@ -19,7 +19,7 @@
     "Galactose-6-Phosphate": "RES\n1b:b-dgal-HEX-1:5\n2s:phosphate\nLIN\n1:1x(6+1)2x\n",
     "Glucose-6-Phosphate": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\nLIN\n1:1x(6+1)2x\n",
     "LinearCode:GN[6P]": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\n3s:n-acetyl\nLIN\n1:1x(-1+-1)2x\n2:1d(2+1)3n\n",
-    "Neu": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(-1+1)2x\n",
+    "Neu": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(5+1)2x\n",
     "LinearCode:U[3S]": "RES\n1b:b-dglc-HEX-1:5|6:a\n2s:sulfate\nLIN\n1:1x(3+1)2x\n",
     "(6S)Glc": "RES\n1b:b-dglc-HEX-1:5\n2s:sulfate\nLIN\n1:1x(6+1)2x\n",
     "bdGlc": "RES\n1b:b-dglc-HEX-1:5\n",
@@ -90,7 +90,7 @@
     "LinearCode:K": "RES\n1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n",
     "LinearCode:H": "RES\n1b:x-lman-HEX-1:5|6:d\n",
     "LinearCode:I": "RES\n1b:x-lido-HEX-1:5|6:a\n",
-    "LinearCode:N": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(-1+-1)2x\n",
+    "LinearCode:N": "RES\n1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d\n2s:amino\nLIN\n1:1x(5+-1)2x\n",
     "LinearCode:O": "RES\n1b:x-dall-HEX-1:5\n",
     "LinearCode:L": "RES\n1b:x-dgal-HEX-1:5|6:a\n",
     "LinearCode:M": "RES\n1b:b-dman-HEX-1:5\n",
@@ -104,5 +104,6 @@
     "All": "RES\n1b:x-dall-HEX-1:5\n",
     "(6P)GlcNAc": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\n3s:n-acetyl\nLIN\n1:1x(-1+-1)2x\n2:1d(2+1)3n\n",
     "(6P)Glc": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\nLIN\n1:1x(-1+-1)2x\n",
-    "4S(6S)GalNAc": "RES\n1b:b-dgal-HEX-1:5\n2s:sulfate\n3s:sulfate\n4s:n-acetyl\nLIN\n1:1x(4+1)2x\n2:1x(6+1)3x\n3:1d(2+1)4n\n"
+    "4S(6S)GalNAc": "RES\n1b:b-dgal-HEX-1:5\n2s:sulfate\n3s:sulfate\n4s:n-acetyl\nLIN\n1:1x(4+1)2x\n2:1x(6+1)3x\n3:1d(2+1)4n\n",
+    "Sug": "RES\n1b:x-xx-SUG-0:0"
 }

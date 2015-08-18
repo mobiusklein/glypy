@@ -1,7 +1,7 @@
 
 from ..utils import make_counter
+from ..structure.base import SaccharideCollection, SaccharideBase
 from ..structure import Substituent
-from ..structure import Glycan
 from ..structure import Monosaccharide
 from ..structure import Modification
 
@@ -26,11 +26,12 @@ def derivatize(saccharide, substituent):
     if isinstance(substituent, basestring):
         substituent = Substituent(substituent)
     id_base = make_counter(-substituent.id * 32)
-    if isinstance(saccharide, Glycan):
+    if isinstance(saccharide, SaccharideCollection):
         for node in saccharide:
             _strip_derivatization_monosaccharide(node)
             _derivatize_monosaccharide(node, substituent, id_base)
-    elif isinstance(saccharide, Monosaccharide):
+        saccharide._derivatized(substituent, id_base)
+    elif isinstance(saccharide, SaccharideBase):
         _derivatize_monosaccharide(saccharide, substituent, id_base)
     return saccharide
 
@@ -54,13 +55,14 @@ def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
     '''
     if id_base is None:
         id_base = make_counter(-substituent.id * 32)
+    attachment_composition_loss = substituent.attachment_composition_loss()
     open_sites, unknowns = monosaccharide_obj.open_attachment_sites()
     for site in open_sites[unknowns:]:
         s = substituent.clone()
         s.id = id_base()
         s._derivatize = True
         monosaccharide_obj.add_substituent(
-            s, parent_loss=Composition(H=1),
+            s, parent_loss=attachment_composition_loss,
             position=site, child_loss=Composition(H=1), child_position=1)
     for p, subst in monosaccharide_obj.substituents():
         if subst.is_nh_derivatizable and substituent.can_nh_derivatize:
@@ -70,13 +72,7 @@ def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
             subst.add_substituent(s, position=2, child_position=1)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
-        for i in range(1, red_end.valence + 1):
-            s = substituent.clone()
-            s._derivatize = True
-            s.id = id_base()
-            red_end.add_substituent(
-                s, parent_loss=Composition(H=1), max_occupancy=3,
-                position=i, child_loss=Composition(H=1), child_position=1)
+        _derivatize_reducing_end(red_end, substituent, id_base)
 
     for pos, mod in monosaccharide_obj.modifications.items():
         if mod == Modification.a:
@@ -84,8 +80,19 @@ def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
             s._derivatize = True
             s.id = id_base()
             monosaccharide_obj.add_substituent(
-                s, position=pos, parent_loss=Composition(H=1), max_occupancy=3,
+                s, position=pos, parent_loss=attachment_composition_loss, max_occupancy=3,
                 child_loss=Composition(H=1), child_position=1)
+
+
+def _derivatize_reducing_end(reducing_end, substituent, id_base=None):
+    attachment_composition_loss = substituent.attachment_composition_loss()
+    for i in range(1, reducing_end.valence + 1):
+        s = substituent.clone()
+        s._derivatize = True
+        s.id = id_base()
+        reducing_end.add_substituent(
+            s, parent_loss=attachment_composition_loss, max_occupancy=3,
+            position=i, child_loss=Composition(H=1), child_position=1)
 
 
 def strip_derivatization(saccharide):
@@ -100,8 +107,9 @@ def strip_derivatization(saccharide):
     --------
     :func:`.derivatize`
     '''
-    if isinstance(saccharide, Glycan):
+    if isinstance(saccharide, SaccharideCollection):
         map(_strip_derivatization_monosaccharide, saccharide)
+        saccharide._strip_derivatization()
     else:
         _strip_derivatization_monosaccharide(saccharide)
     return saccharide
@@ -122,9 +130,20 @@ def _strip_derivatization_monosaccharide(monosaccharide_obj):
                         _strip_derivatization_monosaccharide(subst_link.child)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
-        for pos, subst_link in red_end.links.items():
-            if subst_link.child._derivatize:
-                red_end.drop_substituent(pos, subst_link.child)
+        _strip_derivatization_reducing_end(red_end)
+
+
+def _strip_derivatization_reducing_end(reducing_end):
+    for pos, subst_link in reducing_end.links.items():
+        if subst_link.child._derivatize:
+            reducing_end.drop_substituent(pos, subst_link.child)
+
+
+def has_derivatization(residue):
+    for pos, link in tuple(residue.substituent_links.items()):
+        if link.child._derivatize:
+            return link.child
+    return False
 
 
 # WIP

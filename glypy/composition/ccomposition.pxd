@@ -1,5 +1,7 @@
 
 cdef class CComposition(dict):
+    cdef object _mass
+    cdef tuple _mass_args
     cpdef CComposition clone(self)
     cpdef double calc_mass(self, int average=?, charge=?, dict mass_data=?) except -1
     cpdef _from_formula(self, str formula, dict mass_data)
@@ -8,7 +10,6 @@ cdef class CComposition(dict):
     cdef void setitem(self, str elem, long val)
 
 cdef: 
-    dict std_mol_comp
     str _atom
     str _formula
     str _isotope_string

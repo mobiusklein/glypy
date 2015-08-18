@@ -2,16 +2,18 @@
 A GlycoCT (Condensed) parser.
 Supports RES, LIN, and un-nested REP sections.
 
->>>from glypy.io import glycoct
->>>glycoct.loads("""RES
-1b:o-dman-HEX-0:0|1:aldi
-2b:a-lido-HEX-1:5|6:a
-3s:sulfate
-LIN
-1:1o(3+1)2d
-2:2o(2+1)3n
-3:2o(4+1)4d
-""").next()
+.. code-block:: python
+    >>>from glypy.io import glycoct
+    >>>glycoct.loads("""RES
+    1b:o-dman-HEX-0:0|1:aldi
+    2b:a-lido-HEX-1:5|6:a
+    3s:sulfate
+    LIN
+    1:1o(3+1)2d
+    2:2o(2+1)3n
+    3:2o(4+1)4d
+    """).next()
+    >>>
 '''
 
 import re

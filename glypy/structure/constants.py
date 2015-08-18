@@ -7,7 +7,7 @@ class SuperClass(Enum):
 
     Is an |Enum|
     '''
-    #: Disaccharide - 2 carbons
+    #: 2 carbons
     sug = 2
     #: Triose - 3 carbons
     tri = 3
@@ -141,6 +141,7 @@ class Configuration(Enum):
 
 Configuration.d.add_name("Dextro")
 Configuration.l.add_name("Levo")
+Configuration.x.add_name("Unknown")
 
 
 class Modification(Enum):

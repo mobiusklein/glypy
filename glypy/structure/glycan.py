@@ -1,3 +1,8 @@
+'''
+Represent a sugar graph with pseudo-directed edges.
+
+'''
+
 import operator
 import logging
 import itertools
@@ -5,7 +10,7 @@ from functools import partial
 from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
-from .base import SaccharideBase
+from .base import SaccharideCollection
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth, _traverse_debug
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
@@ -103,7 +108,7 @@ def fragment_to_substructure(fragment, tree):
     return substructure
 
 
-class Glycan(SaccharideBase):
+class Glycan(SaccharideCollection):
 
     '''
     Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
@@ -243,6 +248,15 @@ class Glycan(SaccharideBase):
     def __root__(self):
         return self.root
 
+    def __tree__(self):
+        return self
+
+    def _derivatized(self, substituent, id_base):
+        pass
+
+    def _strip_derivatization(self):
+        pass
+
     def get(self, ix):
         for node in self:
             if node.id == ix:
@@ -375,7 +389,7 @@ class Glycan(SaccharideBase):
         --------
         Glycan.depth_first_traversal
         '''
-        sort_predicate = methodcaller("order")
+        # sort_predicate = methodcaller("order")
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
@@ -388,10 +402,10 @@ class Glycan(SaccharideBase):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            node_queue.extend(sorted((terminal for link in node.links.values()
-                                      for terminal in link if terminal.id not in visited), key=sort_predicate))
-            # node_queue.extend(terminal for link in node.links.values()
-            #                   for terminal in link if terminal.id not in visited)
+            # node_queue.extend(sorted((terminal for link in node.links.values()
+            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
+            node_queue.extend(terminal for link in node.links.values()
+                              for terminal in link if terminal.id not in visited)
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal

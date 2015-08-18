@@ -9,8 +9,6 @@ structures = {}
 monosaccharides = glypy.monosaccharides
 
 
-
-
 def emit(arg):
     print(arg)
     return arg

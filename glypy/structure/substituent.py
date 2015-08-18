@@ -11,9 +11,11 @@ from ..utils.multimap import OrderedMultiMap
 
 class DerivatizePathway(object):
 
-    def __init__(self, can_nh_derivatize=False, is_nh_derivatizable=False):
+    def __init__(self, can_nh_derivatize=False, is_nh_derivatizable=False, name=None):
         self.can_nh_derivatize = can_nh_derivatize
         self.is_nh_derivatizable = is_nh_derivatizable
+        if name is not None:
+            derivatize_info[name] = self
 
     def __repr__(self):  # pragma: no cover
         return "<DerivatizePathway {}>".format(self.__dict__)
@@ -22,6 +24,14 @@ class DerivatizePathway(object):
     def register(cls, name, can_nh_derivatize, is_nh_derivatizable):
         derivatize_info[name.replace("-", "_")] = DerivatizePathway(can_nh_derivatize, is_nh_derivatizable)
 
+
+attachment_composition_info = {
+    "sulfate": Composition("H"),
+    "methyl": Composition("H"),
+    "n_acetyl": Composition("OH"),
+    "n_glycolyl": Composition("OH"),
+}
+default_attachment_composition = Composition("H")
 
 derivatize_info = {
     "acetyl": DerivatizePathway(True, False),
@@ -77,7 +87,8 @@ class Substituent(SubstituentBase):
     '''
 
     def __init__(self, name, links=None, composition=None, id=None,
-                 can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False):
+                 can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False,
+                 attachment_composition=None):
         if links is None:
             links = OrderedMultiMap()
         self.name = name
@@ -89,14 +100,18 @@ class Substituent(SubstituentBase):
         self._order = self.order()
         try:
             if can_nh_derivatize is is_nh_derivatizable is None:
-                self.can_nh_derivatize = derivatize_info[self.name].can_nh_derivatize
-                self.is_nh_derivatizable = derivatize_info[self.name].is_nh_derivatizable
+                derivatize_pathway = derivatize_info[self.name]
+                self.can_nh_derivatize = derivatize_pathway.can_nh_derivatize
+                self.is_nh_derivatizable = derivatize_pathway.is_nh_derivatizable
             else:
                 self.can_nh_derivatize = can_nh_derivatize or False
                 self.is_nh_derivatizable = is_nh_derivatizable or False
         except KeyError:
-            raise KeyError("{} does not have defined derivatization rules. Please specify them.".format(self.name))
+            self.can_nh_derivatize = can_nh_derivatize or False
+            self.is_nh_derivatizable = is_nh_derivatizable or False
         self._derivatize = derivatize
+        self.attachment_composition = attachment_composition if attachment_composition is not None\
+            else attachment_composition_info.get(name, default_attachment_composition)
 
     @property
     def name(self):
@@ -312,3 +327,6 @@ class Substituent(SubstituentBase):
             if link.is_parent(self):
                 continue
             yield (pos, link.parent)
+
+    def attachment_composition_loss(self):
+        return self.attachment_composition.clone()

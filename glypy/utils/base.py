@@ -200,6 +200,29 @@ def root(structure):
     return root
 
 
+def tree(structure):
+    """The `tree` protocol function.
+
+    Creates a generic method for obtaining the :class:`Glycan` of a structure representing
+    or containing a glycan graph.
+
+    Parameters
+    ----------
+    structure : any
+        An object that implements the `root` protocol, containing
+        a tree structure somewhere inside it.
+
+    Returns
+    -------
+    Glycan
+    """
+    try:
+        tree = structure.__tree__()
+    except AttributeError:
+        raise TypeError("{} does not support the `tree` protocol.".format(structure.__class__.__name__))
+    return tree
+
+
 def groupby(ungrouped_list, key_fn=identity):
     groups = defaultdict(list)
     for item in ungrouped_list:

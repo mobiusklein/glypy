@@ -465,6 +465,9 @@ class GlycanRecordBase(object):
     def __root__(self):  # pragma: no cover
         return self.structure.root
 
+    def __tree__(self):  # pragma: no cover
+        return self.structure
+
 
 def extract_composition(record, max_size=120):
     '''

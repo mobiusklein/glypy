@@ -15,7 +15,7 @@ except ImportError:  # pragma: no cover
     use_cython = False
 
 # Forward Declaration
-std_mol_comp = {}
+
 _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
 _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
 _formula = r'^({})*$'.format(_atom)
@@ -55,6 +55,7 @@ class PComposition(defaultdict):
     def __iadd__(self, other):
         for elem, cnt in (other.items()):
             self[elem] += cnt
+        self._mass_args = None
         return self
 
     def __add__(self, other):
@@ -69,6 +70,7 @@ class PComposition(defaultdict):
     def __isub__(self, other):
         for elem, cnt in other.items():
             self[elem] -= cnt
+        self._mass_args = None
         return self
 
     def __sub__(self, other):
@@ -129,11 +131,16 @@ class PComposition(defaultdict):
             super(PComposition, self).__setitem__(key, value)
         elif key in self:
             del self[key]
+        self._mass_args = None
 
     def clone(self):
         return PComposition(self)
 
     copy = clone
+
+    def update(self, *args, **kwargs):
+        dict.update(self, *args, **kwargs)
+        self._mass_args = None
 
     def _from_formula(self, formula, mass_data):
         if '(' in formula:
@@ -141,10 +148,10 @@ class PComposition(defaultdict):
         if not formula_pattern.match(formula):
             raise ChemicalCompositionError('Invalid formula: ' + formula)
         for elem, isotope, number in re.findall(_atom, formula):
-            if not elem in mass_data:
+            if elem not in mass_data:
                 raise ChemicalCompositionError('Unknown chemical element: ' + elem)
             self[_make_isotope_string(elem, int(isotope) if isotope else 0)
-                    ] += int(number) if number else 1
+                 ] += int(number) if number else 1
 
     def _from_formula_parens(self, formula, mass_data):  # pragma: no cover
         # Parsing a formula backwards.
@@ -254,13 +261,19 @@ class PComposition(defaultdict):
         #         num_atoms)
         self.update(comp)
 
-    def calc_mass(self, *args, **kwargs):
-        kwargs["composition"] = self
-        return pcalculate_mass(*args, **kwargs)
+    def calc_mass(self, average=False, charge=None, mass_data=None):
+        mdid = id(mass_data)
+        if self._mass_args is not None and average is self._mass_args[0]\
+                and charge == self._mass_args[1] and mdid == self._mass_args[2]:
+            return self._mass
+        else:
+            self._mass_args = (average, charge, mdid)
+            self._mass = pcalculate_mass(composition=self, average=average, charge=charge, mass_data=mass_data)
+            return self._mass
 
     @property
     def mass(self):
-        return pcalculate_mass(composition=self)
+        return self.calc_mass()
 
     def __init__(self, *args, **kwargs):
         """
@@ -282,15 +295,11 @@ class PComposition(defaultdict):
         formula : str, optional
             A string with a chemical formula. All elements must be present in
             `mass_data`.
-        mol_comp : dict, optional
-            A dict with the elemental composition of the standard molecules (the
-            default value is std_mol_comp).
         mass_data : dict, optional
             A dict with the masses of chemical elements (the default
             value is :py:data:`nist_mass`). It is used for formulae parsing only.
         """
         defaultdict.__init__(self, int)
-        mol_comp = kwargs.get('mol_comp', std_mol_comp)
         mass_data = kwargs.get('mass_data', nist_mass)
 
         kw_sources = set(
@@ -303,8 +312,7 @@ class PComposition(defaultdict):
 
         elif kw_given:
             kwa = kw_given.pop()
-            getattr(self, '_from_' + kwa)(kwargs[kwa],
-                                          mass_data if kwa == 'formula' else mol_comp)
+            getattr(self, '_from_' + kwa)(kwargs[kwa], mass_data)
         # can't build from kwargs
         elif args:
             if isinstance(args[0], dict):
@@ -320,15 +328,16 @@ class PComposition(defaultdict):
         else:
             self._from_dict(kwargs)
 
+        self._mass = None
+        self._mass_args = None
 
-def pcalculate_mass(*args, **kwargs):
+
+def pcalculate_mass(composition=None, formula=None, average=False, charge=None, mass_data=None):
     """Calculates the monoisotopic mass of a chemical formula or
     Composition object.
 
     Parameters
     ----------
-    formula : str, optional
-        A string with a chemical formula.
     composition : Composition, optional
         A Composition object with the elemental composition of a substance.
     average : bool, optional
@@ -339,45 +348,30 @@ def pcalculate_mass(*args, **kwargs):
         If not 0 then m/z is calculated: the mass is increased
         by the corresponding number of proton masses and divided
         by z.
-    mol_comp : dict, optional
-        A dict with the elemental composition of the commonly used molecules (the
-        default value is std_mol_comp).
     mass_data : dict, optional
         A dict with the masses of the chemical elements (the default
         value is :py:data:`nist_mass`).
-    ion_comp : dict, optional
-        A dict with the relative elemental compositions of peptide ion
-        fragments (default is :py:data:`std_ion_comp`).
 
     Returns
     -------
         mass : float
     """
 
-    mass_data = kwargs.get('mass_data', nist_mass) or nist_mass
-    ion_comp = kwargs.get('ion_comp', std_ion_comp)
+    mass_data = mass_data or nist_mass
     # Make a deep copy of `composition` keyword argument.
-    composition = (PComposition(kwargs['composition'])
-                   if 'composition' in kwargs
-                   else PComposition(*args, **kwargs))
-
-    if 'ion_type' in kwargs:
-        composition += ion_comp[kwargs['ion_type']]
+    composition = composition if composition else PComposition(formula)
 
     # Get charge.
-    charge = composition['H+']
-    if 'charge' in kwargs:
-        if charge:
+    old_charge = composition['H+']
+    if charge is not None:
+        if old_charge != 0:
             raise ChemicalCompositionError(
                 'Charge is specified both by the number of protons and '
                 '`charge` in kwargs')
-        charge = kwargs['charge']
-        if charge is not None:
-            composition['H+'] = charge
+        composition['H+'] = charge
 
     # Calculate mass.
     mass = 0.0
-    average = kwargs.get('average', False)
     for isotope_string in composition:
         element_name, isotope_num = _parse_isotope_string(isotope_string)
         # Calculate average mass if required and the isotope number is
@@ -395,6 +389,8 @@ def pcalculate_mass(*args, **kwargs):
     # Calculate m/z if required.
     if charge:
         mass /= charge
+
+    composition["H+"] = old_charge
     return mass
 
 
@@ -405,63 +401,6 @@ if use_cython:  # pragma: no cover
 else:  # pragma: no cover
     Composition = PComposition
     calculate_mass = pcalculate_mass
-
-std_mol_comp.update({
-    # Amino Acids
-    'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
-    'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
-    'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
-    'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
-    'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
-    'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
-    'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
-    'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
-    'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
-    'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
-    'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
-    'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
-    'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
-    'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
-    'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
-    'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
-    'W':   Composition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),
-    'Y':   Composition({'H': 9, 'C': 9, 'O': 2, 'N': 1}),
-
-    # Protein Sequence Terminals (modX format)
-    'H-':  Composition({'H': 1}),
-    '-OH': Composition({'O': 1, 'H': 1}),
-
-    # Glycans
-    'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
-    'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
-    'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
-    'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
-    'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
-})
-
-std_ion_comp = {
-    'M':        Composition(formula=''),
-    'a':        Composition(formula='H-2O-1' + 'C-1O-1'),
-    'a-H2O':    Composition(formula='H-2O-1' + 'C-1O-1' + 'H-2O-1'),
-    'a-NH3':    Composition(formula='H-2O-1' + 'C-1O-1' + 'N-1H-3'),
-    'b':        Composition(formula='H-2O-1'),
-    'b-H2O':    Composition(formula='H-2O-1' + 'H-2O-1'),
-    'b-NH3':    Composition(formula='H-2O-1' + 'N-1H-3'),
-    'c':        Composition(formula='H-2O-1' + 'NH3'),
-    'c-H2O':    Composition(formula='H-2O-1' + 'NH3' + 'H-2O-1'),
-    'c-NH3':    Composition(formula='H-2O-1'),
-    'x':        Composition(formula='H-2O-1' + 'CO2'),
-    'x-H2O':    Composition(formula='H-2O-1' + 'CO2' + 'H-2O-1'),
-    'x-NH3':    Composition(formula='H-2O-1' + 'CO2' + 'N-1H-3'),
-    'y':        Composition(formula=''),
-    'y-H2O':    Composition(formula='H-2O-1'),
-    'y-NH3':    Composition(formula='N-1H-3'),
-    'z':        Composition(formula='H-2O-1' + 'ON-1H-1'),
-    'z-H2O':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'H-2O-1'),
-    'z-NH3':    Composition(formula='H-2O-1' + 'ON-1H-1' + 'N-1H-3'),
-}
 
 
 def most_probable_isotopic_composition(*args, **kwargs):

@@ -99,7 +99,7 @@ class EnumMeta(type):
                 else:
                     mapped[value] = enum_value
                     setattr(enum_type, label, enum_value)
-
+        enum_type['?'] = None
         return enum_type
 
     def __iter__(self):

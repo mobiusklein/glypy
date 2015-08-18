@@ -10,7 +10,7 @@ this library attempts to provide a representation of glycans. Much of the variat
 building blocks of these structures, monosaccharides, are caused by substitutions of functional groups on a
 common core structure.
 
-
+[Docs](http://glypy.readthedocs.org/)
 
 ## Features
 

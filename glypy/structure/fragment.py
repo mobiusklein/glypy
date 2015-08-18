@@ -229,8 +229,9 @@ class Subtree(object):
         # no glycosidic cleavages still enters this outer loop, letting only crossring-cleavage
         # Subtree instances through without issue
         for shift_set in itertools.product(*frag_types):
-            offset = 0.0
+            mass_offset = 0.0
             link_ids = {}
+            # The type of fragment being produced, expressed a collection of ABCXYZs
             kind = [] + [''.join(kind)
                          for kind in self.crossring_cleavages.values()]
             i = 0
@@ -238,13 +239,13 @@ class Subtree(object):
             for shift in shift_set:
                 link_id = all_link_ids[i]
                 shift = shift[0]
-                offset -= shift_masses[shift]
+                mass_offset -= shift_masses[shift]
                 link_ids[link_id] = ("", shift)
                 kind.append(shift)
                 i += 1
 
             yield Fragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
-                           mass=base_mass + offset, name=None, crossring_cleavages=self.crossring_cleavages)
+                           mass=base_mass + mass_offset, name=None, crossring_cleavages=self.crossring_cleavages)
 
     def __repr__(self):  # pragma: no cover
         rep = "<Subtree include_nodes={} link_ids={} parent_breaks={} \
@@ -255,3 +256,6 @@ child_breaks={} crossring_cleavages={}>\n{}".format(
 
     def __root__(self):  # pragma: no cover
         return self.tree.root
+
+    def __tree__(self):  # pragma: no cover
+        return self.tree

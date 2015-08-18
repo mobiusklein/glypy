@@ -4,7 +4,7 @@ from collections import defaultdict
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False,
-                              exact=True, visited=None):
+                              exact=True, ignore_reduction=False, visited=None):
     '''
     A heuristic for measuring similarity between monosaccharide instances
 
@@ -68,12 +68,23 @@ def monosaccharide_similarity(node, target, include_substituents=True,
     qs += 1
     if include_modifications:
         node_mods = list(node.modifications.values())
+        node_reduced = False
+        target_reduced = False
         for mod in target.modifications.values():
+            if mod == 'aldi':
+                target_reduced = True
             check = (mod in node_mods)
             if check:
+                if mod == 'aldi':
+                    node_reduced = True
                 res += 1
                 node_mods.pop(node_mods.index(mod))
             qs += 1
+        if ignore_reduction:
+            if target_reduced:
+                qs -= 1
+            if node_reduced:
+                res -= 1
         qs += len(node_mods) if exact else 0
     if include_substituents:
         node_subs = list(node for p, node in node.substituents())

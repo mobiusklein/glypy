@@ -1,5 +1,5 @@
 import pkg_resources
-try: # pragma: no cover
+try:  # pragma: no cover
     import cPickle as pickle
 except:  # pragma: no cover
     import pickle
@@ -21,10 +21,10 @@ except:  # pragma: no cover
 
 from .base import (opener, make_counter, invert_dict, identity,
                    nullop, chrinc, make_struct, classproperty, cyclewarning,
-                   root, groupby)
+                   root, tree, groupby)
 
 __all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop',
            "chrinc", "make_struct", "classproperty", "cyclewarning",
-           "root", "groupby"]
+           "root", "tree", "groupby"]
 
 pkg_resources.declare_namespace('glypy.utils')

@@ -5,6 +5,10 @@ class SaccharideBase(object):
     pass
 
 
+class SaccharideCollection(SaccharideBase):
+    pass
+
+
 class SubstituentBase(object):
     node_type = object()
     pass

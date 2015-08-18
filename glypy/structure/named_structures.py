@@ -34,7 +34,10 @@ class StructureIndex(dict):
         return list(self.__dict__) + list(k for k in self
                                           if (not k[0].isdigit()) and (not re.search(r"[:,\-\s\(\)\[\]]", k)))
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
+        return "<{}>".format(self.__class__.__name__)
+
+    def __str__(self):  # pragma: no cover
         rep = StringIO()
         fmt = "{0}\n{1}\n{2}\n\n"
         for k, v in self.items():
@@ -65,6 +68,8 @@ class MotifIndex(StructureIndex):
         if stream is None:
             stream = pkg_resources.resource_stream(__name__, "data/motifs.json")
         data = json.load(stream)
+        motif_classes = set()
+        motif_categories = set()
         for motif in data:
             name = motif['name']
             motif_class = motif['class']
@@ -74,5 +79,35 @@ class MotifIndex(StructureIndex):
             motif_structure.motif_class = motif_class
             motif_structure.motif_category = motif_category
             self[name] = motif_structure
+            motif_classes.add(motif_class)
+            motif_categories.add(motif_category)
+        self._category_map = {}
+        self._class_map = {}
+        self.motif_classes = motif_classes
+        self.motif_categories = motif_categories
+
+    def motif_category(self, name):
+        if name in self._category_map:
+            return self._category_map[name]
+
+        mapping = {}
+        for k, v in self.items():
+            if v.motif_category == name:
+                mapping[k] = v
+        if len(mapping) > 0:
+            self._category_map[name] = mapping
+        return mapping
+
+    def motif_class(self, name):
+        if name in self._class_map:
+            return self._class_map[name]
+        mapping = {}
+        for k, v in self.items():
+            if v.motif_class == name:
+                mapping[k] = v
+        if len(mapping) > 0:
+            self._class_map[name] = mapping
+        return mapping
+
 
 motifs = ProxyObject(MotifIndex)

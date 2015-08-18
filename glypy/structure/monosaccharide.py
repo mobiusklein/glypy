@@ -364,7 +364,7 @@ class Monosaccharide(SaccharideBase):
     def __root__(self):
         return self
 
-    def clone(self, prop_id=False, fast=True):
+    def clone(self, prop_id=False, fast=True, monosaccharide_type=None):
         '''
         Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
         with the same data. All mutable data structures are duplicated and distinct from the original.
@@ -377,6 +377,8 @@ class Monosaccharide(SaccharideBase):
         Monosaccharide
 
         '''
+        if monosaccharide_type is None:
+            monosaccharide_type = Monosaccharide
         modifications = OrderedMultiMap()
         for k, v in self.modifications.items():
             if isinstance(v, ReducedEnd):
@@ -386,7 +388,7 @@ class Monosaccharide(SaccharideBase):
             except:
                 modifications[k] = v.clone()
 
-        monosaccharide = Monosaccharide(
+        monosaccharide = monosaccharide_type(
             superclass=self.superclass,
             stem=self.stem,
             configuration=self.configuration,
@@ -714,12 +716,12 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
+        if isinstance(substituent, basestring):
+            substituent = Substituent(substituent)
         if child_loss is None:
             child_loss = Composition("H")
         if parent_loss is None:
-            parent_loss = Composition("H")
-        if isinstance(substituent, basestring):
-            substituent = Substituent(substituent)
+            parent_loss = substituent.attachment_composition_loss()
         Link(parent=self, child=substituent,
              parent_position=position, child_position=child_position,
              parent_loss=parent_loss, child_loss=child_loss)
@@ -1144,10 +1146,9 @@ class Monosaccharide(SaccharideBase):
         self._reducing_end = None
         self.reducing_end = reduced
 
-    def mass(self, substituents=True, average=False, charge=0, mass_data=None):
+    def mass(self, average=False, charge=0, mass_data=None, substituents=True):
         '''
-        Calculates the total mass of ``self``. If ``substituents=True`` it will include
-        the masses of its substituents.
+        Calculates the total mass of ``self``.
 
         Parameters
         ----------
@@ -1160,7 +1161,8 @@ class Monosaccharide(SaccharideBase):
             If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
             Defaults to :const:`None`.
-
+        substituents: bool, optional, defaults to True
+            Whether or not to include substituents' masses.
         Returns
         -------
         :class:`float`

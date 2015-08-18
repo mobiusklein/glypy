@@ -8,15 +8,15 @@ from .base import ChemicalCompositionError, composition_factory
 cimport cython
 from cpython.ref cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update
-from cpython.int cimport PyInt_AsLong, PyInt_Check
+from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 from cpython.string cimport PyString_Format
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
+from cpython.list cimport PyList_GET_ITEM
 
 
 # Forward Declaration
 cdef: 
-    dict std_mol_comp = {}
     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
     str _formula = r'^({})*$'.format(_atom)
     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
@@ -66,6 +66,7 @@ cdef inline str _make_isotope_string(str element_name, int isotope_num):
 
 
 cdef class CComposition(dict):
+
     '''Represent arbitrary elemental compositions'''
     def __str__(self):   # pragma: no cover
         return 'Composition({})'.format(dict.__repr__(self))
@@ -77,20 +78,36 @@ cdef class CComposition(dict):
         cdef:
             str elem
             long cnt
-        for elem, cnt in other.items():
-            self.setitem(elem, self.getitem(elem) + cnt)
+            PyObject *pkey
+            PyObject *pvalue
+            Py_ssize_t ppos = 0
+
+        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
+            elem = <str>pkey
+            cnt = self.getitem(elem)
+            self.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))
+
+        self._mass_args = None
         return self
+
 
     def __add__(self, other):
         cdef:
             str elem
             long cnt
             CComposition result
+            PyObject *pkey
+            PyObject *pvalue
+            Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             other, self = self, other
         result = CComposition(self)
-        for elem, cnt in other.items():
-            result.setitem(elem, result.getitem(elem) + cnt)
+        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
+            elem = <str>pkey
+            cnt = result.getitem(elem)
+            cnt += PyInt_AsLong(<object>pvalue)
+            result.setitem(elem, cnt)
+
         return result
 
 
@@ -98,8 +115,16 @@ cdef class CComposition(dict):
         cdef:
             str elem
             long cnt
-        for elem, cnt in other.items():
-            self.setitem(elem, self.getitem(elem) - cnt)
+            PyObject *pkey
+            PyObject *pvalue
+            Py_ssize_t ppos = 0
+
+        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
+            elem = <str>pkey
+            cnt = self.getitem(elem)
+            self.setitem(elem, cnt - PyInt_AsLong(<object>pvalue))
+
+        self._mass_args = None
         return self
 
     def __sub__(self, other):
@@ -107,11 +132,18 @@ cdef class CComposition(dict):
             str elem
             long cnt
             CComposition result
+            PyObject *pkey
+            PyObject *pvalue
+            Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             self = CComposition(self)
         result = CComposition(self)
-        for elem, cnt in other.items():
-            result.setitem(elem, result.getitem(elem) - cnt)
+        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
+            elem = <str>pkey
+            cnt = result.getitem(elem)
+            cnt -= PyInt_AsLong(<object>pvalue)
+            result.setitem(elem, cnt)
+
         return result
 
     def __reduce__(self):
@@ -122,6 +154,8 @@ cdef class CComposition(dict):
 
     def __setstate__(self, d):
         self._from_dict(d)
+        self._mass = None
+        self._mass_args = None
 
 
     def __mul__(self, other):
@@ -163,9 +197,10 @@ cdef class CComposition(dict):
 
     def __setitem__(self, str key, int value):
         if value:  # Will not occur on 0 as 0 is falsey AND an integer
-            super(Composition, self).__setitem__(key, value)
+            self.setitem(key, value)
         elif key in self:
             del self[key]
+        self._mass_args = None
 
     def copy(self):
         return CComposition(self)
@@ -182,9 +217,14 @@ cdef class CComposition(dict):
 
     cdef inline void setitem(self, str elem, long val):
         PyDict_SetItem(self, elem, val)
+        self._mass_args = None
 
     cpdef CComposition clone(self):
         return CComposition(self)
+
+    def update(self, *args, **kwargs):
+        dict.update(self, *args, **kwargs)
+        self._mass_args = None
 
     @cython.boundscheck(False)
     cpdef _from_formula(self, str formula, dict mass_data):
@@ -301,12 +341,23 @@ cdef class CComposition(dict):
                 self[elem] += cnt
 
     cpdef _from_dict(self, comp):
-        # self.update(comp)
+        '''
+        Directly overwrite this object's keys with the values in
+        `comp` without checking their type.
+        '''
         PyDict_Update(self, comp)
 
 
     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
-        return calculate_mass(self, average=average, charge=charge, mass_data=mass_data)
+        cdef int mdid
+        mdid = id(mass_data)
+        if self._mass_args is not None and average is self._mass_args[0]\
+                and charge == self._mass_args[1] and mdid == self._mass_args[2]:
+            return self._mass
+        else:
+            self._mass_args = (average, charge, mdid)
+            self._mass = calculate_mass(composition=self, average=average, charge=charge, mass_data=mass_data)
+            return self._mass
 
     property mass:
         def __get__(self):
@@ -332,19 +383,15 @@ cdef class CComposition(dict):
         formula : str, optional
             A string with a chemical formula. All elements must be present in
             `mass_data`.
-        mol_comp : dict, optional
-            A dict with the elemental composition of the standard molecules (the
-            default value is std_mol_comp).
         mass_data : dict, optional
             A dict with the masses of chemical elements (the default
             value is :py:data:`nist_mass`). It is used for formulae parsing only.
         """
         dict.__init__(self)
         cdef:
-            dict mol_comp, mass_data
+            dict mass_data
             str kwa
             set kw_sources
-        mol_comp = kwargs.get('mol_comp', std_mol_comp)
         mass_data = kwargs.get('mass_data', nist_mass)
 
         kw_sources = set(
@@ -373,44 +420,10 @@ cdef class CComposition(dict):
                         'formula'.format(args[0]))
         else:
             self._from_dict(kwargs)
-
+        self._mass = None
+        self._mass_args = None
 
 Composition = CComposition
-
-std_mol_comp.update({
-    # Amino Acids
-    'A':   Composition({'H': 5, 'C': 3, 'O': 1, 'N': 1}),
-    'C':   Composition({'H': 5, 'C': 3, 'S': 1, 'O': 1, 'N': 1}),
-    'D':   Composition({'H': 5, 'C': 4, 'O': 3, 'N': 1}),
-    'E':   Composition({'H': 7, 'C': 5, 'O': 3, 'N': 1}),
-    'F':   Composition({'H': 9, 'C': 9, 'O': 1, 'N': 1}),
-    'G':   Composition({'H': 3, 'C': 2, 'O': 1, 'N': 1}),
-    'H':   Composition({'H': 7, 'C': 6, 'N': 3, 'O': 1}),
-    'I':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'K':   Composition({'H': 12, 'C': 6, 'N': 2, 'O': 1}),
-    'L':   Composition({'H': 11, 'C': 6, 'O': 1, 'N': 1}),
-    'M':   Composition({'H': 9, 'C': 5, 'S': 1, 'O': 1, 'N': 1}),
-    'N':   Composition({'H': 6, 'C': 4, 'O': 2, 'N': 2}),
-    'P':   Composition({'H': 7, 'C': 5, 'O': 1, 'N': 1}),
-    'Q':   Composition({'H': 8, 'C': 5, 'O': 2, 'N': 2}),
-    'R':   Composition({'H': 12, 'C': 6, 'N': 4, 'O': 1}),
-    'S':   Composition({'H': 5, 'C': 3, 'O': 2, 'N': 1}),
-    'T':   Composition({'H': 7, 'C': 4, 'O': 2, 'N': 1}),
-    'V':   Composition({'H': 9, 'C': 5, 'O': 1, 'N': 1}),
-    'W':   Composition({'C': 11, 'H': 10, 'N': 2, 'O': 1}),
-    'Y':   Composition({'H': 9, 'C': 9, 'O': 2, 'N': 1}),
-
-    # Protein Sequence Terminals (modX format)
-    'H-':  Composition({'H': 1}),
-    '-OH': Composition({'O': 1, 'H': 1}),
-
-    # Glycans
-    'Hex':    Composition({'H': 12, 'C': 6, 'O': 6}),
-    'Pen':    Composition({'H': 10, 'C': 5, 'O': 5}),
-    'HexNAc': Composition({'H': 13, 'C': 8, 'O': 5, 'N': 1}),
-    'NeuAc':  Composition({'H': 17, 'C': 11, 'O': 8, 'N': 1}),
-    'NeuGc':  Composition({'H': 17, 'C': 11, 'O': 9, 'N': 1}),
-})
 
 
 @cython.wraparound(False)
@@ -446,7 +459,9 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
         long _charge
         str isotope_string, element_name
         dict mass_provider
+        list key_list
         PyObject* interm
+        Py_ssize_t iter_pos = 0
 
     if mass_data is None:
         mass_provider = nist_mass
@@ -474,7 +489,9 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
 
     # Calculate mass.
     mass = 0.0
-    for isotope_string in composition:
+    key_list = PyDict_Keys(composition)
+    for iter_pos in range(len(key_list)):
+        isotope_string = <str>PyList_GET_ITEM(key_list, iter_pos)
         # element_name, isotope_num = _parse_isotope_string(isotope_string)
         element_name = _parse_isotope_string(isotope_string, &isotope_num)
 

@@ -16,6 +16,7 @@ from glypy.algorithms.database import (Taxon, Aglyca, Motif,
 logger = logging.getLogger(__name__)
 
 cache = None
+ssl_verification = False
 
 
 def set_cache(path, record_type=GlycanRecord):
@@ -45,8 +46,7 @@ def check_cache(key):
     return res
 
 
-get_url_template = "http://glytoucan.org/glyspace/service/glycans/{accession}.json"
-get_rdf_url_template = "http://glytoucan.org/glyspace/service/glycans/{accession}/rdf"
+get_url_template = "https://glytoucan.org/glyspace/service/glycans/{accession}.json"
 
 
 def get(accession):
@@ -55,7 +55,7 @@ def get(accession):
     '''
     if check_cache(accession):
         return cache[accession].structure
-    r = requests.get(get_url_template.format(accession=accession))
+    r = requests.get(get_url_template.format(accession=accession), verify=ssl_verification)
     r.raise_for_status()
     condensed = r.json["structure"]
     return glycoct.loads(condensed).next()
@@ -74,7 +74,7 @@ def get_record(accession):
     '''
     if check_cache(accession):
         return cache[accession]
-    r = requests.get(get_url_template.format(accession=accession))
+    r = requests.get(get_url_template.format(accession=accession), verify=ssl_verification)
     r.raise_for_status()
     return glycan_record_from_json(r.json())
 

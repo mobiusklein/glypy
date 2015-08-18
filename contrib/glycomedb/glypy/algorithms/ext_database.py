@@ -11,14 +11,15 @@ Base = declarative_base()
 
 class ExtGlycanRecord(Base):
     __tablename__ = "ExtGlycanRecord"
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
-    structure = Column("structure", PickleType)
-    glycoct = Column("glycoct", Text)
-    mass = Column("mass", Numeric)
-    taxa = relationship("Taxonomy", backref=backref("glycans"))
-    motifs = relationship("Motif", backref=backref("glycans"))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    structure = Column(PickleType)
+    glycoct = Column(Text, index=True)
+    mass = Column(Numeric(12, 4), index=True)
+    #taxa = relationship("Taxonomy", backref=backref("glycans", lazy='dynamic'))
+    #motifs = relationship("Motif", backref=backref("glycans", lazy='dynamic'))
 
 
 class Taxon(Base):
     __tablename__ = "Taxonomy"
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column("name")

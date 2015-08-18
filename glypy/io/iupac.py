@@ -1,7 +1,7 @@
 import re
 from collections import deque
 
-from glypy.structure import Monosaccharide, Glycan, constants, named_structures
+from glypy.structure import Monosaccharide, Glycan, constants, named_structures, Substituent
 from glypy.composition.structure_composition import substituent_compositions
 from glypy.io import format_constants_map
 from glypy.io.nomenclature import identity
@@ -73,11 +73,17 @@ def parse_modifications(modification_string):
 def monosaccharide_to_iupac(residue):
     template = "{anomer}-{configuration}-{modification}{base_type}{ring_type}{substituent}"
     anomer = anomer_map_to[residue.anomer]
-    configuration = residue.configuration[0].name.upper()
+    if residue.configuration[0] is Configuration.Unknown:
+        configuration = "?"
+    else:
+        configuration = residue.configuration[0].name.upper()
     modification = ""
     base_type = resolve_special_base_type(residue)
     if base_type is None:
-        base_type = residue.stem[0].name.title()
+        if residue.stem[0] is not Stem.Unknown:
+            base_type = residue.stem[0].name.title()
+        else:
+            base_type = residue.superclass.name.title()
     modification = extract_modifications(residue.modifications, base_type)
     ring_type = residue.ring_type.name[0]
     substituent = resolve_substituent(residue)
@@ -107,6 +113,8 @@ def resolve_substituent(residue):
     substituent = ""
     multi = False
     for name, pos in get_relevant_substituents(residue):
+        if pos in {-1, None}:
+            pos = ""
         if name in substituents_map_to:
             part = substituents_map_to[name]
         else:
@@ -127,16 +135,18 @@ def get_relevant_substituents(residue):
     Retrieve the set of substituents not implicitly included
     in the base type's symbol name.
     '''
-    positions = [p for p, sub in residue.substituents()]
-    substituents = [sub.name for p, sub in residue.substituents()]
+    positions = [p for p, sub in residue.substituents() if not sub._derivatize]
+    substituents = [sub.name for p, sub in residue.substituents() if not sub._derivatize]
     if identity.is_a(residue, monosaccharide_reference["NeuAc"], exact=False):
-        i = substituents.index("n_acetyl")
-        substituents.pop(i)
-        positions.pop(i)
+        # i = substituents.index("n_acetyl")
+        # substituents.pop(i)
+        # positions.pop(i)
+        pass
     elif identity.is_a(residue, monosaccharide_reference["NeuGc"], exact=False):
-        i = substituents.index("n_glycolyl")
-        substituents.pop(i)
-        positions.pop(i)
+        # i = substituents.index("n_glycolyl")
+        # substituents.pop(i)
+        # positions.pop(i)
+        pass
     elif identity.is_a(residue, monosaccharide_reference["Neu"], exact=False):
         i = substituents.index("amino")
         substituents.pop(i)
@@ -150,13 +160,6 @@ def resolve_special_base_type(residue):
         if residue.stem == (Stem.gro, Stem.gal):
             if len(residue.substituent_links) == 0:
                 return "Kdn"
-            positions, substituents = zip(*[(p, sub.name) for p, sub in residue.substituents()])
-            if 'n_acetyl' in substituents:
-                ix = substituents.index("n_acetyl")
-                return "Neu{}Ac".format(positions[ix])
-            elif 'n_glycolyl' in substituents:
-                ix = substituents.index("n_glycolyl")
-                return "Neu{}Gc".format(positions[ix])
             return "Neu"
     if residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
         if Modification.d in residue.modifications.values():
@@ -277,7 +280,18 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
-        residue.add_substituent(substituent, position, parent_loss="OH", child_loss='H')
+        substituent = Substituent(substituent)
+        try:
+            residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+        except ValueError:
+            # Neuraminic Acid has a degenerate encoding, where additional qualifications following
+            # Neu *replace* an existing substituent. This behavior may not be expected in other more
+            # common cases.
+            if base_type == "Neu":
+                residue.drop_substituent(position)
+                residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+            else:
+                raise
 
     linkage = map(tryint, linkage)
 
