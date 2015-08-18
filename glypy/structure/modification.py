@@ -3,8 +3,8 @@
 '''
 
 from .base import ModificationBase
-from ..composition.structure_composition import modification_compositions
-from ..io.format_constants_map import modification_map
+from glypy.composition.structure_composition import modification_compositions
+from glypy.io.format_constants_map import modification_map
 
 glycoct_map = {v: k for k, v in modification_map.items()}
 

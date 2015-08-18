@@ -3,8 +3,8 @@ import collections
 
 from . import monosaccharide, constants
 from .link import LinkMaskContext
-from ..composition import Composition, structure_composition
-from ..utils.multimap import OrderedMultiMap
+from glypy.composition import Composition, structure_composition
+from glypy.utils.multimap import OrderedMultiMap
 
 RingType = constants.RingType
 SuperClass = constants.SuperClass

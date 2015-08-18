@@ -2,7 +2,7 @@ import itertools
 from uuid import uuid4
 from collections import Iterable
 
-from ..composition import Composition
+from glypy.composition import Composition
 from .base import SaccharideBase, SubstituentBase
 
 default_parent_loss = Composition(O=1, H=1)

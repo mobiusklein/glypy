@@ -1,4 +1,4 @@
-from ..utils.enum import Enum
+from glypy.utils.enum import Enum
 
 
 class SuperClass(Enum):

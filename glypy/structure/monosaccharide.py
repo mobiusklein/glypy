@@ -7,13 +7,13 @@ from .substituent import Substituent
 from .link import Link
 from .base import SaccharideBase
 
-from ..io.format_constants_map import anomer_map, superclass_map
-from ..utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning
-from ..utils.multimap import OrderedMultiMap
-from ..utils.enum import EnumValue
-from ..composition import Composition, calculate_mass
-from ..composition.structure_composition import monosaccharide_composition
-from ..composition.structure_composition import modification_compositions
+from glypy.io.format_constants_map import anomer_map, superclass_map
+from glypy.utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning
+from glypy.utils.multimap import OrderedMultiMap
+from glypy.utils.enum import EnumValue
+from glypy.composition import Composition, calculate_mass
+from glypy.composition.structure_composition import monosaccharide_composition
+from glypy.composition.structure_composition import modification_compositions
 
 
 anomer_map = invert_dict(anomer_map)

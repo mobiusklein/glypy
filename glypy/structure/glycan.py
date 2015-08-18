@@ -14,8 +14,8 @@ from .base import SaccharideCollection
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth, _traverse_debug
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
-from ..utils import make_counter, identity, StringIO, chrinc
-from ..composition import Composition
+from glypy.utils import make_counter, identity, StringIO, chrinc
+from glypy.composition import Composition
 
 methodcaller = operator.methodcaller
 logger = logging.getLogger("Glycan")
