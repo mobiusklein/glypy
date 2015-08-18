@@ -1,12 +1,12 @@
 from warnings import warn
 from uuid import uuid4
 
+from glypy.composition.structure_composition import substituent_compositions
 from .base import SubstituentBase
-from ..composition.structure_composition import substituent_compositions
 from .link import Link
 
-from ..composition import Composition, calculate_mass
-from ..utils.multimap import OrderedMultiMap
+from glypy.composition import Composition, calculate_mass
+from glypy.utils.multimap import OrderedMultiMap
 
 
 class DerivatizePathway(object):

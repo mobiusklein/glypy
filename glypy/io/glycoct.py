@@ -19,12 +19,12 @@ Supports RES, LIN, and un-nested REP sections.
 import re
 import logging
 import warnings
-from ..utils import opener, StringIO, enum
-from ..utils.multimap import OrderedMultiMap
-from ..structure import monosaccharide, substituent, link, glycan
+from glypy.utils import opener, StringIO, enum
+from glypy.utils.multimap import OrderedMultiMap
+from glypy.structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
-from ..composition import Composition
+from glypy.composition import Composition
 
 try:
     range = xrange

@@ -1,9 +1,9 @@
 import logging
 from operator import itemgetter
 from collections import defaultdict
-from ..utils import opener, StringIO, ET
-from ..utils.multimap import OrderedMultiMap
-from ..structure import monosaccharide, substituent, link, glycan
+from glypy.utils import opener, StringIO, ET
+from glypy.utils.multimap import OrderedMultiMap
+from glypy.structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 logging.basicConfig(level=logging.INFO)

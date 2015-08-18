@@ -1,5 +1,5 @@
-from ..composition import Composition
-from ..structure import constants
+from glypy.composition import Composition
+from glypy.structure import constants
 
 anomer_map = {
     'a': constants.Anomer.alpha,

@@ -2,9 +2,9 @@ import logging
 import itertools
 import operator
 from .similarity import monosaccharide_similarity
-from ..utils import make_struct, root, groupby
-from ..structure import Glycan, Monosaccharide
-from ..structure.monosaccharide import depth
+from glypy.utils import make_struct, root, groupby
+from glypy.structure import Glycan, Monosaccharide
+from glypy.structure.monosaccharide import depth
 logger = logging.getLogger(__name__)
 
 try:
