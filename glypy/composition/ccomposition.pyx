@@ -349,7 +349,7 @@ cdef class CComposition(dict):
 
 
     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
-        cdef int mdid
+        cdef long mdid
         mdid = id(mass_data)
         if self._mass_args is not None and average is self._mass_args[0]\
                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:
