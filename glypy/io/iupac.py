@@ -65,7 +65,11 @@ def parse_modifications(modification_string):
     for token in buff:
         if token == '':
             continue
-        pos, mod = token.split("-")
+        try:
+            pos, mod = token.split("-")
+        except:
+            pos = -1
+            mod = token
         pairs.append((int(pos), Modification[mod]))
     return pairs
 
@@ -161,7 +165,13 @@ def resolve_special_base_type(residue):
             if len(residue.substituent_links) == 0:
                 return "Kdn"
             return "Neu"
-    if residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
+    elif residue.superclass == SuperClass.oct:
+        if residue.stem == (Stem.man,):
+            if Modification.a in residue.modifications[1] and\
+               Modification.keto in residue.modifications[2] and\
+               Modification.d in residue.modifications[3]:
+                return "Kdo"
+    elif residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
         if Modification.d in residue.modifications.values():
             return "Fuc"
 

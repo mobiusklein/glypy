@@ -1,6 +1,8 @@
 import re
 from glypy import Composition, Monosaccharide, Glycan, Substituent
 from glypy.utils import tree
+from glypy.utils.multimap import OrderedMultiMap
+
 from glypy.structure.base import SaccharideCollection
 from glypy.io.iupac import (
     parse_modifications, named_structures, Modification,
@@ -68,7 +70,13 @@ def _resolve_special_base_type(residue):
             if len(residue.substituent_links) == 0:
                 return "Kdn"
             return "Neu"
-    if residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
+    elif residue.superclass == SuperClass.oct:
+        if residue.stem == (Stem.man,):
+            if Modification.a in residue.modifications[1] and\
+               Modification.keto in residue.modifications[2] and\
+               Modification.d in residue.modifications[3]:
+                return "Kdo"
+    elif residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
         if Modification.d in residue.modifications.values():
             return "Fuc"
 
@@ -107,7 +115,7 @@ def to_iupac_lite(residue):
             base_type = residue.stem[0].name.title()
         else:
             base_type = residue.superclass.name.title()
-    modification = extract_modifications(residue.modifications, base_type)
+    modification = extract_modifications(residue.modifications, base_type).replace("-1-", "")
     substituent = resolve_substituent(residue).replace("-1", "")
     return template.format(
         modification=modification,
@@ -119,6 +127,18 @@ def to_iupac_lite(residue):
 def drop_stem(residue):
     if _resolve_special_base_type(residue) is None:
         residue.stem = (None,)
+
+
+def drop_positions(residue):
+    if _resolve_special_base_type(residue) is None:
+        modifications = OrderedMultiMap()
+        for k, v in residue.modifications.items():
+            modifications[-1] = v
+
+        for p, link in list(residue.substituent_links.items()):
+            link.break_link(refund=True)
+            link.parent_position = -1
+            link.apply()
 
 
 water_composition = {"O": 1, "H": 2}
@@ -210,6 +230,9 @@ class MonosaccharideResidue(Monosaccharide):
 
     name = to_iupac_lite
 
+    drop_stem = drop_stem
+    drop_positions = drop_positions
+
 water_mass = Composition("H2O").mass
 
 
@@ -228,10 +251,6 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def __init__(self, *args, **kwargs):
         self._reducing_end = kwargs.pop("reducing_end", None)
-        kwargs = {
-            (from_iupac_lite(k) if isinstance(k, basestring) else k): v
-            for k, v in kwargs.items()
-            }
         dict.__init__(self)
         self._mass = None
         self._composition_offset = Composition("H2O")
@@ -347,6 +366,11 @@ class GlycanComposition(dict, SaccharideCollection):
             drop_stem(t)
         return self
 
+    def drop_positions(self):
+        for t in self:
+            drop_positions(t)
+        return self
+
     def total_composition(self):
         comp = self._composition_offset.clone()
         for residue, count in self.items():
@@ -377,12 +401,14 @@ class GlycanComposition(dict, SaccharideCollection):
         return self.__class__(self)
 
     def serialize(self):
-        return "{%s}" % ', '.join("{}:{}".format(str(k), v) for k, v in sorted(self.items(), key=lambda x: x[0].mass()))
+        return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(self.items(), key=lambda x: x[0].mass()))
+
+    __str__ = serialize
 
     @classmethod
     def parse(cls, string):
         inst = cls()
-        tokens = string[1:-1].split(', ')
+        tokens = string[1:-1].split('; ')
         for token in tokens:
             residue, count = token.split(":")
             inst[from_iupac_lite(residue)] = int(count)

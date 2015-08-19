@@ -75,17 +75,17 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertAlmostEqual(glyc.mass(), comp.mass(), 3)
 
     def test_serialize(self):
-        ref = '{Man:3, Glc2NAc:2}'
+        ref = '{Man:3; Glc2NAc:2}'
         glyc = glycans["N-Linked Core"]
         comp = GlycanComposition.from_glycan(glyc)
         self.assertEqual(comp.serialize(), ref)
 
-        ref2 = '{Hex:3, Hex2NAc:2}'
+        ref2 = '{Hex:3; Hex2NAc:2}'
         comp.drop_stems()
         self.assertEqual(comp.serialize(), ref2)
 
     def test_parse(self):
-        ref = '{Man:3, Glc2NAc:2}'
+        ref = '{Man:3; Glc2NAc:2}'
         glyc = glycans["N-Linked Core"]
         comp = GlycanComposition.from_glycan(glyc)
 
@@ -93,7 +93,7 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertEqual(comp, comp2)
 
     def test_update(self):
-        ref = '{Man:3, Glc2NAc:2}'
+        ref = '{Man:3; Glc2NAc:2}'
         comp = GlycanComposition.parse(ref)
         self.assertEqual(comp["Man"], 3)
         comp.update({"Man": 1})
@@ -102,7 +102,7 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertEqual(comp["Man"], 2)
 
     def test_arithmetic(self):
-        ref = '{Man:3, Glc2NAc:2}'
+        ref = '{Man:3; Glc2NAc:2}'
         comp = GlycanComposition.parse(ref)
 
         comp["Man"] += 5
@@ -115,7 +115,7 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertEqual(comp, (GlycanComposition(Man=4, Glc2NAc=2) - GlycanComposition(Man=1, Glc2NAc=0)) * 2)
 
     def test_total_composition(self):
-        ref = '{Man:3, Glc2NAc:2}'
+        ref = '{Man:3; Glc2NAc:2}'
         comp = GlycanComposition.parse(ref)
         glyc = glycans["N-Linked Core"]
         self.assertEqual(comp.total_composition(), glyc.total_composition())

@@ -218,3 +218,9 @@ class RingType(Enum):
     open = 0
     #: Unknown
     x = None
+
+
+class Stereocoding(Enum):
+    h = 0
+    l = 1
+    d = 2
