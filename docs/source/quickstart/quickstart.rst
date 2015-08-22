@@ -419,7 +419,7 @@ we've already seen, ``glypy`` knows about ``GlycoCT``
     15:14o(4+1)16d
     '''
     
-    glycomedb183 = glycoct.loads(glycomedb183_glycoct).next()
+    glycomedb183 = glycoct.loads(glycomedb183_glycoct)
     plot(glycomedb183)
     glycomedb183
 

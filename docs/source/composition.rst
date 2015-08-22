@@ -1,13 +1,11 @@
-===================
 Composition
-===================
+===========
 
-Describes an arbitrary elemental composition
 
-.. automodule:: glypy.composition.composition
-    :members:
+.. toctree::
+    :maxdepth: 2
 
-.. autoclass:: Composition
-    :members:
+    Chemical Composition <composition/composition>
+    Saccharide Composition <composition/glycan_composition>
+    Digestion and Derivatization <composition/composition_transform>
 
-.. autofunction:: calculate_mass

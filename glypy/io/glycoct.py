@@ -369,7 +369,8 @@ class RepeatRecord(object):
     def __root__(self):
         root_node = rootp(self.graph[1])
         if root_node.node_type is Substituent.node_type:
-            root_node = root_node.links[1][0].parent
+            root_node = root_node.links[1][0].parent if root_node.links[1][0].parent.node_type is Monosaccharide.node_type\
+                                                     else root_node.links[1][0].child
         return root_node
 
     def prepare_glycan(self):

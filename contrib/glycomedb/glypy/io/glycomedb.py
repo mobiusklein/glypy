@@ -29,8 +29,8 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
             i += 1
             glycoct_str = structure.find("sequence").text
             taxa = [Taxon(t.attrib['ncbi'], None, None) for t in structure.iterfind(".//taxon")]
-            glycan = glycoct.loads(glycoct_str).next()
-            if (glycoct.loads(str(glycan)).next().mass() - glycan.mass()) > 0.00001:
+            glycan = glycoct.loads(glycoct_str)
+            if (glycoct.loads(str(glycan)).mass() - glycan.mass()) > 0.00001:
                 raise Exception("Mass did not match on reparse")
             record = record_type(glycan, taxa=taxa, id=glycomedb_id)
             db.load_data(record, commit=False, set_id=False)
@@ -85,7 +85,7 @@ def get(id):
     r.raise_for_status()
     tree = etree.fromstring(r.content)
     condensed = tree.find(xpath).text
-    return glycoct.loads(condensed).next()
+    return glycoct.loads(condensed)
 
 
 #: GlycomeDB supplies a detailed schema link which allows `lxml` to easily pull out
@@ -272,7 +272,7 @@ def glycan_record_from_xml(xml_tree, id):
     GlycanRecord:
         Constructed record
     '''
-    structure = glycoct.loads(xml_tree.find(xpath).text).next()
+    structure = glycoct.loads(xml_tree.find(xpath).text)
     taxa = [Taxon(t.attrib['ncbi'], t.attrib['name'], make_entries(t)) for t in xml_tree.findall(".//taxon")]
     aglycon = [Aglyca(t.attrib['name'].replace(
         "'", "`"), t.attrib['reducing'], make_entries(t)) for t in xml_tree.findall(".//aglyca")]

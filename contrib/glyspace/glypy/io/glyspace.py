@@ -58,7 +58,7 @@ def get(accession):
     r = requests.get(get_url_template.format(accession=accession), verify=ssl_verification)
     r.raise_for_status()
     condensed = r.json["structure"]
-    return glycoct.loads(condensed).next()
+    return glycoct.loads(condensed)
 
 
 #: GlySpace supplies a detailed schema link which allows `lxml` to easily pull out
@@ -80,7 +80,7 @@ def get_record(accession):
 
 
 def glycan_record_from_json(response, record_type=GlycanRecord):
-    structure = glycoct.loads(response['structure']).next()
+    structure = glycoct.loads(response['structure'])
     accession = response['accessionNumber']
     record_id = response['glycanId']
     motifs = response['motifs']

@@ -8,7 +8,7 @@ from glypy.io import glycoct
 
 try:
     print sys.argv
-    structure = glycoct.loads(sys.argv[1]).next()
+    structure = glycoct.loads(sys.argv[1])
     print(structure)
     plot.plot(structure)
     plt.show(block=True)

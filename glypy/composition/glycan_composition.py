@@ -51,7 +51,10 @@ def from_iupac_lite(monosaccharide_str):
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
         substituent = Substituent(substituent)
         try:
-            residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+            residue.add_substituent(
+                substituent, position,
+                parent_loss=substituent.attachment_composition_loss(),
+                child_loss='H')
         except ValueError:
             # Highly modified large bases have a degenerate encoding, where additional qualifications following
             # base name *replace* an existing substituent. This behavior may not be expected in other more
@@ -63,9 +66,21 @@ def from_iupac_lite(monosaccharide_str):
                 except:
                     # The site contains a modification which can be present alongside the substituent
                     occupancy = 1
-                residue.add_substituent(substituent, position, occupancy, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+                try:
+                    residue.add_substituent(
+                        substituent, position, occupancy,
+                        parent_loss=substituent.attachment_composition_loss(),
+                        child_loss='H')
+                except:
+                    residue.add_substituent(
+                        substituent, -1, occupancy,
+                        parent_loss=substituent.attachment_composition_loss(),
+                        child_loss='H')    
             else:
-                raise
+                residue.add_substituent(
+                    substituent, -1, occupancy,
+                    parent_loss=substituent.attachment_composition_loss(),
+                    child_loss='H')
 
     return MonosaccharideResidue.from_monosaccharide(residue)
 
