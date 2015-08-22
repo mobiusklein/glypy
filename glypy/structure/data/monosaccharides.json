@@ -105,5 +105,12 @@
     "(6P)GlcNAc": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\n3s:n-acetyl\nLIN\n1:1x(-1+-1)2x\n2:1d(2+1)3n\n",
     "(6P)Glc": "RES\n1b:b-dglc-HEX-1:5\n2s:phosphate\nLIN\n1:1x(-1+-1)2x\n",
     "4S(6S)GalNAc": "RES\n1b:b-dgal-HEX-1:5\n2s:sulfate\n3s:sulfate\n4s:n-acetyl\nLIN\n1:1x(4+1)2x\n2:1x(6+1)3x\n3:1d(2+1)4n\n",
+    "Dec": "RES\n1b:x-xx-xx-DEC-x:x",
+    "Non": "RES\n1b:a-dgro-dgal-NON-2:6",
+    "Oct": "RES\n1b:x-dman-OCT-2:6",
+    "Hep": "RES\n1b:a-lgro-dman-HEP-1:5",
+    "Pen": "RES\n1b:x-xx-PEN-1:4",
+    "Tet": "RES\n1b:x-xx-TET-x:x",
+    "Tri": "RES\n1b:x-xx-TRI-x:x",
     "Sug": "RES\n1b:x-xx-SUG-0:0"
 }

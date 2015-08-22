@@ -198,7 +198,8 @@ _substituent_compositions = {
     "pyruvate": Composition("COCOCH3H"),
     "(r)_lactate": Composition("CH3CHCO"),
     "(s)_lactate": Composition("CH3CHCO"),
-    "ethanolamine": Composition("NHCH2CH2OHH")
+    "ethanolamine": Composition("NHCH2CH2OHH"),
+    "anhydro": Composition("O")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

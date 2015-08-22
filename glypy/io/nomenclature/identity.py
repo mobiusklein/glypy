@@ -113,7 +113,7 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
     monosaccharide_similarity
     '''
     if blacklist is None:
-        blacklist = ["Hex"]
+        blacklist = {"Pen", "Hex", "Hep", "Oct", "Non"}
     for name, structure in monosaccharides.items():
         if name in blacklist:
             continue

@@ -14,7 +14,7 @@ class StructureIndex(dict):
     def __init__(self, stream, key_transform=identity, value_transform=identity):
         self.update(json.load(stream))
         for k, v in self.items():
-            self[key_transform(k)] = value_transform(glycoct.loads(v).next())
+            self[key_transform(k)] = value_transform(glycoct.loads(v))
         self.key_transform = key_transform
 
     def __getitem__(self, key):
@@ -74,7 +74,7 @@ class MotifIndex(StructureIndex):
             name = motif['name']
             motif_class = motif['class']
             motif_category = motif['category']
-            motif_structure = glycoct.loads(motif['glycoct']).next()
+            motif_structure = glycoct.loads(motif['glycoct'])
             motif_structure.motif_name = name
             motif_structure.motif_class = motif_class
             motif_structure.motif_category = motif_category

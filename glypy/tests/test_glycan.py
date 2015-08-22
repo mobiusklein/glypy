@@ -13,7 +13,7 @@ class GlycanTests(unittest.TestCase):
     def test_from_glycoct(self):
         for structure in glycoct.read(self._file_path):
             self.assertEqual(
-                structure, glycoct.loads(structure.to_glycoct()).next())
+                structure, glycoct.loads(structure.to_glycoct()))
 
     def test_fragments_preserve(self):
         structure = load("branchy_glycan")
@@ -201,9 +201,9 @@ class GlycanTests(unittest.TestCase):
 
     def test_subtree_from_fragment(self):
         structure = load("branchy_glycan")
-        fragment = Fragment(mass=790.285521243, kind="3,5X1,5A", included_nodes=set([8, 10, 4, 5, 7]),
-                            link_ids={}, name="1,5Ab1-3,5Xc4",
-                            crossring_cleavages={10: ('3,5', 'X'), 4: ('1,5', 'A')})
+        fragment = Fragment(mass=1463.5284494, kind="1,5A0,3X", included_nodes=set([2, 3, 4, 5, 6, 7, 8, 9, 10]),
+                            link_ids={}, name="0,3Xc4-1,5A4",
+                            crossring_cleavages={2: ('1,5', 'A'), 7: ('0,3', 'X')})
         subtree = glycan.fragment_to_substructure(fragment, structure)
         self.assertAlmostEqual(subtree.mass(), fragment.mass)
 

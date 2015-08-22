@@ -44,9 +44,13 @@ def extract_modifications(modifications, base_type):
         pos, mods = [], []
     if "Neu" in base_type or "Kd" in base_type:
         for mod in [Modification.d, Modification.keto, Modification.a]:
-            pop_ix = mods.index(mod)
-            pos.pop(pop_ix)
-            mods.pop(pop_ix)
+            try:
+                pop_ix = mods.index(mod)
+                pos.pop(pop_ix)
+                mods.pop(pop_ix)
+            except:
+                pass
+
     elif "Fuc" in base_type:
         for mod in [Modification.d]:
             pop_ix = mods.index(mod)
@@ -84,7 +88,7 @@ def monosaccharide_to_iupac(residue):
     modification = ""
     base_type = resolve_special_base_type(residue)
     if base_type is None:
-        if residue.stem[0] is not Stem.Unknown:
+        if len(residue.stem) == 1 and residue.stem[0] is not Stem.Unknown:
             base_type = residue.stem[0].name.title()
         else:
             base_type = residue.superclass.name.title()
@@ -101,8 +105,11 @@ def monosaccharide_to_iupac(residue):
         )
 
 
+def _make_substituent_name(name):
+    return ''.join(t.title()[:2] for t in name.split("_")).replace("(", "")
+
 substituents_map_to = {
-    name: ''.join(t.title()[:2] for t in name.split("_")) for name in substituent_compositions
+    name: _make_substituent_name(name) for name in substituent_compositions
 }
 
 # Special Cases
@@ -122,7 +129,7 @@ def resolve_substituent(residue):
         if name in substituents_map_to:
             part = substituents_map_to[name]
         else:
-            part = [t.title()[:2] for t in name.split("_")]
+            part = _make_substituent_name(name)
             substituents_map_to[name] = part
             substituents_map_from[part] = name
         # If there is a substituent after the first, successive ones are placed in parentheses
@@ -162,9 +169,20 @@ def get_relevant_substituents(residue):
 def resolve_special_base_type(residue):
     if residue.superclass == SuperClass.non:
         if residue.stem == (Stem.gro, Stem.gal):
-            if len(residue.substituent_links) == 0:
-                return "Kdn"
-            return "Neu"
+            substituents = [sub.name for p, sub in residue.substituents()]
+            modifications = [mod for p, mod in residue.modifications.items()]
+            if Modification.a in modifications and\
+               Modification.keto in modifications and\
+               Modification.d in modifications:
+                if len(substituents) == 0:
+                    return "Kdn"
+                elif "n_acetyl" in substituents:
+                    return "Neu"  # Ac
+                elif "n_glycolyl" in substituents:
+                    return "Neu"  # Gc
+                elif "amino" in substituents:
+                    return "Neu"  #_
+
     elif residue.superclass == SuperClass.oct:
         if residue.stem == (Stem.man,):
             if Modification.a in residue.modifications[1] and\
@@ -252,9 +270,9 @@ def to_iupac(structure):
 monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
                                        (?P<configuration>[LD?])-
                                        (?P<modification>[a-z0-9_\-,]*)
-                                       (?P<base_type>[^-]+?)
+                                       (?P<base_type>[^-]{3}?)
                                        (?P<ring_type>[xpfo?])
-                                       (?P<substituent>[^-]*)
+                                       (?P<substituent>[^-]*?)
                                        (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
 
 
@@ -276,6 +294,7 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
 
     if len(residue.configuration) == 1:
         residue.configuration = (configuration,)
+
     residue.anomer = anomer
 
     if ring_type == 'p':
@@ -294,12 +313,20 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
         try:
             residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
         except ValueError:
-            # Neuraminic Acid has a degenerate encoding, where additional qualifications following
-            # Neu *replace* an existing substituent. This behavior may not be expected in other more
+            # Highly modified large bases have a degenerate encoding, where additional qualifications following
+            # base name *replace* an existing substituent. This behavior may not be expected in other more
             # common cases.
-            if base_type == "Neu":
-                residue.drop_substituent(position)
-                residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+            if base_type in {"Neu", "Kdo"}:
+                occupancy = 0
+                try:
+                    residue.drop_substituent(position)
+                except ValueError:
+                    # The site contains a modification which can be present alongside the substituent
+                    occupancy = 1
+                try:
+                    residue.add_substituent(substituent, position, occupancy, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+                except ValueError:
+                    raise ValueError("Can't resolve %s" % monosaccharide_str)
             else:
                 raise
 

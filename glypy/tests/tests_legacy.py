@@ -649,27 +649,27 @@ class SubtreeSearchTests(unittest.TestCase):
 
     def test_subtree_inclusion(self):
         core = glycans['N-Linked Core']
-        tree = glycoct.loads(broad_n_glycan).next()
+        tree = glycoct.loads(broad_n_glycan)
         self.assertTrue(subtree_search.subtree_of(core, tree))
         self.assertTrue(subtree_search.subtree_of(tree, core) is None)
 
     def test_maximum_common_subtree(self):
         core = glycans['N-Linked Core']
-        tree = glycoct.loads(branchy_glycan).next()
+        tree = glycoct.loads(branchy_glycan)
         res = subtree_search.maximum_common_subgraph(core, tree)
         self.assertEqual(res.score, 6.0)
 
     def test_is_n_glycan(self):
         core = glycans['N-Linked Core']
-        tree = glycoct.loads(broad_n_glycan).next()
+        tree = glycoct.loads(broad_n_glycan)
         result = (subtree_search.subtree_of(core, tree))
         self.assertTrue(result == 1)
-        tree = glycoct.loads(complex_glycan).next()
+        tree = glycoct.loads(complex_glycan)
         result = (subtree_search.subtree_of(core, tree, exact=False))
         self.assertTrue(result == 1)
         result = (subtree_search.subtree_of(core, tree, exact=True))
         self.assertTrue(result == 1)
-        tree = glycoct.loads(branchy_glycan).next()
+        tree = glycoct.loads(branchy_glycan)
         result = (subtree_search.subtree_of(core, tree, exact=False))
         self.assertTrue(result is None)
 
@@ -693,17 +693,15 @@ class SubtreeSearchTests(unittest.TestCase):
             pass
 
 
-
 class IdentifyTests(unittest.TestCase):
 
     def test_is_a_predicate(self):
         for name, monosaccharide in monosaccharides.items():
             self.assertTrue(identity.is_a(monosaccharide, name))
 
-    @debug_on()
     def test_identify_as(self):
         for name, monosaccharide in monosaccharides.items():
-            if monosaccharide == monosaccharides.Hex:
+            if name in {"Hex", "Pen", "Oct", "Hep", "Non"}:
                 continue
             pref_name = identity.identify(monosaccharide)
             if not (name == pref_name or name in synonyms.monosaccharides[pref_name]):
@@ -739,20 +737,20 @@ class IdentifyTests(unittest.TestCase):
 class LinearCodeTests(unittest.TestCase):
 
     def test_translate(self):
-        broad = glycoct.loads(broad_n_glycan).next()
+        broad = glycoct.loads(broad_n_glycan)
         dup = linear_code.loads(linear_code.dumps(broad))
         self.assertEqual(broad, dup)
 
         # linear code doesn't know about modifications or
         # ring shape
-        sulfated = glycoct.loads(sulfated_glycan).next()
+        sulfated = glycoct.loads(sulfated_glycan)
         sulfated.reducing_end = None
         sulfated.root.ring_start = 1
         sulfated.root.ring_end = 5
         dup = linear_code.loads(linear_code.dumps(sulfated))
         self.assertEqual(dup, sulfated)
 
-        sulfated = glycoct.loads(sulfated_glycan).next()
+        sulfated = glycoct.loads(sulfated_glycan)
         dup = linear_code.loads(linear_code.dumps(sulfated))
         self.assertNotEqual(sulfated, dup)
 
@@ -760,8 +758,8 @@ class LinearCodeTests(unittest.TestCase):
 class SimilarityTests(unittest.TestCase):
 
     def test_deep_similarity(self):
-        branchy = glycoct.loads(branchy_glycan).next()
-        broad = glycoct.loads(broad_n_glycan).next()
+        branchy = glycoct.loads(branchy_glycan)
+        broad = glycoct.loads(broad_n_glycan)
         ref = broad.clone()
         self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (5, 5))
         self.assertEqual(

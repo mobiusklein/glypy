@@ -134,7 +134,7 @@ def reparse_database(database):
     from glypy.io import glycoct
     for record in database:
         ct_str = str(record.structure)
-        structure = glycoct.loads(ct_str).next()
+        structure = glycoct.loads(ct_str)
         assert structure.mass() == record.structure.mass()
         record.structure = structure
         record.update()

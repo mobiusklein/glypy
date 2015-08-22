@@ -7,7 +7,8 @@ from glypy.structure.base import SaccharideCollection
 from glypy.io.iupac import (
     parse_modifications, named_structures, Modification,
     substituent_from_iupac, Stem, extract_modifications,
-    resolve_substituent, SuperClass, Configuration)
+    resolve_substituent, SuperClass, Configuration,
+    resolve_special_base_type as _resolve_special_base_type)
 
 
 from .composition_transform import (
@@ -52,35 +53,21 @@ def from_iupac_lite(monosaccharide_str):
         try:
             residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
         except ValueError:
-            # Neuraminic Acid has a degenerate encoding, where additional qualifications following
-            # Neu *replace* an existing substituent. This behavior may not be expected in other more
+            # Highly modified large bases have a degenerate encoding, where additional qualifications following
+            # base name *replace* an existing substituent. This behavior may not be expected in other more
             # common cases.
-            if base_type == "Neu":
-                residue.drop_substituent(position)
-                residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+            if base_type in {"Neu", "Kdo"}:
+                occupancy = 0
+                try:
+                    residue.drop_substituent(position)
+                except:
+                    # The site contains a modification which can be present alongside the substituent
+                    occupancy = 1
+                residue.add_substituent(substituent, position, occupancy, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
             else:
                 raise
 
     return MonosaccharideResidue.from_monosaccharide(residue)
-
-
-def _resolve_special_base_type(residue):
-    if residue.superclass == SuperClass.non:
-        if residue.stem == (Stem.gro, Stem.gal):
-            if len(residue.substituent_links) == 0:
-                return "Kdn"
-            return "Neu"
-    elif residue.superclass == SuperClass.oct:
-        if residue.stem == (Stem.man,):
-            if Modification.a in residue.modifications[1] and\
-               Modification.keto in residue.modifications[2] and\
-               Modification.d in residue.modifications[3]:
-                return "Kdo"
-    elif residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
-        if Modification.d in residue.modifications.values():
-            return "Fuc"
-
-    return None
 
 
 def to_iupac_lite(residue):
@@ -115,6 +102,8 @@ def to_iupac_lite(residue):
             base_type = residue.stem[0].name.title()
         else:
             base_type = residue.superclass.name.title()
+
+    # Omit unknown coordinates on modifications and substituents
     modification = extract_modifications(residue.modifications, base_type).replace("-1-", "")
     substituent = resolve_substituent(residue).replace("-1", "")
     return template.format(
@@ -134,11 +123,17 @@ def drop_positions(residue):
         modifications = OrderedMultiMap()
         for k, v in residue.modifications.items():
             modifications[-1] = v
+        residue.modifications = modifications
 
         for p, link in list(residue.substituent_links.items()):
             link.break_link(refund=True)
             link.parent_position = -1
             link.apply()
+
+
+def drop_configuration(residue):
+    if _resolve_special_base_type(residue) is None:
+        residue.configuration = (None,)
 
 
 water_composition = {"O": 1, "H": 2}
@@ -232,6 +227,7 @@ class MonosaccharideResidue(Monosaccharide):
 
     drop_stem = drop_stem
     drop_positions = drop_positions
+    drop_configuration = drop_configuration
 
 water_mass = Composition("H2O").mass
 
@@ -259,6 +255,9 @@ class GlycanComposition(dict, SaccharideCollection):
     def __setitem__(self, key, value):
         if isinstance(key, basestring):
             key = from_iupac_lite(key)
+        if key.reducing_end is not None:
+            self.reducing_end = key.reducing_end
+            key.reducing_end = None
         dict.__setitem__(self, key, value)
         self._mass = None
 
@@ -298,7 +297,9 @@ class GlycanComposition(dict, SaccharideCollection):
             if isinstance(args[0], (Monosaccharide)):
                 args = map(MonosaccharideResidue.from_monosaccharide, args)
             elif isinstance(args[0], Glycan):
-                args = map(MonosaccharideResidue.from_monosaccharide, args[0])
+                args = map(
+                    MonosaccharideResidue.from_monosaccharide,
+                    [node for node in args[0] if node.node_type is MonosaccharideResidue.node_type])
             else:
                 raise TypeError(
                     "Can't convert {} to MonosaccharideResidue".format(
@@ -371,6 +372,10 @@ class GlycanComposition(dict, SaccharideCollection):
             drop_positions(t)
         return self
 
+    def drop_configurations(self):
+        for t in self:
+            drop_configuration(t)
+
     def total_composition(self):
         comp = self._composition_offset.clone()
         for residue, count in self.items():
@@ -378,6 +383,12 @@ class GlycanComposition(dict, SaccharideCollection):
         if self._reducing_end is not None:
             comp += self._reducing_end.total_composition()
         return comp
+
+    def collapse(self):
+        items = list(self.items())
+        self.clear()
+        for k, v in items:
+            self[k] += v
 
     @property
     def reducing_end(self):

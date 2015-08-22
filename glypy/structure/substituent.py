@@ -144,7 +144,7 @@ class Substituent(SubstituentBase):
         return not self == other
 
     def open_attachment_sites(self):
-        return [1, 2]
+        return [1, 2], 0
 
     def is_occupied(self, position):
         '''

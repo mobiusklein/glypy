@@ -6,14 +6,21 @@ from .mass_dict import nist_mass
 from .base import ChemicalCompositionError, composition_factory
 
 cimport cython
+from cpython cimport PY_MAJOR_VERSION
+
 from cpython.ref cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update
 from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
-from cpython.string cimport PyString_Format
+
+
+if PY_MAJOR_VERSION < 3:
+    from cpython.string cimport PyString_Format
+else:
+    from cpython.unicode cimport PyUnicode_Format
+
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
 from cpython.list cimport PyList_GET_ITEM
-
 
 # Forward Declaration
 cdef: 
@@ -62,7 +69,10 @@ cdef inline str _make_isotope_string(str element_name, int isotope_num):
         return element_name
     else:
         parts = (element_name, isotope_num)
-        return <str>PyString_Format('%s[%d]', parts)
+        if PY_MAJOR_VERSION < 3:
+            return <str>PyString_Format('%s[%d]', parts)
+        else:
+            return <str>PyUnicode_Format('%s[%d]', parts)
 
 
 cdef class CComposition(dict):

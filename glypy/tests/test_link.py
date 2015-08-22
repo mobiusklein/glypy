@@ -115,8 +115,8 @@ class AmbiguousLinkTests(unittest.TestCase):
                 9:9o(3+1)10d
                 10:9o(6+1)11d
                 '''
-        ambig = glycoct.loads(ambig).next()
-        exact = glycoct.loads(exact).next()
+        ambig = glycoct.loads(ambig)
+        exact = glycoct.loads(exact)
         ambig.set_reducing_end(True)
         exact.set_reducing_end(True)
         self.assertEqual(ambig.total_composition(), exact.total_composition())

@@ -16,7 +16,7 @@ def emit(arg):
 
 def load(name):
     structure_composition.do_warn = False
-    res = glycoct.loads(structures[name]).next()
+    res = glycoct.loads(structures[name])
     structure_composition.do_warn = True
     return res
 
