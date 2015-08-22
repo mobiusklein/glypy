@@ -15,8 +15,7 @@ from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
 if PY_MAJOR_VERSION < 3:
     from cpython.string cimport PyString_Format
-else:
-    from cpython.unicode cimport PyUnicode_Format
+from cpython.unicode cimport PyUnicode_Format
 
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
