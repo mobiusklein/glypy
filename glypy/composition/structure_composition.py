@@ -199,7 +199,9 @@ _substituent_compositions = {
     "(r)_lactate": Composition("CH3CHCO"),
     "(s)_lactate": Composition("CH3CHCO"),
     "ethanolamine": Composition("NHCH2CH2OHH"),
-    "anhydro": Composition("O")
+    "anhydro": Composition("O"),
+    "phospho_ethanolamine": Composition("NHCH2CH2OH"),  # Missing the Phospho,
+    "glycolyl": Composition("COCH2OH")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

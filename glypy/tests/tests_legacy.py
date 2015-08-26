@@ -3,7 +3,7 @@ import pdb
 import functools
 import traceback
 import unittest
-import json
+import hjson
 import itertools
 from collections import defaultdict
 
@@ -43,8 +43,8 @@ monosaccharides = named_structures.monosaccharides
 glycans = named_structures.glycans
 
 # monosaccharide_masses = json.load(open("./test_data/monosaccharide_masses.json"))
-monosaccharide_structures = json.load(
-    open("./glypy/structure/data/monosaccharides.json"))
+monosaccharide_structures = hjson.load(
+    open("./glypy/structure/data/monosaccharides.hjson"))
 
 wiki_masses = {
     "Iduronic Acid": 194.04,

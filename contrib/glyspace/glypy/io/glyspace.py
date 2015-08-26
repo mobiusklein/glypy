@@ -57,7 +57,7 @@ def get(accession):
         return cache[accession].structure
     r = requests.get(get_url_template.format(accession=accession), verify=ssl_verification)
     r.raise_for_status()
-    condensed = r.json["structure"]
+    condensed = r.json()["structure"]
     return glycoct.loads(condensed)
 
 
@@ -86,3 +86,18 @@ def glycan_record_from_json(response, record_type=GlycanRecord):
     motifs = response['motifs']
     dbxref = [DatabaseEntry("glySpace", record_id), DatabaseEntry("glySpace", accession)]
     return GlycanRecord(structure, id=record_id, dbxref=dbxref)
+
+
+sparql_endpoint = "http://ts.glytoucan.org/sparql"
+
+
+def execute_sparql(query):
+    payload = {
+        "query": query,
+        "format": "json",
+        "debug": "on",
+        "timeout": 10
+    }
+    r = requests.get(sparql_endpoint, params=payload)
+    r.raise_for_status()
+    return r.json()

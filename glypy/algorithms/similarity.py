@@ -115,6 +115,15 @@ def monosaccharide_similarity(node, target, include_substituents=True,
     return res, qs
 
 
+def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
+    obs, expect = monosaccharide_similarity(node, target, *args, **kwargs)
+    if (obs - expect) >= -tolerance:
+        return True
+    else:
+        obs, expect = monosaccharide_similarity(target, node, *args, **kwargs)
+        return (obs - expect) >= -tolerance
+
+
 def optimal_assignment(assignments, score_fn):
     '''
     Given a set of possibly overlapping matches, brute-force find the

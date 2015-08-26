@@ -66,6 +66,10 @@ def status_msgs(*msgs):
         print(msg)
     print('*' * 75)
 
+required = []
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
 
 def run_setup(include_cext=True):
     setup(
@@ -77,6 +81,7 @@ def run_setup(include_cext=True):
               "glypy.structure": ["glypy/structure/data/*"],
               "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
           },
+          install_requires=required,
           namespace_packages=[
             "glypy",
             "glypy.algorithms",

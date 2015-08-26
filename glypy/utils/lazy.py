@@ -57,7 +57,7 @@ class ProxyObject(object):
         sep = ""
         val = ""
         if self._source is not None:
-            sep = r'\n'
+            sep = r'~'
             val = repr(self._source)
         return rep.format(sep, val)
 

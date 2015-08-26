@@ -106,7 +106,7 @@ def monosaccharide_to_iupac(residue):
 
 
 def _make_substituent_name(name):
-    return ''.join(t.title()[:2] for t in name.split("_")).replace("(", "")
+    return ''.join(t.title() for t in name.split("_")).replace("(", "")
 
 substituents_map_to = {
     name: _make_substituent_name(name) for name in substituent_compositions
@@ -116,6 +116,10 @@ substituents_map_to = {
 substituents_map_to['n_acetyl'] = "NAc"
 substituents_map_to['n_glycolyl'] = "NGc"
 substituents_map_to['sulfate'] = "S"
+substituents_map_to["methyl"] = "Me"
+substituents_map_to["acetyl"] = "Ac"
+substituents_map_to["fluoro"] = "F"
+substituents_map_to["amino"] = "N"
 
 substituents_map_from = invert_dict(substituents_map_to)
 
@@ -348,7 +352,12 @@ def substituent_from_iupac(substituents):
         else:
             position = -1
             name = split_part[0]
-        name = (substituents_map_from[name])
+        try:
+            name = (substituents_map_from[name])
+        except KeyError:
+            import warnings
+            warnings.warn("No translation rule found to convert %s into a Substituent" % name)
+            continue
         yield int(position), name
 
 

@@ -1,5 +1,5 @@
 import pkg_resources
-import json
+import hjson
 import uuid
 import re
 
@@ -12,7 +12,7 @@ from glypy.io import glycoct
 
 class StructureIndex(dict):
     def __init__(self, stream, key_transform=identity, value_transform=identity):
-        self.update(json.load(stream))
+        self.update(hjson.load(stream))
         for k, v in self.items():
             self[key_transform(k)] = value_transform(glycoct.loads(v))
         self.key_transform = key_transform
@@ -48,7 +48,7 @@ class StructureIndex(dict):
 class MonosaccharideIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=lambda x: x.root):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.json")
+            stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.hjson")
         super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
 
 monosaccharides = (MonosaccharideIndex)()
@@ -57,7 +57,7 @@ monosaccharides = (MonosaccharideIndex)()
 class GlycanIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/glycans.json")
+            stream = pkg_resources.resource_stream(__name__, "data/glycans.hjson")
         super(GlycanIndex, self).__init__(stream, key_transform, value_transform)
 
 glycans = ProxyObject(GlycanIndex)
@@ -66,8 +66,8 @@ glycans = ProxyObject(GlycanIndex)
 class MotifIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/motifs.json")
-        data = json.load(stream)
+            stream = pkg_resources.resource_stream(__name__, "data/motifs.hjson")
+        data = hjson.load(stream)
         motif_classes = set()
         motif_categories = set()
         for motif in data:
@@ -78,6 +78,7 @@ class MotifIndex(StructureIndex):
             motif_structure.motif_name = name
             motif_structure.motif_class = motif_class
             motif_structure.motif_category = motif_category
+            motif_structure.is_core_motif = motif["core_motif"]
             self[name] = motif_structure
             motif_classes.add(motif_class)
             motif_categories.add(motif_category)

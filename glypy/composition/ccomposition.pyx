@@ -253,13 +253,20 @@ cdef class CComposition(dict):
     @cython.boundscheck(True)
     def _from_formula_parens(self, formula, mass_data):
         # Parsing a formula backwards.
+        cdef:
+            Py_ssize_t prev_chem_symbol_start, i
+            int seek_mode, group_coef
+            str parse_stack
+            list resolve_stack
+
+
         prev_chem_symbol_start = len(formula)
         i = len(formula) - 1
 
         seek_mode = 0
         parse_stack = ""
         resolve_stack = []
-        group_coef = None
+        group_coef = 1
 
         while i >= 0:
             if seek_mode < 1:

@@ -1,7 +1,7 @@
 import logging
 import itertools
 import operator
-from .similarity import monosaccharide_similarity
+from .similarity import monosaccharide_similarity, commutative_similarity
 from glypy.utils import make_struct, root, groupby
 from glypy.structure import Glycan, Monosaccharide
 from glypy.structure.monosaccharide import depth
@@ -45,8 +45,8 @@ def topological_inclusion(self, other, substituents=True, tolerance=0, visited=N
     if (self.id, other.id) in visited:
         return True
     visited.add((self.id, other.id))
-    obs, expect = monosaccharide_similarity(self, other, include_substituents=substituents)
-    if (obs - expect) >= -tolerance:
+    similar = commutative_similarity(self, other, tolerance, include_substituents=substituents)
+    if similar:
         taken_b = set()
         for a_pos, a_child in self.children():
             matched = False
@@ -75,8 +75,8 @@ def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visite
         visited = set()
     if (self.id, other.id) in visited:
         return True
-    obs, expect = monosaccharide_similarity(self, other, include_substituents=substituents)
-    if (obs - expect) >= -tolerance:
+    similar = commutative_similarity(self, other, tolerance, include_substituents=substituents)
+    if similar:
         if substituents:
             other_substituents = dict(other.substituents())
             for a_pos, a_sub in self.substituents():

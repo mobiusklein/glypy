@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 default_line_color = 'black'
 default_scale_factor = 1.0
+zorder = 2
+line_weight = 0.5
+
 
 class ResidueShape(Enum):
     circle = 1
@@ -232,7 +235,7 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     # Render substituents along the bottom of the monosaccharide
     subs = []
     sub_x = x - (0.15 * (len(substituents) - 1))
-    sub_y = y - 0.18
+    sub_y = y - 0.25
     for pos, subst_name in substituents:
         sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name))
         sub_x += 0.3
@@ -246,7 +249,7 @@ def draw_circle(ax, x, y, color, scale=0.1):
     path = Path(unit_circle.vertices * scale, unit_circle.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     return (a,)
 draw_map[ResidueShape.circle] = draw_circle
@@ -273,7 +276,7 @@ def draw_square(ax, x, y, color, scale=0.1):
     path = Path(square_verts * scale, square_codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     return (a,)
 draw_map[ResidueShape.square] = draw_square
@@ -282,9 +285,9 @@ unit_rectangle = Path.unit_rectangle()
 
 def draw_triangle(ax, x, y, color, scale=0.1):
     path = Path(unit_triangle.vertices * scale, unit_triangle.codes)
-    trans = matplotlib.transforms.Affine2D().translate(x, y)
+    trans = matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, -90)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     return (a,)
 draw_map[ResidueShape.triangle] = draw_triangle
@@ -298,7 +301,7 @@ def draw_bisected_square(ax, x, y, color, scale=0.1):
             (0, 1.0),
             (0, 0),
             (0., 0.),
-            ]) - 0.5) / 4
+            ]) - 0.5) / 5
 
     upper_verts = (np.array([
             (1., 1.),
@@ -306,7 +309,7 @@ def draw_bisected_square(ax, x, y, color, scale=0.1):
             (0, 1.0),
             (1, 1),
             (0., 0.),
-            ]) - 0.5) / 4
+            ]) - 0.5) / 5
 
     codes = [Path.MOVETO,
              Path.LINETO,
@@ -320,9 +323,9 @@ def draw_bisected_square(ax, x, y, color, scale=0.1):
     upper_path = Path(upper_verts, codes).transformed(
         matplotlib.transforms.Affine2D().translate(x, y))
 
-    patch = patches.PathPatch(lower_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(lower_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    patch = patches.PathPatch(upper_path, facecolor="white", lw=1, zorder=2)
+    patch = patches.PathPatch(upper_path, facecolor="white", lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
     return a, b
 draw_map[ResidueShape.bisected_square] = draw_bisected_square
@@ -332,7 +335,7 @@ def draw_diamond(ax, x, y, color, scale=0.1):
     path = Path(unit_diamond.vertices * scale, unit_diamond.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = (ax.add_patch(patch),)
     return (a,)
 draw_map[ResidueShape.diamond] = draw_diamond
@@ -375,9 +378,9 @@ def draw_vertical_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
     elif side == 'bottom':
         top_color = 'white'
         bottom_color = color.value
-    patch = patches.PathPatch(lower_path, facecolor=bottom_color, lw=1, zorder=2)
+    patch = patches.PathPatch(lower_path, facecolor=bottom_color, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    patch = patches.PathPatch(upper_path, facecolor=top_color, lw=1, zorder=2)
+    patch = patches.PathPatch(upper_path, facecolor=top_color, lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
     return a, b
 draw_map[ResidueShape.top_bisected_diamond] = partial(draw_vertical_bisected_diamond, side='top')
@@ -419,9 +422,9 @@ def draw_horizontal_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
     right_path = Path(right_verts, codes).transformed(
         matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
 
-    patch = patches.PathPatch(left_path, facecolor=left_color, lw=1, zorder=2)
+    patch = patches.PathPatch(left_path, facecolor=left_color, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    patch = patches.PathPatch(right_path, facecolor=right_color, lw=1, zorder=2)
+    patch = patches.PathPatch(right_path, facecolor=right_color, lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
     return a, b
 
@@ -433,7 +436,7 @@ def draw_star(ax, x, y, color, scale=0.1):
     path = Path(unit_star.vertices * scale, unit_star.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor=color.value, lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     return (a,)
 unit_star = Path.unit_regular_star(5, 0.3)
@@ -445,7 +448,7 @@ def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
     path = Path(unit_polygon.vertices * scale, unit_polygon.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    patch = patches.PathPatch(t_path, facecolor="white", lw=1, zorder=2)
+    patch = patches.PathPatch(t_path, facecolor="white", lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=84 * scale)
     return (a,)

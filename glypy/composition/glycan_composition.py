@@ -59,8 +59,8 @@ def from_iupac_lite(monosaccharide_str):
             # Highly modified large bases have a degenerate encoding, where additional qualifications following
             # base name *replace* an existing substituent. This behavior may not be expected in other more
             # common cases.
+            occupancy = 0
             if base_type in {"Neu", "Kdo"}:
-                occupancy = 0
                 try:
                     residue.drop_substituent(position)
                 except:
@@ -75,7 +75,7 @@ def from_iupac_lite(monosaccharide_str):
                     residue.add_substituent(
                         substituent, -1, occupancy,
                         parent_loss=substituent.attachment_composition_loss(),
-                        child_loss='H')    
+                        child_loss='H')
             else:
                 residue.add_substituent(
                     substituent, -1, occupancy,
@@ -222,7 +222,8 @@ class MonosaccharideResidue(Monosaccharide):
         return hash(self.name())
 
     def open_attachment_sites(self, max_occupancy=0):
-        sites, unknowns = super(MonosaccharideResidue, self).open_attachment_sites(max_occupancy)
+        sites, unknowns = super(
+            MonosaccharideResidue, self).open_attachment_sites(max_occupancy)
         return sites[:-3], unknowns
 
     def __eq__(self, other):
@@ -257,7 +258,8 @@ class GlycanComposition(dict, SaccharideCollection):
         inst.reducing_end = glycan.reducing_end
         deriv = has_derivatization(glycan.root)
         if deriv:
-            inst._composition_offset += (deriv.total_composition() - deriv.attachment_composition_loss()) * 2
+            inst._composition_offset += (
+                deriv.total_composition() - deriv.attachment_composition_loss()) * 2
         return inst
 
     def __init__(self, *args, **kwargs):
@@ -400,6 +402,15 @@ class GlycanComposition(dict, SaccharideCollection):
         return comp
 
     def collapse(self):
+        '''
+        Merge redundant keys.
+
+        After performing a structure-detail removing operation like
+        :meth:`drop_positions`, :meth:`drop_configurations`, or :meth:`drop_stems`,
+        monosaccharide keys may be redundant.
+
+        `collapse` will merge keys which refer to the same type of molecule.
+        '''
         items = list(self.items())
         self.clear()
         for k, v in items:
@@ -427,7 +438,8 @@ class GlycanComposition(dict, SaccharideCollection):
         return self.__class__(self)
 
     def serialize(self):
-        return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(self.items(), key=lambda x: x[0].mass()))
+        return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
+            self.items(), key=lambda x: x[0].mass()))
 
     __str__ = serialize
 
@@ -441,7 +453,9 @@ class GlycanComposition(dict, SaccharideCollection):
         return inst
 
     def _derivatized(self, substituent, id_base):
-        self._composition_offset += (substituent.total_composition() - substituent.attachment_composition_loss() * 2) * 2
+        self._composition_offset += (
+            substituent.total_composition() -
+            substituent.attachment_composition_loss() * 2) * 2
         if self._reducing_end is not None:
             _derivatize_reducing_end(self._reducing_end, substituent, id_base)
 

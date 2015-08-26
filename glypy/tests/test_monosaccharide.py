@@ -1,5 +1,5 @@
 import unittest
-import json
+import hjson
 import itertools
 
 from glypy.structure import named_structures, constants, monosaccharide, substituent, glycan
@@ -8,8 +8,8 @@ from glypy.io import glycoct
 
 from common import StringIO, load, pickle
 
-monosaccharide_structures = json.load(
-    open("./glypy/structure/data/monosaccharides.json"))
+monosaccharide_structures = hjson.load(
+    open("./glypy/structure/data/monosaccharides.hjson"))
 
 wiki_masses = {
     "Iduronic Acid": 194.04,

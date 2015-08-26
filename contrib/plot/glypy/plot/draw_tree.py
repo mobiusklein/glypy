@@ -4,11 +4,11 @@ from collections import defaultdict
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
+import numpy as np
 from glypy import monosaccharides
 from glypy.utils import root
-from glypy.structure import Glycan
 from glypy.io.nomenclature import identity
-from glypy.algorithms.database import GlycanRecordBase
 
 from .buchheim import buchheim
 from . import cfg_symbols, iupac_symbols
@@ -142,11 +142,13 @@ class DrawTreeNode(object):
         self._axes = None
 
         self.mask_special_cases = True
+        # Unused. Artefact of Buccheim
         self.thread = None
         self.mod = 0
         self.ancestor = self
         self.change = self.shift = 0
         self._lmost_sibling = None
+
         # Number of the node in its group of siblings 1..n
         self.number = number
 
@@ -154,12 +156,16 @@ class DrawTreeNode(object):
             self.data = self.parent.data
             self.uuid = self.parent.uuid
         else:
-            self.data = defaultdict(dict)
+            self.data = defaultdict(lambda: defaultdict(dict))
             self.uuid = uuid4().hex
 
         self.children = [resolve_creation_cycle(c[1], self, depth+1, i+1, c[0], visited)
                          for i, c
                          in enumerate(tree.children())]
+
+        self.patches = []
+        # A node owns all lines originating from it.
+        self.lines = []
 
     def __iter__(self):
         return iter(self.children)
@@ -272,9 +278,12 @@ class DrawTreeNode(object):
             cx, cy = child.draw_branches(orientation, at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
                                          label=label, visited=visited, **kwargs)
-            symbol_nomenclature.line_to(ax, x, y, cx, cy,
-                                        color=kwargs.get('link_color', symbol_nomenclature.default_line_color),
-                                        zorder=1)
+            patch = symbol_nomenclature.line_to(
+                ax, x, y, cx, cy,
+                color=kwargs.get('link_color', symbol_nomenclature.default_line_color),
+                zorder=1)
+            self.data['lines'][self.id, child.id] = [patch]
+            self.lines.append(patch)
             if label:
                 self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
                                               symbol_nomenclature=symbol_nomenclature,
@@ -313,7 +322,7 @@ class DrawTreeNode(object):
         x, y = self.coords(orientation, at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
                                                                           orientation=orientation, **kwargs)
-        self.data["patches"][self.tree.id] = [residue_elements, substituent_elements]
+        self.patches = self.data["patches"][self.tree.id] = [residue_elements, substituent_elements]
         self.data["position"][self.tree.id] = x, y
         for i, res_el in enumerate(residue_elements):
             if isinstance(res_el, tuple):
@@ -369,7 +378,8 @@ class DrawTreeNode(object):
             if link.is_child(child.tree):
                 position_num = pos
                 break
-        symbol_nomenclature.draw_text(ax=ax, x=position_x, y=position_y, text=str(position_num))
+        position_text = symbol_nomenclature.draw_text(
+            ax=ax, x=position_x, y=position_y, text=str(position_num))
         anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
         anomer_y = ((sy * 0.2 + cy * 0.8))
         if sx == cx:
@@ -381,8 +391,11 @@ class DrawTreeNode(object):
         else:
             anomer_y += -0.12
 
-        symbol_nomenclature.draw_text(ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), scale=0.13)
+        anomer_text = symbol_nomenclature.draw_text(
+            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), scale=0.13)
+        self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
+    # Tree Layout Helpers
     def left(self):
         return self.thread or len(self.children) and self.children[0]
 
@@ -452,8 +465,12 @@ class DrawTreeNode(object):
             ymin = y
         if y > ymax:
             ymax = y
-        for child in self:
-            xmin, xmax, ymin, ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax, visited=visited)
+        for child in sorted(self.children, key=lambda x: len(x.children)):
+            n_xmin, n_xmax, n_ymin, n_ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax, visited=visited)
+            xmin = min(xmin, n_xmin)
+            ymin = min(ymin, n_ymin)
+            xmax = max(xmax, n_xmax)
+            ymax = max(ymax, n_ymax)
         return xmin, xmax, ymin, ymax
 
     def scale(self, factor=DEFAULT_TREE_SCALE_FACTOR, visited=None):
@@ -576,6 +593,30 @@ class DrawTreeNode(object):
                 if label:
                     ax.text((cx - scale) - 0.32, (cy + scale) + .035, annotation_name)
 
+    def transform(self, transform):
+        base_transform = transform
+        transform = transform + self.axes.transData
+        for i, patches in self.data['patches'].items():
+            for entity in patches:
+                for p in entity:
+                    if isinstance(p, tuple):
+                        [_.set_transform(transform) for _ in p]
+                    else:
+                        p.set_transform(transform)
+        for i, patches in self.data['lines'].items():
+            for p in patches:
+                if isinstance(p, tuple):
+                    [_.set_transform(transform) for _ in p]
+                else:
+                    p.set_transform(transform)
+        mat = base_transform.get_matrix()
+        for node in breadth_first_traversal(self):
+            x, y, w = mat.dot(np.array((node.x, node.y, 1)))
+            x /= w
+            y /= w
+            node.x = x
+            node.y = y
+
 
 class DrawTree(object):
     def __init__(self, structure, figure=None, ax=None, layout=buchheim, symbol_nomenclature=cfg_symbols, **kwargs):
@@ -607,6 +648,9 @@ class DrawTree(object):
             ax.set_ylim(sign(ymin) * (abs(ymin) + 2), (1 * abs(ymax) + 2))
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
+
+    def transform(self, *args, **kwargs):
+        self.root.transform(*args, **kwargs)
 
     def run(self, orientation='h', at=(1, 1)):
         self.layout()
@@ -669,6 +713,7 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False,
         fig, ax = plt.subplots()
         at = (0, 0)
         center = True
+        ax.axis('off')
     dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label,
                symbol_nomenclature=symbol_nomenclature)
     # If the figure is stand-alone, center it
