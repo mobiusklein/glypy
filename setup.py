@@ -87,9 +87,7 @@ def run_setup(include_cext=True):
             "glypy.algorithms",
             "glypy.io",
             "glypy.io.nomenclature",
-            "glypy.structure",
             "glypy.composition",
-            "glypy.utils",
             "glypy.tests"
           ],
           cmdclass=cmdclass,

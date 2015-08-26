@@ -1,5 +1,3 @@
-import pkg_resources
-
 from .base import (opener, make_counter, invert_dict, identity,
                    nullop, chrinc, make_struct, classproperty, cyclewarning,
                    root, tree, groupby, pickle, ET, StringIO)
@@ -7,5 +5,3 @@ from .base import (opener, make_counter, invert_dict, identity,
 __all__ = ['opener', 'make_counter', 'invert_dict', 'identity', 'nullop',
            "chrinc", "make_struct", "classproperty", "cyclewarning",
            "root", "tree", "groupby"]
-
-pkg_resources.declare_namespace('glypy.utils')
