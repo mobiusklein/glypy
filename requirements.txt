@@ -1,3 +1,2 @@
-glypy
 six>=1.9
 hjson>=1.5

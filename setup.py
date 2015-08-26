@@ -82,14 +82,14 @@ def run_setup(include_cext=True):
               "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
           },
           install_requires=required,
-          namespace_packages=[
-            "glypy",
-            "glypy.algorithms",
-            "glypy.io",
-            "glypy.io.nomenclature",
-            "glypy.composition",
-            "glypy.tests"
-          ],
+          # namespace_packages=[
+          #   "glypy",
+          #   "glypy.algorithms",
+          #   "glypy.io",
+          #   "glypy.io.nomenclature",
+          #   "glypy.composition",
+          #   "glypy.tests"
+          # ],
           cmdclass=cmdclass,
           zip_safe=False,
           ext_modules=extensions if include_cext else None,
