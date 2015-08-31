@@ -295,6 +295,7 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     linkage = [d for d in match_dict.get('linkage') or "" if d.isdigit() or d == "?"]
 
     residue = named_structures.monosaccharides[base_type]
+    base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
 
     if len(residue.configuration) == 1:
         residue.configuration = (configuration,)
@@ -313,9 +314,17 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
+        if position == -1 and base_is_modified:
+            raise ValueError(
+                "Cannot have ambiguous location of substituents on a base type which"
+                " has default modifications or substituents. {} {}".format(
+                    residue, (position, substituent)))
+
         substituent = Substituent(substituent)
         try:
-            residue.add_substituent(substituent, position, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+            residue.add_substituent(
+                substituent, position,
+                parent_loss=substituent.attachment_composition_loss(), child_loss='H')
         except ValueError:
             # Highly modified large bases have a degenerate encoding, where additional qualifications following
             # base name *replace* an existing substituent. This behavior may not be expected in other more

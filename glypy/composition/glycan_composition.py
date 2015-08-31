@@ -43,12 +43,18 @@ def from_iupac_lite(monosaccharide_str):
     modification = match_dict['modification']
 
     residue = named_structures.monosaccharides[base_type]
+    base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
 
     residue.ring_end = residue.ring_start = None
 
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
+        if position == -1 and base_is_modified:
+            raise ValueError(
+                "Cannot have ambiguous location of substituents on a base type which"
+                " has default modifications or substituents. {} {}".format(
+                    residue, (position, substituent)))
         substituent = Substituent(substituent)
         try:
             residue.add_substituent(
@@ -239,6 +245,7 @@ class MonosaccharideResidue(Monosaccharide):
             return False
         return self.name() == other.name()
 
+    from_iupac_lite = staticmethod(from_iupac_lite)
     name = to_iupac_lite
 
     drop_stem = drop_stem

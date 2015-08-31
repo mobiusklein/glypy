@@ -11,6 +11,7 @@ from glypy.utils import root
 from glypy.io.nomenclature import identity
 
 from .buchheim import buchheim
+from .topological_layout import layout as topological
 from . import cfg_symbols, iupac_symbols
 
 
@@ -19,9 +20,12 @@ nomenclature_map = {
     'iupac': iupac_symbols
 }
 
+layout_map = {
+    "balanced": buchheim,
+    "topological": topological
+}
 
-DEFAULT_TREE_SCALE_FACTOR = 0.65
-DEFAULT_SYMBOL_SCALE_FACTOR = 0.1
+DEFAULT_SYMBOL_SCALE_FACTOR = 0.2
 
 
 #: :data:`special_cases` contains a list of names for
@@ -38,6 +42,16 @@ def is_special_case(node):
         if identity.is_a(node, case) and len(list(node.children())) == 0:
             return True
     return False
+
+
+def box(node, ax=None):
+    if ax is None:
+        ax = node.axes
+    xmin, xmax, ymin, ymax = node.extrema()
+    ax.plot((xmin-0.2, xmax+0.2), (ymin-0.2, ymin-0.2), c='b')
+    ax.plot((xmin-0.2, xmax+0.2), (ymax+0.2, ymax+0.2), c='b')
+    ax.plot((xmin-0.2, xmin-0.2), (ymin-0.2, ymax+0.2), c='b')
+    ax.plot((xmax+0.2, xmax+0.2), (ymin-0.2, ymax+0.2), c='b')
 
 
 def sign(x, zero_dir=-1):
@@ -84,7 +98,7 @@ def enumerate_tree(tree, ax, labeler=None):
         labeler = operator.attrgetter('id')
     nodes = list(breadth_first_traversal(tree))
     for node in nodes:
-        x, y = node.coords('h')
+        x, y = node.coords()
         ax.text(x, y + 0.2, labeler(node.tree), color='red')
     # Update the plot
     ax.get_figure().canvas.draw()
@@ -135,6 +149,7 @@ class DrawTreeNode(object):
         visited[self.id] = self
         self.x = -1.
         self.y = depth
+        self.depth = depth
         self.tree = tree
         self.parent = parent
         self.parent_linkage = parent_linkage
@@ -198,63 +213,43 @@ class DrawTreeNode(object):
         if self.id in visited:
             return
         visited.add(self.id)
-        n = 0
         self.mask_special_cases = False
         for child in self.children:
             if is_special_case(child.tree):
-                if n == 0:
+                if child.parent_linkage > 3:
                     child.y = self.y
                     child.x = self.x + offset
-                elif n == 1:
+                elif child.parent_linkage > 1:
                     child.y = self.y
                     child.x = self.x - offset
                 else:
-                    raise Exception("Don't know how to handle more than two special case child nodes.")
+                    raise Exception(
+                        "Don't know how to handle special case child node %r, %r." % (
+                            child, child.parent_linkage))
             child.fix_special_cases(offset, visited)
 
-    def draw(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
+    def draw(self, at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
         if isinstance(symbol_nomenclature, basestring):
             symbol_nomenclature = nomenclature_map[symbol_nomenclature]
         if ax is None:
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
-        self.draw_branches(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+        self.draw_branches(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                            label=label, visited=set(), **kwargs)
-        self.draw_nodes(orientation, at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+        self.draw_nodes(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                         label=label, visited=set(), **kwargs)
 
-    def coords(self, orientation="h", at=(0, 0)):
-        if orientation in {"h", "horizontal"}:
-            x = -self.y + at[1]
-            y = self.x + at[0]
-        elif orientation in {'v', "vertical"}:
-            x = self.x + at[0]
-            y = self.y + at[1]
-        else:
-            raise Exception("Unknown Orientation: {}".format(orientation))
-        return x, y
+    def coords(self, *args, **kwargs):
+        return self.x, self.y
 
-    def map_coords(self, orientation, x, y):
-        if orientation in {"h", "horizontal"}:
-            x = -y
-            y = x
-        elif orientation in {'v', "vertical"}:
-            x = x
-            y = y
-        return x, y
-
-    def draw_branches(self, orientation="h", at=(0, 0), ax=None, symbol_nomenclature=None,
+    def draw_branches(self, at=(0, 0), ax=None, symbol_nomenclature=None,
                       label=True, visited=None, **kwargs):
         '''
         Draw the edges linking parent nodes to child nodes. Also draws the parent outlink position
         and the child anomer symbol
         Parameters
         ----------
-        orientation: |str|
-            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
-            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
-            Defaults to `h`
         at: :class:`tuple`
             The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
         ax: :class:`matplotlib.axes.Axis`
@@ -270,12 +265,12 @@ class DrawTreeNode(object):
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
-        x, y = self.coords(orientation, at)
+        x, y = self.coords()
         if self.id in visited:
             return x, y
         visited.add(self.id)
         for child in self:
-            cx, cy = child.draw_branches(orientation, at, ax=ax,
+            cx, cy = child.draw_branches(at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
                                          label=label, visited=visited, **kwargs)
             patch = symbol_nomenclature.line_to(
@@ -285,22 +280,18 @@ class DrawTreeNode(object):
             self.data['lines'][self.id, child.id] = [patch]
             self.lines.append(patch)
             if label:
-                self.draw_linkage_annotations(orientation=orientation, at=at, ax=ax,
+                self.draw_linkage_annotations(at=at, ax=ax,
                                               symbol_nomenclature=symbol_nomenclature,
                                               child=child, visited=visited, **kwargs)
         return x, y
 
-    def draw_nodes(self, orientation='h', at=(0, 0), ax=None, symbol_nomenclature=None,
+    def draw_nodes(self, at=(0, 0), ax=None, symbol_nomenclature=None,
                    label=True, visited=None, **kwargs):
         '''
         Draw the symbol representing the individual monosaccharide and its substituents.
 
         Parameters
         ----------
-        orientation: |str|
-            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
-            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
-            Defaults to `h`
         at: :class:`tuple`
             The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
         ax: :class:`matplotlib.axes.Axis`
@@ -319,9 +310,9 @@ class DrawTreeNode(object):
         if self.id in visited:
             return
         visited.add(self.id)
-        x, y = self.coords(orientation, at)
+        x, y = self.coords(at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
-                                                                          orientation=orientation, **kwargs)
+                                                                          **kwargs)
         self.patches = self.data["patches"][self.tree.id] = [residue_elements, substituent_elements]
         self.data["position"][self.tree.id] = x, y
         for i, res_el in enumerate(residue_elements):
@@ -335,20 +326,16 @@ class DrawTreeNode(object):
             else:
                 sub_el.set_gid(self.uuid + '-' + (str(self.id) + "-subst-" + str(i)))
         for child in self:
-            child.draw_nodes(orientation, at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+            child.draw_nodes(at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                              visited=visited, **kwargs)
 
-    def draw_linkage_annotations(self, orientation='h', at=(0, 0), ax=None,
+    def draw_linkage_annotations(self, at=(0, 0), ax=None,
                                  symbol_nomenclature=None, child=None, **kwargs):
         '''
         Draw the parent outlink position and the child anomer symbol
 
         Parameters
         ----------
-        orientation: |str|
-            A string corresponding to `h` or `horizontal` will draw the glycan horizontally
-            from right to left. `v` or `vertical` will draw the glycan from bottom to top.
-            Defaults to `h`
         at: :class:`tuple`
             The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
         ax: :class:`matplotlib.axes.Axis`
@@ -360,13 +347,15 @@ class DrawTreeNode(object):
         child: :class:`DrawTreeNode`
             The child node to draw relative to.
         '''
-        sx, sy = self.coords(orientation, at)
-        cx, cy = child.coords(orientation, at)
+        sx, sy = self.coords(at)
+        cx, cy = child.coords(at)
 
-        position_x = ((sx * 0.6 + cx * 0.4)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
+        fontsize = kwargs.get("fontsize", 6)
+
+        position_x = ((sx * 0.6 + cx * 0.4)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
         position_y = ((sy * 0.6 + cy * 0.4))
         if sx == cx:
-            position_y += 0.006
+            position_y += -0.01
         elif (sy > cy):
             position_y += -0.11
         elif (sy < cy):
@@ -378,21 +367,26 @@ class DrawTreeNode(object):
             if link.is_child(child.tree):
                 position_num = pos
                 break
-        position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y, text=str(position_num))
-        anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.07
+
+        anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
         anomer_y = ((sy * 0.2 + cy * 0.8))
         if sx == cx:
-            anomer_y += 0.006
+            anomer_y -= 0.12
         elif (sy > cy):
             anomer_y += -0.11
         elif (sy < cy):
             anomer_y += -0.15
         else:
-            anomer_y += -0.12
+            # anomer_y += -0.12
+            _x = (anomer_x + position_x) / 2.
+            position_x = anomer_x = _x
+            anomer_y = ((sy * 0.5 + cy * 0.5)) + 0.12
+            position_y = ((sy * 0.5 + cy * 0.5)) - 0.12
 
+        position_text = symbol_nomenclature.draw_text(
+            ax=ax, x=position_x, y=position_y, text=str(position_num), fontsize=fontsize)
         anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), scale=0.13)
+            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), fontsize=fontsize)
         self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
     # Tree Layout Helpers
@@ -424,16 +418,13 @@ class DrawTreeNode(object):
     def __repr__(self):
         return self.__str__()
 
-    def extrema(self, orientation='h', at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
+    def extrema(self, at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
                 ymin=float('inf'), ymax=-float("inf"), visited=None):
         '''
         Finds the most extreme points describing the area this node and its children occupy.
 
         Parameters
         ----------
-        orientation: str
-            The orientation mapping symbol. May be one of {'h', 'horizontal', 'v', 'vertical'}.
-            Defaults to 'h'
         at: tuple of int
             The position to orient relative to in the xy-plane. A tuple of integers corresponding
             to the center x and y respectively.
@@ -456,7 +447,7 @@ class DrawTreeNode(object):
         if self.id in visited:
             return xmin, xmax, ymin, ymax
         visited.add(self.id)
-        x, y = self.coords(orientation, at)
+        x, y = self.coords(at)
         if x < xmin:
             xmin = x
         if x > xmax:
@@ -466,31 +457,12 @@ class DrawTreeNode(object):
         if y > ymax:
             ymax = y
         for child in sorted(self.children, key=lambda x: len(x.children)):
-            n_xmin, n_xmax, n_ymin, n_ymax = child.extrema(orientation, at, xmin, xmax, ymin, ymax, visited=visited)
+            n_xmin, n_xmax, n_ymin, n_ymax = child.extrema(at, xmin, xmax, ymin, ymax, visited=visited)
             xmin = min(xmin, n_xmin)
             ymin = min(ymin, n_ymin)
             xmax = max(xmax, n_xmax)
             ymax = max(ymax, n_ymax)
         return xmin, xmax, ymin, ymax
-
-    def scale(self, factor=DEFAULT_TREE_SCALE_FACTOR, visited=None):
-        '''Scale all existing edge lengths by `factor`, defaults to `0.65`'''
-        if visited is None:
-            visited = set()
-        if self.id in visited:
-            return
-        try:
-            if len(factor) == 1:
-                xfactor = yfactor = factor
-            else:
-                xfactor, yfactor = factor
-        except TypeError:
-            xfactor = yfactor = factor
-        visited.add(self.id)
-        self.x *= xfactor
-        self.y *= yfactor
-        for child in self:
-            child.scale(factor, visited)
 
     def get(self, node_id):
         return get(self, node_id)
@@ -498,7 +470,7 @@ class DrawTreeNode(object):
     def get_link_pair(self, link_id):
         return get_link_pair(self, link_id)
 
-    def draw_cleavage(self, fragment=None, orientation="h", at=(0, 0), ax=None, scale=0.1, color='red', label=True):
+    def draw_cleavage(self, fragment=None, at=(0, 0), ax=None, scale=0.1, color='red', label=True):
         '''
         .. warning::
             Here be magical numbers
@@ -517,8 +489,8 @@ class DrawTreeNode(object):
 
         for link_break in break_targets:
             parent, child = self.get_link_pair(link_break)
-            px, py = parent.coords(orientation, at)
-            cx, cy = child.coords(orientation, at)
+            px, py = parent.coords(at)
+            cx, cy = child.coords(at)
 
             branch_point = False
             if py == cy and px != cx:
@@ -569,7 +541,7 @@ class DrawTreeNode(object):
 
         for crossring in crossring_targets:
             target = self.get(crossring)
-            cx, cy = target.coords(orientation, at)
+            cx, cy = target.coords(at)
             line = ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
             self.data['patches'][fragment.name] = line[0]
             self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
@@ -595,6 +567,10 @@ class DrawTreeNode(object):
 
     def transform(self, transform):
         base_transform = transform
+        current_transform = self.data.get("transform")
+        if current_transform is not None:
+            transform = transform + current_transform
+        self.data["transform"] = transform
         transform = transform + self.axes.transData
         for i, patches in self.data['patches'].items():
             for entity in patches:
@@ -609,6 +585,11 @@ class DrawTreeNode(object):
                     [_.set_transform(transform) for _ in p]
                 else:
                     p.set_transform(transform)
+        for i, groups in self.data['text'].items():
+            position_text, anomer_text = groups['linkage']
+            [t.set_transform(transform) for t in position_text]
+            [t.set_transform(transform) for t in anomer_text]
+
         mat = base_transform.get_matrix()
         for node in breadth_first_traversal(self):
             x, y, w = mat.dot(np.array((node.x, node.y, 1)))
@@ -630,19 +611,17 @@ class DrawTree(object):
     def layout(self, **kwargs):
         self.layout_scheme.layout(self.root)
         self.root.fix_special_cases()
-        # self.root.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)) *
-        #                 self.symbol_nomenclature.default_scale_factor)
 
-    def draw(self, ax=None, orientation='h', at=(1, 1), center=True, **kwargs):
+    def draw(self, ax=None, at=(1, 1), center=True, **kwargs):
         if ax is not None:
             self.ax = ax
             self.figure = ax.get_figure()
         else:
             self.figure, self.ax = plt.subplots()
 
-        self.root.draw(ax=self.ax, orientation=orientation, at=at, symbol_nomenclature=self.symbol_nomenclature)
+        self.root.draw(ax=self.ax, at=at, symbol_nomenclature=self.symbol_nomenclature)
         if center:
-            xmin, xmax, ymin, ymax = self.root.extrema(orientation=orientation, at=at)
+            xmin, xmax, ymin, ymax = self.root.extrema(at=at)
             ax = self.ax
             ax.set_xlim(sign(xmin) * (abs(xmin) + 2), (1 * abs(xmax) + 2))
             ax.set_ylim(sign(ymin) * (abs(ymin) + 2), (1 * abs(ymax) + 2))
@@ -652,9 +631,9 @@ class DrawTree(object):
     def transform(self, *args, **kwargs):
         self.root.transform(*args, **kwargs)
 
-    def run(self, orientation='h', at=(1, 1)):
+    def run(self, at=(1, 1)):
         self.layout()
-        self.draw(ax=self.ax, orientation=orientation, at=at)
+        self.draw(ax=self.ax, at=at)
         self.figure.canvas.draw()
 
     def redraw(self, **kwargs):
@@ -662,8 +641,8 @@ class DrawTree(object):
         self.figure.canvas.draw()
 
 
-def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False,
-         symbol_nomenclature='cfg', **kwargs):
+def plot(tree, at=(1, 1), ax=None, orientation='h', center=False, label=False,
+         symbol_nomenclature='cfg', layout='balanced', **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -697,16 +676,19 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False,
     if isinstance(symbol_nomenclature, basestring):
         symbol_nomenclature = nomenclature_map.get(symbol_nomenclature)
 
-    # if ax is not None and "scale" not in kwargs:
-    #     x_max = ax.get_xlim()[1]
-    #     y_max = ax.get_ylim()[1]
+    if isinstance(layout, basestring):
+        layout = layout_map.get(layout)
 
     tree_root = root(tree)
     dtree = DrawTreeNode(tree_root)
-    buchheim(dtree)
-    dtree.fix_special_cases()
-    dtree.scale(kwargs.get("squeeze", kwargs.get("stretch", DEFAULT_TREE_SCALE_FACTOR)) *
-                symbol_nomenclature.default_scale_factor)
+    if layout == topological:
+        for node in breadth_first_traversal(dtree):
+            node.mask_special_cases = False
+
+    layout(dtree)
+    if layout != topological:
+        dtree.fix_special_cases()
+
     fig = None
     # Create a figure if no axes are provided
     if ax is None:
@@ -714,18 +696,16 @@ def plot(tree, orientation='h', at=(1, 1), ax=None, center=False, label=False,
         at = (0, 0)
         center = True
         ax.axis('off')
-    dtree.draw(orientation, at=at, ax=ax, scale=scale, label=label,
-               symbol_nomenclature=symbol_nomenclature)
+    dtree.draw(at=at, ax=ax, scale=scale, label=label,
+               symbol_nomenclature=symbol_nomenclature, **kwargs)
+    dtree.axes = ax
+    if orientation in {"h", "horizontal"}:
+        dtree.transform(mtransforms.Affine2D().rotate_deg(90))
     # If the figure is stand-alone, center it
     if fig is not None or center:
-        xmin, xmax, ymin, ymax = dtree.extrema(orientation=orientation, at=at)
-        if orientation in {'h', 'horizontal'}:
-            ax.set_xlim(-1 * (abs(xmin) + 2) if xmin < 1 else xmin - 2, (1 * abs(xmax) + 2))
-            ax.set_ylim(-1 * (abs(ymin) + 2) if ymin < 1 else ymin - 2, (1 * abs(ymax) + 2))
-        elif orientation in {'v', 'vertical'}:
-            ax.set_xlim(xmin - sign(xmin, 1) * 2, xmax + 2)
-            ax.set_ylim(ymin - sign(ymin, 1) * 2, ymax + 2)
+        xmin, xmax, ymin, ymax = dtree.extrema(at=at)
+        ax.set_xlim(xmin - 2, xmax + 2)
+        ax.set_ylim(ymin - 2, ymax + 2)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
-    dtree.axes = ax
     return (dtree, ax)

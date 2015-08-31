@@ -102,7 +102,7 @@ def residue_shape(monosaccharide):
     if "hex" in [monosaccharide.superclass]:
         if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
             return ResidueShape.square
-        elif any(sub.name == 'amino' for p, sub in monosaccharide.substituents()):
+        elif any(sub.name == 'amino' or sub.name.startswith("n_") for p, sub in monosaccharide.substituents()):
             return ResidueShape.bisected_square
         elif any(mod == Modification.d for p, mod in monosaccharide.modifications.items()):
             return ResidueShape.triangle
@@ -455,8 +455,9 @@ def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
 draw_map[ResidueShape.generic] = draw_generic
 
 
-def draw_text(ax, x, y, text, scale=0.1):
-    a = ax.text(x=x, y=y, s=text, verticalalignment="center", horizontalalignment="center", fontsize=98 * scale)
+def draw_text(ax, x, y, text, scale=0.1, **kwargs):
+    fs = kwargs.get("fontsize", 98 * scale)
+    a = ax.text(x=x, y=y, s=text, verticalalignment="center", horizontalalignment="center", fontsize=fs, zorder=4)
     return (a,)
 
 
