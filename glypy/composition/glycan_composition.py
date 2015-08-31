@@ -7,7 +7,7 @@ from glypy.structure.base import SaccharideCollection
 from glypy.io.iupac import (
     parse_modifications, named_structures, Modification,
     substituent_from_iupac, Stem, extract_modifications,
-    resolve_substituent, SuperClass, Configuration,
+    resolve_substituent, SuperClass, Configuration, aminate_substituent,
     resolve_special_base_type as _resolve_special_base_type)
 
 
@@ -68,7 +68,13 @@ def from_iupac_lite(monosaccharide_str):
             occupancy = 0
             if base_type in {"Neu", "Kdo"}:
                 try:
+                    unplaced = residue.substituent_links[position][0].child
                     residue.drop_substituent(position)
+                    if unplaced.name == "amino":
+                        try:
+                            substituent = aminate_substituent(substituent)
+                        except ValueError:
+                            pass
                 except:
                     # The site contains a modification which can be present alongside the substituent
                     occupancy = 1

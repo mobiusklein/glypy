@@ -271,6 +271,13 @@ def to_iupac(structure):
         return ''.join(list(glycan_to_iupac(structure)))
 
 
+def aminate_substituent(substituent):
+    aminated = Substituent("n_" + substituent.name)
+    if aminated.composition == {}:
+        raise ValueError("Could not aminate substituent")
+    return aminated
+
+
 monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
                                        (?P<configuration>[LD?])-
                                        (?P<modification>[a-z0-9_\-,]*)
@@ -332,12 +339,20 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
             if base_type in {"Neu", "Kdo"}:
                 occupancy = 0
                 try:
+                    unplaced = residue.substituent_links[position][0].child
                     residue.drop_substituent(position)
+                    if unplaced.name == "amino":
+                        try:
+                            substituent = aminate_substituent(substituent)
+                        except ValueError:
+                            pass
                 except ValueError:
                     # The site contains a modification which can be present alongside the substituent
                     occupancy = 1
                 try:
-                    residue.add_substituent(substituent, position, occupancy, parent_loss=substituent.attachment_composition_loss(), child_loss='H')
+                    residue.add_substituent(
+                        substituent, position, occupancy,
+                        parent_loss=substituent.attachment_composition_loss(), child_loss='H')
                 except ValueError:
                     raise ValueError("Can't resolve %s" % monosaccharide_str)
             else:
