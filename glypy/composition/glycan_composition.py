@@ -49,12 +49,20 @@ def from_iupac_lite(monosaccharide_str):
 
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
+    i = 0
+    strict = False
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
+        i += 1
         if position == -1 and base_is_modified:
-            raise ValueError(
-                "Cannot have ambiguous location of substituents on a base type which"
-                " has default modifications or substituents. {} {}".format(
-                    residue, (position, substituent)))
+            # Guess at what the user might mean using base_type
+            if base_type == "Neu" and substituent in ["acetyl", "glycolyl"] and i == 1:
+                position = 5
+            elif strict:
+                raise ValueError(
+                    "Cannot have ambiguous location of substituents on a base type which"
+                    " has default modifications or substituents. {} {}".format(
+                        residue, (position, substituent)))
+
         substituent = Substituent(substituent)
         try:
             residue.add_substituent(

@@ -2,7 +2,7 @@ import re
 import operator
 from collections import defaultdict
 from uuid import uuid4
-
+from itertools import chain
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
@@ -13,7 +13,7 @@ from glypy.io.nomenclature import identity
 from .buchheim import buchheim
 from .topological_layout import layout as topological
 from . import cfg_symbols, iupac_symbols
-
+from .geometry import centroid
 
 nomenclature_map = {
     "cfg": cfg_symbols,
@@ -25,12 +25,22 @@ layout_map = {
     "topological": topological
 }
 
-DEFAULT_SYMBOL_SCALE_FACTOR = 0.2
+DEFAULT_SYMBOL_SCALE_FACTOR = 0.17
 
 
 #: :data:`special_cases` contains a list of names for
 #: special case monosaccharides
 special_cases = [monosaccharides["Fuc"], monosaccharides["Xyl"]]
+
+
+def flatten(iterable):
+    acc = []
+    for item in iterable:
+        try:
+            acc.extend(flatten(item))
+        except:
+            acc.append(item)
+    return acc
 
 
 def is_special_case(node):
@@ -279,10 +289,10 @@ class DrawTreeNode(object):
                 zorder=1)
             self.data['lines'][self.id, child.id] = [patch]
             self.lines.append(patch)
-            if label:
-                self.draw_linkage_annotations(at=at, ax=ax,
-                                              symbol_nomenclature=symbol_nomenclature,
-                                              child=child, visited=visited, **kwargs)
+            # if label:
+            #     self.draw_linkage_annotations(at=at, ax=ax,
+            #                                   symbol_nomenclature=symbol_nomenclature,
+            #                                   child=child, visited=visited, **kwargs)
         return x, y
 
     def draw_nodes(self, at=(0, 0), ax=None, symbol_nomenclature=None,
@@ -313,7 +323,8 @@ class DrawTreeNode(object):
         x, y = self.coords(at)
         residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
                                                                           **kwargs)
-        self.patches = self.data["patches"][self.tree.id] = [residue_elements, substituent_elements]
+        self.patches = self.data["patches"][self.tree.id] = [residue_elements]
+        self.substituents_text = self.data["text"]["substituents"][self.id] = [substituent_elements]
         self.data["position"][self.tree.id] = x, y
         for i, res_el in enumerate(residue_elements):
             if isinstance(res_el, tuple):
@@ -348,45 +359,62 @@ class DrawTreeNode(object):
             The child node to draw relative to.
         '''
         sx, sy = self.coords(at)
+        if child is None:
+            for child in self:
+                self.draw_linkage_annotations(
+                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+                    child=child, **kwargs)
+                child.draw_linkage_annotations(
+                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+            return
         cx, cy = child.coords(at)
 
         fontsize = kwargs.get("fontsize", 6)
 
-        position_x = ((sx * 0.6 + cx * 0.4)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
-        position_y = ((sy * 0.6 + cy * 0.4))
-        if sx == cx:
-            position_y += -0.01
-        elif (sy > cy):
-            position_y += -0.11
-        elif (sy < cy):
-            position_y += -0.15
+        position_x = (sx * 0.5 + cx * 0.5)
+        position_y = (sy * 0.7 + cy * 0.3)
+        # if sx == cx:
+        #     position_y += -0.01
+        if sx > cx:
+            position_x = (sx * 0.7) + (cx * 0.3) - 0.2
+            position_y = (sy * 0.8 + cy * 0.2)
+        elif sx < cx:
+            position_x = (sx * 0.7) + (cx * 0.3) + 0.1
+            position_y = (sy * 0.8 + cy * 0.2)
         else:
-            position_y += -0.12
+            position_x += 0.05
+
         position_num = -1
         for pos, link in self.tree.links.items():
             if link.is_child(child.tree):
                 position_num = pos
                 break
 
-        anomer_x = ((sx * 0.2 + cx * 0.8)) + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
-        anomer_y = ((sy * 0.2 + cy * 0.8))
-        if sx == cx:
-            anomer_y -= 0.12
-        elif (sy > cy):
-            anomer_y += -0.11
-        elif (sy < cy):
-            anomer_y += -0.15
+        anomer_x = ((sx * 0.4 + cx * 0.6))# + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
+        anomer_y = ((sy * 0.4 + cy * 0.6))
+        if sx > cx:
+            anomer_x = (sx * 0.3) + (cx * 0.7) - 0.2
+        elif sx < cx:
+            anomer_x = (sx * 0.3) + (cx * 0.7) + 0.05
         else:
-            # anomer_y += -0.12
-            _x = (anomer_x + position_x) / 2.
+            anomer_x += 0.05
+        if sy == cy:
+            _x = (position_x * 0.9) + (anomer_x * 0.1)
             position_x = anomer_x = _x
-            anomer_y = ((sy * 0.5 + cy * 0.5)) + 0.12
-            position_y = ((sy * 0.5 + cy * 0.5)) - 0.12
+            anomer_y = ((sy * 0.5 + cy * 0.5)) + 0.10
+            position_y = ((sy * 0.5 + cy * 0.5)) - 0.16
+
+        overlapping = flatten(
+            (chain.from_iterable(self.data['patches'][self.id]),
+             chain.from_iterable(self.data['patches'][child.id]),
+             self.data['lines'][self.id, child.id]))
 
         position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y, text=str(position_num), fontsize=fontsize)
+            ax=ax, x=position_x, y=position_y, text=str(position_num),
+            fontsize=fontsize, minimize_overlap=overlapping)
         anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), fontsize=fontsize)
+            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), fontsize=fontsize + 2,
+            minimize_overlap=overlapping)
         self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
     # Tree Layout Helpers
@@ -586,9 +614,8 @@ class DrawTreeNode(object):
                 else:
                     p.set_transform(transform)
         for i, groups in self.data['text'].items():
-            position_text, anomer_text = groups['linkage']
-            [t.set_transform(transform) for t in position_text]
-            [t.set_transform(transform) for t in anomer_text]
+            text = flatten( groups.values())
+            [t.set_transform(transform) for t in text]
 
         mat = base_transform.get_matrix()
         for node in breadth_first_traversal(self):
@@ -597,6 +624,30 @@ class DrawTreeNode(object):
             y /= w
             node.x = x
             node.y = y
+
+        if self.data['orientation'] == 'h':
+            self._rotate_text(-90)
+
+    def _rotate_text(self, degrees):
+        '''
+        This is a hack needed to orient text appropriately when the tree is rotated after labels
+        are inscribed, as any new transform will override the correction.
+
+        Two solutions exist:
+            Generate all text placements, then apply all transforms, and then inscribe the actual
+            text paths once they are 
+
+        '''
+        current_transform = self.data.get("transform")
+        for i, groups in self.data['text'].items():
+            for t in flatten(groups.values()):
+                cent = (centroid(t.get_path().transformed(current_transform)))
+                trans = current_transform.frozen().get_affine().translate(0, 0).rotate_deg(degrees=degrees)
+                new_cent = centroid(t.get_path().transformed(trans))
+                shift = cent - new_cent
+                trans.translate(*shift)
+                trans += self.axes.transData
+                t.set_transform(trans)
 
 
 class DrawTree(object):
@@ -696,16 +747,23 @@ def plot(tree, at=(1, 1), ax=None, orientation='h', center=False, label=False,
         at = (0, 0)
         center = True
         ax.axis('off')
-    dtree.draw(at=at, ax=ax, scale=scale, label=label,
+    dtree.draw(at=at, ax=ax, scale=scale, label=False,
                symbol_nomenclature=symbol_nomenclature, **kwargs)
     dtree.axes = ax
+    dtree.data['orientation'] = orientation
+    if label:
+        dtree.draw_linkage_annotations(
+            at=at, ax=ax, scale=scale,
+            symbol_nomenclature=symbol_nomenclature, **kwargs)
     if orientation in {"h", "horizontal"}:
         dtree.transform(mtransforms.Affine2D().rotate_deg(90))
+        dtree._rotate_text(-90)
     # If the figure is stand-alone, center it
     if fig is not None or center:
         xmin, xmax, ymin, ymax = dtree.extrema(at=at)
         ax.set_xlim(xmin - 2, xmax + 2)
         ax.set_ylim(ymin - 2, ymax + 2)
+        ax.autoscale_view()
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
     return (dtree, ax)

@@ -5,13 +5,17 @@ from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
+from matplotlib.textpath import TextPath
 import matplotlib.patches as patches
+from matplotlib.transforms import IdentityTransform
 import matplotlib
 from matplotlib.colors import rgb2hex
 
 from glypy.structure import Modification, Stem, SuperClass
 from glypy.utils.enum import Enum
 from glypy.io.nomenclature import identity
+
+from .geometry import minimize_overlap
 
 logger = logging.getLogger(__name__)
 
@@ -234,11 +238,11 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
 
     # Render substituents along the bottom of the monosaccharide
     subs = []
-    sub_x = x - (0.15 * (len(substituents) - 1))
-    sub_y = y - 0.25
+    sub_y = y - (0.15 * (len(substituents) - 1))
+    sub_x = x - 0.35
     for pos, subst_name in substituents:
-        sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name))
-        sub_x += 0.3
+        sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name), fontsize=6)
+        sub_y += 0.3
         subs.append(sub_t)
     return (res, subs)
 
@@ -448,6 +452,8 @@ def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
     path = Path(unit_polygon.vertices * scale, unit_polygon.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
+    name = TextPath((x, y), s=name, size=1 * scale * .25)
+    t_path = Path.make_compound_path(t_path, name)
     patch = patches.PathPatch(t_path, facecolor="white", lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
     ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=84 * scale)
@@ -456,8 +462,10 @@ draw_map[ResidueShape.generic] = draw_generic
 
 
 def draw_text(ax, x, y, text, scale=0.1, **kwargs):
-    fs = kwargs.get("fontsize", 98 * scale)
-    a = ax.text(x=x, y=y, s=text, verticalalignment="center", horizontalalignment="center", fontsize=fs, zorder=4)
+    fs = kwargs.get("fontsize", 2) * scale * .25
+    t_path = TextPath((x, y), s=text, size=fs)
+    patch = patches.PathPatch(t_path, facecolor="black", lw=line_weight / 20., zorder=4)
+    a = ax.add_patch(patch)
     return (a,)
 
 

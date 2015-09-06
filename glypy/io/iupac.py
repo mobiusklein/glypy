@@ -118,6 +118,7 @@ substituents_map_to['n_glycolyl'] = "NGc"
 substituents_map_to['sulfate'] = "S"
 substituents_map_to["methyl"] = "Me"
 substituents_map_to["acetyl"] = "Ac"
+substituents_map_to["glycolyl"] = "Gc"
 substituents_map_to["fluoro"] = "F"
 substituents_map_to["amino"] = "N"
 
@@ -272,6 +273,9 @@ def to_iupac(structure):
 
 
 def aminate_substituent(substituent):
+    if substituent.name.startswith("n_"):
+        # already aminated
+        return substituent
     aminated = Substituent("n_" + substituent.name)
     if aminated.composition == {}:
         raise ValueError("Could not aminate substituent")
@@ -320,12 +324,18 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
 
     for pos, mod in parse_modifications(modification):
         residue.add_modification(mod, pos)
+    i = 0
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
+        i += 1
         if position == -1 and base_is_modified:
-            raise ValueError(
-                "Cannot have ambiguous location of substituents on a base type which"
-                " has default modifications or substituents. {} {}".format(
-                    residue, (position, substituent)))
+            # Guess at what the user might mean using base_type
+            if base_type == "Neu" and substituent in ["acetyl", "glycolyl"] and i == 1:
+                position = 5
+            else:
+                raise ValueError(
+                    "Cannot have ambiguous location of substituents on a base type which"
+                    " has default modifications or substituents. {} {}".format(
+                        residue, (position, substituent)))
 
         substituent = Substituent(substituent)
         try:

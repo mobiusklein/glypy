@@ -4,6 +4,8 @@ from ..structure.base import SaccharideCollection, SaccharideBase
 from ..structure import Substituent
 from ..structure import Monosaccharide
 from ..structure import Modification
+from ..structure import Glycan
+from ..algorithms.similarity import commutative_similarity
 
 from .composition import Composition
 
