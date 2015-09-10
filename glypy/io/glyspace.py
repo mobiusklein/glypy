@@ -118,6 +118,30 @@ WHERE {
 ORDER BY ?PrimaryId
 '''
 
+
 def download_all_sequences():
     data = execute_sparql(_get_all_glycans_sparql)
     return data
+
+try:
+    from rdflib import ConjunctiveGraph, Namespace, URIRef
+
+    NSGlyTouCan = Namespace("http://www.glytoucan.org/glyco/owl/glytoucan#")
+    NSGlycan = Namespace("http://purl.jp/bio/12/glyco/glycan#")
+    NSGlycoinfo = Namespace("http://rdf.glycoinfo.org/glycan/")
+    NSGlycomeDB = Namespace("http://rdf.glycome-db.org/glycan/")
+    NSSKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
+
+    class GlySpaceRDF(ConjunctiveGraph):
+
+        def __init__(self):
+            super(GlySpaceRDF, self).__init__(store="SPARQLStore")
+            self.open(sparql_endpoint)
+            self.bind("glytoucan", NSGlyTouCan)
+            self.bind("glycomedb", NSGlycomeDB)
+
+        def accession_to_uriref(self, accession):
+            return NSGlycoinfo[accession]
+
+except ImportError:
+    print "No rdflib installed, GlySpaceRDF not available."
