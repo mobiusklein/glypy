@@ -71,6 +71,15 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 
+extras = {
+    'plot': ["matplotlib>=1.4.3"],
+    'glycomedb': ['lxml', 'requests'],
+    'glyspace': ['requests']
+}
+
+extras['all'] = list({d for extra in extras.values() for d in extra})
+
+
 def run_setup(include_cext=True):
     setup(
           name='glypy',
@@ -82,11 +91,7 @@ def run_setup(include_cext=True):
               "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
           },
           install_requires=required,
-          extras_require={
-            'plot': ["matplotlib>=1.4.3"],
-            'glycomedb': ['lxml', 'requests'],
-            'glyspace': ['requests']
-          },
+          extras_require=extras,
           # namespace_packages=[
           #   "glypy",
           #   "glypy.algorithms",

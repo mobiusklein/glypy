@@ -2,13 +2,10 @@ all: develop test docs
 
 
 test:
-	nosetests --with-coverage --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
-
-testall:
-	nosetests --traverse-namespace --with-coverage --cover-package=glypy,glypy.plot --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id
+	nosetests --with-coverage --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id glypy/tests/
 
 retest:
-	nosetests --traverse-namespace --cover-package=glypy,glypy.plot --logging-level=DEBUG -v --with-id --failed
+	nosetests --cover-package=glypy --logging-level=DEBUG -v --with-id --failed glypy/tests/
 clean:
 	@rm  glypy/*/*.pyd
 	@rm  glypy/*/*.so
