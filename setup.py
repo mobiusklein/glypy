@@ -82,6 +82,11 @@ def run_setup(include_cext=True):
               "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
           },
           install_requires=required,
+          extras_require={
+            'plot': ["matplotlib>=1.4.3"],
+            'glycomedb': ['lxml', 'requests'],
+            'glyspace': ['requests']
+          },
           # namespace_packages=[
           #   "glypy",
           #   "glypy.algorithms",

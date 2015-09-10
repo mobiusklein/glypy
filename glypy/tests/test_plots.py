@@ -86,7 +86,7 @@ LIN
 29:29o(3+2)30d
 30:30d(5+1)31n
 31:1o(6+1)32d
-''').next()
+''')
 
 
 class PlotTests(unittest.TestCase):
