@@ -8,7 +8,4 @@ from glypy.utils import root, tree
 from glypy.utils.multimap import OrderedMultiMap
 
 
-import pkg_resources
-
 __all__ = ["composition", "io", "structure", "utils", 'algorithms']
-pkg_resources.declare_namespace('glypy')
