@@ -226,7 +226,7 @@ class DrawTreeNode(object):
         self.mask_special_cases = False
         for child in self.children:
             if is_special_case(child.tree):
-                if child.parent_linkage > 3:
+                if child.parent_linkage > 3 or child.parent_linkage == -1:
                     child.y = self.y
                     child.x = self.x + offset
                 elif child.parent_linkage > 1:
