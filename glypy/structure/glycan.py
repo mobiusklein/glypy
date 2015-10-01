@@ -568,14 +568,6 @@ class Glycan(SaccharideCollection):
                 last_label_key = label_key = parent_link_symbol(node)
                 count = self.branch_lengths[last_label_key]
                 for link in links:
-                    # Does not handle small branches correctly.
-                    # if len(list(link.child.children())) < 2:
-                    #     label_key = parent_link_symbol(node)
-                    #     self.branch_lengths[label_key] += 1
-                    #     label = "{}{}".format(
-                    #         label_key, self.branch_lengths[label_key])
-                    #     link.label = label
-                    # else:
                     last_branch_label = chrinc(
                         last_branch_label) if last_branch_label != MAIN_BRANCH_SYM else 'a'
                     new_label_key = last_branch_label
@@ -585,7 +577,7 @@ class Glycan(SaccharideCollection):
                         new_label_key, self.branch_lengths[new_label_key])
                     link.label = label
         # Update parent branch lengths
-        longest = 0
+        longest = self.branch_lengths[MAIN_BRANCH_SYM]
         for branch in sorted(list(self.branch_lengths.keys()), reverse=True):
             if branch == '-':
                 continue
