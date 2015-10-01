@@ -15,7 +15,8 @@ from glypy.structure import Modification, Stem, SuperClass
 from glypy.utils.enum import Enum
 from glypy.io.nomenclature import identity
 
-from .geometry import minimize_overlap
+from .common import MonosaccharidePatch
+from .geometry import centroid
 
 logger = logging.getLogger(__name__)
 
@@ -212,6 +213,17 @@ def get_symbol(monosaccharide):
     return shp, col
 
 
+def resolve_generic_name(monosaccharide):
+    try:
+        abbrev = identity.identify(monosaccharide)
+    except identity.IdentifyException:
+        if monosaccharide.stem[0] == Stem.x:
+            abbrev = monosaccharide.superclass.name.lower().capitalize()
+        else:
+            abbrev = ','.join(s.name.lower().capitalize() for s in monosaccharide.stem)
+    return abbrev
+
+
 def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     '''
     Renders `monosaccharide` at the given `(x, y)` coordinates on the `matplotlib.Axis`
@@ -221,10 +233,7 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     abbrev = None
     shape, color = get_symbol(monosaccharide)
     if shape == ResidueShape.generic:
-        try:
-            abbrev = identity.identify(monosaccharide)
-        except identity.IdentifyException:
-            abbrev = monosaccharide.superclass.name.lower().capitalize()
+        abbrev = resolve_generic_name(monosaccharide)
     drawer = draw_map.get(shape)
     if drawer is None:
         raise Exception("Don't know how to draw {}".format((shape, monosaccharide)))
@@ -238,13 +247,14 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
 
     # Render substituents along the bottom of the monosaccharide
     subs = []
-    sub_y = y - (0.15 * (len(substituents) - 1))
-    sub_x = x - 0.35
+    sub_y = y - (0.35 * (len(substituents) - 1))
+    sub_x = x - 0.45
     for pos, subst_name in substituents:
         sub_t = draw_text(ax, sub_x, sub_y, str(pos) + format_text(subst_name), fontsize=6)
         sub_y += 0.3
         subs.append(sub_t)
-    return (res, subs)
+    res.add_substituents(subs)
+    return res
 
 draw_map = {}
 
@@ -255,7 +265,9 @@ def draw_circle(ax, x, y, color, scale=0.1):
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    return (a,)
+    ma = MonosaccharidePatch(saccharide_shape=(a,))
+    return ma
+    # return (a,)
 draw_map[ResidueShape.circle] = draw_circle
 unit_circle = Path.unit_circle()
 
@@ -282,7 +294,9 @@ def draw_square(ax, x, y, color, scale=0.1):
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    return (a,)
+    ma = MonosaccharidePatch(saccharide_shape=(a,))
+    return ma
+    # return (a,)
 draw_map[ResidueShape.square] = draw_square
 unit_rectangle = Path.unit_rectangle()
 
@@ -293,7 +307,9 @@ def draw_triangle(ax, x, y, color, scale=0.1):
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    return (a,)
+    ma = MonosaccharidePatch(saccharide_shape=(a,))
+    return ma
+    # return (a,)
 draw_map[ResidueShape.triangle] = draw_triangle
 unit_triangle = Path.unit_regular_polygon(3)
 
@@ -331,7 +347,9 @@ def draw_bisected_square(ax, x, y, color, scale=0.1):
     a = ax.add_patch(patch)
     patch = patches.PathPatch(upper_path, facecolor="white", lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
-    return a, b
+    ma = MonosaccharidePatch(saccharide_shape=(a, b))
+    return ma
+    # return a, b
 draw_map[ResidueShape.bisected_square] = draw_bisected_square
 
 
@@ -341,7 +359,9 @@ def draw_diamond(ax, x, y, color, scale=0.1):
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = (ax.add_patch(patch),)
-    return (a,)
+    ma = MonosaccharidePatch(saccharide_shape=(a,))
+    return ma
+    # return (a,)
 draw_map[ResidueShape.diamond] = draw_diamond
 unit_diamond = Path.unit_regular_polygon(4)
 
@@ -386,7 +406,9 @@ def draw_vertical_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
     a = ax.add_patch(patch)
     patch = patches.PathPatch(upper_path, facecolor=top_color, lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
-    return a, b
+    ma = MonosaccharidePatch(saccharide_shape=(a, b))
+    return ma
+    # return a, b
 draw_map[ResidueShape.top_bisected_diamond] = partial(draw_vertical_bisected_diamond, side='top')
 draw_map[ResidueShape.bottom_bisected_diamond] = partial(draw_vertical_bisected_diamond, side='bottom')
 
@@ -430,7 +452,9 @@ def draw_horizontal_bisected_diamond(ax, x, y, color, scale=0.1, side=None):
     a = ax.add_patch(patch)
     patch = patches.PathPatch(right_path, facecolor=right_color, lw=line_weight, zorder=2)
     b = ax.add_patch(patch)
-    return a, b
+    ma = MonosaccharidePatch(saccharide_shape=(a, b), saccharide_label=None)
+    return ma
+    # return a, b
 
 draw_map[ResidueShape.right_bisected_diamond] = partial(draw_horizontal_bisected_diamond, side='right')
 draw_map[ResidueShape.left_bisected_diamond] = partial(draw_horizontal_bisected_diamond, side='left')
@@ -442,7 +466,9 @@ def draw_star(ax, x, y, color, scale=0.1):
     t_path = path.transformed(trans)
     patch = patches.PathPatch(t_path, facecolor=color.value, lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    return (a,)
+    ma = MonosaccharidePatch(saccharide_shape=(a,))
+    return ma
+    # return (a,)
 unit_star = Path.unit_regular_star(5, 0.3)
 draw_map[ResidueShape.star] = draw_star
 
@@ -452,12 +478,14 @@ def draw_generic(ax, x, y, name, n_points=6, scale=0.1):
     path = Path(unit_polygon.vertices * scale, unit_polygon.codes)
     trans = matplotlib.transforms.Affine2D().translate(x, y)
     t_path = path.transformed(trans)
-    name = TextPath((x, y), s=name, size=1 * scale * .25)
-    t_path = Path.make_compound_path(t_path, name)
+    name = TextPath((x - (0.35 * scale), y), s=name, size=2 * scale * .25)
     patch = patches.PathPatch(t_path, facecolor="white", lw=line_weight, zorder=2)
     a = ax.add_patch(patch)
-    ax.text(x, y, name, verticalalignment="center", horizontalalignment="center", fontsize=84 * scale)
-    return (a,)
+    patch = patches.PathPatch(name, lw=line_weight, zorder=2)
+    s = ax.add_patch(patch)
+    ma = MonosaccharidePatch(saccharide_shape=(a,), saccharide_label=(s,))
+    return ma
+    # return (a,)
 draw_map[ResidueShape.generic] = draw_generic
 
 

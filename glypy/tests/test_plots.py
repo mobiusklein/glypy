@@ -100,10 +100,15 @@ class PlotTests(unittest.TestCase):
 
     def test_plot_glycans(self):
         for name, structure in glycans.items():
-            plot.plot(structure)
-            plt.savefig(plot_dir + os.sep + name + '.png')
-            plt.clf()
-            plt.close('all')
+            for layout in ['balanced', 'topological']:
+                for symbol_nomenclature in ['cfg']:  # ['cfg', 'iupac']:
+                    plot.plot(
+                        structure, label=True, orientation='h',
+                        symbol_nomenclature=symbol_nomenclature, layout=layout)
+                    path = "%s\%s_%s_%s.png" % (plot_dir, name, layout, symbol_nomenclature)
+                    plt.savefig(path)
+                    plt.clf()
+                    plt.close('all')
             #os.remove(plot_dir + os.sep + name + '.png')
 
         plt.figure()

@@ -1,5 +1,4 @@
-from collections import defaultdict
-from matplotlib import path as mpath
+from .geometry import breadth_first_traversal, centroid, make_path
 import numpy as np
 
 #: clock-face coordinates assume left-horizontal growth
@@ -15,14 +14,7 @@ index_position_shift = {
 index_position_shift = {k: np.array(v[::-1], dtype=np.float64) for k, v in index_position_shift.items()}
 
 
-def find_link(parent, child):
-    for p, link in parent.links.items():
-        if child.parent_linkage == p:
-            if link.child == child:
-                return link
-
-
-def test_draw_unit_perimeter(ax):
+def _test_draw_unit_perimeter(ax):  # pragma: no cover
     ax.text(0, 0, 'origin')
     for i in index_position_shift:
         ax.text(*square_perimeter(0, 0, i), s=i)
@@ -55,35 +47,24 @@ def layout(tree, visited=None):
     return tree
 
 
-def breadth_first_traversal(tree, visited=None):
-    if visited is None:
-        visited = set()
-    if tree.id not in visited:
-        visited.add(tree.id)
-        yield tree
-        for child in tree:
-            for descend in breadth_first_traversal(child, visited=visited):
-                yield descend
+# def make_path(node):
+#     pathing = []
+#     last = [node.x, node.y]
+#     for node in breadth_first_traversal(node):
+#         pathing.append([node.x, node.y])
+#         pathing.append(last)
+#         last = [node.x, node.y]
+#     codes = [mpath.Path.MOVETO] + [mpath.Path.LINETO for i in pathing[1:]]
+#     return mpath.Path(pathing, codes)
 
 
-def make_path(node):
-    pathing = []
-    last = [node.x, node.y]
-    for node in breadth_first_traversal(node):
-        pathing.append([node.x, node.y])
-        pathing.append(last)
-        last = [node.x, node.y]
-    codes = [mpath.Path.MOVETO] + [mpath.Path.LINETO for i in pathing[1:]]
-    return mpath.Path(pathing, codes)
-
-
-def centroid(path):
-    point = np.zeros_like(path.vertices[0])
-    c = 0.
-    for p in path.vertices:
-        point += p
-        c += 1
-    return point / c
+# def centroid(path):
+#     point = np.zeros_like(path.vertices[0])
+#     c = 0.
+#     for p in path.vertices:
+#         point += p
+#         c += 1
+#     return point / c
 
 
 def spread(tree):

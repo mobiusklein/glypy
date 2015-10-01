@@ -1,5 +1,3 @@
-import warnings
-
 
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
@@ -111,12 +109,20 @@ class EnumMeta(type):
         return (k in self.__dict__) or (k in self.__dict__.values())
 
     def __getitem__(self, k):
-        if debug:
-            warnings.simplefilter("always")
-            warnings.warn("Search by %r" % k, stacklevel=2)
         return self.translate(k)
 
     def __setattr__(self, k, v):
+        """Intercept attribute assignment, wrapping values in
+        :class:`EnumValue`
+
+        Parameters
+        ----------
+        k : str
+            Name to be set
+        v : object
+            The value to assign. If it is not of type :class:`EnumValue` it
+            will be wrapped like `EnumValue(self, name=k, value=v)`
+        """
         if isinstance(v, EnumValue):
             v.names.add(k)
             super(EnumMeta, self).__setattr__(k, v)

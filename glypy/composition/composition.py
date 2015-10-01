@@ -443,6 +443,8 @@ def most_probable_isotopic_composition(*args, **kwargs):
     isotopic_composition = Composition()
 
     for element_name in composition:
+        if element_name == 'H+':
+            continue
         if (not elements_with_isotopes or (element_name in elements_with_isotopes)):
             # Take the two most abundant isotopes.
             first_iso, second_iso = sorted(
@@ -497,13 +499,15 @@ def isotopic_composition_abundance(*args, **kwargs):
     # Check if there are default and non-default isotopes of the same
     # element and rearrange the elements.
     for element in composition:
+        if element == 'H+':
+            continue
         element_name, isotope_num = _parse_isotope_string(element)
 
         # If there is already an entry for this element and either it
         # contains a default isotope or newly added isotope is default
         # then raise an exception.
         if ((element_name in isotopic_composition)
-             and (isotope_num == 0
+           and (isotope_num == 0
                   or 0 in isotopic_composition[element_name])):
             raise ChemicalCompositionError(
                 'Please specify the isotopic states of all atoms of '

@@ -54,7 +54,7 @@ def is_special_case(node):
     return False
 
 
-def box(node, ax=None):
+def box(node, ax=None):  # pragma: no cover
     if ax is None:
         ax = node.axes
     xmin, xmax, ymin, ymax = node.extrema()
@@ -73,7 +73,7 @@ def sign(x, zero_dir=-1):
     return zero_dir
 
 
-def make_gid(s):
+def make_gid(s):  # pragma: no cover
     '''Formats a string to use ``kebab-case`` and sanitize illegal characters'''
     s = str(s)
     return re.sub(r'[\s\|\(\):]', '-', s)
@@ -195,6 +195,9 @@ class DrawTreeNode(object):
     def __iter__(self):
         return iter(self.children)
 
+    def traverse(self):
+        return breadth_first_traversal(self)
+
     @property
     def children(self):
         if self.mask_special_cases:
@@ -241,7 +244,7 @@ class DrawTreeNode(object):
     def draw(self, at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
         if isinstance(symbol_nomenclature, basestring):
             symbol_nomenclature = nomenclature_map[symbol_nomenclature]
-        if ax is None:
+        if ax is None:  # pragma: no cover
             ax = self.axes
             if ax is None:
                 fig, ax = plt.subplots()
@@ -268,13 +271,12 @@ class DrawTreeNode(object):
         symbol_nomenclature: |str|
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
             is |None|, `cfg` will be used.
+        visited: |set|
+            A |set| instance containing the node ids already visited while drawing. If the current
+            node was already visited, its id will already be present. Used to avoid infinite cycles.
         '''
         if visited is None:
             visited = set()
-        if ax is None:
-            ax = self.axes
-            if ax is None:
-                fig, ax = plt.subplots()
         x, y = self.coords()
         if self.id in visited:
             return x, y
@@ -310,32 +312,31 @@ class DrawTreeNode(object):
         symbol_nomenclature: |str|
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
             is |None|, `cfg` will be used.
+        visited: |set|
+            A |set| instance containing the node ids already visited while drawing. If the current
+            node was already visited, its id will already be present. Used to avoid infinite cycles.
         '''
         if visited is None:
             visited = set()
-        if ax is None:
-            ax = self.axes
-            if ax is None:
-                fig, ax = plt.subplots()
+        # if ax is None:  # pragma: no cover
+        #     ax = self.axes
+        #     if ax is None:
+        #         fig, ax = plt.subplots()
         if self.id in visited:
             return
         visited.add(self.id)
         x, y = self.coords(at)
-        residue_elements, substituent_elements = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
-                                                                          **kwargs)
+        patch_node = symbol_nomenclature.draw(self.tree, x, y, ax, tree_node=self,
+                                              **kwargs)
+        self.patch_node = patch_node
+        residue_elements, substituent_elements, saccharide_label = patch_node
         self.patches = self.data["patches"][self.tree.id] = [residue_elements]
         self.substituents_text = self.data["text"]["substituents"][self.id] = [substituent_elements]
+        self.saccharide_label = self.data['text']['saccharide_label'][self.id] = [saccharide_label]
         self.data["position"][self.tree.id] = x, y
-        for i, res_el in enumerate(residue_elements):
-            if isinstance(res_el, tuple):
-                [el.set_gid(self.uuid + '-' + (str(self.id) + '-node')) for el in res_el]
-            else:
-                res_el.set_gid(self.uuid + '-' + str(self.id) + '-node')
-        for i, sub_el in enumerate(substituent_elements):
-            if isinstance(sub_el, tuple):
-                [el.set_gid(self.uuid + '-' + (str(self.id) + "-subst-" + str(i))) for el in sub_el]
-            else:
-                sub_el.set_gid(self.uuid + '-' + (str(self.id) + "-subst-" + str(i)))
+
+        patch_node.set_gid(self.uuid, self.id)
+
         for child in self:
             child.draw_nodes(at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                              visited=visited, **kwargs)
@@ -440,10 +441,10 @@ class DrawTreeNode(object):
         return self._lmost_sibling
     lmost_sibling = property(get_lmost_sibling)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "%s: id=%s  x=%s mod=%s" % (self.tree, self.id, self.x, self.mod)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return self.__str__()
 
     def extrema(self, at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
@@ -498,7 +499,7 @@ class DrawTreeNode(object):
     def get_link_pair(self, link_id):
         return get_link_pair(self, link_id)
 
-    def draw_cleavage(self, fragment=None, at=(0, 0), ax=None, scale=0.1, color='red', label=True):
+    def draw_cleavage(self, fragment=None, at=(0, 0), ax=None, scale=0.1, color='red', label=True):  # pragma: no cover
         '''
         .. warning::
             Here be magical numbers
@@ -594,6 +595,20 @@ class DrawTreeNode(object):
                     ax.text((cx - scale) - 0.32, (cy + scale) + .035, annotation_name)
 
     def transform(self, transform):
+        """Apply the passed Affine2D to each graphical unit. The transform is additive
+        with any previous affine transformation. The (x, y) values of each node are updated
+        by matrix-vector dot product.
+
+        .. math::
+
+            M \dot [x, y, 1]
+
+        where `M` is the value of `transform.get_matrix()`
+
+        Parameters
+        ----------
+        transform : matplotlib.transforms.Affine2D
+        """
         base_transform = transform
         current_transform = self.data.get("transform")
         if current_transform is not None:
@@ -614,7 +629,7 @@ class DrawTreeNode(object):
                 else:
                     p.set_transform(transform)
         for i, groups in self.data['text'].items():
-            text = flatten( groups.values())
+            text = flatten(groups.values())
             [t.set_transform(transform) for t in text]
 
         mat = base_transform.get_matrix()
@@ -632,11 +647,6 @@ class DrawTreeNode(object):
         '''
         This is a hack needed to orient text appropriately when the tree is rotated after labels
         are inscribed, as any new transform will override the correction.
-
-        Two solutions exist:
-            Generate all text placements, then apply all transforms, and then inscribe the actual
-            text paths once they are 
-
         '''
         current_transform = self.data.get("transform")
         for i, groups in self.data['text'].items():
@@ -650,7 +660,7 @@ class DrawTreeNode(object):
                 t.set_transform(trans)
 
 
-class DrawTree(object):
+class DrawTree(object):  # pragma: no cover
     def __init__(self, structure, figure=None, ax=None, layout=buchheim, symbol_nomenclature=cfg_symbols, **kwargs):
         self.structure = structure
         self.root = DrawTreeNode(root(structure))

@@ -78,5 +78,3 @@ alpha_1_3_mannosyl_glycoprotein_2_beta_n_acetylglucosaminyltransferase = Glycosy
 
 alpha_1_6_mannosyl_glycoprotein_2_beta_n_acetylglucosaminyltransferase = Glycosyltransferase(
     6, 1, Anomer.alpha, parent=m, child=monosaccharides.Man)
-
-

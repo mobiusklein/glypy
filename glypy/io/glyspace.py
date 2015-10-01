@@ -240,10 +240,12 @@ class RDFClientBase(ConjunctiveGraph):
             return f
         return wrapper
 
-    def __init__(self, sparql_endpoint, accession_ns):
+    def __init__(self, sparql_endpoint, accession_ns, cache_size=100):
         super(RDFClientBase, self).__init__(store="SPARQLStore")
         self.open(sparql_endpoint)
         self.accession_ns = accession_ns
+        self.cache = {}
+        self.cache_size = cache_size
 
     def accession_to_uriref(self, accession):
         return self.accession_ns[accession]
@@ -251,6 +253,8 @@ class RDFClientBase(ConjunctiveGraph):
     def get(self, uriref, simplify=True):
         if not isinstance(uriref, URIRef):
             uriref = self.accession_to_uriref(uriref)
+        if uriref in self.cache:
+            return self.cache[uriref]
         results = defaultdict(list)
         for subject, predicate, obj in set(self.triples((uriref, None, None))):
             predicate_name = _camel_to_snake(split_uri(predicate)[1])
@@ -284,6 +288,9 @@ class RDFClientBase(ConjunctiveGraph):
         if simplify:
             results = {k: v if len(v) > 1 else v[0] for k, v in results.items()}
         results = ReferenceEntity(uriref, **results)
+        if len(self.cache) > self.cache_size:
+            self.cache.popitem()
+            self.cache[uriref] = results
         return results
 
 
