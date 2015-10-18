@@ -1,0 +1,2751 @@
+@prefix : <http://www.w3.org/2002/07/owl#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix glycan: <http://purl.jp/bio/12/glyco/glycan#> .
+@prefix ns1: <http://xmlns.com/foaf/0.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix psi: <http://purl.obolibrary.org/obo/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix uniprot: <http://www.uniprot.org/core/> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.jp/bio/12/glyco/glycan> a owl:Ontology ;
+    dc:creator "Daisuke Shinmachi"^^xsd:string,
+        "Hiro Sawaki"^^xsd:string,
+        "Issaku Yamada"^^xsd:string,
+        "Kiyoko Aoki-Kinoshita"^^xsd:string,
+        "Masaaki Matsubara"^^xsd:string,
+        "Matthew Campbell"^^xsd:string,
+        "Philip Toukach"^^xsd:string,
+        "Rene Ranzinger"^^xsd:string,
+        "Shin Kawano"^^xsd:string,
+        "Shujiro Okuda"^^xsd:string ;
+    dc:date "2013-02-10 23:11:00"^^xsd:dateTime ;
+    owl:versionInfo "1.0.1"^^xsd:string .
+
+glycan:C5D5N a glycan:solvent,
+        owl:NamedIndividual .
+
+glycan:CD3OD a glycan:solvent,
+        owl:NamedIndividual .
+
+glycan:CDCl3 a glycan:solvent,
+        owl:NamedIndividual .
+
+glycan:D2O a glycan:solvent,
+        owl:NamedIndividual ;
+    rdfs:label "D2O"^^xsd:string ;
+    rdfs:comment "Heavy water, formally called deuterium oxide. Deuterium oxide is used in NMR spectroscopy when the solvent of interest is water and the nuclide of interest is hydrogen."^^xsd:string .
+
+glycan:DMSO a glycan:solvent,
+        owl:NamedIndividual ;
+    rdfs:label "DMSO"^^xsd:string ;
+    rdfs:comment "Dimethyl sulfoxide (DMSO) is an organosulfur compound with the formula (CH3)2SO. This colorless liquid is an important polar aprotic solvent that dissolves both polar and nonpolar compounds and is miscible in a wide range of organic solvents as well as water."^^xsd:string .
+
+glycan:H2O a glycan:solvent,
+        owl:NamedIndividual ;
+    rdfs:comment "Water"^^xsd:string .
+
+glycan:N-glycan a owl:Class ;
+    rdfs:label "N-glycan"^^xsd:string ;
+    rdfs:comment "A subclass of saccharide primarily found on eukaryotic glycoproteins. This class of glycan typically contains a specific glycan substructure motif (http://jcggdb.jp/idb/motif?id=JCGG-MOTIF1001), and the reducing terminal GlcNAc of the glycan is attached to the N-atom of an asparagine residue of the protein in a beta configuration. A class of glycoconjugate including dolichyl-diphospho esters also involves the same glycan motif, but they are attached in an alpha configuration. The dolichyl-diphosphooligosaccharides are precursors or intermediates in the protein N-glycosylation process, by which the specific dolichyl-diphosphooligosaccharide (http://jcggdb.jp/idb/jcggdb/JCGG-STR015745) is transferred from the dolichyl phospohate ester to an asparagine residue of the protein by an oligosacchayl transferase (GO:0004579)."^^xsd:string ;
+    rdfs:subClassOf glycan:saccharide .
+
+glycan:O-glycan a owl:Class ;
+    rdfs:label "O-glycan"^^xsd:string ;
+    rdfs:comment "A subclass of saccharide primarily found in glycoproteins This class is subdivided into a variety of subclasses due to its expression in a variety of biological sources. In terms of structure, O-glycans either consist of a GalNAc, Man, Fuc, Glc residue at the reducing end attached to a serine, threonine, hydroxylysine or hydroxyproline residue in a protein sequence in an alpha configuration."^^xsd:string ;
+    rdfs:subClassOf glycan:saccharide .
+
+glycan:PNGaseF_release a glycan:enzymatic_release,
+        owl:NamedIndividual ;
+    rdfs:label "PNGaseF release"^^xsd:string ;
+    rdfs:comment "Release of glycan that is used PNGaseF."^^xsd:string .
+
+glycan:absolute_configuration_unknown a glycan:absolute_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "unknown"^^xsd:string .
+
+glycan:adduct_ion_h a glycan:adduct_ion,
+        owl:NamedIndividual ;
+    rdfs:label "H+"^^xsd:string .
+
+glycan:adduct_ion_na a glycan:adduct_ion,
+        owl:NamedIndividual ;
+    rdfs:label "Na+"^^xsd:string .
+
+glycan:alanine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "Alanine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:allo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "allo"^^xsd:string .
+
+glycan:altro a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "altro"^^xsd:string .
+
+glycan:anomer_alpha a glycan:anomer,
+        owl:NamedIndividual ;
+    rdfs:label "alpha"^^xsd:string .
+
+glycan:anomer_beta a glycan:anomer,
+        owl:NamedIndividual ;
+    rdfs:label "beta"^^xsd:string .
+
+glycan:anomer_none a glycan:anomer,
+        owl:NamedIndividual ;
+    rdfs:label "none"^^xsd:string .
+
+glycan:anomer_unknown a glycan:anomer,
+        owl:NamedIndividual ;
+    rdfs:label "unknown"^^xsd:string .
+
+glycan:antibody a owl:Class ;
+    rdfs:label "Antibody"^^xsd:string ;
+    rdfs:comment "A subclass of glycan_binder which binds to an epitope; in this namespace, this is a glycoepitope, which may be a (part of a) glycan or a part of a glycoconjugate."^^xsd:string ;
+    rdfs:subClassOf glycan:glycan_binder .
+
+glycan:arabino a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "arabino"^^xsd:string .
+
+glycan:arginine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "arginine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:asparagine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "asparagine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:aspartic_acid a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "aspartic acid"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:beta_elimination a glycan:chemical_release,
+        owl:NamedIndividual ;
+    rdfs:label "beta elimination"^^xsd:string ;
+    rdfs:comment "Beta elimination that released glycan from glycoconjugate."^^xsd:string .
+
+glycan:biological_repeat_unit a owl:Class ;
+    rdfs:label "Biological Repeat Unit"^^xsd:string ;
+    rdfs:comment "A biological repeat unit contains the monosaccharides of the repetitive oligosaccharide unit in the arrangement as they are synthesized."^^xsd:string ;
+    rdfs:subClassOf glycan:motif .
+
+glycan:captured_by a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Object is compounds that have affinity to glycan or glycoconjugate."^^xsd:string ;
+    rdfs:domain glycan:evidence_binding ;
+    rdfs:range glycan:glycan_binder .
+
+glycan:carbohydrate_format_carbbank a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "carbbank"^^xsd:string .
+
+glycan:carbohydrate_format_csdb a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "csdb"^^xsd:string .
+
+glycan:carbohydrate_format_glycoct a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "glycoct"^^xsd:string .
+
+glycan:carbohydrate_format_glyde2 a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "glyde2"^^xsd:string .
+
+glycan:carbohydrate_format_iupac_condensed a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "iupac condensed"^^xsd:string .
+
+glycan:carbohydrate_format_iupac_extended a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "iupac extended"^^xsd:string .
+
+glycan:carbohydrate_format_iupac_short a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "iupac short"^^xsd:string .
+
+glycan:carbohydrate_format_kcf a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "kcf"^^xsd:string .
+
+glycan:carbohydrate_format_linearcode a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "linearcode"^^xsd:string .
+
+glycan:carbohydrate_format_linucs a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "linucs"^^xsd:string .
+
+glycan:carbohydrate_format_wurcs a glycan:carbohydrate_format,
+        owl:NamedIndividual ;
+    rdfs:label "wurcs"^^xsd:string .
+
+glycan:chemical_repeat_unit a owl:Class ;
+    rdfs:label "Chemical Repeat Unit"^^xsd:string ;
+    rdfs:comment "A chemical repeat unit is generated when a polysaccharide is chopped down for the analysis. The sequence of the oligomer is based on the reaction chopping down the glycan and may not represent the biological repeat unit."^^xsd:string ;
+    rdfs:subClassOf glycan:motif .
+
+glycan:configuration_x a glycan:configuration,
+        owl:NamedIndividual ;
+    rdfs:label "x"^^xsd:string .
+
+glycan:contained_in a owl:ObjectProperty ;
+    rdfs:comment "The subject is a structurally defined motif, and the object is a glycan structure or motif."^^xsd:string ;
+    rdfs:domain glycan:glycan_motif ;
+    rdfs:range glycan:saccharide ;
+    owl:inverseOf glycan:has_motif .
+
+glycan:core_modification_type_acid a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "acid"^^xsd:string ;
+    rdfs:comment "Carboxyl (COOH) group."^^xsd:string .
+
+glycan:core_modification_type_aldi a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "aldi"^^xsd:string ;
+    rdfs:comment "Alditol: Reduction of the aldehyde group to CH2OH."^^xsd:string .
+
+glycan:core_modification_type_anhydro a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "anhydro"^^xsd:string ;
+    rdfs:comment "Intramolecular anhydride."^^xsd:string .
+
+glycan:core_modification_type_deoxy a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "deoxy"^^xsd:string ;
+    rdfs:comment "Deoxygenation of a position: The OH group is removed and replaced by a hydrogen atom."^^xsd:string .
+
+glycan:core_modification_type_en a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "en"^^xsd:string ;
+    rdfs:comment "Double bond in the basetype backbone. This modification implies that - unless explicitly stated with a deoxy modification - hydroxyl groups are preserved."^^xsd:string .
+
+glycan:core_modification_type_enx a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "enx"^^xsd:string ;
+    rdfs:comment "Double bond in the basetype backbone with unknown deoxygenation pattern."^^xsd:string .
+
+glycan:core_modification_type_geminal a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "geminal"^^xsd:string ;
+    rdfs:comment "Loss of stereochemistry due to identical substituents with DEOXY and H_LOSE linkage types at a single position."^^xsd:string .
+
+glycan:core_modification_type_keto a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "keto"^^xsd:string ;
+    rdfs:comment "A carbonyl group in the open chain version of a monosaccharide. This modification is omitted if it is only present at position 1 (standard aldose)."^^xsd:string .
+
+glycan:core_modification_type_sp a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "sp"^^xsd:string ;
+    rdfs:comment "Triple bond to a substituent."^^xsd:string .
+
+glycan:core_modification_type_sp2 a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "sp2"^^xsd:string ;
+    rdfs:comment "Double bond to a substituent."^^xsd:string .
+
+glycan:core_modification_type_yn a glycan:core_modification_type,
+        owl:NamedIndividual ;
+    rdfs:label "yn"^^xsd:string ;
+    rdfs:comment "Triple bond in the basetype backbone."^^xsd:string .
+
+glycan:cyclic_glycan a owl:Class ;
+    rdfs:label "Cyclic Glycan"^^xsd:string ;
+    rdfs:comment "Cyclic glycans are a special form of glycans which are rarely found in nature.  As implied by the name, they form cyclic structures, in contrast to the branched tree structures of commonly known glycans."^^xsd:string ;
+    rdfs:subClassOf glycan:saccharide .
+
+glycan:cysteine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "cysteine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:d-alanine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "D-Alanine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-arginine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-arginine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-asparagine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-asparagine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-aspartic_acid a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-aspartic acid"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-cysteine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-cysteine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-glutamic_acid a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-glutamic acid"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-glutamine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-glutamine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-glycine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-glycine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-histidine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-histidine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-isoleucine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-isoleucine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-leucine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-leucine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-lysine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-lysine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-methionine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-methionine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-phenylalanine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-phenylalanine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-proline a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-proline"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-selenocysteine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-selenocysteine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-serine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-serine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-threonine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-threonine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-tryptophan a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-tryptophan"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-tyrosine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-tyrosine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:d-valine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "d-valine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_dexter .
+
+glycan:database_bcsdb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "BCSDB"^^xsd:string ;
+    glycan:has_abbreviation "BCSDB"^^xsd:string ;
+    glycan:has_category glycan:database_category_bibliography,
+        glycan:database_category_cabohydrate_structure,
+        glycan:database_category_experimental,
+        glycan:database_category_taxonomy ;
+    glycan:has_url_template "http://csdb.glycoscience.ru/bacterial/core/search_id.php?mode=record&id_list=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://csdb.glycoscience.ru/bacterial/"^^xsd:anyURI ;
+    ns1:name "Bacterial Carbohydrate Structure DataBase"^^xsd:string .
+
+glycan:database_carbbank a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "CarbBank"^^xsd:string ;
+    glycan:has_abbreviation "CCSD"^^xsd:string ;
+    glycan:has_url_template "http://www.genome.jp/dbget-bin/www_bget?carbbank+[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.genome.jp/dbget-bin/www_bfind?carbbank"^^xsd:anyURI ;
+    ns1:name "Complex Carbohydrate Structure Database"^^xsd:string .
+
+glycan:database_carint a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "Carint"^^xsd:string ;
+    glycan:has_abbreviation "Carint"^^xsd:string ;
+    glycan:has_category glycan:database_category_carbohydrate_interaction ;
+    glycan:has_url_template "http://ws.glyconavi.org/carint/entry.php?id=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://ws.glyconavi.org/carint/"^^xsd:anyURI ;
+    ns1:name "Carbohydrate Interaction Database"^^xsd:string .
+
+glycan:database_cazy a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "CAZy"^^xsd:string ;
+    glycan:has_abbreviation "CAZy"^^xsd:string ;
+    glycan:has_category glycan:database_category_glycoenzyme ;
+    glycan:has_url_template "http://www.cazy.org/[?id?].html"^^xsd:string ;
+    rdfs:seeAlso "http://www.cazy.org"^^xsd:anyURI ;
+    ns1:name "Carbhoydrate-Active enZYmes"^^xsd:string .
+
+glycan:database_cfg a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "CFG"^^xsd:string ;
+    glycan:has_abbreviation "CFG"^^xsd:string ;
+    glycan:has_category glycan:database_category_cabohydrate_structure ;
+    glycan:has_url_template "http://www.functionalglycomics.org/glycomics/CarbohydrateServlet?pageType=view&view=view&operationType=view&carbId=[?id?]&sideMenu=no%0A%20%20%09%09"^^xsd:string ;
+    rdfs:seeAlso "http://www.functionalglycomics.org/glycomics/molecule/jsp/carbohydrate/carbMoleculeHome.jsp"^^xsd:anyURI ;
+    ns1:name "Consortium for Functional Glycomics Structure Database"^^xsd:string .
+
+glycan:database_cfg_gbp a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "CfgGBP"^^xsd:string ;
+    glycan:has_abbreviation "CfgGBP"^^xsd:string ;
+    glycan:has_category glycan:database_category_glycan_binding_protein ;
+    glycan:has_url_template "http://www.functionalglycomics.org/glycomics/molecule/jsp/viewGbpMolecule.jsp?gbpId=[?id?]&sideMenu=yes"^^xsd:string ;
+    rdfs:seeAlso "http://www.functionalglycomics.org/glycomics/molecule/jsp/gbpMolecule-home.jsp"^^xsd:anyURI ;
+    ns1:name "CFG Glycan Binding Proteins"^^xsd:string .
+
+glycan:database_cfg_glycoenzymes a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "CfgGlycoenzyme"^^xsd:string ;
+    glycan:has_abbreviation "CfgGlycoenzyme"^^xsd:string ;
+    glycan:has_category glycan:database_category_glycoenzyme ;
+    glycan:has_url_template "http://www.functionalglycomics.org/glycomics/molecule/jsp/glycoEnzyme/viewGlycoEnzyme.jsp?gbpId=[?id?]&sideMenu=true&pageType=general"^^xsd:string ;
+    rdfs:seeAlso "http://www.functionalglycomics.org/glycomics/molecule/jsp/glycoEnzyme/geMolecule.jsp"^^xsd:anyURI ;
+    ns1:name "CFG Glycosyltransferases DB"^^xsd:string .
+
+glycan:database_chebi a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "ChEBI"^^xsd:string ;
+    glycan:has_abbreviation "ChEBI"^^xsd:string ;
+    glycan:has_category glycan:database_category_chemical_compound ;
+    glycan:has_url_template "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString='[?id?]'"^^xsd:string ;
+    rdfs:seeAlso "http://www.ebi.ac.uk/chebi/"^^xsd:anyURI ;
+    ns1:name "Chemical Entities of Biological Interest"^^xsd:string .
+
+glycan:database_chemspider a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "ChemSpider"^^xsd:string ;
+    glycan:has_abbreviation "ChemSpider"^^xsd:string ;
+    glycan:has_category glycan:database_category_chemical_compound ;
+    glycan:has_url_template "http://www.chemspider.com/Chemical-Structure.[?id?].html"^^xsd:string ;
+    rdfs:seeAlso "http://www.chemspider.com/"^^xsd:anyURI ;
+    ns1:name "ChemSpider"^^xsd:string .
+
+glycan:database_glyaffinity a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlyAffinity"^^xsd:string ;
+    glycan:has_abbreviation "GlyAffinity"^^xsd:string ;
+    glycan:has_url_template "http://worm.mpi-cbg.de/affinity/structure.action?ID=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.glycosciences.de/affinity/browse.action"^^xsd:anyURI ;
+    ns1:name "GlyAffinity"^^xsd:string .
+
+glycan:database_glyco a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycO"^^xsd:string ;
+    glycan:has_abbreviation "GlycO"^^xsd:string ;
+    glycan:has_url_template "http://glycomics.ccrc.uga.edu/ontologywebapi/service/glycan/id/[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://ccrc.uga.edu/ontology/GlycO/GlycO.owl"^^xsd:anyURI ;
+    ns1:name "Glycomics Ontology"^^xsd:string .
+
+glycan:database_glycobase_dublin a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycoBase(Dublin)"^^xsd:string ;
+    glycan:has_abbreviation "GlycoBase(Dublin)"^^xsd:string ;
+    rdfs:seeAlso "http://glycobase.nibrt.ie/glycobase/show_nibrt.action"^^xsd:anyURI ;
+    ns1:name "GlycoBase(Dublin)"^^xsd:string .
+
+glycan:database_glycobase_lille a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycoBase(Lille)"^^xsd:string ;
+    glycan:has_abbreviation "GlycoBase(Lille)"^^xsd:string ;
+    glycan:has_url_template "http://glycobase.univ-lille1.fr/base/view_mol.php?id=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://glycobase.univ-lille1.fr/base/"^^xsd:anyURI ;
+    ns1:name "GlycoBase(Lille)"^^xsd:string .
+
+glycan:database_glycomapsdb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycoMapsDB"^^xsd:string ;
+    glycan:has_abbreviation "GlycoMapsDB"^^xsd:string ;
+    glycan:has_category glycan:database_category_carbohydrate_conformation ;
+    glycan:has_url_template "http://www.glycosciences.de/modeling/glycomapsdb/showdetails.php?mapid=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.glycosciences.de/modeling/glycomapsdb/"^^xsd:anyURI ;
+    ns1:name "GlycoMapsDB"^^xsd:string .
+
+glycan:database_glycomedb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycomeDB"^^xsd:string ;
+    glycan:has_abbreviation "GlycomeDB"^^xsd:string ;
+    glycan:has_url_template "http://www.glycome-db.org/database/showStructure.action?glycomeId=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.glycome-db.org/"^^xsd:anyURI ;
+    ns1:name "GlycomeDB"^^xsd:string .
+
+glycan:database_glyconavi a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycoNAVI"^^xsd:string ;
+    glycan:has_abbreviation "GlycoNAVI"^^xsd:string ;
+    glycan:has_category glycan:database_category_chemical_compound,
+        glycan:database_category_experimental,
+        glycan:database_category_synthesis ;
+    glycan:has_url_template "http://ws.glyconavi.org/DbDetail/moldetail.aspx?moleculeID=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://ws.glyconavi.org/"^^xsd:anyURI ;
+    ns1:name "GlycoNAVI"^^xsd:string .
+
+glycan:database_glyconmr a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GlycoNMR"^^xsd:string ;
+    glycan:has_abbreviation "GlycoNMR"^^xsd:string ;
+    glycan:has_category glycan:database_category_experimental ;
+    glycan:has_url_template "http://glycoinfolab.jp/GlycoNMR/GeneralDetail?spc=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://glycoinfolab.jp/GlycoNMR/"^^xsd:anyURI ;
+    ns1:name "GlycoNMR"^^xsd:string .
+
+glycan:database_glycosciences_de a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "GLYCOSCIENCES.de"^^xsd:string ;
+    glycan:has_abbreviation "GLYCOSCIENCES.de"^^xsd:string ;
+    glycan:has_category glycan:database_category_bibliography,
+        glycan:database_category_cabohydrate_structure,
+        glycan:database_category_carbohydrate_conformation,
+        glycan:database_category_experimental,
+        glycan:database_category_taxonomy ;
+    glycan:has_url_template "http://www.glycosciences.de/sweetdb/start.php?action=explore_linucsid&linucsid=[?id?]&show=1#struct%0A%20%20%09%09"^^xsd:string ;
+    rdfs:seeAlso "http://www.glycosciences.de/database/"^^xsd:anyURI ;
+    ns1:name "GLYCOSCIENCES.de"^^xsd:string .
+
+glycan:database_jcggdb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "JCGGDB"^^xsd:string ;
+    glycan:has_abbreviation "JCGGDB"^^xsd:string ;
+    glycan:has_url_template "http://jcggdb.jp/idb/jcggdb/[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://jcggdb.jp/index_en.html"^^xsd:anyURI ;
+    ns1:name "Japan Consortium for Glycobiology and Glycotechnology DataBase"^^xsd:string .
+
+glycan:database_kegg a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "KEGG"^^xsd:string ;
+    glycan:has_abbreviation "KEGG"^^xsd:string ;
+    glycan:has_url_template "http://www.genome.jp/dbget-bin/www_bget?gl:[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.genome.jp/kegg/glycan/"^^xsd:anyURI ;
+    ns1:name "Kyoto Encyclopedia of Genes and Genomes"^^xsd:string .
+
+glycan:database_monosaccharidedb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "MonosaccharideDB"^^xsd:string ;
+    glycan:has_abbreviation "MonosaccharideDB"^^xsd:string ;
+    glycan:has_category glycan:database_category_monosaccharide ;
+    glycan:has_url_template "http://www.monosaccharidedb.org/display_monosaccharide.action?id=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.monosaccharidedb.org"^^xsd:anyURI ;
+    ns1:name "MonosaccharideDB"^^xsd:string .
+
+glycan:database_pdb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "PDB"^^xsd:string ;
+    glycan:has_abbreviation "PDB"^^xsd:string ;
+    glycan:has_url_template "http://www.rcsb.org/pdb/explore/explore.do?structureId=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.rcsb.org/pdb/home/home.do"^^xsd:anyURI ;
+    ns1:name "RCSB Protein Data Bank"^^xsd:string .
+
+glycan:database_pfcsdb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "PFCSDB"^^xsd:string ;
+    glycan:has_abbreviation "PFCSDB"^^xsd:string ;
+    glycan:has_category glycan:database_category_bibliography,
+        glycan:database_category_cabohydrate_structure,
+        glycan:database_category_experimental,
+        glycan:database_category_taxonomy ;
+    glycan:has_url_template "http://csdb.glycoscience.ru/plant_fungal/core/search_id.php?mode=record&id_list=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://csdb.glycoscience.ru/plant_fungal/"^^xsd:anyURI ;
+    ns1:name "Plant and Fungal Carbohydrate Structure DataBase"^^xsd:string .
+
+glycan:database_pubchem a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "PubChem"^^xsd:string ;
+    glycan:has_abbreviation "PubChem"^^xsd:string ;
+    glycan:has_category glycan:database_category_chemical_compound ;
+    glycan:has_url_template "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://pubchem.ncbi.nlm.nih.gov/"^^xsd:anyURI ;
+    ns1:name "PubChem"^^xsd:string .
+
+glycan:database_smsa a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "SMSA"^^xsd:string ;
+    glycan:has_abbreviation "SMSA"^^xsd:string ;
+    glycan:has_category glycan:database_category_chemical_compound ;
+    glycan:has_url_template "http://ws.glyconavi.org/SM/id.php?Id=[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://ws.glyconavi.org/SM/"^^xsd:anyURI ;
+    ns1:name "Small Molecule for Spectral Analysis"^^xsd:string .
+
+glycan:database_unicarb_db a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "UniCarb-DB"^^xsd:string ;
+    glycan:has_abbreviation "UniCarb-DB"^^xsd:string ;
+    glycan:has_category glycan:database_category_cabohydrate_structure,
+        glycan:database_category_experimental ;
+    glycan:has_url_template "http://www.unicarb-db.org/structure/[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.unicarb-db.org"^^xsd:anyURI ;
+    ns1:name "UniCarb-DB"^^xsd:string .
+
+glycan:database_unicarbkb a glycan:glycan_database,
+        owl:NamedIndividual ;
+    rdfs:label "UniCarbKB"^^xsd:string ;
+    glycan:has_abbreviation "UniCarbKB"^^xsd:string ;
+    glycan:has_category glycan:database_category_bibliography,
+        glycan:database_category_cabohydrate_structure,
+        glycan:database_category_experimental,
+        glycan:database_category_glycoenzyme,
+        glycan:database_category_taxonomy,
+        glycan:database_category_tissue ;
+    glycan:has_url_template "http://www.unicarbkb.org/structure/[?id?]"^^xsd:string ;
+    rdfs:seeAlso "http://www.unicarbkb.org"^^xsd:anyURI ;
+    ns1:name "UniCarbKB"^^xsd:string .
+
+glycan:degraded_by a owl:ObjectProperty ;
+    rdfs:comment "Object is a reaction process, which degrades the subject."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycoconjugate glycan:saccharide ) ] ;
+    rdfs:range glycan:glycosyl_hydrolase_reaction ;
+    rdfs:subPropertyOf glycan:catalyzed_by .
+
+glycan:elucidated a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "if this glycan was elucidated (rather than just studied) in this publication"^^xsd:string ;
+    rdfs:domain glycan:referenced_compound ;
+    rdfs:range xsd:boolean .
+
+glycan:erythro a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "erythro"^^xsd:string .
+
+glycan:evidence_binding_antibody a owl:Class ;
+    rdfs:label "Evidence Binding Antibody"^^xsd:string ;
+    rdfs:comment "Entities of this class represent molecular interactions between instances of epitope and antibody, elucidated by experimental results. "^^xsd:string ;
+    rdfs:subClassOf glycan:evidence_binding .
+
+glycan:evidence_binding_lectin a owl:Class ;
+    rdfs:label "Evidence Binding Lectin"^^xsd:string ;
+    rdfs:comment "Entities of this class represent molecular interactions between instances of glycan and lectin, elucidated by experimental results."^^xsd:string ;
+    rdfs:subClassOf glycan:evidence_binding .
+
+glycan:evidence_ce a owl:Class ;
+    rdfs:label "Evidence CE"^^xsd:string ;
+    rdfs:comment "Experiments using capillary electrophoresis to identify and characterize carbohydrate structures."^^xsd:string ;
+    rdfs:subClassOf glycan:evidence .
+
+glycan:evidence_type_ce a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "ce"^^xsd:string .
+
+glycan:evidence_type_hplc a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "hplc"^^xsd:string .
+
+glycan:evidence_type_lc a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "lc"^^xsd:string .
+
+glycan:evidence_type_lc_ms a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "lc ms"^^xsd:string .
+
+glycan:evidence_type_lc_msms a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "lc msms"^^xsd:string .
+
+glycan:evidence_type_ms a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "ms"^^xsd:string .
+
+glycan:evidence_type_msms a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "msms"^^xsd:string .
+
+glycan:evidence_type_nmr a glycan:evidence_type,
+        owl:NamedIndividual ;
+    rdfs:label "nmr"^^xsd:string .
+
+glycan:furanose a glycan:ring_type,
+        owl:NamedIndividual ;
+    rdfs:label "furanose"^^xsd:string ;
+    rdfs:comment "A furanose is a five member ring structure containing four carbon atoms and one oxygen atom."^^xsd:string .
+
+glycan:galacto a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "galacto"^^xsd:string .
+
+glycan:gluco a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "gluco"^^xsd:string .
+
+glycan:glutamic_acid a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "glutamic acid"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:glutamine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "glutamine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:glycero a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "glycero"^^xsd:string .
+
+glycan:glycine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "glycine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:glycolipid a owl:Class ;
+    rdfs:label "Glycolipid"^^xsd:string ;
+    rdfs:comment "Lipid with saccharide(s) attached by glycosidic bond(s). "^^xsd:string ;
+    rdfs:subClassOf glycan:glycoconjugate .
+
+glycan:glycoside a owl:Class ;
+    rdfs:label "Glycoside"^^xsd:string ;
+    rdfs:subClassOf glycan:glycoconjugate .
+
+glycan:gulo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "gulo"^^xsd:string .
+
+glycan:has_AA_sequence a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Amino acid sequence is represented in the standard IUPAC-IUB amino acid code. Even if any modification are known, any modified amino acid residues are represented with a single letter of a nascent residue."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycopeptide glycan:glycoprotein glycan:peptide glycan:protein ) ] ;
+    rdfs:range xsd:string .
+
+glycan:has_abbreviation a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Abbreviation of the database"^^xsd:string ;
+    rdfs:domain glycan:glycan_database ;
+    rdfs:range xsd:string .
+
+glycan:has_absolute_configuration a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Subject is a monosaccharide basetype. The object values for the predicate can be D, L or unknown."^^xsd:string ;
+    rdfs:domain glycan:configuration ;
+    rdfs:range glycan:absolute_configuration .
+
+glycan:has_adduct a owl:ObjectProperty ;
+    rdfs:domain glycan:ms_annotation ;
+    rdfs:range glycan:adduct .
+
+glycan:has_affinity_to a owl:ObjectProperty ;
+    rdfs:comment "Subject is a glycan or glycoconjugate, which non-covalently binds to the object, usually :glycan_binder."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range glycan:glycan_binder .
+
+glycan:has_affinity_value a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Binding affinity value for the lectin or antibody."^^xsd:string ;
+    rdfs:domain glycan:evidence_binding ;
+    rdfs:range xsd:double .
+
+glycan:has_aglycon a owl:ObjectProperty ;
+    rdfs:comment "This property is used to specify the aglycon portion of a glycoconjugate compound."^^xsd:string ;
+    rdfs:domain glycan:glycoconjugate ;
+    rdfs:range glycan:aglycon .
+
+glycan:has_alias a owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:comment "reference to aliases for the monosaccharide"^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range glycan:monosaccharide_alias .
+
+glycan:has_alias_name a owl:DatatypeProperty ;
+    rdfs:comment "Alias name of a monosaccharide."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide_alias ;
+    rdfs:range xsd:string .
+
+glycan:has_amino_acid_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:glycosylated_AA ;
+    rdfs:range glycan:amino_acid .
+
+glycan:has_anomer a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Anomeric state of the basetype."^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:anomer .
+
+glycan:has_attached_glycan a owl:ObjectProperty ;
+    rdfs:comment "This property is used to specify a glycan portion of a glycoconjugate compound."^^xsd:string ;
+    rdfs:domain glycan:glycoconjugate ;
+    rdfs:range glycan:saccharide .
+
+glycan:has_average_molecular_weight a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "literal numeric with decimal, calculated from monosaccharide composition with average atomic weight"^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range xsd:double .
+
+glycan:has_basetype a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Object is the basetype of the monosaccharide (subject)."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range glycan:basetype .
+
+glycan:has_basetype_id a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Id of the basetype in MonosaccharideDB."^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:integer .
+
+glycan:has_basetype_linkage_position a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Linkage position at the basetype."^^xsd:string ;
+    rdfs:domain glycan:substituent_linkage ;
+    rdfs:range xsd:integer .
+
+glycan:has_cardinality a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Number of occurrences of an element (e.g. a monosaccharide) in the subject. This information can be missing in case the cardinality cannot be defined (e.g. repeat units with unknown or under-defined repeats). Missing for non-stoichiometrical residues."^^xsd:string ;
+    rdfs:domain glycan:component ;
+    rdfs:range xsd:integer .
+
+glycan:has_cardinality_per_repeat a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Number of occurrences of an element (e.g. a monosaccharide) in the repeat unit. Applicable to :repeatUnits only. Missing for non-stoichiometrical residues."^^xsd:string ;
+    rdfs:domain glycan:component ;
+    rdfs:range xsd:integer .
+
+glycan:has_category a owl:ObjectProperty ;
+    rdfs:comment "category of a glycan database"^^xsd:string ;
+    rdfs:domain glycan:glycan_database ;
+    rdfs:range glycan:glycan_database_category .
+
+glycan:has_cell_line a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Cell line information of the source"^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_cell_type a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Cell type information of the source"^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_charge a owl:DatatypeProperty ;
+    rdfs:comment "Charge state of the MS peak"^^xsd:string ;
+    rdfs:domain glycan:ms_peak ;
+    rdfs:range xsd:integer .
+
+glycan:has_chemical_formula a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:neutral_loss ;
+    rdfs:range xsd:string .
+
+glycan:has_chemical_shift_max a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Maximum value of chemical shift."^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf glycan:has_chemical_shift ;
+    owl:propertyDisjointWith glycan:has_chemical_shift_min .
+
+glycan:has_component a owl:ObjectProperty ;
+    rdfs:comment "Object is a component, representing the monosaccharide composition of the subject."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range glycan:component .
+
+glycan:has_compound a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "The molecule referenced by this subject."^^xsd:string ;
+    rdfs:domain glycan:referenced_compound ;
+    rdfs:range glycan:compound .
+
+glycan:has_configuration a owl:ObjectProperty ;
+    rdfs:label "configuration"^^xsd:string ;
+    rdfs:comment "Instance of class is configuration." ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:configuration .
+
+glycan:has_core_modification a owl:ObjectProperty ;
+    rdfs:comment "reference to another RDF describing a core modification that is present in this basetype"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:core_modification .
+
+glycan:has_core_modification_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "has_core_modification_type"^^xsd:string ;
+    rdfs:comment "Type of the core modification. Instances of class are core modification types."^^xsd:string ;
+    rdfs:domain glycan:core_modification ;
+    rdfs:range glycan:core_modification_type .
+
+glycan:has_count a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:adduct glycan:neutral_loss ) ] ;
+    rdfs:range xsd:integer .
+
+glycan:has_coupling_constant a owl:DatatypeProperty ;
+    rdfs:comment "values in Hz"^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:double .
+
+glycan:has_default_linkage_bondorder a owl:DatatypeProperty ;
+    rdfs:comment "Object is bond order that is number of linkage in default."^^xsd:string ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range xsd:float .
+
+glycan:has_default_linkage_bondorder2 a owl:DatatypeProperty ;
+    rdfs:comment "Object is second bond order that is number of linkage in default."^^xsd:string ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range xsd:float .
+
+glycan:has_default_linkage_type a owl:ObjectProperty ;
+    rdfs:comment "Instances of this class are linkage type ." ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range glycan:linkage_type .
+
+glycan:has_default_linkage_type2 a owl:ObjectProperty ;
+    rdfs:comment "Instances of this class are second linkage type." ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range glycan:linkage_type .
+
+glycan:has_default_linking_position a owl:DatatypeProperty ;
+    rdfs:comment "A position that is number of linkage in default."^^xsd:string ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range xsd:integer .
+
+glycan:has_default_linking_position2 a owl:DatatypeProperty ;
+    rdfs:comment "A position that is number of second linkage in default."^^xsd:string ;
+    rdfs:domain glycan:substituent_type ;
+    rdfs:range xsd:integer .
+
+glycan:has_destination_organism a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "glycan of which organism authors wanted to synthesize or model"^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:source_modeled glycan:source_synthetic ) ] ;
+    rdfs:range glycan:source_natural .
+
+glycan:has_diameter a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "diameter of the column in micro meter"^^xsd:string ;
+    rdfs:domain glycan:lc_column ;
+    rdfs:range xsd:double .
+
+glycan:has_disease a owl:DatatypeProperty ;
+    rdfs:comment "MESH reference for disease"^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_enzyme a owl:ObjectProperty ;
+    rdfs:comment "Object is an enzyme, which performs the reaction."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:lc_digest_chromatogram glycan:reaction ) ] ;
+    rdfs:range glycan:enzyme .
+
+glycan:has_epitope a owl:ObjectProperty ;
+    rdfs:comment "The object  is a structural motif with biological relevance; subproperty of has_motif."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range glycan:glycan_epitope ;
+    rdfs:subPropertyOf glycan:has_motif .
+
+glycan:has_evidence a owl:ObjectProperty ;
+    rdfs:comment "evidence for a given set of information (glycan, publication). An evidence can be any type of experimental data."^^xsd:string ;
+    rdfs:domain glycan:referenced_compound ;
+    rdfs:range glycan:evidence .
+
+glycan:has_exoglycosidase_chromatogram a owl:ObjectProperty ;
+    rdfs:comment "Relation to exoglycosidase treated sample"^^xsd:string ;
+    rdfs:domain glycan:lc_chromatogram ;
+    rdfs:range glycan:lc_digest_chromatogram .
+
+glycan:has_exoglycosidase_treatment a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:lc_digest_chromatogram ;
+    rdfs:range glycan:reaction .
+
+glycan:has_extended_stereocode a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Extended stereocode of the basetype"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:string .
+
+glycan:has_external_substituent a owl:ObjectProperty ;
+    rdfs:comment "Reference to a :substituent."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide_alias ;
+    rdfs:range glycan:substituent .
+
+glycan:has_first_configuration a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Reference to another RDF resource with URI describing the first monosaccharide configuration"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:configuration .
+
+glycan:has_fluid a owl:DatatypeProperty ;
+    rdfs:comment "either tissue or fluid"^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI ;
+    owl:propertyDisjointWith glycan:has_tissue .
+
+glycan:has_fragment a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment " sequence as peak annotation"^^xsd:string ;
+    rdfs:domain glycan:ms_annotation ;
+    rdfs:range xsd:string .
+
+glycan:has_fragment_type a owl:ObjectProperty ;
+    rdfs:domain glycan:ms_annotation ;
+    rdfs:range glycan:ms_fragment_type .
+
+glycan:has_fragmented_spectrum a owl:ObjectProperty ;
+    rdfs:domain glycan:mass_spectrum ;
+    rdfs:range glycan:msn_spectrum .
+
+glycan:has_glycoconjugate_sequence a owl:ObjectProperty ;
+    rdfs:comment "Sequence information to object of rdf:type :glycoconjugate_sequence if the subject is part of a glycoconjugate."^^xsd:string ;
+    rdfs:domain glycan:motif,
+        glycan:saccharide ;
+    rdfs:range glycan:glycoconjugate_sequence .
+
+glycan:has_glycosequence a owl:ObjectProperty ;
+    rdfs:comment "glycan sequence information to object of rdf:type :glycosequence representing the subject in a text format."^^xsd:string ;
+    rdfs:domain glycan:motif,
+        glycan:saccharide ;
+    rdfs:range glycan:glycosequence .
+
+glycan:has_glycosylated_AA a owl:ObjectProperty ;
+    rdfs:comment "This property is used to specify a glycosylated amino acid residue in an object glycoprotein or glycopeptide. "^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycopeptide glycan:glycoprotein ) ] ;
+    rdfs:range glycan:glycosylated_AA .
+
+glycan:has_image a owl:ObjectProperty ;
+    rdfs:comment "Object is a URI to an image instance describing a graphical representation of the glycan."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range glycan:image .
+
+glycan:has_intensity a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "intensity value of the MS peak"^^xsd:string ;
+    rdfs:domain glycan:ms_peak ;
+    rdfs:range xsd:double .
+
+glycan:has_ion a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:adduct ;
+    rdfs:range glycan:adduct_ion .
+
+glycan:has_ionisation_type a owl:ObjectProperty ;
+    rdfs:domain glycan:mass_spectrometry_device ;
+    rdfs:range psi:MS_1000008 .
+
+glycan:has_keyword a owl:DatatypeProperty ;
+    rdfs:comment "Keyword for the publication. Object is a URI in MeSH."^^xsd:string ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_lc_annotation a owl:ObjectProperty ;
+    rdfs:domain glycan:lc_peak ;
+    rdfs:range glycan:compound .
+
+glycan:has_lc_chromatogram a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range glycan:lc_chromatogram .
+
+glycan:has_lc_chromatogram_peak a owl:ObjectProperty ;
+    rdfs:comment "Peak description"^^xsd:string ;
+    rdfs:domain glycan:lc_chromatogram ;
+    rdfs:range glycan:lc_peak .
+
+glycan:has_length a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Length of the column in milli meter"^^xsd:string ;
+    rdfs:domain glycan:lc_column ;
+    rdfs:range xsd:double .
+
+glycan:has_life_stage a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Life stage information of the source."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_linkage_path a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "path from the reducing end or from the rightmost residue in repeat"^^xsd:string ;
+    rdfs:domain glycan:subspectrum ;
+    rdfs:range xsd:string .
+
+glycan:has_linkage_position a owl:DatatypeProperty ;
+    rdfs:comment "Monosaccharide can be linked to other residues via standard glycosidic linkage at the given backbone position."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range xsd:integer .
+
+glycan:has_linkage_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "GlycoCT linkage type of the monosaccharide to the substituent"^^xsd:string ;
+    rdfs:domain glycan:substituent_linkage ;
+    rdfs:range glycan:linkage_type .
+
+glycan:has_manufacturer a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Manufacturer of the device used in the experiment."^^xsd:string ;
+    rdfs:domain glycan:evidence ;
+    rdfs:range xsd:string .
+
+glycan:has_mass_analyzer a owl:ObjectProperty ;
+    rdfs:domain glycan:mass_spectrometry_device ;
+    rdfs:range psi:MS_1000443 .
+
+glycan:has_mass_spectrometry_peak a owl:ObjectProperty ;
+    rdfs:domain glycan:mass_spectrum ;
+    rdfs:range glycan:ms_peak .
+
+glycan:has_mass_spectrum a owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_ms ;
+    rdfs:range glycan:mass_spectrum .
+
+glycan:has_material a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Column packing material "^^xsd:string ;
+    rdfs:domain glycan:lc_column ;
+    rdfs:range xsd:string .
+
+glycan:has_method a owl:DatatypeProperty ;
+    rdfs:comment "experimental procedures described in the article"^^xsd:string ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_missing_signals_max a owl:DatatypeProperty ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:integer .
+
+glycan:has_missing_signals_min a owl:DatatypeProperty ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:integer .
+
+glycan:has_model a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Model of the device used in the experiment."^^xsd:string ;
+    rdfs:domain glycan:evidence ;
+    rdfs:range xsd:string .
+
+glycan:has_modification_position a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Position of the modification at the monosaccharide."^^xsd:string ;
+    rdfs:domain glycan:core_modification ;
+    rdfs:range xsd:integer .
+
+glycan:has_modification_position2 a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Second position of the modification at the monosaccharide (eg. for double bounds)"^^xsd:string ;
+    rdfs:domain glycan:core_modification ;
+    rdfs:range xsd:integer .
+
+glycan:has_monoisotopic_molecular_weight a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Literal numeric with decimal, calculated from monosaccharide composition with atomic weight of monoisotope."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range xsd:double .
+
+glycan:has_monosaccharide_notation_scheme a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "One of GLYCOSCIENCES, GLYCOCT, IUPAC, CARBBANK, CFG, BCSDB, PDB, or GLYCAM, see http://www.monosaccharidedb.org/notation.action?topic=schemes"^^xsd:string ;
+    rdfs:domain glycan:monosaccharide_alias ;
+    rdfs:range glycan:monosaccharide_notation_scheme .
+
+glycan:has_ms_annotation a owl:ObjectProperty ;
+    rdfs:domain glycan:ms_peak ;
+    rdfs:range glycan:ms_annotation .
+
+glycan:has_ms_level a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:mass_spectrum ;
+    rdfs:range xsd:integer .
+
+glycan:has_ms_model a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:mass_spectrometry_device ;
+    rdfs:range psi:MS_1000031 .
+
+glycan:has_msdb_id a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Id of the monosaccharide in MonosaccharideDB."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range xsd:integer .
+
+glycan:has_multiplicity a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "single-character literal (S,M,D,T ,Q) or combination"^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:string .
+
+glycan:has_mz a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "MZ value of the MS peak"^^xsd:string ;
+    rdfs:domain glycan:ms_peak ;
+    rdfs:range xsd:double .
+
+glycan:has_neutral_loss a owl:ObjectProperty ;
+    rdfs:domain glycan:ms_annotation ;
+    rdfs:range glycan:neutral_loss .
+
+glycan:has_nucleus a owl:DatatypeProperty ;
+    rdfs:comment "Nucleus"^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:string .
+
+glycan:has_organ a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Organ of the source."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:has_particle_size a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Size of the particle in micro meter."^^xsd:string ;
+    rdfs:domain glycan:lc_column ;
+    rdfs:range xsd:double .
+
+glycan:has_peak_area a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Integrated peak area."^^xsd:string ;
+    rdfs:domain glycan:lc_peak ;
+    rdfs:range xsd:double .
+
+glycan:has_peptide a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_IGOT ;
+    rdfs:range glycan:glycopeptide .
+
+glycan:has_pmid a owl:DatatypeProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:integer .
+
+glycan:has_polymerization_degree a owl:ObjectProperty ;
+    rdfs:comment "Used only if the specified glycan structure (subject) itself is the oligomeric part forming a repeating unit. Repeating unit information to object of rdf:type :repeat_count."^^xsd:string ;
+    rdfs:domain glycan:polysaccharide ;
+    rdfs:range glycan:polymerization_degree .
+
+glycan:has_precursor_peak a owl:ObjectProperty ;
+    rdfs:comment "URI of the precursor peak of a MS^n spectra."^^xsd:string ;
+    rdfs:domain glycan:evidence_ms ;
+    rdfs:range glycan:ms_peak .
+
+glycan:has_product a owl:ObjectProperty ;
+    rdfs:comment "Object is generated by the reaction."^^xsd:string ;
+    rdfs:domain glycan:reaction ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( glycan:glycoconjugate glycan:saccharide ) ] .
+
+glycan:has_reference a owl:ObjectProperty ;
+    rdfs:comment "Reference between :compound, :citation, :evidence, :source and :referenced_compound."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:citation glycan:compound glycan:evidence glycan:source ) ] ;
+    rdfs:range glycan:referenced_compound .
+
+glycan:has_relative_configuration a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "IUPAC monosaccharide basetype information. Without absolute configuration D or L"^^xsd:string ;
+    rdfs:domain glycan:configuration ;
+    rdfs:range glycan:relative_configuration .
+
+glycan:has_repeat_attribute a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "(min, max, exact, average, unknown) part of repeating unit"^^xsd:string ;
+    rdfs:domain glycan:polymerization_degree ;
+    rdfs:range glycan:repeat_attribute .
+
+glycan:has_repeat_count a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "value of repeat_attribute in resource, if known"^^xsd:string ;
+    rdfs:domain glycan:polymerization_degree ;
+    rdfs:range xsd:positiveInteger .
+
+glycan:has_residue a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Monosaccharide annotation of the subspectrum."^^xsd:string ;
+    rdfs:domain glycan:subspectrum ;
+    rdfs:range glycan:monosaccharide .
+
+glycan:has_resource_entry a owl:ObjectProperty ;
+    rdfs:comment "Assigns a resource entry to a compound."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:compound glycan:referenced_compound ) ] ;
+    rdfs:range glycan:resource_entry .
+
+glycan:has_retention_time a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Retention time of the molecule in the experiment in minutes."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:lc_peak glycan:msn_spectrum ) ] ;
+    rdfs:range xsd:double .
+
+glycan:has_ring_end a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "position of last carbon involved in ring closure"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:integer .
+
+glycan:has_ring_start a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "position of first carbon involved in ring closure"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:integer .
+
+glycan:has_ring_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Assigns the ring type to a basetype."^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:ring_type .
+
+glycan:has_sample_type a owl:ObjectProperty ;
+    rdfs:comment "Sample type of the source."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range glycan:source_sample .
+
+glycan:has_second_configuration a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Reference to another RDF resource with URI describing the second monosaccharide configuration in case there are more than four stereocenters"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:configuration .
+
+glycan:has_sequence a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Sequence of the Glycan"^^xsd:string ;
+    rdfs:domain glycan:sequence ;
+    rdfs:range xsd:string .
+
+glycan:has_size a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "number of backbone carbon atoms"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:integer .
+
+glycan:has_stereocode a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Stereocode describing the backbone stereochemistry"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range xsd:string .
+
+glycan:has_strain a owl:AnnotationProperty,
+        owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Object is bacterial strain."^^xsd:string ;
+    rdfs:domain uniprot:Taxon ;
+    rdfs:range xsd:string .
+
+glycan:has_structure_location a owl:DatatypeProperty ;
+    rdfs:comment "The location of the referenced compound in a publication (e.g. Figure 1)."^^xsd:string ;
+    rdfs:domain glycan:referenced_compound ;
+    rdfs:range xsd:string .
+
+glycan:has_subspectrum a owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range glycan:subspectrum .
+
+glycan:has_substituent_linkage a owl:ObjectProperty ;
+    rdfs:comment "linkage of the substituent"^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range glycan:substituent_linkage .
+
+glycan:has_substituent_linkage_position a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Linkage position at the substituent."^^xsd:string ;
+    rdfs:domain glycan:substituent_linkage ;
+    rdfs:range xsd:integer .
+
+glycan:has_substituent_linkage_position2 a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Second linkage position at the substituent."^^xsd:string ;
+    rdfs:domain glycan:substituent_linkage ;
+    rdfs:range xsd:integer .
+
+glycan:has_substituent_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "linkage type of the substituent"^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range glycan:substituent_type .
+
+glycan:has_substitution a owl:ObjectProperty ;
+    rdfs:comment "The substituent is linked to the basetype in this monosaccharide."^^xsd:string ;
+    rdfs:domain glycan:monosaccharide ;
+    rdfs:range glycan:substituent .
+
+glycan:has_substitution_name a owl:DatatypeProperty ;
+    rdfs:comment "Name of substitution."^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range xsd:string .
+
+glycan:has_substrate a owl:ObjectProperty ;
+    rdfs:comment "Object is consumed by the reaction."^^xsd:string ;
+    rdfs:domain glycan:reaction ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( glycan:glycoconjugate glycan:saccharide ) ] .
+
+glycan:has_symbol_format a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "URL to explanation of symbol? The display style of the glycan. (cfg, uoxf, atoms)"^^xsd:string ;
+    rdfs:domain glycan:image ;
+    rdfs:range glycan:symbol_format .
+
+glycan:has_synthesis_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Allows to specify the synthesis type used to generated the glycan."^^xsd:string ;
+    rdfs:domain glycan:source_synthetic ;
+    rdfs:range glycan:synthetic_type .
+
+glycan:has_taxon a owl:DatatypeProperty,
+        owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Species information of the source."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range uniprot:Taxon .
+
+glycan:has_third_configuration a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Reference to another RDF resource with URI describing the third monosaccharide configuration in case there are more than eight stereocenters"^^xsd:string ;
+    rdfs:domain glycan:basetype ;
+    rdfs:range glycan:configuration .
+
+glycan:has_unassigned_signal a owl:ObjectProperty ;
+    rdfs:comment "Link to an unassigned signal which is just a chemical shift."^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range glycan:signal .
+
+glycan:has_uniprot_accession a owl:FunctionalProperty,
+        owl:InverseFunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "When the subject of this predicate is :glycoprotein, the range instance is equivalent to proteineous part of the subject glycoprotein."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycopeptide glycan:glycoprotein glycan:protein ) ] ;
+    rdfs:range uniprot:Protein .
+
+glycan:has_url_template a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "xsd:string such as http://foo.bar.com/someglycan?id=%s"^^xsd:string ;
+    rdfs:domain glycan:glycan_database ;
+    rdfs:range xsd:string .
+
+glycan:has_valence a owl:DatatypeProperty ;
+    rdfs:comment "Object is a valence of substituent."^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range xsd:integer .
+
+glycan:has_version a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Version of the software used"^^xsd:string ;
+    rdfs:domain glycan:software ;
+    rdfs:range xsd:string .
+
+glycan:histidine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "histidine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:hosted_by a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Reference to another biological source representing the host organism."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range glycan:source_natural .
+
+glycan:hybrid_with a owl:ObjectProperty,
+        owl:SymmetricProperty ;
+    rdfs:comment "An offspring of two different taxons."^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range glycan:source_natural .
+
+glycan:ido a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "ido"^^xsd:string .
+
+glycan:in_carbohydrate_format a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "carbohydrate sequence format of the sequence given in the glycosequence instance"^^xsd:string ;
+    rdfs:domain glycan:sequence ;
+    rdfs:range glycan:carbohydrate_format .
+
+glycan:in_glycan_database a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Glycan is present in the glycan database specified by the URI."^^xsd:string ;
+    rdfs:domain glycan:resource_entry ;
+    rdfs:range glycan:glycan_database .
+
+glycan:injection_volume a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range xsd:double .
+
+glycan:is_ambiguous a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Boolean indicating whether the subject is a fully defined structure including all linkage information, or not."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range xsd:boolean .
+
+glycan:is_fragment a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "If the synthesised or modeled molecule is just a fragment or the complete target molecule"^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:source_modeled glycan:source_synthetic ) ] ;
+    rdfs:range xsd:boolean .
+
+glycan:is_from_source a owl:ObjectProperty ;
+    rdfs:comment "Source annotation for a referenced compound."^^xsd:string ;
+    rdfs:domain glycan:referenced_compound ;
+    rdfs:range glycan:source .
+
+glycan:is_fuzzy a owl:DatatypeProperty ;
+    rdfs:comment "If a substituent is fuzzy."^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range xsd:boolean .
+
+glycan:is_linkable a owl:DatatypeProperty ;
+    rdfs:comment "If a substituent is linkable."^^xsd:string ;
+    rdfs:domain glycan:substituent ;
+    rdfs:range xsd:boolean .
+
+glycan:is_missing a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "If true unassigned signal. NO if a signal can not exist, rather than its unknown."^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:boolean .
+
+glycan:is_primary_name a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "indicates whether this is the name that should be used to uniquely identify this monosaccharide in the given :notation_scheme, or whether this is a secondary alias name (e.g. to indicate whether a trivial name or a systematic name is to be used preferentially in case a trivial name exists for this monosaccharide)"^^xsd:string ;
+    rdfs:domain glycan:monosaccharide_alias ;
+    rdfs:range xsd:boolean .
+
+glycan:is_trivial_name a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Indicates whether this is a trivial name that implies modifications, or a systematic name (e.g. KDO vs. D-3-deoxy-manOct2ulo-onic)"^^xsd:string ;
+    rdfs:domain glycan:monosaccharide_alias ;
+    rdfs:range xsd:boolean .
+
+glycan:isoleucine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "isoleucine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:lectin a owl:Class ;
+    rdfs:label "Lectin"^^xsd:string ;
+    rdfs:comment "A class of protein that binds to glycans but is neither an antibody nor an enzyme."^^xsd:string ;
+    rdfs:subClassOf glycan:glycan_binder .
+
+glycan:leucine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "leucine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:linkage_type_deoxy a glycan:linkage_type,
+        owl:NamedIndividual ;
+    rdfs:label "deoxy"^^xsd:string ;
+    rdfs:comment "The substituent is linked directly to the basetype backbone by replacing the OH group."^^xsd:string .
+
+glycan:linkage_type_h_at_oh a glycan:linkage_type,
+        owl:NamedIndividual ;
+    rdfs:label "h at oh"^^xsd:string ;
+    rdfs:comment "A standard O-linked substituent, i.e. the substituent replaces the hydrogen of an OH group."^^xsd:string .
+
+glycan:linkage_type_h_loss a glycan:linkage_type,
+        owl:NamedIndividual ;
+    rdfs:label "h loss"^^xsd:string ;
+    rdfs:comment "The substituent is linked directly to the basetype backbone by replacing the hydrogen atom."^^xsd:string .
+
+glycan:linkage_type_r_config a glycan:linkage_type,
+        owl:NamedIndividual ;
+    rdfs:label "r config"^^xsd:string ;
+    rdfs:comment "The substituent is linked directly to the basetype backbone by replacing a hydrogen atom at a terminal position, which would be non-chiral without the substituent, resulting in an R-configuration of the carbon."^^xsd:string .
+
+glycan:linkage_type_s_config a glycan:linkage_type,
+        owl:NamedIndividual ;
+    rdfs:label "s config"^^xsd:string ;
+    rdfs:comment "Same as R_CONFIG, but resulting in an S-Configuration of the carbon."^^xsd:string .
+
+glycan:lysine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "lysine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:lyxo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "lyxo"^^xsd:string .
+
+glycan:manno a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "manno"^^xsd:string .
+
+glycan:methionine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "methionine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:modification_type a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Modification type is represented due to biological process, typically N-linked or O-linked."^^xsd:string ;
+    rdfs:domain glycan:glycosylated_AA ;
+    rdfs:range uniprot:Glycosylation_Annotation .
+
+glycan:monosaccharide_notation_scheme_amber_glycam a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "amber glycam"^^xsd:string ;
+    rdfs:comment """Two-letter residue names used within the AMBER GLYCAM forcefield. For more information, see Carbohydrate Naming Convention in Glycam.
+
+Note (1): Monosaccharide alias names in GLYCAM notation also encode linkage positions (in the first character of a three-letter-code residue name). These depend on the context of a residue within an oligosaccharide and thus are no monosaccharide properties. GLYCAM names stored in MonosaccharideDB refer to a terminal residue. The first character might have to be adjusted according to the specific context of a residue, i.e. in case other residues linked are to the given one.
+
+Note (2): The GLYCAM notation is not yet supported by the notation parsing routines, i.e. GLYCAM alias names can be created, but not be read yet."""^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_bcsdb a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "bcsdb"^^xsd:string ;
+    rdfs:comment "The notation used by the Russian BCSDB. For more information on this notation, see the description on the BCSDB homepage. "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_carbbank a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "carbbank"^^xsd:string ;
+    rdfs:comment "The CarbBank notation is based on the IUPAC extended notation. It is used by the Complex Carbohydrate Structure Database (CCSD), which is better known by the name of its query software \"carbbank\". CarbBank style notation forms the basis of several other notations, such as the Glycosciences.de scheme. "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_cfg a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "cfg"^^xsd:string ;
+    rdfs:comment "The LinearCode notation used by the US Consortium for Functional Glycomics (CFG). "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_glycoct a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "glycoct"^^xsd:string ;
+    rdfs:comment "The nomenclature that is used by EUROCarbDB. For more information see www.eurocarbdb.org/recommendations/encoding/. "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_glycosciences_de a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "glycosciences de"^^xsd:string ;
+    rdfs:comment "The Notation used in the Glycosciences.de web portal. It is based on the CarbBank notation. "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_monosaccharidedb a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "monosaccharidedb"^^xsd:string ;
+    rdfs:comment "MonosaccharideDB's internal notation format. Basetype and substituent names are the same as in GlycoCT, with the exception that 'anhydro' and 'lactone' modifications are included in the basetype here, while they are defined as substituents in GlycoCT. As most glycobiologist and also most carbohydrate databases consider a monosaccharide that contains substituents as one residue, they are defined in this way in MonosaccharideDB as well. "^^xsd:string .
+
+glycan:monosaccharide_notation_scheme_pdb a glycan:monosaccharide_notation_scheme,
+        owl:NamedIndividual ;
+    rdfs:label "pdb"^^xsd:string ;
+    rdfs:comment "The 3-letter residue names as used by the Protein Data Bank (PDB). Unlike most of the other notations, these names cannot be generated automatically by conversion routines but have to be assigned manually by the database administrators. Some PDB residue names that encode carbohydrate residues define disaccharides or oligosaccharides. These are not implemented in MonosaccharideDB, as the scope of this database is on monosaccharide residues. "^^xsd:string .
+
+glycan:ms_fragment_type_a a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "A"^^xsd:string .
+
+glycan:ms_fragment_type_b a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "B"^^xsd:string .
+
+glycan:ms_fragment_type_c a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "C"^^xsd:string .
+
+glycan:ms_fragment_type_x a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "X"^^xsd:string .
+
+glycan:ms_fragment_type_y a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "Y"^^xsd:string .
+
+glycan:ms_fragment_type_z a glycan:ms_fragment_type,
+        owl:NamedIndividual ;
+    rdfs:label "Z"^^xsd:string .
+
+glycan:of_carbon_number a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "carbon atom number"^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:integer .
+
+glycan:open a glycan:ring_type,
+        owl:NamedIndividual ;
+    rdfs:label "open"^^xsd:string ;
+    rdfs:comment "Open chain sugar that does not form a ring."^^xsd:string .
+
+glycan:phenylalanine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "phenylalanine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:profile_spectrum a owl:Class ;
+    rdfs:label "Profile Spectrum"^^xsd:string ;
+    rdfs:subClassOf glycan:mass_spectrum .
+
+glycan:proline a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "proline"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:published_in a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "Reference information for the subject."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence glycan:referenced_compound ) ] ;
+    rdfs:range glycan:citation .
+
+glycan:pyranose a glycan:ring_type,
+        owl:NamedIndividual ;
+    rdfs:label "pyranose"^^xsd:string ;
+    rdfs:comment "A Pyranose is any cyclic isomer that has a five carbons and one oxygen in a ring of six atoms."^^xsd:string .
+
+glycan:ratio a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Ratio of a solvent in a solvent mixture. (100 if there is only one solvent)"^^xsd:string ;
+    rdfs:domain glycan:solvent_part ;
+    rdfs:range xsd:double .
+
+glycan:reductive_beta_elimination a glycan:chemical_release,
+        owl:NamedIndividual ;
+    rdfs:label "reductive beta elimination"^^xsd:string ;
+    rdfs:comment "Beta elimination that is used reducing a get for stabilize glycan."^^xsd:string .
+
+glycan:repeat_attribute_average a glycan:repeat_attribute,
+        owl:NamedIndividual ;
+    rdfs:label "average"^^xsd:string .
+
+glycan:repeat_attribute_exact a glycan:repeat_attribute,
+        owl:NamedIndividual ;
+    rdfs:label "exact"^^xsd:string .
+
+glycan:repeat_attribute_max a glycan:repeat_attribute,
+        owl:NamedIndividual ;
+    rdfs:label "max"^^xsd:string .
+
+glycan:repeat_attribute_min a glycan:repeat_attribute,
+        owl:NamedIndividual ;
+    rdfs:label "min"^^xsd:string .
+
+glycan:repeat_attribute_unknown a glycan:repeat_attribute,
+        owl:NamedIndividual ;
+    rdfs:label "unknown"^^xsd:string .
+
+glycan:ribo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "ribo"^^xsd:string .
+
+glycan:ring_type_unknown a glycan:ring_type,
+        owl:NamedIndividual ;
+    rdfs:label "unknown"^^xsd:string ;
+    rdfs:comment "A monosaccharide whose ring type is unknown."^^xsd:string .
+
+glycan:selenocysteine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "selenocysteine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:serine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "serine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:substituent_type_acetyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "acetyl"^^xsd:string ;
+    rdfs:comment "COCH3"^^xsd:string .
+
+glycan:substituent_type_amino a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "amino"^^xsd:string ;
+    rdfs:comment "NH2"^^xsd:string .
+
+glycan:substituent_type_bromo a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "bromo"^^xsd:string ;
+    rdfs:comment "Br"^^xsd:string .
+
+glycan:substituent_type_chloro a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "chloro"^^xsd:string ;
+    rdfs:comment "Cl"^^xsd:string .
+
+glycan:substituent_type_ethanolamine a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "ethanolamine"^^xsd:string ;
+    rdfs:comment "NHCH2CH2OH"^^xsd:string .
+
+glycan:substituent_type_ethyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "ethyl"^^xsd:string ;
+    rdfs:comment "CH2CH3"^^xsd:string .
+
+glycan:substituent_type_fluoro a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "fluoro"^^xsd:string ;
+    rdfs:comment "F"^^xsd:string .
+
+glycan:substituent_type_formyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "formyl"^^xsd:string ;
+    rdfs:comment "CHO"^^xsd:string .
+
+glycan:substituent_type_glycolyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "glycolyl"^^xsd:string ;
+    rdfs:comment "COCH2OH"^^xsd:string .
+
+glycan:substituent_type_hydroxymethyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "hydroxymethyl"^^xsd:string ;
+    rdfs:comment "CH2OH"^^xsd:string .
+
+glycan:substituent_type_imino a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "imino"^^xsd:string ;
+    rdfs:comment "NH"^^xsd:string .
+
+glycan:substituent_type_iodo a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "iodo"^^xsd:string ;
+    rdfs:comment "I"^^xsd:string .
+
+glycan:substituent_type_methyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "methyl"^^xsd:string ;
+    rdfs:comment "CH3"^^xsd:string .
+
+glycan:substituent_type_n_acetyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n acetyl"^^xsd:string ;
+    rdfs:comment "NHCOCH3"^^xsd:string .
+
+glycan:substituent_type_n_alanine a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n alanine"^^xsd:string ;
+    rdfs:comment "NHCOCHNH2CH3"^^xsd:string .
+
+glycan:substituent_type_n_dimethyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n dimethyl"^^xsd:string ;
+    rdfs:comment "N(CH3)2"^^xsd:string .
+
+glycan:substituent_type_n_ethyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n ethyl"^^xsd:string ;
+    rdfs:comment "NHCH2CH3"^^xsd:string .
+
+glycan:substituent_type_n_formyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n formyl"^^xsd:string ;
+    rdfs:comment "NHCHO"^^xsd:string .
+
+glycan:substituent_type_n_glycolyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n glycolyl"^^xsd:string ;
+    rdfs:comment "NCOCH2OH"^^xsd:string .
+
+glycan:substituent_type_n_methyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n methyl"^^xsd:string ;
+    rdfs:comment "NHCH3"^^xsd:string .
+
+glycan:substituent_type_n_succinate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n succinate"^^xsd:string ;
+    rdfs:comment "NCOCH2CH2COOH"^^xsd:string .
+
+glycan:substituent_type_n_sulfate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n sulfate"^^xsd:string ;
+    rdfs:comment "NHSO3H"^^xsd:string .
+
+glycan:substituent_type_n_trifluoroacetyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n trifluoroacetyl"^^xsd:string ;
+    rdfs:comment "NHCOCF3"^^xsd:string .
+
+glycan:substituent_type_n_trimethyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "n trimethyl"^^xsd:string ;
+    rdfs:comment "N(CH3)3"^^xsd:string .
+
+glycan:substituent_type_nitrat a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "nitrat"^^xsd:string ;
+    rdfs:comment "NO2"^^xsd:string .
+
+glycan:substituent_type_phosphate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "phosphate"^^xsd:string ;
+    rdfs:comment "PO3H2"^^xsd:string .
+
+glycan:substituent_type_r_lactate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "r lactate"^^xsd:string ;
+    rdfs:comment "CH3CHCOOH"^^xsd:string .
+
+glycan:substituent_type_r_pyruvate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "r pyruvate"^^xsd:string ;
+    rdfs:comment "CH2CCOOH"^^xsd:string .
+
+glycan:substituent_type_s_lactate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "s lactate"^^xsd:string ;
+    rdfs:comment "CH3CHCOOH"^^xsd:string .
+
+glycan:substituent_type_s_methyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "s methyl"^^xsd:string ;
+    rdfs:comment "SCH3"^^xsd:string .
+
+glycan:substituent_type_s_pyruvate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "s pyruvate"^^xsd:string ;
+    rdfs:comment "CH2CCOOH"^^xsd:string .
+
+glycan:substituent_type_seleno a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "seleno"^^xsd:string ;
+    rdfs:comment "SeH"^^xsd:string .
+
+glycan:substituent_type_sulfate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "sulfate"^^xsd:string ;
+    rdfs:comment "SO3H"^^xsd:string .
+
+glycan:substituent_type_telluro a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "telluro"^^xsd:string ;
+    rdfs:comment "TeH"^^xsd:string .
+
+glycan:substituent_type_thio a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "thio"^^xsd:string ;
+    rdfs:comment "SH"^^xsd:string .
+
+glycan:substituent_type_trifluoroacetyl a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "trifluoroacetyl"^^xsd:string ;
+    rdfs:comment "COCF3"^^xsd:string .
+
+glycan:substituent_type_x_lactate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "x lactate"^^xsd:string ;
+    rdfs:comment "CH3CHCOOH"^^xsd:string .
+
+glycan:substituent_type_x_pyruvate a glycan:substituent_type,
+        owl:NamedIndividual ;
+    rdfs:label "x pyruvate"^^xsd:string ;
+    rdfs:comment "CH2CCOOH"^^xsd:string .
+
+glycan:sulfotransferase_reaction a owl:Class ;
+    rdfs:label "Sulfotransferase Reaction"^^xsd:string ;
+    rdfs:comment "Instances of this class are sulfotransferase reactions that modifies glycans or glycoconjugates by attaching sulfuric moiety to them."^^xsd:string ;
+    rdfs:subClassOf glycan:reaction .
+
+glycan:symbol_format_cfg a glycan:symbol_format,
+        owl:NamedIndividual ;
+    rdfs:label "cfg"^^xsd:string ;
+    rdfs:comment "A symbol is Consortium for Functional Glycomics (CFG) notation."^^xsd:string .
+
+glycan:symbol_format_cfg_bw a glycan:symbol_format,
+        owl:NamedIndividual ;
+    rdfs:label "cfg bw"^^xsd:string ;
+    rdfs:comment "CFG symbol that is displaied black and white notation."^^xsd:string .
+
+glycan:symbol_format_text a glycan:symbol_format,
+        owl:NamedIndividual ;
+    rdfs:label "text"^^xsd:string ;
+    rdfs:comment "A glycan structure is displayed by text-only form."^^xsd:string .
+
+glycan:symbol_format_uoxf a glycan:symbol_format,
+        owl:NamedIndividual ;
+    rdfs:label "uoxf"^^xsd:string ;
+    rdfs:comment "A symbol is Oxford (UOXF) notations."^^xsd:string .
+
+glycan:symbol_format_uoxf_bw a glycan:symbol_format,
+        owl:NamedIndividual ;
+    rdfs:label "uoxf bw"^^xsd:string ;
+    rdfs:comment "UOXF symbol that is displayed black and white notation."^^xsd:string .
+
+glycan:synthesized_by a owl:ObjectProperty ;
+    rdfs:comment "Object is a reaction process, which synthesizes the subject."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycoconjugate glycan:saccharide ) ] ;
+    rdfs:range glycan:glycosyltransferase_reaction ;
+    rdfs:subPropertyOf glycan:catalyzed_by .
+
+glycan:synthetic_type_chemical a glycan:synthetic_type,
+        owl:NamedIndividual ;
+    rdfs:label "chemical"^^xsd:string ;
+    rdfs:comment "Chemical synthesis that various protecting group manipulations used in the context of glycan synthesis."^^xsd:string .
+
+glycan:synthetic_type_chemoenzymatic a glycan:synthetic_type,
+        owl:NamedIndividual ;
+    rdfs:label "chemoenzymatic"^^xsd:string ;
+    rdfs:comment "Relying on a hybrid of chemical and enzymatic steps that typically begins with chemical synthesis and ends with enzymatic extension."^^xsd:string .
+
+glycan:synthetic_type_enzymatic a glycan:synthetic_type,
+        owl:NamedIndividual ;
+    rdfs:label "enzymatic"^^xsd:string ;
+    rdfs:comment "Employing glycosyltransferases and glycosidases in a synthetic schema."^^xsd:string .
+
+glycan:talo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "talo"^^xsd:string .
+
+glycan:threo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "threo"^^xsd:string .
+
+glycan:threonine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "threonine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:tryptophan a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "tryptophan"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:tyrosine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "tyrosine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:used_amount_mg a owl:DatatypeProperty ;
+    rdfs:comment "sample weight."^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:double .
+
+glycan:used_buffer a owl:ObjectProperty ;
+    rdfs:comment "Link to buffer information, such as http://en.wikipedia.org/wiki/Phosphate_buffered_saline."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_nmr glycan:reaction ) ] ;
+    rdfs:range glycan:buffer .
+
+glycan:used_column a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_lc_ms ;
+    rdfs:range glycan:lc_column .
+
+glycan:used_column_temperature a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Column temperature in C."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range xsd:double .
+
+glycan:used_concentration a owl:DatatypeProperty ;
+    rdfs:comment "sample concentration."^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range rdfs:Literal .
+
+glycan:used_frequency a owl:DatatypeProperty ;
+    rdfs:comment "frequency of NMR spectrometer."^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:double .
+
+glycan:used_lc_flow_rate a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Flow rate refers to the flow of mobile phase through the column and is measured in ml/min."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range xsd:string .
+
+glycan:used_lc_gradient a owl:ObjectProperty ;
+    rdfs:comment "Solvent gradient explained by change in composition with respect to time."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range glycan:gradient .
+
+glycan:used_lc_run_time a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Runtime of the LC "^^xsd:string ;
+    rdfs:domain glycan:gradient ;
+    rdfs:range xsd:string .
+
+glycan:used_molecule a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:evidence_lc glycan:evidence_lc_ms ) ] ;
+    rdfs:range glycan:compound .
+
+glycan:used_ms a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_ms ;
+    rdfs:range glycan:mass_spectrometry_device .
+
+glycan:used_percent_max a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:gradient ;
+    rdfs:range xsd:double .
+
+glycan:used_percent_min a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:gradient ;
+    rdfs:range xsd:double .
+
+glycan:used_ph a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "pH of solution"^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:double .
+
+glycan:used_reference_standard a owl:ObjectProperty ;
+    rdfs:comment "reference_standard is the accepted internal/external standard for calibrating chemical shift for NMR spectroscopy."^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range glycan:compound .
+
+glycan:used_software a owl:ObjectProperty ;
+    rdfs:comment "Software used to model the molecule."^^xsd:string ;
+    rdfs:domain glycan:source_modeled ;
+    rdfs:range glycan:software .
+
+glycan:used_solvent a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "The predicate links the solvent part with the actually solvent (such as https://www.ebi.ac.uk/chebi/searchId.do?chebiId=41981). Object is an instance of glycan:solvent."^^xsd:string ;
+    rdfs:domain glycan:solvent_part ;
+    rdfs:range glycan:solvent .
+
+glycan:used_solvent_part a owl:ObjectProperty ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range glycan:solvent_part .
+
+glycan:used_temperature a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "value or range in K (literal)"^^xsd:string ;
+    rdfs:domain glycan:evidence_nmr ;
+    rdfs:range xsd:string .
+
+glycan:valine a glycan:amino_acid,
+        owl:NamedIndividual ;
+    rdfs:label "valine"^^xsd:string ;
+    glycan:has_absolute_configuration glycan:absolute_configuration_laevus .
+
+glycan:xylo a glycan:relative_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "xylo"^^xsd:string .
+
+dc:publisher a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+dc:title a owl:DatatypeProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+dcterms:issued a owl:DatatypeProperty ;
+    rdfs:comment "Publication year"^^xsd:string ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:integer .
+
+bibo:authorList a owl:DatatypeProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range rdfs:Literal .
+
+bibo:pageEnd a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+bibo:pageStart a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+bibo:shortTitle a owl:DatatypeProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+bibo:volume a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:domain glycan:citation ;
+    rdfs:range xsd:string .
+
+ns1:name a owl:AnnotationProperty .
+
+glycan:buffer a owl:Class ;
+    rdfs:label "Buffer"^^xsd:string ;
+    rdfs:comment "A buffer is an aqueous solution consisting of a mixture of a weak acid and its conjugate base or a weak base and its conjugate acid."^^xsd:string ;
+    rdfs:subClassOf glycan:role .
+
+glycan:database_category_carbohydrate_interaction a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "carbohydrate interaction"^^xsd:string .
+
+glycan:database_category_glycan_binding_protein a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "glycan binding protein"^^xsd:string .
+
+glycan:database_category_monosaccharide a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "monosaccharide"^^xsd:string ;
+    rdfs:comment "Database containing monosaccharide information."^^xsd:string .
+
+glycan:database_category_synthesis a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "synthesis"^^xsd:string .
+
+glycan:database_category_tissue a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "tissue"^^xsd:string .
+
+glycan:enzymatic_release a owl:Class ;
+    rdfs:label "Enzymatic Release"^^xsd:string ;
+    rdfs:comment "Release of glycan by an enzymatic reaction."^^xsd:string ;
+    rdfs:subClassOf glycan:glycan_release .
+
+glycan:enzyme a owl:Class ;
+    rdfs:label "Enzyme"^^xsd:string ;
+    rdfs:comment "Enzyme that take part in synthesis anddegradation of glycan."^^xsd:string ;
+    rdfs:subClassOf glycan:role .
+
+glycan:evidence_IGOT a owl:Class ;
+    rdfs:label "Evidence IGOT"^^xsd:string ;
+    rdfs:comment "Is an IGOT experiment, subclass of glycan:evidence_lc_ms. IGOT experiment is a procedure for the large-scale identification of N-glycosylated proteins, with isotope-coded glycosylation-site-specific tagging. (PMID: 12754521)"^^xsd:string ;
+    rdfs:subClassOf glycan:evidence_lc_ms .
+
+glycan:glycan_epitope a owl:Class ;
+    rdfs:label "Glycan Epitope"^^xsd:string ;
+    rdfs:comment "A glycan epitope is a special motif which has a known biological function."^^xsd:string ;
+    rdfs:subClassOf glycan:glycan_motif .
+
+glycan:glycoconjugate_sequence a owl:Class ;
+    rdfs:label "Glycoconjugate Sequence"^^xsd:string ;
+    rdfs:comment "Sequence of the glycoconjugate that includes the carbohydrate and the aglyca. Predicates should be selected based on the format used to represent the structure."^^xsd:string ;
+    rdfs:subClassOf glycan:sequence .
+
+glycan:glycosequence a owl:Class ;
+    rdfs:label "Glycosequence"^^xsd:string ;
+    rdfs:comment "Sequence of the glycan in a specified sequence format."^^xsd:string ;
+    rdfs:subClassOf glycan:sequence .
+
+glycan:glycosyl_hydrolase_reaction a owl:Class ;
+    rdfs:label "Glycosyl Hydrolase Reaction"^^xsd:string ;
+    rdfs:comment "Instances of this class are glycosyl hydrolase reactions which releases monosaccharide or oligosaccharides from the glycan or glycoconjugate."^^xsd:string ;
+    rdfs:subClassOf glycan:reaction .
+
+glycan:glycosyltransferase_reaction a owl:Class ;
+    rdfs:label "Glycosyltransferase Reaction"^^xsd:string ;
+    rdfs:comment "Instances of this class are glycosyltransferase reactions that build up glycans or glycoconjugates by attaching additional monosaccharides or oligosaccharides to them."^^xsd:string ;
+    rdfs:subClassOf glycan:reaction .
+
+glycan:has_chemical_shift_min a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "Minimum value of chemical shift."^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf glycan:has_chemical_shift .
+
+glycan:has_monosaccharide a owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:comment "URI to a RDF resource describing the monosaccharide (usually MonosaccharideDB)." ;
+    rdfs:domain glycan:component ;
+    rdfs:range glycan:monosaccharide .
+
+glycan:has_signal a owl:ObjectProperty ;
+    rdfs:comment "Resource to a :signal"^^xsd:string ;
+    rdfs:domain glycan:subspectrum ;
+    rdfs:range glycan:signal .
+
+glycan:has_tissue a owl:DatatypeProperty,
+        owl:FunctionalProperty ;
+    rdfs:comment "either tissue or fluid"^^xsd:string ;
+    rdfs:domain glycan:source_natural ;
+    rdfs:range xsd:anyURI .
+
+glycan:polysaccharide a owl:Class ;
+    rdfs:label "Polysaccharide"^^xsd:string ;
+    rdfs:comment "Polysaccharides are a special form of glycans that consist of large repetitive oligosaccharide units. Often the exact number of repetitions cannot be specified because the experimental technique does not allow this or because the number of repetition in nature varies."^^xsd:string ;
+    rdfs:subClassOf glycan:saccharide .
+
+glycan:sample_preparation a owl:Class ;
+    rdfs:label "Sample Preparation"^^xsd:string ;
+    rdfs:comment "A process which is the syntesis or preparation of sample for glycan analysis."^^xsd:string .
+
+glycan:source_sample a owl:Class ;
+    rdfs:label "Source Sample"^^xsd:string ;
+    rdfs:comment "Class for source from sample. Instance contain sample type."^^xsd:string ;
+    rdfs:subClassOf glycan:source .
+
+psi:MS_1000008 rdfs:label "Ionization Type"^^xsd:string ;
+    rdfs:comment "PSI: The method by which gas phase ions are generated from the sample."^^xsd:string .
+
+psi:MS_1000031 rdfs:label "Instrument Model"^^xsd:string ;
+    rdfs:comment "PSI: Instrument model name not including the vendor&#39;s name."^^xsd:string .
+
+psi:MS_1000443 rdfs:label "Mass Analyzer Type"^^xsd:string ;
+    rdfs:comment "PSI: Mass analyzer separates the ions according to their mass-to-charge ratio."^^xsd:string .
+
+uniprot:Glycosylation_Annotation rdfs:label "Glycosylation Annotation"^^xsd:string ;
+    rdfs:comment "Uniprot term for Glycosylation type (e.g. N-glycosylation)"^^xsd:string .
+
+uniprot:Protein rdfs:label "Protein"^^xsd:string ;
+    rdfs:comment "Uniprot protein class."^^xsd:string .
+
+ns1:Image rdfs:label "Image"^^xsd:string ;
+    rdfs:comment "Image class."^^xsd:string .
+
+glycan:catalyzed_by a owl:ObjectProperty ;
+    rdfs:comment "Object is a reaction process."^^xsd:string ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( glycan:glycoconjugate glycan:saccharide ) ] ;
+    rdfs:range glycan:reaction .
+
+glycan:chemical_release a owl:Class ;
+    rdfs:label "Chemical Release"^^xsd:string ;
+    rdfs:comment "Release of glycan that is used chemical reaction."^^xsd:string ;
+    rdfs:subClassOf glycan:glycan_release .
+
+glycan:database_category_carbohydrate_conformation a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "carbohydrate conformation"^^xsd:string ;
+    rdfs:comment "Database containing carbohydrate conformation"^^xsd:string .
+
+glycan:glycan_release a owl:Class ;
+    rdfs:label "Glycan Release"^^xsd:string ;
+    rdfs:comment "A class for process of glycan release, including chemical and enzymatic reaction."^^xsd:string ;
+    rdfs:subClassOf glycan:sample_preparation .
+
+glycan:has_chemical_shift a owl:DatatypeProperty ;
+    rdfs:comment "chemical shift (may be multiple e.g. for CH2 groups in 1H spectra. May be missing if unknown)"^^xsd:string ;
+    rdfs:domain glycan:signal ;
+    rdfs:range xsd:double .
+
+glycan:has_motif a owl:ObjectProperty ;
+    rdfs:comment "The object is a structurally defined motif E.g. for Neo-lacto motif http://jcggdb.jp/idb/motif?id=JCGG-MOTIF3009.rdf inverse of ”contained_in”. should have sequence, composition, image ..."^^xsd:string ;
+    rdfs:domain glycan:saccharide ;
+    rdfs:range glycan:glycan_motif .
+
+glycan:image a owl:Class ;
+    rdfs:label "Image"^^xsd:string ;
+    rdfs:comment "Image class for representing glycan images."^^xsd:string ;
+    rdfs:subClassOf ns1:Image .
+
+glycan:lipid a owl:Class ;
+    rdfs:label "Lipid"^^xsd:string ;
+    rdfs:subClassOf glycan:aglycon ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:peptide glycan:protein ) ] .
+
+glycan:msn_spectrum a owl:Class ;
+    rdfs:label "Msn Spectrum"^^xsd:string ;
+    rdfs:subClassOf glycan:mass_spectrum .
+
+glycan:nmr_property a owl:Class ;
+    rdfs:label "NMR Property"^^xsd:string ;
+    rdfs:comment "Parentclass for all classes used in NMR evidences."^^xsd:string .
+
+glycan:resource_entry a owl:Class ;
+    rdfs:label "Resource Entry"^^xsd:string ;
+    rdfs:comment "A resource entry describes an entry about the glycan in another database."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:software a owl:Class ;
+    rdfs:label "Software"^^xsd:string ;
+    rdfs:comment "Software that has been utilized for the glycan. For example software used to model the glycan."^^xsd:string .
+
+uniprot:Taxon rdfs:comment "Uniprot taxon class."^^xsd:string .
+
+glycan:adduct a owl:Class ;
+    rdfs:label "Adduct"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:adduct_ion a owl:Class ;
+    rdfs:label "Adduct Ion"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:database_category_glycoenzyme a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "glycoenyzme"^^xsd:string .
+
+glycan:glycan_motif a owl:Class ;
+    rdfs:label "Glycan Motif"^^xsd:string ;
+    rdfs:comment "A glycan motif is a sub-structure of glycans that has been named because of its frequent appearance or because of the biological meaning. "^^xsd:string ;
+    rdfs:subClassOf glycan:motif .
+
+glycan:glycoprotein a owl:Class ;
+    rdfs:label "Glycoprotein"^^xsd:string ;
+    rdfs:comment "A compound that consists of protein and glycan parts; they are covalently attached to each other by a glycosidic bond. There are reasons or traces that at least one amino acid residue of the protein is glycosylated."^^xsd:string ;
+    rdfs:subClassOf glycan:glycoconjugate .
+
+glycan:glycosylated_AA a owl:Class ;
+    rdfs:label "Glycosylated Amino Acid"^^xsd:string ;
+    rdfs:comment "An amino acid residue, in a glycoprotein or glycopeptide sequence, that a glycan is covalently attached. To specify glycosylation type or bond of glycoprotein."^^xsd:string ;
+    rdfs:subClassOf glycan:glycoconjugate .
+
+glycan:lc_chromatogram a owl:Class ;
+    rdfs:label "LC Chromatogram"^^xsd:string ;
+    rdfs:subClassOf glycan:lc_property .
+
+glycan:lc_digest_chromatogram a owl:Class ;
+    rdfs:label "LC Digest Chromatogram"^^xsd:string ;
+    rdfs:subClassOf glycan:lc_property .
+
+glycan:neutral_loss a owl:Class ;
+    rdfs:label "Neutral Loss"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:peptide a owl:Class ;
+    rdfs:label "Peptide"^^xsd:string ;
+    rdfs:comment "Part of a protein amino acid sequence generated by digestion for analysis."^^xsd:string ;
+    rdfs:subClassOf glycan:aglycon ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:lipid glycan:protein ) ] .
+
+glycan:polymerization_degree a owl:Class ;
+    rdfs:label "Polymerization Degree"^^xsd:string ;
+    rdfs:comment "A repeat is a property of a polysaccharide that specifies how often the oligomer part is repeated to form the polysaccharide."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:solvent_part a owl:Class ;
+    rdfs:label "Solvent Part"^^xsd:string ;
+    rdfs:comment "A solvent can consist of a mixture of different molecules. For each molecule a solvent part with the ratio and the molecule is created."^^xsd:string .
+
+glycan:source_modeled a owl:Class ;
+    rdfs:label "Source Modeled"^^xsd:string ;
+    rdfs:comment "Class for modeled source. Instance contain information about the software used for modeling and the target organism."^^xsd:string ;
+    rdfs:subClassOf glycan:source .
+
+glycan:source_synthetic a owl:Class ;
+    rdfs:label "Source Synthetic"^^xsd:string ;
+    rdfs:comment "Class for source for synthetic glycans. In contains information about the type of synthesis approach used and if applicable the original biological source that was tried to mimic. "^^xsd:string ;
+    rdfs:subClassOf glycan:source .
+
+glycan:absolute_configuration a owl:Class ;
+    rdfs:label "Absolute Configuration"^^xsd:string ;
+    rdfs:comment "Absolute configuration of a monosaccharide basetype. Possible values are D, L or Unknown."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:component a owl:Class ;
+    rdfs:label "Component"^^xsd:string ;
+    rdfs:comment "Components are used to specify the composition of glycans. A component has a reference to the molecule (monosaccharide, substituent) and a number of occurrences for this molecule in the glycan."^^xsd:string ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty glycan:has_monosaccharide ;
+            owl:someValuesFrom glycan:monosaccharide ],
+        owl:Thing .
+
+glycan:core_modification a owl:Class ;
+    rdfs:label "Core Modification"^^xsd:string ;
+    rdfs:comment "Core modification of a monosaccharide. A core modification consists of a modification type and the position(s) at which this modification happened."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:database_category_bibliography a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "bibliography"^^xsd:string .
+
+glycan:database_category_taxonomy a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "taxonomy"^^xsd:string ;
+    rdfs:comment "Taxonomical information regarding glycans are available."^^xsd:string .
+
+glycan:evidence_binding a owl:Class ;
+    rdfs:label "Evidence Binding"^^xsd:string ;
+    rdfs:comment "Entities of this class represent molecular interactions between instances of glycan:saccharide and glycan:glycan_binder, elucidated by  experimental results.  "^^xsd:string ;
+    rdfs:subClassOf glycan:evidence .
+
+glycan:evidence_ms a owl:Class ;
+    rdfs:label "Evidence MS"^^xsd:string ;
+    rdfs:comment "Experiments using mass spectrometry to identify the carbohydrate structures."^^xsd:string ;
+    rdfs:subClassOf glycan:evidence .
+
+glycan:glycan_binder a owl:Class ;
+    rdfs:label "Glycan Binder"^^xsd:string ;
+    rdfs:comment "A class of compound that has affinity to a glycan or glycoconjugate.  Usually a reference to a lectin, virus, bacteria, etc."^^xsd:string ;
+    rdfs:subClassOf glycan:role .
+
+glycan:glycopeptide a owl:Class ;
+    rdfs:label "Glycopeptide"^^xsd:string ;
+    rdfs:comment "A class involves artificial degradation products of glycoproteins with protease digestion, which typically results from a proteomics experiment. There are reasons or traces that at least one amino acid residue of the peptide is glycosylated."^^xsd:string ;
+    rdfs:subClassOf glycan:glycoconjugate .
+
+glycan:gradient a owl:Class ;
+    rdfs:label "Gradient"^^xsd:string ;
+    rdfs:subClassOf glycan:lc_property .
+
+glycan:lc_peak a owl:Class ;
+    rdfs:label "LC Peak"^^xsd:string ;
+    rdfs:subClassOf glycan:lc_property .
+
+glycan:mass_spectrometry_device a owl:Class ;
+    rdfs:label "Mass Spectrometry Device"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:protein a owl:Class ;
+    rdfs:label "Protein"^^xsd:string ;
+    rdfs:comment "Proteinous part of a glycoprotein that is equivalent to the nascent peptide or protein entities found in UniProt or other protein databases."^^xsd:string ;
+    rdfs:subClassOf glycan:aglycon ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:lipid glycan:peptide ) ] .
+
+glycan:role a owl:Class ;
+    rdfs:label "Role"^^xsd:string ;
+    rdfs:comment "Classification hierarchy for molecular functions."^^xsd:string .
+
+glycan:sequence a owl:Class ;
+    rdfs:label "Sequence"^^xsd:string ;
+    rdfs:comment "A sequence is the textual description of a molecule. For example FASTA sequences for proteins / peptides. "^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:subspectrum a owl:Class ;
+    rdfs:label "Subspectrum"^^xsd:string ;
+    rdfs:comment "Subspectrum of NMR data. It contains the annotated signals."^^xsd:string ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty glycan:has_signal ;
+            owl:someValuesFrom glycan:signal ],
+        glycan:nmr_property .
+
+glycan:synthetic_type a owl:Class ;
+    rdfs:label "Synthetic Type"^^xsd:string ;
+    rdfs:comment "Type of synthesis used for creating the glycan. Possible values are chemical synthesis, enzymatic synthesis and chemoenzymetic synthesis."^^xsd:string .
+
+glycan:anomer a owl:Class ;
+    rdfs:label "Anomer"^^xsd:string ;
+    rdfs:comment "Anomer of a monosaccharide. Possible values are alpha, beta, unknown or none."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:database_category_chemical_compound a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "chemical compound"^^xsd:string ;
+    rdfs:comment "Database of carbohydrates at the atomic level."^^xsd:string .
+
+glycan:lc_column a owl:Class ;
+    rdfs:label "LC Column"^^xsd:string ;
+    rdfs:subClassOf glycan:lc_property .
+
+glycan:lc_property a owl:Class ;
+    rdfs:label "LC Property"^^xsd:string ;
+    rdfs:comment "Class that contains Liquid Chromatography properties such as gradient, Lc column."^^xsd:string .
+
+glycan:motif a owl:Class ;
+    rdfs:label "Motif"^^xsd:string .
+
+glycan:ms_annotation a owl:Class ;
+    rdfs:label "MS Annotation"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:ring_type a owl:Class ;
+    rdfs:label "Ring Type"^^xsd:string ;
+    rdfs:comment "Ringtype of a basetype."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:substituent_linkage a owl:Class ;
+    rdfs:label "Substituent Linkage"^^xsd:string ;
+    rdfs:comment "Linkage between a monosaccharide basetype and a substituent. It consist of the linkage position on the basetype side and the substituent side, and of the linkage type."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:database_category_cabohydrate_structure a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "structure"^^xsd:string ;
+    rdfs:comment "Database containing glycan structure information."^^xsd:string .
+
+glycan:evidence_lc a owl:Class ;
+    rdfs:label "Evidence LC"^^xsd:string ;
+    rdfs:comment "Experiments using LC techniques to identify and characterize carbohydrates or used for separating glycans by charge or other retention properties."^^xsd:string ;
+    rdfs:subClassOf glycan:evidence .
+
+glycan:mass_spectrum a owl:Class ;
+    rdfs:label "Mass Spectrum"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:monosaccharide_alias a owl:Class ;
+    rdfs:label "Monosaccharide Alias"^^xsd:string ;
+    rdfs:comment "Alternative names for the monosaccharide in different databases or resources. The aliases consist of the name and the monosaccharide notation scheme."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:ms_peak a owl:Class ;
+    rdfs:label "MS Peak"^^xsd:string ;
+    rdfs:comment "Instances represent a peak in a mass spectrometry data consisting of an m/z value, intensity value and optional a charge state."^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:repeat_attribute a owl:Class ;
+    rdfs:label "Repeat Attribute"^^xsd:string ;
+    rdfs:comment "List of possible attributes to specify the repeat count. Possible values are average, exact, minimum, maximum or unknown."^^xsd:string .
+
+glycan:source a owl:Class ;
+    rdfs:label "Source"^^xsd:string ;
+    rdfs:comment "Source of the glycan or glycoconjugate. The source can be a biological organism that the compound was found in, a synthesis procedure trying to reproduce a natural glycan or a modeling approach for the glycan."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:symbol_format a owl:Class ;
+    rdfs:label "Symbol Format"^^xsd:string ;
+    rdfs:comment "Graphical symbol formats used to represent glycans. This includes the symbol format form the CFG and from UOXF."^^xsd:string .
+
+glycan:aglycon a owl:Class ;
+    rdfs:label "Aglycon"^^xsd:string ;
+    rdfs:comment "Instances of this class represent the aglyca which are covalently  attached to the glycans. It contains information about the aglycon, the linkage position in aglycon and glycan."^^xsd:string ;
+    rdfs:subClassOf glycan:compound ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:amino_acid glycan:glycoconjugate glycan:saccharide ) ] .
+
+glycan:configuration a owl:Class ;
+    rdfs:label "Configuration"^^xsd:string ;
+    rdfs:comment "Configuration of a monosaccharide. Each monosaccharide can have several configurations (e.g. dgro-dgal). Each configuration consist of a absolute configuration and a relative configuration."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:database_category_experimental a glycan:glycan_database_category,
+        owl:NamedIndividual ;
+    rdfs:label "experimental"^^xsd:string ;
+    rdfs:comment "Database of glycomics experiments such as NMR, MS, array data, etc-"^^xsd:string .
+
+glycan:ms_fragment_type a owl:Class ;
+    rdfs:label "MS Fragment Type"^^xsd:string ;
+    rdfs:subClassOf glycan:ms_property .
+
+glycan:solvent a owl:Class ;
+    rdfs:label "Solvent"^^xsd:string ;
+    rdfs:comment "A solvent is a substance that dissolves a solute (a chemically different liquid, solid or gas), resulting in a solution."^^xsd:string ;
+    rdfs:subClassOf glycan:role .
+
+glycan:evidence_lc_ms a owl:Class ;
+    rdfs:label "Evidence LC MS"^^xsd:string ;
+    rdfs:subClassOf glycan:evidence_ms .
+
+glycan:evidence_type a owl:Class ;
+    rdfs:label "Evidence Type"^^xsd:string ;
+    rdfs:comment "List of evidence types."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:linkage_type a owl:Class ;
+    rdfs:label "Linkage Type"^^xsd:string ;
+    rdfs:comment "List of linkage types that can occur on the monosaccharide side of monosaccharide to substituent linkages."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:ms_property a owl:Class ;
+    rdfs:label "MS Property"^^xsd:string ;
+    rdfs:comment "Class that contains Mass Spectrometry properties such as adduct, adduct ion etc."^^xsd:string .
+
+glycan:referenced_compound a owl:Class ;
+    rdfs:label "Referenced Compound"^^xsd:string ;
+    rdfs:comment "Previously correlation instances, which connects  a compound class and other information (source, references, evidence) that belong to one data set. That allows to specify that a compound instance, which has been found in a certain source was published by a certain publication. "^^xsd:string .
+
+glycan:substituent a owl:Class ;
+    rdfs:label "Substituent"^^xsd:string ;
+    rdfs:comment "Substition of a monosaccharide by another molecule. The substituent consists of the substituent type and the linkage between monosaccharide and substituent. For example: http://www.monosaccharidedb.org/rdf/substituent/ethyl.rdf"^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:monosaccharide_notation_scheme a owl:Class ;
+    rdfs:label "Monosaccharide Notation Scheme"^^xsd:string ;
+    rdfs:comment "List of monosaccharide notation scheme. One monosaccharide can have several different names depending on the notation scheme. "^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:reaction a owl:Class ;
+    rdfs:label "Reaction"^^xsd:string ;
+    rdfs:comment "Class for reaction process to create or degrade glycans or glycoconjugates."^^xsd:string .
+
+glycan:compound a owl:Class ;
+    rdfs:label "Compound"^^xsd:string ;
+    rdfs:comment "Superclass of types of glycan related molecules and fragments."^^xsd:string .
+
+glycan:evidence a owl:Class ;
+    rdfs:label "Evidence"^^xsd:string ;
+    rdfs:comment "An evidence is any kind of experimental data that can be linked to glycans. These are mainly experiments that elucidate the carbohydrate structure or feature but can also include experiments for creating carbohydrates for example by synthesis."^^xsd:string .
+
+glycan:monosaccharide a owl:Class ;
+    rdfs:label "Monosaccharide"^^xsd:string ;
+    rdfs:comment """Instances of this class represent monosaccharides and their information. These monosaccharides are used to specify the composition of glycans, referenced by glycan:component. Sample URI:
+http://www.monosaccharidedb.org/rdf/monosaccharide.action?name=o-dall-HEX-0:0"""^^xsd:string ;
+    rdfs:subClassOf glycan:saccharide .
+
+glycan:signal a owl:Class ;
+    rdfs:label "Signal"^^xsd:string ;
+    rdfs:comment "A signal is a NMR data point."^^xsd:string ;
+    rdfs:subClassOf glycan:nmr_property .
+
+glycan:carbohydrate_format a owl:Class ;
+    rdfs:label "Carbohydrate Format"^^xsd:string ;
+    rdfs:comment "Instances of this class are the carbohydrate sequence formats. "^^xsd:string .
+
+glycan:core_modification_type a owl:Class ;
+    rdfs:label "Core Modification Type"^^xsd:string ;
+    rdfs:comment "List of core modifications that can appear on a monosaccharide."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:citation a owl:Class ;
+    rdfs:label "Citation"^^xsd:string ;
+    rdfs:comment "References are publications related to the glycan structures or features. This can be journal papers, book chapters, conference articles and so on."^^xsd:string .
+
+glycan:evidence_nmr a owl:Class ;
+    rdfs:label "Evidence NMR"^^xsd:string ;
+    rdfs:comment "Experiments using NMR to identify the carbohydrate structure."^^xsd:string ;
+    rdfs:subClassOf glycan:evidence .
+
+glycan:glycan_database_category a owl:Class ;
+    rdfs:label "Glycan Database Category"^^xsd:string ;
+    rdfs:comment "Instances of this class are the categories for the classification of glycan databases."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:basetype a owl:Class ;
+    rdfs:label "Basetype"^^xsd:string ;
+    rdfs:comment "Basetype of the monosaccharide in accordance to GlycoCT and MonosaccharideDB definitions."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:monosaccharide_property a owl:Class ;
+    rdfs:label "Monosaccharide Property"^^xsd:string ;
+    rdfs:comment "Class that contains all monosaccharides properties such as anomer, basetype etc."^^xsd:string .
+
+glycan:source_natural a owl:Class ;
+    rdfs:label "Source Natural"^^xsd:string ;
+    rdfs:comment "Class for sources from biological organism. Instances contain information about the species, cell type, tissue and so on."^^xsd:string ;
+    rdfs:subClassOf glycan:source .
+
+glycan:glycoconjugate a owl:Class ;
+    rdfs:label "Glycoconjugate"^^xsd:string ;
+    rdfs:comment "Superclass of biomolecules consisting of a glycan part and an aglycon part, that are covalently attached to each other."^^xsd:string ;
+    rdfs:subClassOf glycan:compound ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:aglycon glycan:amino_acid glycan:saccharide ) ] .
+
+glycan:relative_configuration a owl:Class ;
+    rdfs:label "Relative Configuration"^^xsd:string ;
+    rdfs:comment "List of relative monosaccharide configurations according to IUPAC."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:absolute_configuration_dexter a glycan:absolute_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "dexter"^^xsd:string .
+
+glycan:absolute_configuration_laevus a glycan:absolute_configuration,
+        owl:NamedIndividual ;
+    rdfs:label "laevus"^^xsd:string .
+
+glycan:saccharide a owl:Class ;
+    rdfs:label "Saccharide"^^xsd:string ;
+    rdfs:comment "Instances of this class represent the molecule information of the glycans. That includes chemical composition, molecular weight but also related information such as images of the glycans."^^xsd:string ;
+    rdfs:subClassOf glycan:compound ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:aglycon glycan:amino_acid glycan:glycoconjugate ) ] .
+
+glycan:glycan_database a owl:Class ;
+    rdfs:label "Glycan Database"^^xsd:string ;
+    rdfs:comment "A class representing databases that store glycans and related information.  If possible, owl:sameAs should be used referencing the biosharing entry for this database."^^xsd:string ;
+    rdfs:subClassOf owl:Thing .
+
+glycan:substituent_type a owl:Class ;
+    rdfs:label "Substituent Type"^^xsd:string ;
+    rdfs:comment "List of substituent types possible on monosaccharides."^^xsd:string ;
+    rdfs:subClassOf glycan:monosaccharide_property .
+
+glycan:amino_acid a owl:Class ;
+    rdfs:label "Amino Acid"^^xsd:string ;
+    rdfs:subClassOf glycan:compound ;
+    owl:disjointWith [ a owl:Class ;
+            owl:unionOf ( glycan:aglycon glycan:glycoconjugate glycan:saccharide ) ] .
+

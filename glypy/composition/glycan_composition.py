@@ -308,7 +308,7 @@ class GlycanComposition(dict, SaccharideCollection):
         if self._mass is not None:
             return self._mass
         mass = self._composition_offset.mass
-        for residue_type, count in self.items():
+        for residue_type, count in list(self.items()):
             mass += residue_type.mass(average=average, charge=charge, mass_data=mass_data) * count
         if self._reducing_end is not None:
             mass += self._reducing_end.mass(average=average, charge=charge, mass_data=mass_data)
@@ -316,18 +316,16 @@ class GlycanComposition(dict, SaccharideCollection):
         return mass
 
     def update(self, *args, **kwargs):
-        kwargs = {
-            (from_iupac_lite(k) if isinstance(k, basestring) else k): v
-            for k, v in kwargs.items()
-            }
         if len(args) == 1:
             if isinstance(args[0], dict):
                 args = list(args)
-                args[0] = {
-                    (from_iupac_lite(k) if isinstance(k, basestring) else k): v
-                    for k, v in args[0].items()
-                }
-        dict.update(self, *args, **kwargs)
+                for name, count in args[0].items():
+                    self[name] = count
+            else:
+                for name, count in args:
+                    self[name] = count
+        for name, count in kwargs.items():
+            self[name] = count
         self._mass = None
 
     def extend(self, *args):
@@ -446,6 +444,10 @@ class GlycanComposition(dict, SaccharideCollection):
         self._mass = None
         self._reducing_end = value
 
+    def set_reducing_end(self, value):
+        self._mass = None
+        self._reducing_end = value
+
     @property
     def composition_offset(self):
         return self._composition_offset
@@ -479,11 +481,13 @@ class GlycanComposition(dict, SaccharideCollection):
             substituent.attachment_composition_loss() * 2) * 2
         if self._reducing_end is not None:
             _derivatize_reducing_end(self._reducing_end, substituent, id_base)
+        self._mass = None
 
     def _strip_derivatization(self):
         self._composition_offset = Composition("H2O")
         if self._reducing_end is not None:
             _strip_derivatization_reducing_end(self._reducing_end)
+        self._mass = None
 
 from_glycan = GlycanComposition.from_glycan
 parse = GlycanComposition.parse

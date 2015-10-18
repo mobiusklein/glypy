@@ -340,7 +340,6 @@ class Glycan(SaccharideCollection):
         --------
         Glycan.breadth_first_traversal
         '''
-        # sort_predicate = methodcaller("order")
         node_stack = list([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
@@ -352,8 +351,6 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            # node_stack.extend(sorted((terminal for link in node.links.values()
-            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
             node_stack.extend(terminal for link in node.links.values()
                               for terminal in link if terminal.id not in visited)
 
@@ -389,7 +386,6 @@ class Glycan(SaccharideCollection):
         --------
         Glycan.depth_first_traversal
         '''
-        # sort_predicate = methodcaller("order")
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
@@ -402,8 +398,6 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            # node_queue.extend(sorted((terminal for link in node.links.values()
-            #                           for terminal in link if terminal.id not in visited), key=sort_predicate))
             node_queue.extend(terminal for link in node.links.values()
                               for terminal in link if terminal.id not in visited)
 

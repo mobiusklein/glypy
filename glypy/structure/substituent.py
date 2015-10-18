@@ -137,6 +137,9 @@ class Substituent(SubstituentBase):
     def __repr__(self):  # pragma: no cover
         return "<Substituent {name}>".format(name=self._name)
 
+    def __hash__(self):
+        return hash((self.id, self.name))
+
     def __eq__(self, other):
         return (other is not None) and (self.name == other.name) and (self.composition == other.composition)
 

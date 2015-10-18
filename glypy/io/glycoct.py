@@ -35,9 +35,6 @@ except:
 
 logger = logging.getLogger("glycoct")
 
-debug = False
-import pdb
-
 
 Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
@@ -232,8 +229,8 @@ def undecorate_tree(tree):
     -------
     Glycan
     '''
-    i = uuid4().int
-    for node in tree.index:
+    i = 1
+    for node in list(tree):
         node.id = i
         i += 1
     tree.reindex()
@@ -609,12 +606,9 @@ class GlycoCT(object):
 
         for postop in self.postponed:
             logger.debug("Postprocessing %s", postop)
-            if debug:
-                pdb.set_trace()
             postop[0](*postop[1:])
 
-
-        return undecorate_tree(self.structure_class(rootp(self.root)))#.reindex()
+        return undecorate_tree(self.structure_class(rootp(self.root)))
 
     def parse(self):
         '''

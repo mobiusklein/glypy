@@ -1,14 +1,22 @@
 from collections import defaultdict
 import operator
 from ...utils import groupby
-from ...structure import named_structures, Monosaccharide, Substituent
+from ...structure import named_structures, Monosaccharide, Substituent, Anomer, Stem, RingType, SuperClass
 from ...algorithms.similarity import monosaccharide_similarity
 from ...composition.composition_transform import strip_derivatization
 from .synonyms import monosaccharides as monosaccharide_synonyms
 
 
+def has_ambiguity(node):
+    ambiguous = node.stem[0] is Stem.x or node.anomer is Anomer.x or\
+        node.superclass is SuperClass.x or node.ring_type is RingType.x
+    return ambiguous
+
+
+
 # A static copy of monosaccharide names to structures for copy-free comparison
 monosaccharides = dict(named_structures.monosaccharides)
+monosaccharides_ordered = sorted(list(monosaccharides.items()), key=lambda x: has_ambiguity(x[1]))
 
 
 def get_preferred_name(name, selector=min, key=len):
@@ -63,6 +71,7 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
     qs = 0
     if isinstance(target, basestring):
         target = monosaccharides[target]
+
     if isinstance(node, Substituent):
         if not isinstance(target, Substituent):
             return False
@@ -75,7 +84,8 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
         res, qs = monosaccharide_similarity(node, target, include_modifications=include_modifications,
                                             include_substituents=include_substituents,
                                             include_children=False, exact=exact)
-    return (qs - res) <= tolerance
+    threshold = (qs - res) <= tolerance
+    return threshold
 
 
 def identify(node, blacklist=None, tolerance=0, include_modifications=True, include_substituents=True):
@@ -114,7 +124,7 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
     '''
     if blacklist is None:
         blacklist = {"Pen", "Hex", "Hep", "Oct", "Non"}
-    for name, structure in monosaccharides.items():
+    for name, structure in monosaccharides_ordered:
         if name in blacklist:
             continue
         if is_a(node, structure, tolerance, include_modifications, include_substituents):
@@ -166,7 +176,7 @@ def naive_name_monosaccharide(monosaccharide):
             c.configuration = None
             return identify(c)
         except IdentifyException:
-            return "".join(mod.name for mod in c.modifications.values() if mod.name != 'aldi') +\
+            return "".join(mod.name for mod in list(c.modifications.values()) if mod.name != 'aldi') +\
                    c.superclass.name.title() + ''.join([''.join(map(str.title, subst.name.split("_")))[:3]
                                                         for p, subst in c.substituents()])
 
@@ -180,6 +190,6 @@ def split_along_axis(monosaccharides, axis):
 def residue_list_to_tree(monosaccharides, axes=('anomer', 'superclass', 'stem', 'configuration')):
     root = split_along_axis(monosaccharides, axes[0])
     if len(axes) > 1:
-        for level, group in root.items():
+        for level, group in list(root.items()):
             root[level] = residue_list_to_tree(group, axes[1:])
     return root

@@ -389,8 +389,10 @@ def pcalculate_mass(composition=None, formula=None, average=False, charge=None, 
     # Calculate m/z if required.
     if charge:
         mass /= charge
-
-    composition["H+"] = old_charge
+    if old_charge != 0:
+        composition["H+"] = old_charge
+    elif charge:
+        del composition["H+"]
     return mass
 
 
@@ -453,14 +455,11 @@ def most_probable_isotopic_composition(*args, **kwargs):
 
             # Write the number of isotopes of the most abundant type.
             first_iso_str = _make_isotope_string(element_name, first_iso[0])
-            isotopic_composition[first_iso_str] = int(math.ceil(
-                composition[element_name])) * first_iso[1]
+            isotopic_composition[first_iso_str] = round(int(math.ceil(composition[element_name])) * first_iso[1])
 
             # Write the number of the second isotopes.
             second_iso_str = _make_isotope_string(element_name, second_iso[0])
-            isotopic_composition[second_iso_str] = (
-                composition[element_name]
-                - isotopic_composition[first_iso_str])
+            isotopic_composition[second_iso_str] = round((composition[element_name] - isotopic_composition[first_iso_str]))
         else:
             isotopic_composition[element_name] = composition[element_name]
 
@@ -507,8 +506,7 @@ def isotopic_composition_abundance(*args, **kwargs):
         # contains a default isotope or newly added isotope is default
         # then raise an exception.
         if ((element_name in isotopic_composition)
-           and (isotope_num == 0
-                  or 0 in isotopic_composition[element_name])):
+           and (isotope_num == 0 or 0 in isotopic_composition[element_name])):
             raise ChemicalCompositionError(
                 'Please specify the isotopic states of all atoms of '
                 '%s or do not specify them at all.' % element_name)
@@ -518,7 +516,7 @@ def isotopic_composition_abundance(*args, **kwargs):
 
     # Calculate relative abundance.
     mass_data = kwargs.get('mass_data', nist_mass)
-    num1, num2, denom = 1, 1, 1
+    num1, num2, denom = 1., 1., 1.
     for element_name, isotope_dict in isotopic_composition.items():
         num1 *= math.factorial(sum(isotope_dict.values()))
         for isotope_num, isotope_content in isotope_dict.items():

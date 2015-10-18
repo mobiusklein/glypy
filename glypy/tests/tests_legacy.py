@@ -697,7 +697,8 @@ class IdentifyTests(unittest.TestCase):
 
     def test_is_a_predicate(self):
         for name, monosaccharide in monosaccharides.items():
-            self.assertTrue(identity.is_a(monosaccharide, name))
+            result = identity.is_a(monosaccharide, name)
+            self.assertTrue(result)
 
     def test_identify_as(self):
         for name, monosaccharide in monosaccharides.items():
@@ -710,7 +711,7 @@ class IdentifyTests(unittest.TestCase):
 
     def test_identify_substituents(self):
         self.assertTrue(
-            identity.is_a(Substituent("n-acetyl"), Substituent('n-acetyl')))
+            identity.is_a(Substituent("n-acetyl"), Substituent("n-acetyl")))
         self.assertFalse(
             identity.is_a(Substituent('methyl'), Substituent('n-acetyl')))
         self.assertFalse(

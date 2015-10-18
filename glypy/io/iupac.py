@@ -174,7 +174,7 @@ def get_relevant_substituents(residue):
 def resolve_special_base_type(residue):
     if residue.superclass == SuperClass.non:
         if residue.stem == (Stem.gro, Stem.gal):
-            substituents = [sub.name for p, sub in residue.substituents()]
+            substituents = [sub.name for p, sub in residue.substituents() if not sub._derivatize]
             modifications = [mod for p, mod in residue.modifications.items()]
             if Modification.a in modifications and\
                Modification.keto in modifications and\

@@ -1,4 +1,4 @@
-#cython: boundscheck=False, debug=True, profile=True
+#cython: boundscheck=False
 
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
@@ -9,7 +9,7 @@ cimport cython
 from cpython cimport PY_MAJOR_VERSION
 
 from cpython.ref cimport PyObject
-from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update
+from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update, PyDict_DelItem
 from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
 
@@ -204,7 +204,8 @@ cdef class CComposition(dict):
     def __missing__(self, str key):
         return 0
 
-    def __setitem__(self, str key, int value):
+    def __setitem__(self, str key, object value):
+        cdef long int_value = PyInt_AsLong(round(value))
         if value:  # Will not occur on 0 as 0 is falsey AND an integer
             self.setitem(key, value)
         elif key in self:
@@ -532,5 +533,8 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
     if _charge != 0:
         mass /= _charge
 
-    composition.setitem('H+', old_charge)
+    if old_charge != 0:
+        composition.setitem('H+', old_charge)
+    else:
+        PyDict_DelItem(composition, "H+")
     return mass
