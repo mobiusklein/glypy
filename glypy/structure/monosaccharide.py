@@ -539,14 +539,14 @@ class Monosaccharide(SaccharideBase):
                 slots[pos - 1] += 1
 
         open_slots = []
-        can_determine_positions = unknowns > 0 or (self.ring_end in {-1, 'x'})
+        can_determine_positions = unknowns > 0 or (self.ring_end in [-1, 'x', None])
 
         for i in range(len(slots)):
             if slots[i] <= max_occupancy and (i + 1) != self.ring_end:
                 open_slots.append(
                     (i + 1) if not can_determine_positions else -1)
 
-        if self.ring_end in {-1, 'x'}:
+        if self.ring_end in [-1, 'x', None]:
             open_slots.pop()
 
         return open_slots, unknowns
@@ -1171,20 +1171,23 @@ class Monosaccharide(SaccharideBase):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        mass = calculate_mass(
-            self.composition, average=average, charge=charge, mass_data=mass_data)
-        if substituents:
-            subst_visited = set()
-            for substituent_link in self.substituent_links.values():
-                subst = substituent_link[self]
-                if subst.id in subst_visited:
-                    continue
-                subst_visited.add(subst.id)
-                mass += subst.mass(
-                    average=average, charge=charge, mass_data=mass_data)
-        if self.reducing_end is not None:
-            mass += self.reducing_end.mass(
-                average=average, charge=charge, mass_data=mass_data)
+        if charge == 0:
+            mass = calculate_mass(
+                self.composition, average=average, charge=0, mass_data=mass_data)
+            if substituents:
+                subst_visited = set()
+                for substituent_link in self.substituent_links.values():
+                    subst = substituent_link[self]
+                    if subst.id in subst_visited:
+                        continue
+                    subst_visited.add(subst.id)
+                    mass += subst.mass(
+                        average=average, charge=0, mass_data=mass_data)
+            if self.reducing_end is not None:
+                mass += self.reducing_end.mass(
+                    average=average, charge=0, mass_data=mass_data)
+        else:
+            mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
     def total_composition(self):
@@ -1264,7 +1267,7 @@ class Monosaccharide(SaccharideBase):
             subst = link.to(self)
             if subst.id in subst_visited:
                 continue
-            subst_visited.add(subst)
+            subst_visited.add(subst.id)
             yield pos, subst
 
     def order(self, deep=False):

@@ -720,8 +720,11 @@ class Glycan(SaccharideCollection):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        return sum(
-            node.mass(average=average, charge=charge, mass_data=mass_data) for node in self)
+        if charge == 0:
+            return sum(
+                node.mass(average=average, charge=0, mass_data=mass_data) for node in self)
+        else:
+            return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
 
     def total_composition(self):
         '''

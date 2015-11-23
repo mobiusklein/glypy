@@ -336,6 +336,11 @@ def monosaccharide_from_iupac(monosaccharide_str, parent=None):
                     "Cannot have ambiguous location of substituents on a base type which"
                     " has default modifications or substituents. {} {}".format(
                         residue, (position, substituent)))
+        # Often, acidic monosaccharides will be suffixed "A" instead of prefixed "a".
+        # Handle this here.
+        if substituent == "A":
+            residue.add_modification(Modification.a, position)
+            continue
 
         substituent = Substituent(substituent)
         try:
@@ -389,9 +394,13 @@ def substituent_from_iupac(substituents):
         try:
             name = (substituents_map_from[name])
         except KeyError:
-            import warnings
-            warnings.warn("No translation rule found to convert %s into a Substituent" % name)
-            continue
+            # Acidic special case
+            if name == "A":
+                yield position, name
+            else:
+                import warnings
+                warnings.warn("No translation rule found to convert %s into a Substituent" % name)
+                continue
         yield int(position), name
 
 

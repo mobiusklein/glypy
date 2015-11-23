@@ -12,8 +12,10 @@ import matplotlib
 from matplotlib.colors import rgb2hex
 
 from glypy.structure import Modification, Stem, SuperClass
+from glypy.utils import where
 from glypy.utils.enum import Enum
 from glypy.io.nomenclature import identity
+from glypy.algorithms import similarity
 
 from .common import MonosaccharidePatch
 from .geometry import centroid
@@ -44,6 +46,17 @@ class UnknownShapeException(Exception):
     pass
 
 
+def _pruned_substituents(residue, substituents):
+
+    relevant_substituents = Counter(substituents)
+    results = []
+    for p, sub in residue.substituents():
+        if relevant_substituents[sub.name] > 0:
+            results.append((p, sub.name))
+            relevant_substituents[sub.name] -= 1
+    return results
+
+
 def get_relevant_substituents(residue, shape=None):
     '''
     Given the shape for a residue, determine which of its substituents must
@@ -69,20 +82,28 @@ def get_relevant_substituents(residue, shape=None):
         if shape == ResidueShape.square:
             substituents.pop(substituents.index("n_acetyl"))
         elif shape == ResidueShape.bisected_square:
-            substituents.pop(substituents.index("amino"))
+            try:
+                index_amino = substituents.index("amino")
+                substituents.pop(index_amino)
+            except ValueError:
+                pass
+            try:
+                index_n_sulfate = substituents.index('n_sulfate')
+                # TODO:
+                # Find a way to forward different substituents
+                #
+                # substituents.pop(index_n_sulfate)
+                # substituents.append("sulfate")
+            except ValueError:
+                pass
+            return _pruned_substituents(residue, substituents)
         elif shape == ResidueShape.diamond:
             color = residue_color(residue)
             if color == ResidueColor.neuac:
                 substituents.pop(substituents.index("n_acetyl"))
             elif color == ResidueColor.neugc:
                 substituents.pop(substituents.index("n_glycolyl"))
-        relevant_substituents = Counter(substituents)
-        buffer = []
-        for p, sub in residue.substituents():
-            if relevant_substituents[sub.name] > 0:
-                buffer.append((p, sub.name))
-                relevant_substituents[sub.name] -= 1
-        return buffer
+        return _pruned_substituents(residue, substituents)
 
     return list((p, sub.name) for p, sub in residue.substituents() if not sub._derivatize)
 
@@ -246,6 +267,7 @@ def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
     substituents = get_relevant_substituents(monosaccharide)
 
     # Render substituents along the bottom of the monosaccharide
+    # These layouts should be moved to be defined by the DrawTreeNode
     subs = []
     sub_y = y - (0.35 * (len(substituents) - 1))
     sub_x = x - 0.45

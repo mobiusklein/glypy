@@ -1,16 +1,9 @@
-import logging
 import itertools
 import operator
 from .similarity import monosaccharide_similarity, commutative_similarity
 from glypy.utils import make_struct, root, groupby
 from glypy.structure import Glycan, Monosaccharide
 from glypy.structure.monosaccharide import depth
-logger = logging.getLogger(__name__)
-
-try:
-    filter = itertools.ifilter
-except:
-    pass
 
 
 def topological_inclusion(self, other, substituents=True, tolerance=0, visited=None):
@@ -259,10 +252,10 @@ def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
         pairing. If `exact` = |True| and there is no exact match, the
         branch will terminate.
     '''
-    root = node_a.clone()
-    node_stack = [(root, node_a, node_b)]
+    root_ = node_a.clone()
+    node_stack = [(root_, node_a, node_b)]
     b_taken = set()
-    index = {node_a.id: root}
+    index = {node_a.id: root_}
     while len(node_stack) > 0:
         mcs_node, node_a, node_b = node_stack.pop()
         for a_pos, a_child in node_a.children():
@@ -304,7 +297,7 @@ def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
             link.clone(mcs_node, terminal)
             node_stack.append((terminal, a_child, matched_node))
 
-    return Glycan(root)
+    return Glycan(root_)
 
 
 def n_saccharide_similarity(self, other, n=2, exact=False):

@@ -138,4 +138,3 @@ def reparse_database(database):
         assert structure.mass() == record.structure.mass()
         record.structure = structure
         record.update()
-        

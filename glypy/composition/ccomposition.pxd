@@ -17,8 +17,8 @@ cdef:
     object isotope_pattern
     object formula_pattern
 
-    cdef inline str _parse_isotope_string(str label, int* isotope_num)
-    cdef inline str _make_isotope_string(str element_name, int isotope_num)
+    cdef str _parse_isotope_string(str label, int* isotope_num)
+    cdef str _make_isotope_string(str element_name, int isotope_num)
 
 
-cpdef inline double calculate_mass(CComposition composition=?, str formula=?, int average=?, charge=?, mass_data=?) except -1
+cpdef double calculate_mass(CComposition composition=?, str formula=?, int average=?, charge=?, mass_data=?) except -1

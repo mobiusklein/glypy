@@ -2,7 +2,8 @@ from collections import defaultdict
 import operator
 from ...utils import groupby
 from ...structure import named_structures, Monosaccharide, Substituent, Anomer, Stem, RingType, SuperClass
-from ...algorithms.similarity import monosaccharide_similarity
+from ...algorithms.similarity import (monosaccharide_similarity, has_substituent,
+                                      has_modification, has_monosaccharide)
 from ...composition.composition_transform import strip_derivatization
 from .synonyms import monosaccharides as monosaccharide_synonyms
 
@@ -11,7 +12,6 @@ def has_ambiguity(node):
     ambiguous = node.stem[0] is Stem.x or node.anomer is Anomer.x or\
         node.superclass is SuperClass.x or node.ring_type is RingType.x
     return ambiguous
-
 
 
 # A static copy of monosaccharide names to structures for copy-free comparison

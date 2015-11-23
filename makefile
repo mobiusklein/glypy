@@ -2,7 +2,7 @@ all: develop test docs
 
 
 test:
-	nosetests --with-coverage --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id glypy/tests/
+	nosetests --with-coverage --with-timer --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id glypy/tests/
 
 retest:
 	nosetests --cover-package=glypy --logging-level=DEBUG -v --with-id --failed glypy/tests/

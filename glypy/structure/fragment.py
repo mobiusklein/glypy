@@ -112,7 +112,7 @@ class Fragment(object):
         -------
         |bool|
         """
-        return set(self.kind) in set("XYZ")
+        return set(self.kind) & set("XYZ")
 
     def is_non_reducing(self):
         """Is this fragment from the non-reducing end
@@ -121,10 +121,10 @@ class Fragment(object):
         -------
         |bool|
         """
-        return set(self.kind) in set("ABC")
+        return set(self.kind) & set("ABC")
 
     def is_internal(self):
-        return not (self.is_reducing() or self.is_non_reducing())
+        return (self.is_reducing() & self.is_non_reducing())
 
     @property
     def fname(self):
@@ -179,7 +179,7 @@ class Subtree(object):
         self.crossring_cleavages = crossring_cleavages or {}
 
     def to_fragments(
-            self, kind="BY", average=False, charge=None, mass_data=None):
+            self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True):
         """Transform an instance of :class:`Subtree` into every combination of
         :class:`Fragment` allowed under `kind`.
 
@@ -228,7 +228,8 @@ class Subtree(object):
             average=average,
             charge=charge,
             mass_data=mass_data)
-        base_composition = self.tree.total_composition()
+        if include_composition:
+            base_composition = self.tree.total_composition()
         # product of splat of empty list is a list of the empty list. So a fragment with
         # no glycosidic cleavages still enters this outer loop, letting only crossring-cleavage
         # Subtree instances through without issue
@@ -250,10 +251,13 @@ class Subtree(object):
                 kind.append(shift)
                 i += 1
 
+            if include_composition:
+                fragment_composition = base_composition + composition_offset
+
             yield Fragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
                            mass=base_mass + mass_offset, name=None,
                            crossring_cleavages=self.crossring_cleavages,
-                           composition=base_composition + composition_offset)
+                           composition=fragment_composition)
 
     def __repr__(self):  # pragma: no cover
         rep = "<Subtree include_nodes={} link_ids={} parent_breaks={}"

@@ -23,6 +23,7 @@ except:  # pragma: no cover
     except:
         from io import StringIO
 
+
 def cyclewarning():
     '''
     Used to warn users about the presence of cylcical glycans, which are harder to
@@ -247,3 +248,7 @@ def groupby(ungrouped_list, key_fn=identity):
         key_value = key_fn(item)
         groups[key_value].append(item)
     return groups
+
+
+def where(iterable, fn):
+    return [i for i, k in enumerate(iterable) if fn(k)]

@@ -74,7 +74,7 @@ with open('requirements.txt') as f:
 extras = {
     'plot': ["matplotlib>=1.4.3"],
     'glycomedb': ['lxml', 'requests'],
-    'glyspace': ['requests', 'rdflib']
+    'glyspace': ['requests', 'rdflib', "SPARQLWrapper"]
 }
 
 extras['all'] = list({d for extra in extras.values() for d in extra})

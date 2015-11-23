@@ -483,7 +483,7 @@ struct __pyx_opt_args_5glypy_11composition_12ccomposition_12CComposition_calc_ma
 /* "glypy\composition\ccomposition.pxd":24
  * 
  * 
- * cpdef inline double calculate_mass(CComposition composition=?, str formula=?, int average=?, charge=?, mass_data=?) except -1             # <<<<<<<<<<<<<<
+ * cpdef double calculate_mass(CComposition composition=?, str formula=?, int average=?, charge=?, mass_data=?) except -1             # <<<<<<<<<<<<<<
  */
 struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass {
   int __pyx_n;
@@ -509,7 +509,7 @@ struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition {
 
 
 
-/* "glypy\composition\ccomposition.pyx":77
+/* "glypy\composition\ccomposition.pyx":78
  * 
  * 
  * cdef class CComposition(dict):             # <<<<<<<<<<<<<<
@@ -608,203 +608,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject
 #endif
 
 static PyObject *__Pyx_GetBuiltinName(PyObject *name);
-
-#ifndef CYTHON_PROFILE
-  #define CYTHON_PROFILE 1
-#endif
-#ifndef CYTHON_TRACE_NOGIL
-  #define CYTHON_TRACE_NOGIL 0
-#else
-  #if CYTHON_TRACE_NOGIL && !defined(CYTHON_TRACE)
-    #define CYTHON_TRACE 1
-  #endif
-#endif
-#ifndef CYTHON_TRACE
-  #define CYTHON_TRACE 0
-#endif
-#if CYTHON_TRACE
-  #undef CYTHON_PROFILE_REUSE_FRAME
-#endif
-#ifndef CYTHON_PROFILE_REUSE_FRAME
-  #define CYTHON_PROFILE_REUSE_FRAME 0
-#endif
-#if CYTHON_PROFILE || CYTHON_TRACE
-  #include "compile.h"
-  #include "frameobject.h"
-  #include "traceback.h"
-  #if CYTHON_PROFILE_REUSE_FRAME
-    #define CYTHON_FRAME_MODIFIER static
-    #define CYTHON_FRAME_DEL(frame)
-  #else
-    #define CYTHON_FRAME_MODIFIER
-    #define CYTHON_FRAME_DEL(frame) Py_CLEAR(frame)
-  #endif
-  #define __Pyx_TraceDeclarations\
-  static PyCodeObject *__pyx_frame_code = NULL;\
-  CYTHON_FRAME_MODIFIER PyFrameObject *__pyx_frame = NULL;\
-  int __Pyx_use_tracing = 0;
-  #define __Pyx_TraceFrameInit(codeobj)\
-  if (codeobj) __pyx_frame_code = (PyCodeObject*) codeobj;
-  #ifdef WITH_THREAD
-  #define __Pyx_TraceCall(funcname, srcfile, firstlineno, nogil, goto_error)\
-  if (nogil) {\
-      if (CYTHON_TRACE_NOGIL) {\
-          PyThreadState *tstate;\
-          PyGILState_STATE state = PyGILState_Ensure();\
-          tstate = PyThreadState_GET();\
-          if (unlikely(tstate->use_tracing) && !tstate->tracing &&\
-                  (tstate->c_profilefunc || (CYTHON_TRACE && tstate->c_tracefunc))) {\
-              __Pyx_use_tracing = __Pyx_TraceSetupAndCall(&__pyx_frame_code, &__pyx_frame, funcname, srcfile, firstlineno);\
-          }\
-          PyGILState_Release(state);\
-          if (unlikely(__Pyx_use_tracing < 0)) goto_error;\
-      }\
-  } else {\
-      PyThreadState* tstate = PyThreadState_GET();\
-      if (unlikely(tstate->use_tracing) && !tstate->tracing &&\
-              (tstate->c_profilefunc || (CYTHON_TRACE && tstate->c_tracefunc))) {\
-          __Pyx_use_tracing = __Pyx_TraceSetupAndCall(&__pyx_frame_code, &__pyx_frame, funcname, srcfile, firstlineno);\
-          if (unlikely(__Pyx_use_tracing < 0)) goto_error;\
-      }\
-  }
-  #else
-  #define __Pyx_TraceCall(funcname, srcfile, firstlineno, nogil, goto_error)\
-  {   PyThreadState* tstate = PyThreadState_GET();\
-      if (unlikely(tstate->use_tracing) && !tstate->tracing &&\
-              (tstate->c_profilefunc || (CYTHON_TRACE && tstate->c_tracefunc))) {\
-          __Pyx_use_tracing = __Pyx_TraceSetupAndCall(&__pyx_frame_code, &__pyx_frame, funcname, srcfile, firstlineno);\
-          if (unlikely(__Pyx_use_tracing < 0)) goto_error;\
-      }\
-  }
-  #endif
-  #define __Pyx_TraceException()\
-  if (likely(!__Pyx_use_tracing)); else {\
-      PyThreadState* tstate = PyThreadState_GET();\
-      if (tstate->use_tracing &&\
-              (tstate->c_profilefunc || (CYTHON_TRACE && tstate->c_tracefunc))) {\
-          tstate->tracing++;\
-          tstate->use_tracing = 0;\
-          PyObject *exc_info = __Pyx_GetExceptionTuple();\
-          if (exc_info) {\
-              if (CYTHON_TRACE && tstate->c_tracefunc)\
-                  tstate->c_tracefunc(\
-                      tstate->c_traceobj, __pyx_frame, PyTrace_EXCEPTION, exc_info);\
-              tstate->c_profilefunc(\
-                  tstate->c_profileobj, __pyx_frame, PyTrace_EXCEPTION, exc_info);\
-              Py_DECREF(exc_info);\
-          }\
-          tstate->use_tracing = 1;\
-          tstate->tracing--;\
-      }\
-  }
-  static void __Pyx_call_return_trace_func(PyThreadState *tstate, PyFrameObject *frame, PyObject *result) {
-      PyObject *type, *value, *traceback;
-      PyErr_Fetch(&type, &value, &traceback);
-      tstate->tracing++;
-      tstate->use_tracing = 0;
-      if (CYTHON_TRACE && tstate->c_tracefunc)
-          tstate->c_tracefunc(tstate->c_traceobj, frame, PyTrace_RETURN, result);
-      if (tstate->c_profilefunc)
-          tstate->c_profilefunc(tstate->c_profileobj, frame, PyTrace_RETURN, result);
-      CYTHON_FRAME_DEL(frame);
-      tstate->use_tracing = 1;
-      tstate->tracing--;
-      PyErr_Restore(type, value, traceback);
-  }
-  #ifdef WITH_THREAD
-  #define __Pyx_TraceReturn(result, nogil)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              tstate = PyThreadState_GET();\
-              if (tstate->use_tracing) {\
-                  __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-              }\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          PyThreadState* tstate = PyThreadState_GET();\
-          if (tstate->use_tracing) {\
-              __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-          }\
-      }\
-  }
-  #else
-  #define __Pyx_TraceReturn(result, nogil)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      PyThreadState* tstate = PyThreadState_GET();\
-      if (tstate->use_tracing) {\
-          __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-      }\
-  }
-  #endif
-  static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno);
-  static int __Pyx_TraceSetupAndCall(PyCodeObject** code, PyFrameObject** frame, const char *funcname, const char *srcfile, int firstlineno);
-#else
-  #define __Pyx_TraceDeclarations
-  #define __Pyx_TraceFrameInit(codeobj)
-  #define __Pyx_TraceCall(funcname, srcfile, firstlineno, nogil, goto_error)   if (1); else goto_error;
-  #define __Pyx_TraceException()
-  #define __Pyx_TraceReturn(result, nogil)
-#endif
-#if CYTHON_TRACE
-  static int __Pyx_call_line_trace_func(PyThreadState *tstate, PyFrameObject *frame, int lineno) {
-      int ret;
-      PyObject *type, *value, *traceback;
-      PyErr_Fetch(&type, &value, &traceback);
-      frame->f_lineno = lineno;
-      tstate->tracing++;
-      tstate->use_tracing = 0;
-      ret = tstate->c_tracefunc(tstate->c_traceobj, frame, PyTrace_LINE, NULL);
-      tstate->use_tracing = 1;
-      tstate->tracing--;
-      if (likely(!ret)) {
-          PyErr_Restore(type, value, traceback);
-      } else {
-          Py_XDECREF(type);
-          Py_XDECREF(value);
-          Py_XDECREF(traceback);
-      }
-      return ret;
-  }
-  #ifdef WITH_THREAD
-  #define __Pyx_TraceLine(lineno, nogil, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              int ret = 0;\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              tstate = PyThreadState_GET();\
-              if (unlikely(tstate->use_tracing && tstate->c_tracefunc)) {\
-                  ret = __Pyx_call_line_trace_func(tstate, __pyx_frame, lineno);\
-              }\
-              PyGILState_Release(state);\
-              if (unlikely(ret)) goto_error;\
-          }\
-      } else {\
-          PyThreadState* tstate = PyThreadState_GET();\
-          if (unlikely(tstate->use_tracing && tstate->c_tracefunc)) {\
-              int ret = __Pyx_call_line_trace_func(tstate, __pyx_frame, lineno);\
-              if (unlikely(ret)) goto_error;\
-          }\
-      }\
-  }
-  #else
-  #define __Pyx_TraceLine(lineno, nogil, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      PyThreadState* tstate = PyThreadState_GET();\
-      if (unlikely(tstate->use_tracing && tstate->c_tracefunc)) {\
-          int ret = __Pyx_call_line_trace_func(tstate, __pyx_frame, lineno);\
-          if (unlikely(ret)) goto_error;\
-      }\
-  }
-  #endif
-#else
-  #define __Pyx_TraceLine(lineno, nogil, goto_error)   if (1); else goto_error;
-#endif
 
 #define __Pyx_GetItemInt(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
     (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
@@ -905,22 +708,6 @@ static CYTHON_INLINE int __Pyx_IterFinish(void);
 
 static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
 
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
-    PyListObject* L = (PyListObject*) list;
-    Py_ssize_t len = Py_SIZE(list);
-    if (likely(L->allocated > len)) {
-        Py_INCREF(x);
-        PyList_SET_ITEM(list, len, x);
-        Py_SIZE(list) = len+1;
-        return 0;
-    }
-    return PyList_Append(list, x);
-}
-#else
-#define __Pyx_ListComp_Append(L,x) PyList_Append(L,x)
-#endif
-
 static CYTHON_INLINE int __Pyx_ArgTypeTest(PyObject *obj, PyTypeObject *type, int none_allowed,
     const char *name, int exact);
 
@@ -982,40 +769,6 @@ static PyObject* __Pyx_PyInt_SubtractObjC(PyObject *op1, PyObject *op2, long int
     (inplace ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2))
 #endif
 
-static PyObject* __Pyx_PyDict_GetItemDefault(PyObject* d, PyObject* key, PyObject* default_value);
-
-static PyObject* __Pyx_PyObject_CallMethod0(PyObject* obj, PyObject* method_name);
-
-static CYTHON_INLINE PyObject* __Pyx__PyObject_Pop(PyObject* L);
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyList_Pop(PyObject* L);
-#define __Pyx_PyObject_Pop(L) (likely(PyList_CheckExact(L)) ?\
-    __Pyx_PyList_Pop(L) : __Pyx__PyObject_Pop(L))
-#else
-#define __Pyx_PyList_Pop(L)  __Pyx__PyObject_Pop(L)
-#define __Pyx_PyObject_Pop(L)  __Pyx__PyObject_Pop(L)
-#endif
-
-typedef struct {
-    PyObject *type;
-    PyObject **method_name;
-    PyCFunction func;
-    PyObject *method;
-    int flag;
-} __Pyx_CachedCFunction;
-
-static PyObject* __Pyx__CallUnboundCMethod0(__Pyx_CachedCFunction* cfunc, PyObject* self);
-#if CYTHON_COMPILING_IN_CPYTHON
-#define __Pyx_CallUnboundCMethod0(cfunc, self)\
-    ((likely((cfunc)->func)) ?\
-        (likely((cfunc)->flag == METH_NOARGS) ?  (*((cfunc)->func))(self, NULL) :\
-         (likely((cfunc)->flag == (METH_VARARGS | METH_KEYWORDS)) ?  ((*(PyCFunctionWithKeywords)(cfunc)->func)(self, __pyx_empty_tuple, NULL)) :\
-             ((cfunc)->flag == METH_VARARGS ?  (*((cfunc)->func))(self, __pyx_empty_tuple) : __Pyx__CallUnboundCMethod0(cfunc, self)))) :\
-        __Pyx__CallUnboundCMethod0(cfunc, self))
-#else
-#define __Pyx_CallUnboundCMethod0(cfunc, self)  __Pyx__CallUnboundCMethod0(cfunc, self)
-#endif
-
 #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
 static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
     PyObject *value;
@@ -1035,6 +788,12 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
 #else
     #define __Pyx_PyDict_GetItem(d, key) PyObject_GetItem(d, key)
 #endif
+
+static CYTHON_INLINE unsigned long __Pyx_abs_long(long x) {
+    if (unlikely(x == -LONG_MAX-1))
+        return ((unsigned long)LONG_MAX) + 1U;
+    return (unsigned long) labs(x);
+}
 
 static int __Pyx_SetVtable(PyObject *dict, void *vtable);
 
@@ -1203,9 +962,9 @@ static PyObject *__pyx_v_5glypy_11composition_12ccomposition__formula = 0;
 static PyObject *__pyx_v_5glypy_11composition_12ccomposition__isotope_string = 0;
 static PyObject *__pyx_v_5glypy_11composition_12ccomposition_isotope_pattern = 0;
 static PyObject *__pyx_v_5glypy_11composition_12ccomposition_formula_pattern = 0;
-static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(PyObject *, int *); /*proto*/
-static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(PyObject *, int); /*proto*/
-static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(int __pyx_skip_dispatch, struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args); /*proto*/
+static PyObject *__pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(PyObject *, int *); /*proto*/
+static PyObject *__pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(PyObject *, int); /*proto*/
+static double __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(int __pyx_skip_dispatch, struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args); /*proto*/
 #define __Pyx_MODULE_NAME "glypy.composition.ccomposition"
 int __pyx_module_is_main_glypy__composition__ccomposition = 0;
 
@@ -1223,18 +982,15 @@ static char __pyx_k__3[] = "";
 static char __pyx_k__4[] = "(";
 static char __pyx_k__5[] = ")";
 static char __pyx_k__6[] = "-";
-static char __pyx_k__9[] = ", ";
 static char __pyx_k_id[] = "id";
 static char __pyx_k_re[] = "re";
-static char __pyx_k__13[] = "^({})*$";
-static char __pyx_k_get[] = "get";
+static char __pyx_k__12[] = "^({})*$";
 static char __pyx_k_key[] = "key";
 static char __pyx_k_len[] = "len";
-static char __pyx_k_pop[] = "pop";
 static char __pyx_k_s_d[] = "%s[%d]";
+static char __pyx_k_args[] = "args";
 static char __pyx_k_atom[] = "_atom";
 static char __pyx_k_base[] = "base";
-static char __pyx_k_init[] = "__init__";
 static char __pyx_k_join[] = "join";
 static char __pyx_k_main[] = "__main__";
 static char __pyx_k_repr[] = "__repr__";
@@ -1272,7 +1028,6 @@ static char __pyx_k_A_Z_a_z_d_d[] = "([A-Z][a-z+]*)(?:\\[(\\d+)\\])?([+-]?\\d+)?
 static char __pyx_k_Composition[] = "Composition({})";
 static char __pyx_k_composition[] = "composition";
 static char __pyx_k_from_formula[] = "_from_formula";
-static char __pyx_k_intersection[] = "intersection";
 static char __pyx_k_Composition_2[] = "Composition";
 static char __pyx_k_NotImplemented[] = "NotImplemented";
 static char __pyx_k_calculate_mass[] = "calculate_mass";
@@ -1289,9 +1044,8 @@ static char __pyx_k_Badly_formed_number_of_atoms_s[] = "Badly-formed number of a
 static char __pyx_k_Charge_is_specified_both_by_the[] = "Charge is specified both by the number of protons and parameters";
 static char __pyx_k_Unknown_chemical_element_in_the[] = "Unknown chemical element in the formula: %s";
 static char __pyx_k_Cannot_multiply_Composition_by_n[] = "Cannot multiply Composition by non-integer";
-static char __pyx_k_Could_not_create_a_Composition_o[] = "Could not create a Composition object from string: \"{}\": not a valid sequence or formula";
+static char __pyx_k_Could_not_create_a_Composition_o[] = "Could not create a Composition object from string: \"{}\": not a formula";
 static char __pyx_k_Must_provide_a_composition_or_fo[] = "Must provide a composition or formula argument";
-static char __pyx_k_Only_one_of_can_be_specified_Giv[] = "Only one of {} can be specified!\n                Given: {}";
 static char __pyx_k_Must_provide_a_composition_or_fo_2[] = "Must provide a composition or formula argument, but not both";
 static PyObject *__pyx_kp_s_;
 static PyObject *__pyx_kp_s_A_Z_a_z_d;
@@ -1309,17 +1063,16 @@ static PyObject *__pyx_kp_s_Invalid_formula;
 static PyObject *__pyx_kp_s_Must_provide_a_composition_or_fo;
 static PyObject *__pyx_kp_s_Must_provide_a_composition_or_fo_2;
 static PyObject *__pyx_n_s_NotImplemented;
-static PyObject *__pyx_kp_s_Only_one_of_can_be_specified_Giv;
 static PyObject *__pyx_kp_s_Unknown_chemical_element;
 static PyObject *__pyx_kp_s_Unknown_chemical_element_in_the;
 static PyObject *__pyx_n_s_ValueError;
-static PyObject *__pyx_kp_s__13;
+static PyObject *__pyx_kp_s__12;
 static PyObject *__pyx_kp_s__2;
 static PyObject *__pyx_kp_s__3;
 static PyObject *__pyx_kp_s__4;
 static PyObject *__pyx_kp_s__5;
 static PyObject *__pyx_kp_s__6;
-static PyObject *__pyx_kp_s__9;
+static PyObject *__pyx_n_s_args;
 static PyObject *__pyx_n_s_atom;
 static PyObject *__pyx_n_s_average;
 static PyObject *__pyx_n_s_base;
@@ -1339,12 +1092,9 @@ static PyObject *__pyx_n_s_formula_pattern;
 static PyObject *__pyx_n_s_from_dict;
 static PyObject *__pyx_n_s_from_formula;
 static PyObject *__pyx_n_s_from_formula_parens;
-static PyObject *__pyx_n_s_get;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
-static PyObject *__pyx_n_s_init;
-static PyObject *__pyx_n_s_intersection;
 static PyObject *__pyx_n_s_isdigit;
 static PyObject *__pyx_n_s_isotope_pattern;
 static PyObject *__pyx_n_s_isotope_string;
@@ -1357,7 +1107,6 @@ static PyObject *__pyx_n_s_mass_data;
 static PyObject *__pyx_n_s_mass_dict;
 static PyObject *__pyx_n_s_match;
 static PyObject *__pyx_n_s_nist_mass;
-static PyObject *__pyx_n_s_pop;
 static PyObject *__pyx_n_s_pyx_capi;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_range;
@@ -1392,28 +1141,27 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_38_from_dict(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp); /* proto */
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_40calc_mass(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self); /* proto */
-static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
+static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data); /* proto */
 static PyObject *__pyx_tp_new_5glypy_11composition_12ccomposition_CComposition(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static __Pyx_CachedCFunction __pyx_umethod_PyList_Type_pop = {0, &__pyx_n_s_pop, 0, 0, 0};
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_neg_1;
 static PyObject *__pyx_k__8;
 static PyObject *__pyx_slice__7;
+static PyObject *__pyx_tuple__9;
 static PyObject *__pyx_tuple__10;
 static PyObject *__pyx_tuple__11;
-static PyObject *__pyx_tuple__12;
 
-/* "glypy\composition\ccomposition.pyx":35
+/* "glypy\composition\ccomposition.pyx":36
  * 
  * @cython.boundscheck(False)
- * cdef inline str _parse_isotope_string(str label, int* isotope_num):             # <<<<<<<<<<<<<<
+ * cdef str _parse_isotope_string(str label, int* isotope_num):             # <<<<<<<<<<<<<<
  *     cdef:
  *         # int isotope_num = 0
  */
 
-static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(PyObject *__pyx_v_label, int *__pyx_v_isotope_num) {
+static PyObject *__pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(PyObject *__pyx_v_label, int *__pyx_v_isotope_num) {
   int __pyx_v_i;
   int __pyx_v_in_bracket;
   PyObject *__pyx_v_current = 0;
@@ -1421,7 +1169,6 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
   PyObject *__pyx_v_num_parts = 0;
   PyObject *__pyx_v_element_name = NULL;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
@@ -1434,9 +1181,8 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_parse_isotope_string", 0);
-  __Pyx_TraceCall("_parse_isotope_string", __pyx_f[0], 35, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 35; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":38
+  /* "glypy\composition\ccomposition.pyx":39
  *     cdef:
  *         # int isotope_num = 0
  *         int i = 0             # <<<<<<<<<<<<<<
@@ -1445,7 +1191,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  */
   __pyx_v_i = 0;
 
-  /* "glypy\composition\ccomposition.pyx":39
+  /* "glypy\composition\ccomposition.pyx":40
  *         # int isotope_num = 0
  *         int i = 0
  *         int in_bracket = False             # <<<<<<<<<<<<<<
@@ -1454,55 +1200,55 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  */
   __pyx_v_in_bracket = 0;
 
-  /* "glypy\composition\ccomposition.pyx":42
+  /* "glypy\composition\ccomposition.pyx":43
  *         # str element_name
  *         str current
  *         list name_parts = []             # <<<<<<<<<<<<<<
  *         list num_parts = []
  *         #Isotope result
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_name_parts = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":43
+  /* "glypy\composition\ccomposition.pyx":44
  *         str current
  *         list name_parts = []
  *         list num_parts = []             # <<<<<<<<<<<<<<
  *         #Isotope result
  *     for i in range(len(label)):
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 44; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_num_parts = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":45
+  /* "glypy\composition\ccomposition.pyx":46
  *         list num_parts = []
  *         #Isotope result
  *     for i in range(len(label)):             # <<<<<<<<<<<<<<
  *         current = label[i]
  *         if in_bracket:
  */
-  __pyx_t_2 = PyObject_Length(__pyx_v_label); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyObject_Length(__pyx_v_label); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "glypy\composition\ccomposition.pyx":46
+    /* "glypy\composition\ccomposition.pyx":47
  *         #Isotope result
  *     for i in range(len(label)):
  *         current = label[i]             # <<<<<<<<<<<<<<
  *         if in_bracket:
  *             if current == "]":
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_label, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 0); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_label, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 0); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
     __Pyx_GOTREF(__pyx_t_1);
-    if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_XDECREF_SET(__pyx_v_current, ((PyObject*)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":47
+    /* "glypy\composition\ccomposition.pyx":48
  *     for i in range(len(label)):
  *         current = label[i]
  *         if in_bracket:             # <<<<<<<<<<<<<<
@@ -1512,18 +1258,18 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
     __pyx_t_4 = (__pyx_v_in_bracket != 0);
     if (__pyx_t_4) {
 
-      /* "glypy\composition\ccomposition.pyx":48
+      /* "glypy\composition\ccomposition.pyx":49
  *         current = label[i]
  *         if in_bracket:
  *             if current == "]":             # <<<<<<<<<<<<<<
  *                 break
  *             num_parts.append(current)
  */
-      __pyx_t_4 = (__Pyx_PyString_Equals(__pyx_v_current, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = (__Pyx_PyString_Equals(__pyx_v_current, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 49; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_t_5 = (__pyx_t_4 != 0);
       if (__pyx_t_5) {
 
-        /* "glypy\composition\ccomposition.pyx":49
+        /* "glypy\composition\ccomposition.pyx":50
  *         if in_bracket:
  *             if current == "]":
  *                 break             # <<<<<<<<<<<<<<
@@ -1532,7 +1278,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  */
         goto __pyx_L4_break;
 
-        /* "glypy\composition\ccomposition.pyx":48
+        /* "glypy\composition\ccomposition.pyx":49
  *         current = label[i]
  *         if in_bracket:
  *             if current == "]":             # <<<<<<<<<<<<<<
@@ -1541,16 +1287,16 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  */
       }
 
-      /* "glypy\composition\ccomposition.pyx":50
+      /* "glypy\composition\ccomposition.pyx":51
  *             if current == "]":
  *                 break
  *             num_parts.append(current)             # <<<<<<<<<<<<<<
  *         elif current == "[":
  *             in_bracket = True
  */
-      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_num_parts, __pyx_v_current); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_num_parts, __pyx_v_current); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "glypy\composition\ccomposition.pyx":47
+      /* "glypy\composition\ccomposition.pyx":48
  *     for i in range(len(label)):
  *         current = label[i]
  *         if in_bracket:             # <<<<<<<<<<<<<<
@@ -1560,18 +1306,18 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
       goto __pyx_L5;
     }
 
-    /* "glypy\composition\ccomposition.pyx":51
+    /* "glypy\composition\ccomposition.pyx":52
  *                 break
  *             num_parts.append(current)
  *         elif current == "[":             # <<<<<<<<<<<<<<
  *             in_bracket = True
  *         else:
  */
-    __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_current, __pyx_kp_s__2, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_current, __pyx_kp_s__2, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 52; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_t_4 = (__pyx_t_5 != 0);
     if (__pyx_t_4) {
 
-      /* "glypy\composition\ccomposition.pyx":52
+      /* "glypy\composition\ccomposition.pyx":53
  *             num_parts.append(current)
  *         elif current == "[":
  *             in_bracket = True             # <<<<<<<<<<<<<<
@@ -1580,7 +1326,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  */
       __pyx_v_in_bracket = 1;
 
-      /* "glypy\composition\ccomposition.pyx":51
+      /* "glypy\composition\ccomposition.pyx":52
  *                 break
  *             num_parts.append(current)
  *         elif current == "[":             # <<<<<<<<<<<<<<
@@ -1590,7 +1336,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
       goto __pyx_L5;
     }
 
-    /* "glypy\composition\ccomposition.pyx":54
+    /* "glypy\composition\ccomposition.pyx":55
  *             in_bracket = True
  *         else:
  *             name_parts.append(current)             # <<<<<<<<<<<<<<
@@ -1598,52 +1344,52 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  *     if len(num_parts) > 0:
  */
     /*else*/ {
-      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_name_parts, __pyx_v_current); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_name_parts, __pyx_v_current); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 55; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __pyx_L5:;
   }
   __pyx_L4_break:;
 
-  /* "glypy\composition\ccomposition.pyx":55
+  /* "glypy\composition\ccomposition.pyx":56
  *         else:
  *             name_parts.append(current)
  *     element_name = (''.join(name_parts))             # <<<<<<<<<<<<<<
  *     if len(num_parts) > 0:
  *         isotope_num[0] = (int(''.join(num_parts)))
  */
-  __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__3, __pyx_v_name_parts); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 55; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__3, __pyx_v_name_parts); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_element_name = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":56
+  /* "glypy\composition\ccomposition.pyx":57
  *             name_parts.append(current)
  *     element_name = (''.join(name_parts))
  *     if len(num_parts) > 0:             # <<<<<<<<<<<<<<
  *         isotope_num[0] = (int(''.join(num_parts)))
  *     else:
  */
-  __pyx_t_2 = PyList_GET_SIZE(__pyx_v_num_parts); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyList_GET_SIZE(__pyx_v_num_parts); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_4 = ((__pyx_t_2 > 0) != 0);
   if (__pyx_t_4) {
 
-    /* "glypy\composition\ccomposition.pyx":57
+    /* "glypy\composition\ccomposition.pyx":58
  *     element_name = (''.join(name_parts))
  *     if len(num_parts) > 0:
  *         isotope_num[0] = (int(''.join(num_parts)))             # <<<<<<<<<<<<<<
  *     else:
  *         isotope_num[0] = 0
  */
-    __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__3, __pyx_v_num_parts); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__3, __pyx_v_num_parts); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_7 = PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     (__pyx_v_isotope_num[0]) = __pyx_t_3;
 
-    /* "glypy\composition\ccomposition.pyx":56
+    /* "glypy\composition\ccomposition.pyx":57
  *             name_parts.append(current)
  *     element_name = (''.join(name_parts))
  *     if len(num_parts) > 0:             # <<<<<<<<<<<<<<
@@ -1653,7 +1399,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
     goto __pyx_L7;
   }
 
-  /* "glypy\composition\ccomposition.pyx":59
+  /* "glypy\composition\ccomposition.pyx":60
  *         isotope_num[0] = (int(''.join(num_parts)))
  *     else:
  *         isotope_num[0] = 0             # <<<<<<<<<<<<<<
@@ -1665,7 +1411,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
   }
   __pyx_L7:;
 
-  /* "glypy\composition\ccomposition.pyx":60
+  /* "glypy\composition\ccomposition.pyx":61
  *     else:
  *         isotope_num[0] = 0
  *     return element_name             # <<<<<<<<<<<<<<
@@ -1673,15 +1419,15 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  if (!(likely(PyString_CheckExact(__pyx_v_element_name))||((__pyx_v_element_name) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_element_name)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(PyString_CheckExact(__pyx_v_element_name))||((__pyx_v_element_name) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_element_name)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 61; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_INCREF(__pyx_v_element_name);
   __pyx_r = ((PyObject*)__pyx_v_element_name);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":35
+  /* "glypy\composition\ccomposition.pyx":36
  * 
  * @cython.boundscheck(False)
- * cdef inline str _parse_isotope_string(str label, int* isotope_num):             # <<<<<<<<<<<<<<
+ * cdef str _parse_isotope_string(str label, int* isotope_num):             # <<<<<<<<<<<<<<
  *     cdef:
  *         # int isotope_num = 0
  */
@@ -1698,23 +1444,21 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__pars
   __Pyx_XDECREF(__pyx_v_num_parts);
   __Pyx_XDECREF(__pyx_v_element_name);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":63
+/* "glypy\composition\ccomposition.pyx":64
  * 
  * 
- * cdef inline str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
+ * cdef str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
  *     """Form a string label for an isotope."""
  *     cdef:
  */
 
-static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(PyObject *__pyx_v_element_name, int __pyx_v_isotope_num) {
+static PyObject *__pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(PyObject *__pyx_v_element_name, int __pyx_v_isotope_num) {
   PyObject *__pyx_v_parts = 0;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -1723,9 +1467,8 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_make_isotope_string", 0);
-  __Pyx_TraceCall("_make_isotope_string", __pyx_f[0], 63, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 63; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":67
+  /* "glypy\composition\ccomposition.pyx":68
  *     cdef:
  *         tuple parts
  *     if isotope_num == 0:             # <<<<<<<<<<<<<<
@@ -1735,7 +1478,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
   __pyx_t_1 = ((__pyx_v_isotope_num == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "glypy\composition\ccomposition.pyx":68
+    /* "glypy\composition\ccomposition.pyx":69
  *         tuple parts
  *     if isotope_num == 0:
  *         return element_name             # <<<<<<<<<<<<<<
@@ -1747,7 +1490,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
     __pyx_r = __pyx_v_element_name;
     goto __pyx_L0;
 
-    /* "glypy\composition\ccomposition.pyx":67
+    /* "glypy\composition\ccomposition.pyx":68
  *     cdef:
  *         tuple parts
  *     if isotope_num == 0:             # <<<<<<<<<<<<<<
@@ -1756,7 +1499,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":70
+  /* "glypy\composition\ccomposition.pyx":71
  *         return element_name
  *     else:
  *         parts = (element_name, isotope_num)             # <<<<<<<<<<<<<<
@@ -1764,9 +1507,9 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
  *             return <str>PyString_Format('%s[%d]', parts)
  */
   /*else*/ {
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_isotope_num); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_isotope_num); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 70; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 71; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_v_element_name);
     __Pyx_GIVEREF(__pyx_v_element_name);
@@ -1777,7 +1520,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
     __pyx_v_parts = ((PyObject*)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":71
+    /* "glypy\composition\ccomposition.pyx":72
  *     else:
  *         parts = (element_name, isotope_num)
  *         if PY_MAJOR_VERSION < 3:             # <<<<<<<<<<<<<<
@@ -1787,7 +1530,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
     __pyx_t_1 = ((PY_MAJOR_VERSION < 3) != 0);
     if (__pyx_t_1) {
 
-      /* "glypy\composition\ccomposition.pyx":72
+      /* "glypy\composition\ccomposition.pyx":73
  *         parts = (element_name, isotope_num)
  *         if PY_MAJOR_VERSION < 3:
  *             return <str>PyString_Format('%s[%d]', parts)             # <<<<<<<<<<<<<<
@@ -1795,14 +1538,14 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
  *             return <str>PyUnicode_Format('%s[%d]', parts)
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_3 = PyString_Format(__pyx_kp_s_s_d, __pyx_v_parts); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyString_Format(__pyx_kp_s_s_d, __pyx_v_parts); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(((PyObject*)__pyx_t_3));
       __pyx_r = ((PyObject*)__pyx_t_3);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       goto __pyx_L0;
 
-      /* "glypy\composition\ccomposition.pyx":71
+      /* "glypy\composition\ccomposition.pyx":72
  *     else:
  *         parts = (element_name, isotope_num)
  *         if PY_MAJOR_VERSION < 3:             # <<<<<<<<<<<<<<
@@ -1811,7 +1554,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
  */
     }
 
-    /* "glypy\composition\ccomposition.pyx":74
+    /* "glypy\composition\ccomposition.pyx":75
  *             return <str>PyString_Format('%s[%d]', parts)
  *         else:
  *             return <str>PyUnicode_Format('%s[%d]', parts)             # <<<<<<<<<<<<<<
@@ -1820,7 +1563,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
  */
     /*else*/ {
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_3 = PyUnicode_Format(__pyx_kp_s_s_d, __pyx_v_parts); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyUnicode_Format(__pyx_kp_s_s_d, __pyx_v_parts); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 75; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(((PyObject*)__pyx_t_3));
       __pyx_r = ((PyObject*)__pyx_t_3);
@@ -1829,10 +1572,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
     }
   }
 
-  /* "glypy\composition\ccomposition.pyx":63
+  /* "glypy\composition\ccomposition.pyx":64
  * 
  * 
- * cdef inline str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
+ * cdef str _make_isotope_string(str element_name, int isotope_num):             # <<<<<<<<<<<<<<
  *     """Form a string label for an isotope."""
  *     cdef:
  */
@@ -1846,12 +1589,11 @@ static CYTHON_INLINE PyObject *__pyx_f_5glypy_11composition_12ccomposition__make
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_parts);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":80
+/* "glypy\composition\ccomposition.pyx":81
  * 
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1874,7 +1616,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_1__
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___str__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -1886,9 +1627,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 0);
-  __Pyx_TraceCall("__str__", __pyx_f[0], 80, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 80; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":81
+  /* "glypy\composition\ccomposition.pyx":82
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover
  *         return 'Composition({})'.format(dict.__repr__(self))             # <<<<<<<<<<<<<<
@@ -1896,9 +1636,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
  *     def __repr__(self):  # pragma: no cover
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Composition, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Composition, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyDict_Type)), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyDict_Type)), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_4))) {
@@ -1911,16 +1651,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, ((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, ((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
   } else {
-    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
     __Pyx_INCREF(((PyObject *)__pyx_v_self));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
     PyTuple_SET_ITEM(__pyx_t_6, 0+1, ((PyObject *)__pyx_v_self));
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
@@ -1936,17 +1676,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
@@ -1955,7 +1695,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":80
+  /* "glypy\composition\ccomposition.pyx":81
  * 
  *     '''Represent arbitrary elemental compositions'''
  *     def __str__(self):   # pragma: no cover             # <<<<<<<<<<<<<<
@@ -1975,12 +1715,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition___s
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":83
+/* "glypy\composition\ccomposition.pyx":84
  *         return 'Composition({})'.format(dict.__repr__(self))
  * 
  *     def __repr__(self):  # pragma: no cover             # <<<<<<<<<<<<<<
@@ -2003,7 +1742,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_3__
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_2__repr__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2011,9 +1749,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_2__
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__repr__", 0);
-  __Pyx_TraceCall("__repr__", __pyx_f[0], 83, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 83; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":84
+  /* "glypy\composition\ccomposition.pyx":85
  * 
  *     def __repr__(self):  # pragma: no cover
  *         return str(self)             # <<<<<<<<<<<<<<
@@ -2021,19 +1758,19 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_2__
  *     def __iadd__(CComposition self, other):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 84; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 85; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 84; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&PyString_Type)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 85; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":83
+  /* "glypy\composition\ccomposition.pyx":84
  *         return 'Composition({})'.format(dict.__repr__(self))
  * 
  *     def __repr__(self):  # pragma: no cover             # <<<<<<<<<<<<<<
@@ -2049,12 +1786,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_2__
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":86
+/* "glypy\composition\ccomposition.pyx":87
  *         return str(self)
  * 
  *     def __iadd__(CComposition self, other):             # <<<<<<<<<<<<<<
@@ -2082,7 +1818,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
   PyObject *__pyx_v_pvalue;
   Py_ssize_t __pyx_v_ppos;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -2091,9 +1826,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__iadd__", 0);
-  __Pyx_TraceCall("__iadd__", __pyx_f[0], 86, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 86; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":92
+  /* "glypy\composition\ccomposition.pyx":93
  *             PyObject *pkey
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0             # <<<<<<<<<<<<<<
@@ -2102,7 +1836,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
  */
   __pyx_v_ppos = 0;
 
-  /* "glypy\composition\ccomposition.pyx":94
+  /* "glypy\composition\ccomposition.pyx":95
  *             Py_ssize_t ppos = 0
  * 
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):             # <<<<<<<<<<<<<<
@@ -2113,7 +1847,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
     __pyx_t_1 = (PyDict_Next(__pyx_v_other, (&__pyx_v_ppos), (&__pyx_v_pkey), (&__pyx_v_pvalue)) != 0);
     if (!__pyx_t_1) break;
 
-    /* "glypy\composition\ccomposition.pyx":95
+    /* "glypy\composition\ccomposition.pyx":96
  * 
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey             # <<<<<<<<<<<<<<
@@ -2125,7 +1859,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
     __Pyx_XDECREF_SET(__pyx_v_elem, ((PyObject*)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":96
+    /* "glypy\composition\ccomposition.pyx":97
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  *             cnt = self.getitem(elem)             # <<<<<<<<<<<<<<
@@ -2134,18 +1868,18 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
  */
     __pyx_v_cnt = __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_self, __pyx_v_elem);
 
-    /* "glypy\composition\ccomposition.pyx":97
+    /* "glypy\composition\ccomposition.pyx":98
  *             elem = <str>pkey
  *             cnt = self.getitem(elem)
  *             self.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))             # <<<<<<<<<<<<<<
  * 
  *         self._mass_args = None
  */
-    __pyx_t_3 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 97; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 98; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_self, __pyx_v_elem, (__pyx_v_cnt + __pyx_t_3));
   }
 
-  /* "glypy\composition\ccomposition.pyx":99
+  /* "glypy\composition\ccomposition.pyx":100
  *             self.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))
  * 
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -2158,7 +1892,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":100
+  /* "glypy\composition\ccomposition.pyx":101
  * 
  *         self._mass_args = None
  *         return self             # <<<<<<<<<<<<<<
@@ -2170,7 +1904,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":86
+  /* "glypy\composition\ccomposition.pyx":87
  *         return str(self)
  * 
  *     def __iadd__(CComposition self, other):             # <<<<<<<<<<<<<<
@@ -2186,12 +1920,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4__
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":103
+/* "glypy\composition\ccomposition.pyx":104
  * 
  * 
  *     def __add__(self, other):             # <<<<<<<<<<<<<<
@@ -2220,7 +1953,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
   PyObject *__pyx_v_pvalue;
   Py_ssize_t __pyx_v_ppos;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   int __pyx_t_2;
@@ -2233,11 +1965,10 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__add__", 0);
-  __Pyx_TraceCall("__add__", __pyx_f[0], 103, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_INCREF(__pyx_v_other);
 
-  /* "glypy\composition\ccomposition.pyx":110
+  /* "glypy\composition\ccomposition.pyx":111
  *             PyObject *pkey
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0             # <<<<<<<<<<<<<<
@@ -2246,7 +1977,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
  */
   __pyx_v_ppos = 0;
 
-  /* "glypy\composition\ccomposition.pyx":111
+  /* "glypy\composition\ccomposition.pyx":112
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
@@ -2257,7 +1988,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
   __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":112
+    /* "glypy\composition\ccomposition.pyx":113
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):
  *             other, self = self, other             # <<<<<<<<<<<<<<
@@ -2271,7 +2002,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
     __pyx_v_self = __pyx_t_4;
     __pyx_t_4 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":111
+    /* "glypy\composition\ccomposition.pyx":112
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
@@ -2280,25 +2011,25 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":113
+  /* "glypy\composition\ccomposition.pyx":114
  *         if not isinstance(self, CComposition):
  *             other, self = self, other
  *         result = CComposition(self)             # <<<<<<<<<<<<<<
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  */
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 113; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 114; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_GIVEREF(__pyx_v_self);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_self);
-  __pyx_t_6 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_5, NULL); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 113; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_5, NULL); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 114; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_result = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":114
+  /* "glypy\composition\ccomposition.pyx":115
  *             other, self = self, other
  *         result = CComposition(self)
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):             # <<<<<<<<<<<<<<
@@ -2309,7 +2040,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
     __pyx_t_2 = (PyDict_Next(__pyx_v_other, (&__pyx_v_ppos), (&__pyx_v_pkey), (&__pyx_v_pvalue)) != 0);
     if (!__pyx_t_2) break;
 
-    /* "glypy\composition\ccomposition.pyx":115
+    /* "glypy\composition\ccomposition.pyx":116
  *         result = CComposition(self)
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey             # <<<<<<<<<<<<<<
@@ -2321,7 +2052,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
     __Pyx_XDECREF_SET(__pyx_v_elem, ((PyObject*)__pyx_t_6));
     __pyx_t_6 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":116
+    /* "glypy\composition\ccomposition.pyx":117
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  *             cnt = result.getitem(elem)             # <<<<<<<<<<<<<<
@@ -2330,17 +2061,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
  */
     __pyx_v_cnt = __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_result, __pyx_v_elem);
 
-    /* "glypy\composition\ccomposition.pyx":117
+    /* "glypy\composition\ccomposition.pyx":118
  *             elem = <str>pkey
  *             cnt = result.getitem(elem)
  *             cnt += PyInt_AsLong(<object>pvalue)             # <<<<<<<<<<<<<<
  *             result.setitem(elem, cnt)
  * 
  */
-    __pyx_t_7 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_7 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 117; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_7 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_7 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 118; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_v_cnt = (__pyx_v_cnt + __pyx_t_7);
 
-    /* "glypy\composition\ccomposition.pyx":118
+    /* "glypy\composition\ccomposition.pyx":119
  *             cnt = result.getitem(elem)
  *             cnt += PyInt_AsLong(<object>pvalue)
  *             result.setitem(elem, cnt)             # <<<<<<<<<<<<<<
@@ -2350,7 +2081,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_result, __pyx_v_elem, __pyx_v_cnt);
   }
 
-  /* "glypy\composition\ccomposition.pyx":120
+  /* "glypy\composition\ccomposition.pyx":121
  *             result.setitem(elem, cnt)
  * 
  *         return result             # <<<<<<<<<<<<<<
@@ -2362,7 +2093,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":103
+  /* "glypy\composition\ccomposition.pyx":104
  * 
  * 
  *     def __add__(self, other):             # <<<<<<<<<<<<<<
@@ -2382,12 +2113,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_6__
   __Pyx_XDECREF(__pyx_v_self);
   __Pyx_XDECREF(__pyx_v_other);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":123
+/* "glypy\composition\ccomposition.pyx":124
  * 
  * 
  *     def __isub__(self, other):             # <<<<<<<<<<<<<<
@@ -2415,7 +2145,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
   PyObject *__pyx_v_pvalue;
   Py_ssize_t __pyx_v_ppos;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -2424,9 +2153,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__isub__", 0);
-  __Pyx_TraceCall("__isub__", __pyx_f[0], 123, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":129
+  /* "glypy\composition\ccomposition.pyx":130
  *             PyObject *pkey
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0             # <<<<<<<<<<<<<<
@@ -2435,7 +2163,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
  */
   __pyx_v_ppos = 0;
 
-  /* "glypy\composition\ccomposition.pyx":131
+  /* "glypy\composition\ccomposition.pyx":132
  *             Py_ssize_t ppos = 0
  * 
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):             # <<<<<<<<<<<<<<
@@ -2446,7 +2174,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
     __pyx_t_1 = (PyDict_Next(__pyx_v_other, (&__pyx_v_ppos), (&__pyx_v_pkey), (&__pyx_v_pvalue)) != 0);
     if (!__pyx_t_1) break;
 
-    /* "glypy\composition\ccomposition.pyx":132
+    /* "glypy\composition\ccomposition.pyx":133
  * 
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey             # <<<<<<<<<<<<<<
@@ -2458,7 +2186,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
     __Pyx_XDECREF_SET(__pyx_v_elem, ((PyObject*)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":133
+    /* "glypy\composition\ccomposition.pyx":134
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  *             cnt = self.getitem(elem)             # <<<<<<<<<<<<<<
@@ -2467,18 +2195,18 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
  */
     __pyx_v_cnt = __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_self, __pyx_v_elem);
 
-    /* "glypy\composition\ccomposition.pyx":134
+    /* "glypy\composition\ccomposition.pyx":135
  *             elem = <str>pkey
  *             cnt = self.getitem(elem)
  *             self.setitem(elem, cnt - PyInt_AsLong(<object>pvalue))             # <<<<<<<<<<<<<<
  * 
  *         self._mass_args = None
  */
-    __pyx_t_3 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 134; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 135; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_self, __pyx_v_elem, (__pyx_v_cnt - __pyx_t_3));
   }
 
-  /* "glypy\composition\ccomposition.pyx":136
+  /* "glypy\composition\ccomposition.pyx":137
  *             self.setitem(elem, cnt - PyInt_AsLong(<object>pvalue))
  * 
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -2491,7 +2219,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":137
+  /* "glypy\composition\ccomposition.pyx":138
  * 
  *         self._mass_args = None
  *         return self             # <<<<<<<<<<<<<<
@@ -2503,7 +2231,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":123
+  /* "glypy\composition\ccomposition.pyx":124
  * 
  * 
  *     def __isub__(self, other):             # <<<<<<<<<<<<<<
@@ -2519,12 +2247,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_8__
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_elem);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":139
+/* "glypy\composition\ccomposition.pyx":140
  *         return self
  * 
  *     def __sub__(self, other):             # <<<<<<<<<<<<<<
@@ -2553,7 +2280,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
   PyObject *__pyx_v_pvalue;
   Py_ssize_t __pyx_v_ppos;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   int __pyx_t_2;
@@ -2564,10 +2290,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__sub__", 0);
-  __Pyx_TraceCall("__sub__", __pyx_f[0], 139, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 139; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_INCREF(__pyx_v_self);
 
-  /* "glypy\composition\ccomposition.pyx":146
+  /* "glypy\composition\ccomposition.pyx":147
  *             PyObject *pkey
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0             # <<<<<<<<<<<<<<
@@ -2576,7 +2301,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
  */
   __pyx_v_ppos = 0;
 
-  /* "glypy\composition\ccomposition.pyx":147
+  /* "glypy\composition\ccomposition.pyx":148
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
@@ -2587,25 +2312,25 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
   __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":148
+    /* "glypy\composition\ccomposition.pyx":149
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):
  *             self = CComposition(self)             # <<<<<<<<<<<<<<
  *         result = CComposition(self)
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  */
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 148; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_v_self);
     __Pyx_GIVEREF(__pyx_v_self);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_self);
-    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 148; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_self, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":147
+    /* "glypy\composition\ccomposition.pyx":148
  *             PyObject *pvalue
  *             Py_ssize_t ppos = 0
  *         if not isinstance(self, CComposition):             # <<<<<<<<<<<<<<
@@ -2614,25 +2339,25 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":149
+  /* "glypy\composition\ccomposition.pyx":150
  *         if not isinstance(self, CComposition):
  *             self = CComposition(self)
  *         result = CComposition(self)             # <<<<<<<<<<<<<<
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  */
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_GIVEREF(__pyx_v_self);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_self);
-  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 149; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 150; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_result = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":150
+  /* "glypy\composition\ccomposition.pyx":151
  *             self = CComposition(self)
  *         result = CComposition(self)
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):             # <<<<<<<<<<<<<<
@@ -2643,7 +2368,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
     __pyx_t_2 = (PyDict_Next(__pyx_v_other, (&__pyx_v_ppos), (&__pyx_v_pkey), (&__pyx_v_pvalue)) != 0);
     if (!__pyx_t_2) break;
 
-    /* "glypy\composition\ccomposition.pyx":151
+    /* "glypy\composition\ccomposition.pyx":152
  *         result = CComposition(self)
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey             # <<<<<<<<<<<<<<
@@ -2655,7 +2380,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
     __Pyx_XDECREF_SET(__pyx_v_elem, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":152
+    /* "glypy\composition\ccomposition.pyx":153
  *         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
  *             elem = <str>pkey
  *             cnt = result.getitem(elem)             # <<<<<<<<<<<<<<
@@ -2664,17 +2389,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
  */
     __pyx_v_cnt = __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_result, __pyx_v_elem);
 
-    /* "glypy\composition\ccomposition.pyx":153
+    /* "glypy\composition\ccomposition.pyx":154
  *             elem = <str>pkey
  *             cnt = result.getitem(elem)
  *             cnt -= PyInt_AsLong(<object>pvalue)             # <<<<<<<<<<<<<<
  *             result.setitem(elem, cnt)
  * 
  */
-    __pyx_t_5 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_5 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 153; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_5 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 154; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_v_cnt = (__pyx_v_cnt - __pyx_t_5);
 
-    /* "glypy\composition\ccomposition.pyx":154
+    /* "glypy\composition\ccomposition.pyx":155
  *             cnt = result.getitem(elem)
  *             cnt -= PyInt_AsLong(<object>pvalue)
  *             result.setitem(elem, cnt)             # <<<<<<<<<<<<<<
@@ -2684,7 +2409,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_result, __pyx_v_elem, __pyx_v_cnt);
   }
 
-  /* "glypy\composition\ccomposition.pyx":156
+  /* "glypy\composition\ccomposition.pyx":157
  *             result.setitem(elem, cnt)
  * 
  *         return result             # <<<<<<<<<<<<<<
@@ -2696,7 +2421,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":139
+  /* "glypy\composition\ccomposition.pyx":140
  *         return self
  * 
  *     def __sub__(self, other):             # <<<<<<<<<<<<<<
@@ -2715,12 +2440,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_10_
   __Pyx_XDECREF((PyObject *)__pyx_v_result);
   __Pyx_XDECREF(__pyx_v_self);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":158
+/* "glypy\composition\ccomposition.pyx":159
  *         return result
  * 
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -2743,7 +2467,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_13_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12__reduce__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2754,9 +2477,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__reduce__", 0);
-  __Pyx_TraceCall("__reduce__", __pyx_f[0], 158, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 158; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":159
+  /* "glypy\composition\ccomposition.pyx":160
  * 
  *     def __reduce__(self):
  *         return composition_factory, (list(self),), self.__getstate__()             # <<<<<<<<<<<<<<
@@ -2764,16 +2486,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12_
  *     def __getstate__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_composition_factory); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_composition_factory); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PySequence_List(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PySequence_List(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_getstate); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_getstate); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_4))) {
@@ -2786,14 +2508,14 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12_
     }
   }
   if (__pyx_t_5) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 159; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -2808,7 +2530,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12_
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":158
+  /* "glypy\composition\ccomposition.pyx":159
  *         return result
  * 
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -2827,12 +2549,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_12_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":161
+/* "glypy\composition\ccomposition.pyx":162
  *         return composition_factory, (list(self),), self.__getstate__()
  * 
  *     def __getstate__(self):             # <<<<<<<<<<<<<<
@@ -2855,7 +2576,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_15_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_14__getstate__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2863,9 +2583,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_14_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__getstate__", 0);
-  __Pyx_TraceCall("__getstate__", __pyx_f[0], 161, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 161; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":162
+  /* "glypy\composition\ccomposition.pyx":163
  * 
  *     def __getstate__(self):
  *         return dict(self)             # <<<<<<<<<<<<<<
@@ -2873,19 +2592,19 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_14_
  *     def __setstate__(self, d):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&PyDict_Type)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&PyDict_Type)), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 163; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":161
+  /* "glypy\composition\ccomposition.pyx":162
  *         return composition_factory, (list(self),), self.__getstate__()
  * 
  *     def __getstate__(self):             # <<<<<<<<<<<<<<
@@ -2901,12 +2620,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_14_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":164
+/* "glypy\composition\ccomposition.pyx":165
  *         return dict(self)
  * 
  *     def __setstate__(self, d):             # <<<<<<<<<<<<<<
@@ -2929,27 +2647,25 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_17_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_16__setstate__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_d) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__setstate__", 0);
-  __Pyx_TraceCall("__setstate__", __pyx_f[0], 164, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 164; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":165
+  /* "glypy\composition\ccomposition.pyx":166
  * 
  *     def __setstate__(self, d):
  *         self._from_dict(d)             # <<<<<<<<<<<<<<
  *         self._mass = None
  *         self._mass_args = None
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_d, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 165; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_d, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 166; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":166
+  /* "glypy\composition\ccomposition.pyx":167
  *     def __setstate__(self, d):
  *         self._from_dict(d)
  *         self._mass = None             # <<<<<<<<<<<<<<
@@ -2962,7 +2678,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_16_
   __Pyx_DECREF(__pyx_v_self->_mass);
   __pyx_v_self->_mass = Py_None;
 
-  /* "glypy\composition\ccomposition.pyx":167
+  /* "glypy\composition\ccomposition.pyx":168
  *         self._from_dict(d)
  *         self._mass = None
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -2975,7 +2691,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_16_
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":164
+  /* "glypy\composition\ccomposition.pyx":165
  *         return dict(self)
  * 
  *     def __setstate__(self, d):             # <<<<<<<<<<<<<<
@@ -2992,12 +2708,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_16_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":170
+/* "glypy\composition\ccomposition.pyx":171
  * 
  * 
  *     def __mul__(self, other):             # <<<<<<<<<<<<<<
@@ -3024,7 +2739,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   int __pyx_v_v;
   PyObject *__pyx_v_k = 0;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_t_2;
@@ -3043,23 +2757,22 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__mul__", 0);
-  __Pyx_TraceCall("__mul__", __pyx_f[0], 170, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 170; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_INCREF(__pyx_v_other);
 
-  /* "glypy\composition\ccomposition.pyx":172
+  /* "glypy\composition\ccomposition.pyx":173
  *     def __mul__(self, other):
  *         cdef:
  *             CComposition prod = CComposition()             # <<<<<<<<<<<<<<
  *             int rep, v
  *             str k
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 172; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 173; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_prod = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":176
+  /* "glypy\composition\ccomposition.pyx":177
  *             str k
  * 
  *         if isinstance(other, CComposition):             # <<<<<<<<<<<<<<
@@ -3070,7 +2783,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   __pyx_t_3 = (__pyx_t_2 != 0);
   if (__pyx_t_3) {
 
-    /* "glypy\composition\ccomposition.pyx":177
+    /* "glypy\composition\ccomposition.pyx":178
  * 
  *         if isinstance(other, CComposition):
  *             self, other = other, self             # <<<<<<<<<<<<<<
@@ -3084,7 +2797,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
     __pyx_v_other = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":176
+    /* "glypy\composition\ccomposition.pyx":177
  *             str k
  * 
  *         if isinstance(other, CComposition):             # <<<<<<<<<<<<<<
@@ -3093,7 +2806,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":179
+  /* "glypy\composition\ccomposition.pyx":180
  *             self, other = other, self
  * 
  *         if not isinstance(other, int):             # <<<<<<<<<<<<<<
@@ -3104,17 +2817,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   __pyx_t_2 = ((!(__pyx_t_3 != 0)) != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":180
+    /* "glypy\composition\ccomposition.pyx":181
  * 
  *         if not isinstance(other, int):
  *             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                 'Cannot multiply Composition by non-integer',
  *                 other)
  */
-    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 181; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
 
-    /* "glypy\composition\ccomposition.pyx":182
+    /* "glypy\composition\ccomposition.pyx":183
  *             raise ChemicalCompositionError(
  *                 'Cannot multiply Composition by non-integer',
  *                 other)             # <<<<<<<<<<<<<<
@@ -3133,7 +2846,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
         __pyx_t_8 = 1;
       }
     }
-    __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 181; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_9);
     if (__pyx_t_7) {
       __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -3144,15 +2857,15 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
     __Pyx_INCREF(__pyx_v_other);
     __Pyx_GIVEREF(__pyx_v_other);
     PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_v_other);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 181; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 180; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 181; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-    /* "glypy\composition\ccomposition.pyx":179
+    /* "glypy\composition\ccomposition.pyx":180
  *             self, other = other, self
  * 
  *         if not isinstance(other, int):             # <<<<<<<<<<<<<<
@@ -3161,24 +2874,24 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":183
+  /* "glypy\composition\ccomposition.pyx":184
  *                 'Cannot multiply Composition by non-integer',
  *                 other)
  *         rep = other             # <<<<<<<<<<<<<<
  *         for k, v in self.items():
  *             prod.setitem(k, v * rep)
  */
-  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_v_other); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 183; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_v_other); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_rep = __pyx_t_10;
 
-  /* "glypy\composition\ccomposition.pyx":184
+  /* "glypy\composition\ccomposition.pyx":185
  *                 other)
  *         rep = other
  *         for k, v in self.items():             # <<<<<<<<<<<<<<
  *             prod.setitem(k, v * rep)
  *         return prod
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_items); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_items); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_9 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_6))) {
@@ -3191,10 +2904,10 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
     }
   }
   if (__pyx_t_9) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_9); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_9); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_6); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_6); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -3202,9 +2915,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
     __pyx_t_6 = __pyx_t_1; __Pyx_INCREF(__pyx_t_6); __pyx_t_8 = 0;
     __pyx_t_11 = NULL;
   } else {
-    __pyx_t_8 = -1; __pyx_t_6 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_8 = -1; __pyx_t_6 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_11 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_11 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -3212,17 +2925,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
       if (likely(PyList_CheckExact(__pyx_t_6))) {
         if (__pyx_t_8 >= PyList_GET_SIZE(__pyx_t_6)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_8); __Pyx_INCREF(__pyx_t_1); __pyx_t_8++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_8); __Pyx_INCREF(__pyx_t_1); __pyx_t_8++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_6, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_6, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_8 >= PyTuple_GET_SIZE(__pyx_t_6)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_8); __Pyx_INCREF(__pyx_t_1); __pyx_t_8++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_8); __Pyx_INCREF(__pyx_t_1); __pyx_t_8++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_6, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_6, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -3232,7 +2945,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         break;
       }
@@ -3248,7 +2961,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       #if CYTHON_COMPILING_IN_CPYTHON
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -3261,15 +2974,15 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
       __Pyx_INCREF(__pyx_t_9);
       __Pyx_INCREF(__pyx_t_7);
       #else
-      __pyx_t_9 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_9 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_9);
-      __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       #endif
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_12 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_12 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_13 = Py_TYPE(__pyx_t_12)->tp_iternext;
@@ -3277,7 +2990,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
       __Pyx_GOTREF(__pyx_t_9);
       index = 1; __pyx_t_7 = __pyx_t_13(__pyx_t_12); if (unlikely(!__pyx_t_7)) goto __pyx_L7_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_7);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_13(__pyx_t_12), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_13(__pyx_t_12), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_t_13 = NULL;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       goto __pyx_L8_unpacking_done;
@@ -3285,17 +2998,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __pyx_t_13 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_L8_unpacking_done:;
     }
-    if (!(likely(PyString_CheckExact(__pyx_t_9))||((__pyx_t_9) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_9)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 184; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (!(likely(PyString_CheckExact(__pyx_t_9))||((__pyx_t_9) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_9)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 185; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF_SET(__pyx_v_k, ((PyObject*)__pyx_t_9));
     __pyx_t_9 = 0;
     __pyx_v_v = __pyx_t_10;
 
-    /* "glypy\composition\ccomposition.pyx":185
+    /* "glypy\composition\ccomposition.pyx":186
  *         rep = other
  *         for k, v in self.items():
  *             prod.setitem(k, v * rep)             # <<<<<<<<<<<<<<
@@ -3304,7 +3017,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
  */
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_prod, __pyx_v_k, (__pyx_v_v * __pyx_v_rep));
 
-    /* "glypy\composition\ccomposition.pyx":184
+    /* "glypy\composition\ccomposition.pyx":185
  *                 other)
  *         rep = other
  *         for k, v in self.items():             # <<<<<<<<<<<<<<
@@ -3314,7 +3027,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":186
+  /* "glypy\composition\ccomposition.pyx":187
  *         for k, v in self.items():
  *             prod.setitem(k, v * rep)
  *         return prod             # <<<<<<<<<<<<<<
@@ -3326,7 +3039,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   __pyx_r = ((PyObject *)__pyx_v_prod);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":170
+  /* "glypy\composition\ccomposition.pyx":171
  * 
  * 
  *     def __mul__(self, other):             # <<<<<<<<<<<<<<
@@ -3349,17 +3062,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_18_
   __Pyx_XDECREF(__pyx_v_self);
   __Pyx_XDECREF(__pyx_v_other);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":189
+/* "glypy\composition\ccomposition.pyx":190
  * 
  * 
  *     def __richcmp__(self, other, int code):             # <<<<<<<<<<<<<<
- *         if code == 2:
- *             if not isinstance(other, dict):
+ *         cdef:
+ *             Py_ssize_t self_size, other_size
  */
 
 /* Python wrapper */
@@ -3376,29 +3088,31 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_21_
 }
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_20__richcmp__(PyObject *__pyx_v_self, PyObject *__pyx_v_other, int __pyx_v_code) {
-  PyObject *__pyx_v_self_items = NULL;
-  PyObject *__pyx_v_other_items = NULL;
-  PyObject *__pyx_v_i = NULL;
+  Py_ssize_t __pyx_v_self_size;
+  Py_ssize_t __pyx_v_other_size;
+  PyObject *__pyx_v_pkey;
+  PyObject *__pyx_v_pvalue;
+  PyObject *__pyx_v_pinterm;
+  long __pyx_v_self_value;
+  long __pyx_v_other_value;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   int __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
+  Py_ssize_t __pyx_t_3;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  Py_ssize_t __pyx_t_7;
-  PyObject *(*__pyx_t_8)(PyObject *);
+  long __pyx_t_6;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__richcmp__", 0);
-  __Pyx_TraceCall("__richcmp__", __pyx_f[0], 189, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 189; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
+  __Pyx_INCREF(__pyx_v_self);
+  __Pyx_INCREF(__pyx_v_other);
 
-  /* "glypy\composition\ccomposition.pyx":190
+  /* "glypy\composition\ccomposition.pyx":198
+ *             long self_value, other_value
  * 
- *     def __richcmp__(self, other, int code):
  *         if code == 2:             # <<<<<<<<<<<<<<
  *             if not isinstance(other, dict):
  *                 return False
@@ -3406,234 +3120,227 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_20_
   __pyx_t_1 = ((__pyx_v_code == 2) != 0);
   if (__pyx_t_1) {
 
-    /* "glypy\composition\ccomposition.pyx":191
- *     def __richcmp__(self, other, int code):
+    /* "glypy\composition\ccomposition.pyx":199
+ * 
  *         if code == 2:
  *             if not isinstance(other, dict):             # <<<<<<<<<<<<<<
  *                 return False
- *             self_items = set([i for i in self.items() if i[1]])
+ *             self_size = PyDict_Size(self)
  */
     __pyx_t_1 = PyDict_Check(__pyx_v_other); 
     __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
     if (__pyx_t_2) {
 
-      /* "glypy\composition\ccomposition.pyx":192
+      /* "glypy\composition\ccomposition.pyx":200
  *         if code == 2:
  *             if not isinstance(other, dict):
  *                 return False             # <<<<<<<<<<<<<<
- *             self_items = set([i for i in self.items() if i[1]])
- *             other_items = set([i for i in other.items() if i[1]])
+ *             self_size = PyDict_Size(self)
+ *             other_size = PyDict_Size(other)
  */
       __Pyx_XDECREF(__pyx_r);
       __Pyx_INCREF(Py_False);
       __pyx_r = Py_False;
       goto __pyx_L0;
 
-      /* "glypy\composition\ccomposition.pyx":191
- *     def __richcmp__(self, other, int code):
+      /* "glypy\composition\ccomposition.pyx":199
+ * 
  *         if code == 2:
  *             if not isinstance(other, dict):             # <<<<<<<<<<<<<<
  *                 return False
- *             self_items = set([i for i in self.items() if i[1]])
+ *             self_size = PyDict_Size(self)
  */
     }
 
-    /* "glypy\composition\ccomposition.pyx":193
+    /* "glypy\composition\ccomposition.pyx":201
  *             if not isinstance(other, dict):
  *                 return False
- *             self_items = set([i for i in self.items() if i[1]])             # <<<<<<<<<<<<<<
- *             other_items = set([i for i in other.items() if i[1]])
- *             return self_items == other_items
+ *             self_size = PyDict_Size(self)             # <<<<<<<<<<<<<<
+ *             other_size = PyDict_Size(other)
+ *             if self_size > other_size:
  */
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_items); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = NULL;
-    if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_5))) {
-      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-      if (likely(__pyx_t_6)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_6);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_5, function);
-      }
-    }
-    if (__pyx_t_6) {
-      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    } else {
-      __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (likely(PyList_CheckExact(__pyx_t_4)) || PyTuple_CheckExact(__pyx_t_4)) {
-      __pyx_t_5 = __pyx_t_4; __Pyx_INCREF(__pyx_t_5); __pyx_t_7 = 0;
-      __pyx_t_8 = NULL;
-    } else {
-      __pyx_t_7 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_4); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_8 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    for (;;) {
-      if (likely(!__pyx_t_8)) {
-        if (likely(PyList_CheckExact(__pyx_t_5))) {
-          if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_5)) break;
-          #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_4 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_7); __Pyx_INCREF(__pyx_t_4); __pyx_t_7++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          #else
-          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __Pyx_GOTREF(__pyx_t_4);
-          #endif
-        } else {
-          if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
-          #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_7); __Pyx_INCREF(__pyx_t_4); __pyx_t_7++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          #else
-          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __Pyx_GOTREF(__pyx_t_4);
-          #endif
-        }
-      } else {
-        __pyx_t_4 = __pyx_t_8(__pyx_t_5);
-        if (unlikely(!__pyx_t_4)) {
-          PyObject* exc_type = PyErr_Occurred();
-          if (exc_type) {
-            if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          }
-          break;
-        }
-        __Pyx_GOTREF(__pyx_t_4);
-      }
-      __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_4);
-      __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_i, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_4 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (__pyx_t_2) {
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_v_i))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      }
-    }
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PySet_New(__pyx_t_3); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 193; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_v_self_items = ((PyObject*)__pyx_t_5);
-    __pyx_t_5 = 0;
+    __pyx_t_3 = PyDict_Size(__pyx_v_self); if (unlikely(__pyx_t_3 == -1L)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 201; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_v_self_size = __pyx_t_3;
 
-    /* "glypy\composition\ccomposition.pyx":194
+    /* "glypy\composition\ccomposition.pyx":202
  *                 return False
- *             self_items = set([i for i in self.items() if i[1]])
- *             other_items = set([i for i in other.items() if i[1]])             # <<<<<<<<<<<<<<
- *             return self_items == other_items
+ *             self_size = PyDict_Size(self)
+ *             other_size = PyDict_Size(other)             # <<<<<<<<<<<<<<
+ *             if self_size > other_size:
+ *                 self, other = other, self
+ */
+    __pyx_t_3 = PyDict_Size(__pyx_v_other); if (unlikely(__pyx_t_3 == -1L)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 202; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_v_other_size = __pyx_t_3;
+
+    /* "glypy\composition\ccomposition.pyx":203
+ *             self_size = PyDict_Size(self)
+ *             other_size = PyDict_Size(other)
+ *             if self_size > other_size:             # <<<<<<<<<<<<<<
+ *                 self, other = other, self
+ *             other_size = 0
+ */
+    __pyx_t_2 = ((__pyx_v_self_size > __pyx_v_other_size) != 0);
+    if (__pyx_t_2) {
+
+      /* "glypy\composition\ccomposition.pyx":204
+ *             other_size = PyDict_Size(other)
+ *             if self_size > other_size:
+ *                 self, other = other, self             # <<<<<<<<<<<<<<
+ *             other_size = 0
+ *             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+ */
+      __pyx_t_4 = __pyx_v_other;
+      __pyx_t_5 = __pyx_v_self;
+      __pyx_v_self = __pyx_t_4;
+      __pyx_t_4 = 0;
+      __pyx_v_other = __pyx_t_5;
+      __pyx_t_5 = 0;
+
+      /* "glypy\composition\ccomposition.pyx":203
+ *             self_size = PyDict_Size(self)
+ *             other_size = PyDict_Size(other)
+ *             if self_size > other_size:             # <<<<<<<<<<<<<<
+ *                 self, other = other, self
+ *             other_size = 0
+ */
+    }
+
+    /* "glypy\composition\ccomposition.pyx":205
+ *             if self_size > other_size:
+ *                 self, other = other, self
+ *             other_size = 0             # <<<<<<<<<<<<<<
+ *             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+ *                 other_value = PyInt_AsLong(<object>pvalue)
+ */
+    __pyx_v_other_size = 0;
+
+    /* "glypy\composition\ccomposition.pyx":206
+ *                 self, other = other, self
+ *             other_size = 0
+ *             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):             # <<<<<<<<<<<<<<
+ *                 other_value = PyInt_AsLong(<object>pvalue)
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)
+ */
+    while (1) {
+      __pyx_t_2 = (PyDict_Next(__pyx_v_other, (&__pyx_v_other_size), (&__pyx_v_pkey), (&__pyx_v_pvalue)) != 0);
+      if (!__pyx_t_2) break;
+
+      /* "glypy\composition\ccomposition.pyx":207
+ *             other_size = 0
+ *             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+ *                 other_value = PyInt_AsLong(<object>pvalue)             # <<<<<<<<<<<<<<
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)
+ *                 if pinterm == NULL:
+ */
+      __pyx_t_6 = PyInt_AsLong(((PyObject *)__pyx_v_pvalue)); if (unlikely(__pyx_t_6 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 207; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_v_other_value = __pyx_t_6;
+
+      /* "glypy\composition\ccomposition.pyx":208
+ *             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+ *                 other_value = PyInt_AsLong(<object>pvalue)
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)             # <<<<<<<<<<<<<<
+ *                 if pinterm == NULL:
+ *                     self_value = 0
+ */
+      __pyx_v_pinterm = PyDict_GetItem(__pyx_v_self, ((PyObject *)__pyx_v_pkey));
+
+      /* "glypy\composition\ccomposition.pyx":209
+ *                 other_value = PyInt_AsLong(<object>pvalue)
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)
+ *                 if pinterm == NULL:             # <<<<<<<<<<<<<<
+ *                     self_value = 0
+ *                 else:
+ */
+      __pyx_t_2 = ((__pyx_v_pinterm == NULL) != 0);
+      if (__pyx_t_2) {
+
+        /* "glypy\composition\ccomposition.pyx":210
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)
+ *                 if pinterm == NULL:
+ *                     self_value = 0             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     self_value = PyInt_AsLong(<object>pinterm)
+ */
+        __pyx_v_self_value = 0;
+
+        /* "glypy\composition\ccomposition.pyx":209
+ *                 other_value = PyInt_AsLong(<object>pvalue)
+ *                 pinterm = PyDict_GetItem(self, <object>pkey)
+ *                 if pinterm == NULL:             # <<<<<<<<<<<<<<
+ *                     self_value = 0
+ *                 else:
+ */
+        goto __pyx_L8;
+      }
+
+      /* "glypy\composition\ccomposition.pyx":212
+ *                     self_value = 0
+ *                 else:
+ *                     self_value = PyInt_AsLong(<object>pinterm)             # <<<<<<<<<<<<<<
+ *                 if self_value != other_value:
+ *                     return False
+ */
+      /*else*/ {
+        __pyx_t_6 = PyInt_AsLong(((PyObject *)__pyx_v_pinterm)); if (unlikely(__pyx_t_6 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_v_self_value = __pyx_t_6;
+      }
+      __pyx_L8:;
+
+      /* "glypy\composition\ccomposition.pyx":213
+ *                 else:
+ *                     self_value = PyInt_AsLong(<object>pinterm)
+ *                 if self_value != other_value:             # <<<<<<<<<<<<<<
+ *                     return False
+ *             return True
+ */
+      __pyx_t_2 = ((__pyx_v_self_value != __pyx_v_other_value) != 0);
+      if (__pyx_t_2) {
+
+        /* "glypy\composition\ccomposition.pyx":214
+ *                     self_value = PyInt_AsLong(<object>pinterm)
+ *                 if self_value != other_value:
+ *                     return False             # <<<<<<<<<<<<<<
+ *             return True
  *         else:
  */
-    __pyx_t_5 = PyList_New(0); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_n_s_items); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = NULL;
-    if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_6)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_6);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_4, function);
-      }
-    }
-    if (__pyx_t_6) {
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_6); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    } else {
-      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
-      __pyx_t_4 = __pyx_t_3; __Pyx_INCREF(__pyx_t_4); __pyx_t_7 = 0;
-      __pyx_t_8 = NULL;
-    } else {
-      __pyx_t_7 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_8 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    }
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    for (;;) {
-      if (likely(!__pyx_t_8)) {
-        if (likely(PyList_CheckExact(__pyx_t_4))) {
-          if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_4)) break;
-          #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          #else
-          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __Pyx_GOTREF(__pyx_t_3);
-          #endif
-        } else {
-          if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
-          #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          #else
-          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          __Pyx_GOTREF(__pyx_t_3);
-          #endif
-        }
-      } else {
-        __pyx_t_3 = __pyx_t_8(__pyx_t_4);
-        if (unlikely(!__pyx_t_3)) {
-          PyObject* exc_type = PyErr_Occurred();
-          if (exc_type) {
-            if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-          }
-          break;
-        }
-        __Pyx_GOTREF(__pyx_t_3);
-      }
-      __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
-      __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_i, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (__pyx_t_2) {
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_5, (PyObject*)__pyx_v_i))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      }
-    }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PySet_New(__pyx_t_5); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 194; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_v_other_items = ((PyObject*)__pyx_t_4);
-    __pyx_t_4 = 0;
+        __Pyx_XDECREF(__pyx_r);
+        __Pyx_INCREF(Py_False);
+        __pyx_r = Py_False;
+        goto __pyx_L0;
 
-    /* "glypy\composition\ccomposition.pyx":195
- *             self_items = set([i for i in self.items() if i[1]])
- *             other_items = set([i for i in other.items() if i[1]])
- *             return self_items == other_items             # <<<<<<<<<<<<<<
+        /* "glypy\composition\ccomposition.pyx":213
+ *                 else:
+ *                     self_value = PyInt_AsLong(<object>pinterm)
+ *                 if self_value != other_value:             # <<<<<<<<<<<<<<
+ *                     return False
+ *             return True
+ */
+      }
+    }
+
+    /* "glypy\composition\ccomposition.pyx":215
+ *                 if self_value != other_value:
+ *                     return False
+ *             return True             # <<<<<<<<<<<<<<
  *         else:
  *             return NotImplemented
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_4 = PyObject_RichCompare(__pyx_v_self_items, __pyx_v_other_items, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 195; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_r = __pyx_t_4;
-    __pyx_t_4 = 0;
+    __Pyx_INCREF(Py_True);
+    __pyx_r = Py_True;
     goto __pyx_L0;
 
-    /* "glypy\composition\ccomposition.pyx":190
+    /* "glypy\composition\ccomposition.pyx":198
+ *             long self_value, other_value
  * 
- *     def __richcmp__(self, other, int code):
  *         if code == 2:             # <<<<<<<<<<<<<<
  *             if not isinstance(other, dict):
  *                 return False
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":197
- *             return self_items == other_items
+  /* "glypy\composition\ccomposition.pyx":217
+ *             return True
  *         else:
  *             return NotImplemented             # <<<<<<<<<<<<<<
  * 
@@ -3646,33 +3353,27 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_20_
     goto __pyx_L0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":189
+  /* "glypy\composition\ccomposition.pyx":190
  * 
  * 
  *     def __richcmp__(self, other, int code):             # <<<<<<<<<<<<<<
- *         if code == 2:
- *             if not isinstance(other, dict):
+ *         cdef:
+ *             Py_ssize_t self_size, other_size
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__richcmp__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_self_items);
-  __Pyx_XDECREF(__pyx_v_other_items);
-  __Pyx_XDECREF(__pyx_v_i);
+  __Pyx_XDECREF(__pyx_v_self);
+  __Pyx_XDECREF(__pyx_v_other);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":199
+/* "glypy\composition\ccomposition.pyx":219
  *             return NotImplemented
  * 
  *     def __neg__(self):             # <<<<<<<<<<<<<<
@@ -3695,16 +3396,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_23_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_22__neg__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__neg__", 0);
-  __Pyx_TraceCall("__neg__", __pyx_f[0], 199, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":200
+  /* "glypy\composition\ccomposition.pyx":220
  * 
  *     def __neg__(self):
  *         return self * -1             # <<<<<<<<<<<<<<
@@ -3712,13 +3411,13 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_22_
  *     # Override the default behavior, if a key is not present
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyNumber_Multiply(((PyObject *)__pyx_v_self), __pyx_int_neg_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 200; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyNumber_Multiply(((PyObject *)__pyx_v_self), __pyx_int_neg_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 220; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":199
+  /* "glypy\composition\ccomposition.pyx":219
  *             return NotImplemented
  * 
  *     def __neg__(self):             # <<<<<<<<<<<<<<
@@ -3733,12 +3432,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_22_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":204
+/* "glypy\composition\ccomposition.pyx":224
  *     # Override the default behavior, if a key is not present
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):             # <<<<<<<<<<<<<<
@@ -3755,7 +3453,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_25_
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__missing__ (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 224; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_24__missing__(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key));
 
   /* function exit code */
@@ -3769,15 +3467,10 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_25_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_24__missing__(CYTHON_UNUSED struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_key) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__missing__", 0);
-  __Pyx_TraceCall("__missing__", __pyx_f[0], 204, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 204; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":205
+  /* "glypy\composition\ccomposition.pyx":225
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):
  *         return 0             # <<<<<<<<<<<<<<
@@ -3789,7 +3482,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_24_
   __pyx_r = __pyx_int_0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":204
+  /* "glypy\composition\ccomposition.pyx":224
  *     # Override the default behavior, if a key is not present
  *     # do not initialize it to 0.
  *     def __missing__(self, str key):             # <<<<<<<<<<<<<<
@@ -3798,22 +3491,18 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_24_
  */
 
   /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__missing__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":207
+/* "glypy\composition\ccomposition.pyx":227
  *         return 0
  * 
  *     def __setitem__(self, str key, object value):             # <<<<<<<<<<<<<<
  *         cdef long int_value = PyInt_AsLong(round(value))
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
  */
 
 /* Python wrapper */
@@ -3825,7 +3514,7 @@ static int __pyx_pw_5glypy_11composition_12ccomposition_12CComposition_27__setit
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setitem__ (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 207; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_key), (&PyString_Type), 1, "key", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 227; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setitem__(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), ((PyObject*)__pyx_v_key), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
@@ -3838,9 +3527,8 @@ static int __pyx_pw_5glypy_11composition_12ccomposition_12CComposition_27__setit
 }
 
 static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setitem__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_key, PyObject *__pyx_v_value) {
-  CYTHON_UNUSED long __pyx_v_int_value;
+  long __pyx_v_int_value;
   int __pyx_r;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3851,80 +3539,78 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setit
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__setitem__", 0);
-  __Pyx_TraceCall("__setitem__", __pyx_f[0], 207, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 207; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":208
+  /* "glypy\composition\ccomposition.pyx":228
  * 
  *     def __setitem__(self, str key, object value):
  *         cdef long int_value = PyInt_AsLong(round(value))             # <<<<<<<<<<<<<<
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
- *             self.setitem(key, value)
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *             self.setitem(key, int_value)
  */
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_value);
   __Pyx_GIVEREF(__pyx_v_value);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_value);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_round, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_round, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = PyInt_AsLong(__pyx_t_2); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyInt_AsLong(__pyx_t_2); if (unlikely(__pyx_t_3 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_int_value = __pyx_t_3;
 
-  /* "glypy\composition\ccomposition.pyx":209
+  /* "glypy\composition\ccomposition.pyx":229
  *     def __setitem__(self, str key, object value):
  *         cdef long int_value = PyInt_AsLong(round(value))
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer             # <<<<<<<<<<<<<<
- *             self.setitem(key, value)
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer             # <<<<<<<<<<<<<<
+ *             self.setitem(key, int_value)
  *         elif key in self:
  */
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = (__pyx_v_int_value != 0);
   if (__pyx_t_4) {
 
-    /* "glypy\composition\ccomposition.pyx":210
+    /* "glypy\composition\ccomposition.pyx":230
  *         cdef long int_value = PyInt_AsLong(round(value))
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
- *             self.setitem(key, value)             # <<<<<<<<<<<<<<
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *             self.setitem(key, int_value)             # <<<<<<<<<<<<<<
  *         elif key in self:
  *             del self[key]
  */
-    __pyx_t_3 = __Pyx_PyInt_As_long(__pyx_v_value); if (unlikely((__pyx_t_3 == (long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 210; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_self, __pyx_v_key, __pyx_t_3);
+    __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_self, __pyx_v_key, __pyx_v_int_value);
 
-    /* "glypy\composition\ccomposition.pyx":209
+    /* "glypy\composition\ccomposition.pyx":229
  *     def __setitem__(self, str key, object value):
  *         cdef long int_value = PyInt_AsLong(round(value))
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer             # <<<<<<<<<<<<<<
- *             self.setitem(key, value)
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer             # <<<<<<<<<<<<<<
+ *             self.setitem(key, int_value)
  *         elif key in self:
  */
     goto __pyx_L3;
   }
 
-  /* "glypy\composition\ccomposition.pyx":211
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
- *             self.setitem(key, value)
+  /* "glypy\composition\ccomposition.pyx":231
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *             self.setitem(key, int_value)
  *         elif key in self:             # <<<<<<<<<<<<<<
  *             del self[key]
  *         self._mass_args = None
  */
-  __pyx_t_4 = (__Pyx_PySequence_ContainsTF(__pyx_v_key, ((PyObject *)__pyx_v_self), Py_EQ)); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = (__Pyx_PySequence_ContainsTF(__pyx_v_key, ((PyObject *)__pyx_v_self), Py_EQ)); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_5 = (__pyx_t_4 != 0);
   if (__pyx_t_5) {
 
-    /* "glypy\composition\ccomposition.pyx":212
- *             self.setitem(key, value)
+    /* "glypy\composition\ccomposition.pyx":232
+ *             self.setitem(key, int_value)
  *         elif key in self:
  *             del self[key]             # <<<<<<<<<<<<<<
  *         self._mass_args = None
  * 
  */
-    if (PyObject_DelItem(((PyObject *)__pyx_v_self), __pyx_v_key) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyObject_DelItem(((PyObject *)__pyx_v_self), __pyx_v_key) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-    /* "glypy\composition\ccomposition.pyx":211
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
- *             self.setitem(key, value)
+    /* "glypy\composition\ccomposition.pyx":231
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *             self.setitem(key, int_value)
  *         elif key in self:             # <<<<<<<<<<<<<<
  *             del self[key]
  *         self._mass_args = None
@@ -3932,7 +3618,7 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setit
   }
   __pyx_L3:;
 
-  /* "glypy\composition\ccomposition.pyx":213
+  /* "glypy\composition\ccomposition.pyx":233
  *         elif key in self:
  *             del self[key]
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -3945,12 +3631,12 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setit
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":207
+  /* "glypy\composition\ccomposition.pyx":227
  *         return 0
  * 
  *     def __setitem__(self, str key, object value):             # <<<<<<<<<<<<<<
  *         cdef long int_value = PyInt_AsLong(round(value))
- *         if value:  # Will not occur on 0 as 0 is falsey AND an integer
+ *         if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
  */
 
   /* function exit code */
@@ -3962,17 +3648,16 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_26__setit
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__setitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":215
+/* "glypy\composition\ccomposition.pyx":235
  *         self._mass_args = None
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
- *         return CComposition(self)
- * 
+ *         cdef CComposition dup
+ *         dup = CComposition()
  */
 
 /* Python wrapper */
@@ -3989,60 +3674,71 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_29c
 }
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_28copy(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
+  struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_dup = 0;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
+  int __pyx_t_2;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("copy", 0);
-  __Pyx_TraceCall("copy", __pyx_f[0], 215, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 215; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":216
- * 
+  /* "glypy\composition\ccomposition.pyx":237
  *     def copy(self):
- *         return CComposition(self)             # <<<<<<<<<<<<<<
+ *         cdef CComposition dup
+ *         dup = CComposition()             # <<<<<<<<<<<<<<
+ *         PyDict_Update(dup, self)
+ *         return dup
+ */
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_empty_tuple, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dup = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "glypy\composition\ccomposition.pyx":238
+ *         cdef CComposition dup
+ *         dup = CComposition()
+ *         PyDict_Update(dup, self)             # <<<<<<<<<<<<<<
+ *         return dup
+ * 
+ */
+  __pyx_t_2 = PyDict_Update(((PyObject *)__pyx_v_dup), ((PyObject *)__pyx_v_self)); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 238; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "glypy\composition\ccomposition.pyx":239
+ *         dup = CComposition()
+ *         PyDict_Update(dup, self)
+ *         return dup             # <<<<<<<<<<<<<<
  * 
  *     cdef inline long getitem(self, str elem):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_INCREF(((PyObject *)__pyx_v_self));
-  __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
-  PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 216; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_r = __pyx_t_2;
-  __pyx_t_2 = 0;
+  __Pyx_INCREF(((PyObject *)__pyx_v_dup));
+  __pyx_r = ((PyObject *)__pyx_v_dup);
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":215
+  /* "glypy\composition\ccomposition.pyx":235
  *         self._mass_args = None
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
- *         return CComposition(self)
- * 
+ *         cdef CComposition dup
+ *         dup = CComposition()
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_dup);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":218
- *         return CComposition(self)
+/* "glypy\composition\ccomposition.pyx":241
+ *         return dup
  * 
  *     cdef inline long getitem(self, str elem):             # <<<<<<<<<<<<<<
  *         cdef:
@@ -4053,7 +3749,6 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
   PyObject *__pyx_v_resobj;
   long __pyx_v_count;
   long __pyx_r;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   long __pyx_t_2;
@@ -4061,9 +3756,8 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getitem", 0);
-  __Pyx_TraceCall("getitem", __pyx_f[0], 218, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":222
+  /* "glypy\composition\ccomposition.pyx":245
  *             PyObject* resobj
  *             long count
  *         resobj = PyDict_GetItem(self, elem)             # <<<<<<<<<<<<<<
@@ -4072,7 +3766,7 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
  */
   __pyx_v_resobj = PyDict_GetItem(((PyObject *)__pyx_v_self), __pyx_v_elem);
 
-  /* "glypy\composition\ccomposition.pyx":223
+  /* "glypy\composition\ccomposition.pyx":246
  *             long count
  *         resobj = PyDict_GetItem(self, elem)
  *         if (resobj == NULL):             # <<<<<<<<<<<<<<
@@ -4082,7 +3776,7 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
   __pyx_t_1 = ((__pyx_v_resobj == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "glypy\composition\ccomposition.pyx":224
+    /* "glypy\composition\ccomposition.pyx":247
  *         resobj = PyDict_GetItem(self, elem)
  *         if (resobj == NULL):
  *             return 0             # <<<<<<<<<<<<<<
@@ -4092,7 +3786,7 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "glypy\composition\ccomposition.pyx":223
+    /* "glypy\composition\ccomposition.pyx":246
  *             long count
  *         resobj = PyDict_GetItem(self, elem)
  *         if (resobj == NULL):             # <<<<<<<<<<<<<<
@@ -4101,17 +3795,17 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":225
+  /* "glypy\composition\ccomposition.pyx":248
  *         if (resobj == NULL):
  *             return 0
  *         count = PyInt_AsLong(<object>resobj)             # <<<<<<<<<<<<<<
  *         return count
  * 
  */
-  __pyx_t_2 = PyInt_AsLong(((PyObject *)__pyx_v_resobj)); if (unlikely(__pyx_t_2 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 225; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyInt_AsLong(((PyObject *)__pyx_v_resobj)); if (unlikely(__pyx_t_2 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_count = __pyx_t_2;
 
-  /* "glypy\composition\ccomposition.pyx":226
+  /* "glypy\composition\ccomposition.pyx":249
  *             return 0
  *         count = PyInt_AsLong(<object>resobj)
  *         return count             # <<<<<<<<<<<<<<
@@ -4121,8 +3815,8 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
   __pyx_r = __pyx_v_count;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":218
- *         return CComposition(self)
+  /* "glypy\composition\ccomposition.pyx":241
+ *         return dup
  * 
  *     cdef inline long getitem(self, str elem):             # <<<<<<<<<<<<<<
  *         cdef:
@@ -4134,12 +3828,11 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
   __Pyx_WriteUnraisable("glypy.composition.ccomposition.CComposition.getitem", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 0);
   __pyx_r = 0;
   __pyx_L0:;
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":228
+/* "glypy\composition\ccomposition.pyx":251
  *         return count
  * 
  *     cdef inline void setitem(self, str elem, long val):             # <<<<<<<<<<<<<<
@@ -4148,7 +3841,6 @@ static long __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(s
  */
 
 static void __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_elem, long __pyx_v_val) {
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_t_2;
@@ -4156,21 +3848,20 @@ static void __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("setitem", 0);
-  __Pyx_TraceCall("setitem", __pyx_f[0], 228, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":229
+  /* "glypy\composition\ccomposition.pyx":252
  * 
  *     cdef inline void setitem(self, str elem, long val):
  *         PyDict_SetItem(self, elem, val)             # <<<<<<<<<<<<<<
  *         self._mass_args = None
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_val); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_long(__pyx_v_val); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyDict_SetItem(((PyObject *)__pyx_v_self), __pyx_v_elem, __pyx_t_1); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 229; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyDict_SetItem(((PyObject *)__pyx_v_self), __pyx_v_elem, __pyx_t_1); if (unlikely(__pyx_t_2 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":230
+  /* "glypy\composition\ccomposition.pyx":253
  *     cdef inline void setitem(self, str elem, long val):
  *         PyDict_SetItem(self, elem, val)
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -4183,7 +3874,7 @@ static void __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(s
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":228
+  /* "glypy\composition\ccomposition.pyx":251
  *         return count
  * 
  *     cdef inline void setitem(self, str elem, long val):             # <<<<<<<<<<<<<<
@@ -4197,11 +3888,10 @@ static void __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(s
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_WriteUnraisable("glypy.composition.ccomposition.CComposition.setitem", __pyx_clineno, __pyx_lineno, __pyx_filename, 0, 0);
   __pyx_L0:;
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "glypy\composition\ccomposition.pyx":232
+/* "glypy\composition\ccomposition.pyx":255
  *         self._mass_args = None
  * 
  *     cpdef CComposition clone(self):             # <<<<<<<<<<<<<<
@@ -4212,7 +3902,6 @@ static void __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(s
 static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_31clone(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
 static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_f_5glypy_11composition_12ccomposition_12CComposition_clone(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_skip_dispatch) {
   struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4222,12 +3911,11 @@ static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("clone", 0);
-  __Pyx_TraceCall("clone", __pyx_f[0], 232, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_clone); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_clone); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_31clone)) {
       __Pyx_XDECREF(((PyObject *)__pyx_r));
@@ -4243,14 +3931,14 @@ static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_
         }
       }
       if (__pyx_t_4) {
-        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       } else {
-        __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5glypy_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5glypy_11composition_12ccomposition_CComposition))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_r = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_2);
       __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4259,7 +3947,7 @@ static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":233
+  /* "glypy\composition\ccomposition.pyx":256
  * 
  *     cpdef CComposition clone(self):
  *         return CComposition(self)             # <<<<<<<<<<<<<<
@@ -4267,19 +3955,19 @@ static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_
  *     def update(self, *args, **kwargs):
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 256; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 233; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 256; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":232
+  /* "glypy\composition\ccomposition.pyx":255
  *         self._mass_args = None
  * 
  *     cpdef CComposition clone(self):             # <<<<<<<<<<<<<<
@@ -4297,7 +3985,6 @@ static struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF((PyObject *)__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -4317,16 +4004,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_31c
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_30clone(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("clone", 0);
-  __Pyx_TraceCall("clone", __pyx_f[0], 232, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_5glypy_11composition_12ccomposition_12CComposition_clone(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 232; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((PyObject *)__pyx_f_5glypy_11composition_12ccomposition_12CComposition_clone(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4339,12 +4024,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_30c
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":235
+/* "glypy\composition\ccomposition.pyx":258
  *         return CComposition(self)
  * 
  *     def update(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -4380,7 +4064,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_33u
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_32update(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4389,32 +4072,31 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_32u
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update", 0);
-  __Pyx_TraceCall("update", __pyx_f[0], 235, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":236
+  /* "glypy\composition\ccomposition.pyx":259
  * 
  *     def update(self, *args, **kwargs):
  *         dict.update(self, *args, **kwargs)             # <<<<<<<<<<<<<<
  *         self._mass_args = None
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyDict_Type)), __pyx_n_s_update); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyDict_Type)), __pyx_n_s_update); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 259; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 259; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_v_self));
-  __pyx_t_3 = PyNumber_Add(__pyx_t_2, __pyx_v_args); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyNumber_Add(__pyx_t_2, __pyx_v_args); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 259; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_v_kwargs); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_v_kwargs); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 259; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":237
+  /* "glypy\composition\ccomposition.pyx":260
  *     def update(self, *args, **kwargs):
  *         dict.update(self, *args, **kwargs)
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -4427,7 +4109,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_32u
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":235
+  /* "glypy\composition\ccomposition.pyx":258
  *         return CComposition(self)
  * 
  *     def update(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -4446,12 +4128,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_32u
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":240
+/* "glypy\composition\ccomposition.pyx":263
  * 
  *     @cython.boundscheck(False)
  *     cpdef _from_formula(self, str formula, dict mass_data):             # <<<<<<<<<<<<<<
@@ -4465,7 +4146,6 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   PyObject *__pyx_v_isotope = 0;
   PyObject *__pyx_v_number = 0;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4484,12 +4164,11 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_from_formula", 0);
-  __Pyx_TraceCall("_from_formula", __pyx_f[0], 240, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_35_from_formula)) {
       __Pyx_XDECREF(__pyx_r);
@@ -4506,7 +4185,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
           __pyx_t_5 = 1;
         }
       }
-      __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4517,7 +4196,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
       __Pyx_INCREF(__pyx_v_mass_data);
       __Pyx_GIVEREF(__pyx_v_mass_data);
       PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_mass_data);
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4529,25 +4208,25 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":243
+  /* "glypy\composition\ccomposition.pyx":266
  *         cdef:
  *             str elem, isotope, number
  *         if '(' in formula:             # <<<<<<<<<<<<<<
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):
  */
-  __pyx_t_7 = (__Pyx_PySequence_ContainsTF(__pyx_kp_s__4, __pyx_v_formula, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 243; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = (__Pyx_PySequence_ContainsTF(__pyx_kp_s__4, __pyx_v_formula, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 266; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_8 = (__pyx_t_7 != 0);
   if (__pyx_t_8) {
 
-    /* "glypy\composition\ccomposition.pyx":244
+    /* "glypy\composition\ccomposition.pyx":267
  *             str elem, isotope, number
  *         if '(' in formula:
  *             self._from_formula_parens(formula, mass_data)             # <<<<<<<<<<<<<<
  *         elif not formula_pattern.match(formula):
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_formula_parens); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 244; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_formula_parens); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 267; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     __pyx_t_5 = 0;
@@ -4561,7 +4240,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __pyx_t_5 = 1;
       }
     }
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 244; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 267; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -4572,13 +4251,13 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     __Pyx_INCREF(__pyx_v_mass_data);
     __Pyx_GIVEREF(__pyx_v_mass_data);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_mass_data);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 244; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 267; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":243
+    /* "glypy\composition\ccomposition.pyx":266
  *         cdef:
  *             str elem, isotope, number
  *         if '(' in formula:             # <<<<<<<<<<<<<<
@@ -4588,14 +4267,14 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     goto __pyx_L3;
   }
 
-  /* "glypy\composition\ccomposition.pyx":245
+  /* "glypy\composition\ccomposition.pyx":268
  *         if '(' in formula:
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):             # <<<<<<<<<<<<<<
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_5glypy_11composition_12ccomposition_formula_pattern, __pyx_n_s_match); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_5glypy_11composition_12ccomposition_formula_pattern, __pyx_n_s_match); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 268; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_6 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4608,35 +4287,35 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     }
   }
   if (!__pyx_t_6) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 268; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 268; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_6); __pyx_t_6 = NULL;
     __Pyx_INCREF(__pyx_v_formula);
     __Pyx_GIVEREF(__pyx_v_formula);
     PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_formula);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 268; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 245; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 268; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_7 = ((!__pyx_t_8) != 0);
   if (__pyx_t_7) {
 
-    /* "glypy\composition\ccomposition.pyx":246
+    /* "glypy\composition\ccomposition.pyx":269
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)             # <<<<<<<<<<<<<<
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_Add(__pyx_kp_s_Invalid_formula, __pyx_v_formula); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyNumber_Add(__pyx_kp_s_Invalid_formula, __pyx_v_formula); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_6 = NULL;
     if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4649,26 +4328,26 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
       }
     }
     if (!__pyx_t_6) {
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6); __pyx_t_6 = NULL;
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 246; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-    /* "glypy\composition\ccomposition.pyx":245
+    /* "glypy\composition\ccomposition.pyx":268
  *         if '(' in formula:
  *             self._from_formula_parens(formula, mass_data)
  *         elif not formula_pattern.match(formula):             # <<<<<<<<<<<<<<
@@ -4677,7 +4356,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":248
+  /* "glypy\composition\ccomposition.pyx":271
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):             # <<<<<<<<<<<<<<
@@ -4685,9 +4364,9 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  */
   /*else*/ {
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_findall); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_findall); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -4702,7 +4381,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __pyx_t_5 = 1;
       }
     }
-    __pyx_t_3 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_2) {
       __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -4713,7 +4392,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     __Pyx_INCREF(__pyx_v_formula);
     __Pyx_GIVEREF(__pyx_v_formula);
     PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_5, __pyx_v_formula);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4721,9 +4400,9 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
       __pyx_t_4 = __pyx_t_1; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
       __pyx_t_9 = NULL;
     } else {
-      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_9 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_9 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -4731,17 +4410,17 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         } else {
           if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         }
@@ -4751,7 +4430,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
           break;
         }
@@ -4767,7 +4446,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         if (unlikely(size != 3)) {
           if (size > 3) __Pyx_RaiseTooManyValuesError(3);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         #if CYTHON_COMPILING_IN_CPYTHON
         if (likely(PyTuple_CheckExact(sequence))) {
@@ -4783,17 +4462,17 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __Pyx_INCREF(__pyx_t_2);
         __Pyx_INCREF(__pyx_t_6);
         #else
-        __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_6 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_6 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_6);
         #endif
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else {
         Py_ssize_t index = -1;
-        __pyx_t_10 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_10 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_11 = Py_TYPE(__pyx_t_10)->tp_iternext;
@@ -4803,7 +4482,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __Pyx_GOTREF(__pyx_t_2);
         index = 2; __pyx_t_6 = __pyx_t_11(__pyx_t_10); if (unlikely(!__pyx_t_6)) goto __pyx_L6_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_6);
-        if (__Pyx_IternextUnpackEndCheck(__pyx_t_11(__pyx_t_10), 3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_11(__pyx_t_10), 3) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_t_11 = NULL;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         goto __pyx_L7_unpacking_done;
@@ -4811,12 +4490,12 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         __pyx_t_11 = NULL;
         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_L7_unpacking_done:;
       }
-      if (!(likely(PyString_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_3)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      if (!(likely(PyString_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      if (!(likely(PyString_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_6)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (!(likely(PyString_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_3)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (!(likely(PyString_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (!(likely(PyString_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_6)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 271; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_XDECREF_SET(__pyx_v_elem, ((PyObject*)__pyx_t_3));
       __pyx_t_3 = 0;
       __Pyx_XDECREF_SET(__pyx_v_isotope, ((PyObject*)__pyx_t_2));
@@ -4824,7 +4503,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
       __Pyx_XDECREF_SET(__pyx_v_number, ((PyObject*)__pyx_t_6));
       __pyx_t_6 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":249
+      /* "glypy\composition\ccomposition.pyx":272
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):
  *                 if not elem in mass_data:             # <<<<<<<<<<<<<<
@@ -4833,22 +4512,22 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
  */
       if (unlikely(__pyx_v_mass_data == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 272; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
-      __pyx_t_7 = (__Pyx_PyDict_ContainsTF(__pyx_v_elem, __pyx_v_mass_data, Py_NE)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = (__Pyx_PyDict_ContainsTF(__pyx_v_elem, __pyx_v_mass_data, Py_NE)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 272; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_t_8 = (__pyx_t_7 != 0);
       if (__pyx_t_8) {
 
-        /* "glypy\composition\ccomposition.pyx":250
+        /* "glypy\composition\ccomposition.pyx":273
  *             for elem, isotope, number in re.findall(_atom, formula):
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)             # <<<<<<<<<<<<<<
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)
  *                         ] += int(number) if number else 1
  */
-        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_2 = PyNumber_Add(__pyx_kp_s_Unknown_chemical_element, __pyx_v_elem); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = PyNumber_Add(__pyx_kp_s_Unknown_chemical_element, __pyx_v_elem); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __pyx_t_3 = NULL;
         if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -4861,26 +4540,26 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
           }
         }
         if (!__pyx_t_3) {
-          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_GOTREF(__pyx_t_1);
         } else {
-          __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_3); __pyx_t_3 = NULL;
           __Pyx_GIVEREF(__pyx_t_2);
           PyTuple_SET_ITEM(__pyx_t_10, 0+1, __pyx_t_2);
           __pyx_t_2 = 0;
-          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_10, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_10, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         }
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_Raise(__pyx_t_1, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 250; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-        /* "glypy\composition\ccomposition.pyx":249
+        /* "glypy\composition\ccomposition.pyx":272
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):
  *                 if not elem in mass_data:             # <<<<<<<<<<<<<<
@@ -4889,38 +4568,38 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
  */
       }
 
-      /* "glypy\composition\ccomposition.pyx":251
+      /* "glypy\composition\ccomposition.pyx":274
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)             # <<<<<<<<<<<<<<
  *                         ] += int(number) if number else 1
  * 
  */
-      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_isotope); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_isotope); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       if (__pyx_t_8) {
-        __pyx_t_1 = PyNumber_Int(__pyx_v_isotope); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_1 = PyNumber_Int(__pyx_v_isotope); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_13 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_13 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_13 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_12 = __pyx_t_13;
       } else {
         __pyx_t_12 = 0;
       }
-      __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(__pyx_v_elem, __pyx_t_12); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(__pyx_v_elem, __pyx_t_12); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_6 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_1); if (unlikely(__pyx_t_6 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_6 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_1); if (unlikely(__pyx_t_6 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_6);
 
-      /* "glypy\composition\ccomposition.pyx":252
+      /* "glypy\composition\ccomposition.pyx":275
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)
  *                         ] += int(number) if number else 1             # <<<<<<<<<<<<<<
  * 
  *     @cython.boundscheck(True)
  */
-      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_number); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_number); if (unlikely(__pyx_t_8 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       if (__pyx_t_8) {
-        __pyx_t_2 = PyNumber_Int(__pyx_v_number); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 252; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = PyNumber_Int(__pyx_v_number); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __pyx_t_10 = __pyx_t_2;
         __pyx_t_2 = 0;
@@ -4929,22 +4608,22 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         __pyx_t_10 = __pyx_int_1;
       }
 
-      /* "glypy\composition\ccomposition.pyx":251
+      /* "glypy\composition\ccomposition.pyx":274
  *                 if not elem in mass_data:
  *                     raise ChemicalCompositionError('Unknown chemical element: ' + elem)
  *                 self[_make_isotope_string(elem, int(isotope) if isotope else 0)             # <<<<<<<<<<<<<<
  *                         ] += int(number) if number else 1
  * 
  */
-      __pyx_t_2 = PyNumber_InPlaceAdd(__pyx_t_6, __pyx_t_10); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = PyNumber_InPlaceAdd(__pyx_t_6, __pyx_t_10); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_1, __pyx_t_2) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 251; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_1, __pyx_t_2) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":248
+      /* "glypy\composition\ccomposition.pyx":271
  *             raise ChemicalCompositionError('Invalid formula: ' + formula)
  *         else:
  *             for elem, isotope, number in re.findall(_atom, formula):             # <<<<<<<<<<<<<<
@@ -4956,7 +4635,7 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   }
   __pyx_L3:;
 
-  /* "glypy\composition\ccomposition.pyx":240
+  /* "glypy\composition\ccomposition.pyx":263
  * 
  *     @cython.boundscheck(False)
  *     cpdef _from_formula(self, str formula, dict mass_data):             # <<<<<<<<<<<<<<
@@ -4981,7 +4660,6 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   __Pyx_XDECREF(__pyx_v_isotope);
   __Pyx_XDECREF(__pyx_v_number);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -5017,11 +4695,11 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_35_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_mass_data)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_from_formula", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("_from_formula", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_from_formula") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_from_formula") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5034,14 +4712,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_35_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_from_formula", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("_from_formula", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_34_from_formula(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_formula, __pyx_v_mass_data);
 
   /* function exit code */
@@ -5055,16 +4733,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_35_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_34_from_formula(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_from_formula", 0);
-  __Pyx_TraceCall("_from_formula", __pyx_f[0], 240, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_12CComposition__from_formula(__pyx_v_self, __pyx_v_formula, __pyx_v_mass_data, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_12CComposition__from_formula(__pyx_v_self, __pyx_v_formula, __pyx_v_mass_data, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 263; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5077,12 +4753,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_34_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":255
+/* "glypy\composition\ccomposition.pyx":278
  * 
  *     @cython.boundscheck(True)
  *     def _from_formula_parens(self, formula, mass_data):             # <<<<<<<<<<<<<<
@@ -5121,11 +4796,11 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_37_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_mass_data)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_from_formula_parens", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("_from_formula_parens", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_from_formula_parens") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_from_formula_parens") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5138,7 +4813,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_37_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_from_formula_parens", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("_from_formula_parens", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5169,7 +4844,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   PyObject *__pyx_v_elem = NULL;
   PyObject *__pyx_v_cnt = NULL;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   Py_ssize_t __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -5194,29 +4868,28 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_from_formula_parens", 0);
-  __Pyx_TraceCall("_from_formula_parens", __pyx_f[0], 255, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 255; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":264
+  /* "glypy\composition\ccomposition.pyx":287
  * 
  * 
  *         prev_chem_symbol_start = len(formula)             # <<<<<<<<<<<<<<
  *         i = len(formula) - 1
  * 
  */
-  __pyx_t_1 = PyObject_Length(__pyx_v_formula); if (unlikely(__pyx_t_1 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 264; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyObject_Length(__pyx_v_formula); if (unlikely(__pyx_t_1 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 287; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_prev_chem_symbol_start = __pyx_t_1;
 
-  /* "glypy\composition\ccomposition.pyx":265
+  /* "glypy\composition\ccomposition.pyx":288
  * 
  *         prev_chem_symbol_start = len(formula)
  *         i = len(formula) - 1             # <<<<<<<<<<<<<<
  * 
  *         seek_mode = 0
  */
-  __pyx_t_1 = PyObject_Length(__pyx_v_formula); if (unlikely(__pyx_t_1 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 265; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyObject_Length(__pyx_v_formula); if (unlikely(__pyx_t_1 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_i = (__pyx_t_1 - 1);
 
-  /* "glypy\composition\ccomposition.pyx":267
+  /* "glypy\composition\ccomposition.pyx":290
  *         i = len(formula) - 1
  * 
  *         seek_mode = 0             # <<<<<<<<<<<<<<
@@ -5225,7 +4898,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
   __pyx_v_seek_mode = 0;
 
-  /* "glypy\composition\ccomposition.pyx":268
+  /* "glypy\composition\ccomposition.pyx":291
  * 
  *         seek_mode = 0
  *         parse_stack = ""             # <<<<<<<<<<<<<<
@@ -5235,19 +4908,19 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   __Pyx_INCREF(__pyx_kp_s__3);
   __pyx_v_parse_stack = __pyx_kp_s__3;
 
-  /* "glypy\composition\ccomposition.pyx":269
+  /* "glypy\composition\ccomposition.pyx":292
  *         seek_mode = 0
  *         parse_stack = ""
  *         resolve_stack = []             # <<<<<<<<<<<<<<
  *         group_coef = 1
  * 
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_resolve_stack = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":270
+  /* "glypy\composition\ccomposition.pyx":293
  *         parse_stack = ""
  *         resolve_stack = []
  *         group_coef = 1             # <<<<<<<<<<<<<<
@@ -5256,7 +4929,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
   __pyx_v_group_coef = 1;
 
-  /* "glypy\composition\ccomposition.pyx":272
+  /* "glypy\composition\ccomposition.pyx":295
  *         group_coef = 1
  * 
  *         while i >= 0:             # <<<<<<<<<<<<<<
@@ -5267,7 +4940,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
     __pyx_t_3 = ((__pyx_v_i >= 0) != 0);
     if (!__pyx_t_3) break;
 
-    /* "glypy\composition\ccomposition.pyx":273
+    /* "glypy\composition\ccomposition.pyx":296
  * 
  *         while i >= 0:
  *             if seek_mode < 1:             # <<<<<<<<<<<<<<
@@ -5277,20 +4950,20 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
     __pyx_t_3 = ((__pyx_v_seek_mode < 1) != 0);
     if (__pyx_t_3) {
 
-      /* "glypy\composition\ccomposition.pyx":274
+      /* "glypy\composition\ccomposition.pyx":297
  *         while i >= 0:
  *             if seek_mode < 1:
  *                 if (formula[i] == ")"):             # <<<<<<<<<<<<<<
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:
  */
-      __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_kp_s__5, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_kp_s__5, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_3) {
 
-        /* "glypy\composition\ccomposition.pyx":275
+        /* "glypy\composition\ccomposition.pyx":298
  *             if seek_mode < 1:
  *                 if (formula[i] == ")"):
  *                     seek_mode += 1             # <<<<<<<<<<<<<<
@@ -5299,7 +4972,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_seek_mode = (__pyx_v_seek_mode + 1);
 
-        /* "glypy\composition\ccomposition.pyx":276
+        /* "glypy\composition\ccomposition.pyx":299
  *                 if (formula[i] == ")"):
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5309,7 +4982,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __pyx_t_3 = (((__pyx_v_i + 1) == __pyx_v_prev_chem_symbol_start) != 0);
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":277
+          /* "glypy\composition\ccomposition.pyx":300
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:
  *                         group_coef = 1             # <<<<<<<<<<<<<<
@@ -5318,7 +4991,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
           __pyx_v_group_coef = 1;
 
-          /* "glypy\composition\ccomposition.pyx":276
+          /* "glypy\composition\ccomposition.pyx":299
  *                 if (formula[i] == ")"):
  *                     seek_mode += 1
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5328,7 +5001,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           goto __pyx_L7;
         }
 
-        /* "glypy\composition\ccomposition.pyx":278
+        /* "glypy\composition\ccomposition.pyx":301
  *                     if i + 1 == prev_chem_symbol_start:
  *                         group_coef = 1
  *                     elif formula[i + 1].isdigit():             # <<<<<<<<<<<<<<
@@ -5336,9 +5009,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  *                     i -= 1
  */
         __pyx_t_1 = (__pyx_v_i + 1);
-        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_t_1, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_4 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_t_1, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_4 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isdigit); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isdigit); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_t_4 = NULL;
@@ -5352,34 +5025,34 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           }
         }
         if (__pyx_t_4) {
-          __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         } else {
-          __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":279
+          /* "glypy\composition\ccomposition.pyx":302
  *                         group_coef = 1
  *                     elif formula[i + 1].isdigit():
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])             # <<<<<<<<<<<<<<
  *                     i -= 1
  *                     continue
  */
-          __pyx_t_2 = __Pyx_PyObject_GetSlice(__pyx_v_formula, (__pyx_v_i + 1), __pyx_v_prev_chem_symbol_start, NULL, NULL, NULL, 1, 1, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_GetSlice(__pyx_v_formula, (__pyx_v_i + 1), __pyx_v_prev_chem_symbol_start, NULL, NULL, NULL, 1, 1, 1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_5 = PyNumber_Int(__pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = PyNumber_Int(__pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __pyx_v_group_coef = __pyx_t_6;
 
-          /* "glypy\composition\ccomposition.pyx":278
+          /* "glypy\composition\ccomposition.pyx":301
  *                     if i + 1 == prev_chem_symbol_start:
  *                         group_coef = 1
  *                     elif formula[i + 1].isdigit():             # <<<<<<<<<<<<<<
@@ -5389,7 +5062,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         }
         __pyx_L7:;
 
-        /* "glypy\composition\ccomposition.pyx":280
+        /* "glypy\composition\ccomposition.pyx":303
  *                     elif formula[i + 1].isdigit():
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])
  *                     i -= 1             # <<<<<<<<<<<<<<
@@ -5398,7 +5071,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_i = (__pyx_v_i - 1);
 
-        /* "glypy\composition\ccomposition.pyx":281
+        /* "glypy\composition\ccomposition.pyx":304
  *                         group_coef = int(formula[i + 1:prev_chem_symbol_start])
  *                     i -= 1
  *                     continue             # <<<<<<<<<<<<<<
@@ -5407,7 +5080,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         goto __pyx_L3_continue;
 
-        /* "glypy\composition\ccomposition.pyx":274
+        /* "glypy\composition\ccomposition.pyx":297
  *         while i >= 0:
  *             if seek_mode < 1:
  *                 if (formula[i] == ")"):             # <<<<<<<<<<<<<<
@@ -5416,16 +5089,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
       }
 
-      /* "glypy\composition\ccomposition.pyx":283
+      /* "glypy\composition\ccomposition.pyx":306
  *                     continue
  *                 # Read backwards until a non-number character is met.
  *                 if (formula[i].isdigit() or formula[i] == '-'):             # <<<<<<<<<<<<<<
  *                     i -= 1
  *                     continue
  */
-      __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_isdigit); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_isdigit); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_2 = NULL;
@@ -5439,29 +5112,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         }
       }
       if (__pyx_t_2) {
-        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else {
-        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (!__pyx_t_7) {
       } else {
         __pyx_t_3 = __pyx_t_7;
         goto __pyx_L9_bool_binop_done;
       }
-      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_7 = (__Pyx_PyString_Equals(__pyx_t_5, __pyx_kp_s__6, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = (__Pyx_PyString_Equals(__pyx_t_5, __pyx_kp_s__6, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_t_3 = __pyx_t_7;
       __pyx_L9_bool_binop_done:;
       if (__pyx_t_3) {
 
-        /* "glypy\composition\ccomposition.pyx":284
+        /* "glypy\composition\ccomposition.pyx":307
  *                 # Read backwards until a non-number character is met.
  *                 if (formula[i].isdigit() or formula[i] == '-'):
  *                     i -= 1             # <<<<<<<<<<<<<<
@@ -5470,7 +5143,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_i = (__pyx_v_i - 1);
 
-        /* "glypy\composition\ccomposition.pyx":285
+        /* "glypy\composition\ccomposition.pyx":308
  *                 if (formula[i].isdigit() or formula[i] == '-'):
  *                     i -= 1
  *                     continue             # <<<<<<<<<<<<<<
@@ -5479,7 +5152,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         goto __pyx_L3_continue;
 
-        /* "glypy\composition\ccomposition.pyx":283
+        /* "glypy\composition\ccomposition.pyx":306
  *                     continue
  *                 # Read backwards until a non-number character is met.
  *                 if (formula[i].isdigit() or formula[i] == '-'):             # <<<<<<<<<<<<<<
@@ -5488,7 +5161,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
       }
 
-      /* "glypy\composition\ccomposition.pyx":289
+      /* "glypy\composition\ccomposition.pyx":312
  *                 else:
  *                     # If the number of atoms is omitted then it is 1.
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5499,7 +5172,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __pyx_t_3 = (((__pyx_v_i + 1) == __pyx_v_prev_chem_symbol_start) != 0);
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":290
+          /* "glypy\composition\ccomposition.pyx":313
  *                     # If the number of atoms is omitted then it is 1.
  *                     if i + 1 == prev_chem_symbol_start:
  *                         num_atoms = 1             # <<<<<<<<<<<<<<
@@ -5509,7 +5182,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __Pyx_INCREF(__pyx_int_1);
           __Pyx_XDECREF_SET(__pyx_v_num_atoms, __pyx_int_1);
 
-          /* "glypy\composition\ccomposition.pyx":289
+          /* "glypy\composition\ccomposition.pyx":312
  *                 else:
  *                     # If the number of atoms is omitted then it is 1.
  *                     if i + 1 == prev_chem_symbol_start:             # <<<<<<<<<<<<<<
@@ -5519,7 +5192,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           goto __pyx_L11;
         }
 
-        /* "glypy\composition\ccomposition.pyx":292
+        /* "glypy\composition\ccomposition.pyx":315
  *                         num_atoms = 1
  *                     else:
  *                         try:             # <<<<<<<<<<<<<<
@@ -5534,22 +5207,22 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __Pyx_XGOTREF(__pyx_t_10);
             /*try:*/ {
 
-              /* "glypy\composition\ccomposition.pyx":293
+              /* "glypy\composition\ccomposition.pyx":316
  *                     else:
  *                         try:
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])             # <<<<<<<<<<<<<<
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  */
-              __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_formula, (__pyx_v_i + 1), __pyx_v_prev_chem_symbol_start, NULL, NULL, NULL, 1, 1, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
+              __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_formula, (__pyx_v_i + 1), __pyx_v_prev_chem_symbol_start, NULL, NULL, NULL, 1, 1, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 316; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
               __Pyx_GOTREF(__pyx_t_5);
-              __pyx_t_4 = PyNumber_Int(__pyx_t_5); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
+              __pyx_t_4 = PyNumber_Int(__pyx_t_5); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 316; __pyx_clineno = __LINE__; goto __pyx_L12_error;}
               __Pyx_GOTREF(__pyx_t_4);
               __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
               __Pyx_XDECREF_SET(__pyx_v_num_atoms, __pyx_t_4);
               __pyx_t_4 = 0;
 
-              /* "glypy\composition\ccomposition.pyx":292
+              /* "glypy\composition\ccomposition.pyx":315
  *                         num_atoms = 1
  *                     else:
  *                         try:             # <<<<<<<<<<<<<<
@@ -5566,7 +5239,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-            /* "glypy\composition\ccomposition.pyx":294
+            /* "glypy\composition\ccomposition.pyx":317
  *                         try:
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])
  *                         except ValueError:             # <<<<<<<<<<<<<<
@@ -5576,29 +5249,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __pyx_t_6 = PyErr_ExceptionMatches(__pyx_builtin_ValueError);
             if (__pyx_t_6) {
               __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
-              if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_5, &__pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+              if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_5, &__pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
               __Pyx_GOTREF(__pyx_t_4);
               __Pyx_GOTREF(__pyx_t_5);
               __Pyx_GOTREF(__pyx_t_2);
 
-              /* "glypy\composition\ccomposition.pyx":295
+              /* "glypy\composition\ccomposition.pyx":318
  *                             num_atoms = int(formula[i + 1:prev_chem_symbol_start])
  *                         except ValueError:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                                 'Badly-formed number of atoms: %s' % formula)
  * 
  */
-              __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+              __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
               __Pyx_GOTREF(__pyx_t_12);
 
-              /* "glypy\composition\ccomposition.pyx":296
+              /* "glypy\composition\ccomposition.pyx":319
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed number of atoms: %s' % formula)             # <<<<<<<<<<<<<<
  * 
  *                     # Read isotope number if specified, else it is undefined (=0).
  */
-              __pyx_t_13 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_number_of_atoms_s, __pyx_v_formula); if (unlikely(!__pyx_t_13)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+              __pyx_t_13 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_number_of_atoms_s, __pyx_v_formula); if (unlikely(!__pyx_t_13)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 319; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
               __Pyx_GOTREF(__pyx_t_13);
               __pyx_t_14 = NULL;
               if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_12))) {
@@ -5611,29 +5284,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
                 }
               }
               if (!__pyx_t_14) {
-                __pyx_t_11 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_13); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+                __pyx_t_11 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_13); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
                 __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
                 __Pyx_GOTREF(__pyx_t_11);
               } else {
-                __pyx_t_15 = PyTuple_New(1+1); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+                __pyx_t_15 = PyTuple_New(1+1); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
                 __Pyx_GOTREF(__pyx_t_15);
                 __Pyx_GIVEREF(__pyx_t_14); PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_14); __pyx_t_14 = NULL;
                 __Pyx_GIVEREF(__pyx_t_13);
                 PyTuple_SET_ITEM(__pyx_t_15, 0+1, __pyx_t_13);
                 __pyx_t_13 = 0;
-                __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_15, NULL); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+                __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_15, NULL); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
                 __Pyx_GOTREF(__pyx_t_11);
                 __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
               }
               __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
               __Pyx_Raise(__pyx_t_11, 0, 0, 0);
               __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
+              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L14_except_error;}
             }
             goto __pyx_L14_except_error;
             __pyx_L14_except_error:;
 
-            /* "glypy\composition\ccomposition.pyx":292
+            /* "glypy\composition\ccomposition.pyx":315
  *                         num_atoms = 1
  *                     else:
  *                         try:             # <<<<<<<<<<<<<<
@@ -5650,29 +5323,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         }
         __pyx_L11:;
 
-        /* "glypy\composition\ccomposition.pyx":299
+        /* "glypy\composition\ccomposition.pyx":322
  * 
  *                     # Read isotope number if specified, else it is undefined (=0).
  *                     if formula[i] == ']':             # <<<<<<<<<<<<<<
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:
  */
-        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 299; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 299; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_2, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":300
+          /* "glypy\composition\ccomposition.pyx":323
  *                     # Read isotope number if specified, else it is undefined (=0).
  *                     if formula[i] == ']':
  *                         brace_pos = formula.rfind('[', 0, i)             # <<<<<<<<<<<<<<
  *                         if brace_pos == -1:
  *                             raise ChemicalCompositionError(
  */
-          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_formula, __pyx_n_s_rfind); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 300; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_formula, __pyx_n_s_rfind); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_4 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 300; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_4 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_4);
           __pyx_t_11 = NULL;
           __pyx_t_1 = 0;
@@ -5686,7 +5359,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
               __pyx_t_1 = 1;
             }
           }
-          __pyx_t_12 = PyTuple_New(3+__pyx_t_1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 300; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_12 = PyTuple_New(3+__pyx_t_1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_12);
           if (__pyx_t_11) {
             __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_11); __pyx_t_11 = NULL;
@@ -5700,44 +5373,44 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __Pyx_GIVEREF(__pyx_t_4);
           PyTuple_SET_ITEM(__pyx_t_12, 2+__pyx_t_1, __pyx_t_4);
           __pyx_t_4 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 300; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_XDECREF_SET(__pyx_v_brace_pos, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":301
+          /* "glypy\composition\ccomposition.pyx":324
  *                     if formula[i] == ']':
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:             # <<<<<<<<<<<<<<
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  */
-          __pyx_t_2 = __Pyx_PyInt_EqObjC(__pyx_v_brace_pos, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyInt_EqObjC(__pyx_v_brace_pos, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           if (__pyx_t_3) {
 
-            /* "glypy\composition\ccomposition.pyx":302
+            /* "glypy\composition\ccomposition.pyx":325
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:
  */
-            __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_5);
 
-            /* "glypy\composition\ccomposition.pyx":303
+            /* "glypy\composition\ccomposition.pyx":326
  *                         if brace_pos == -1:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)             # <<<<<<<<<<<<<<
  *                         try:
  *                             isotope_num = int(formula[brace_pos + 1:i])
  */
-            __pyx_t_12 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_isotope_number_s, __pyx_v_formula); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 303; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_12 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_isotope_number_s, __pyx_v_formula); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_12);
             __pyx_t_4 = NULL;
             if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -5750,26 +5423,26 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
               }
             }
             if (!__pyx_t_4) {
-              __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_12); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_12); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
               __Pyx_GOTREF(__pyx_t_2);
             } else {
-              __pyx_t_11 = PyTuple_New(1+1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_11 = PyTuple_New(1+1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               __Pyx_GOTREF(__pyx_t_11);
               __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_4); __pyx_t_4 = NULL;
               __Pyx_GIVEREF(__pyx_t_12);
               PyTuple_SET_ITEM(__pyx_t_11, 0+1, __pyx_t_12);
               __pyx_t_12 = 0;
-              __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               __Pyx_GOTREF(__pyx_t_2);
               __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
             }
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
             __Pyx_Raise(__pyx_t_2, 0, 0, 0);
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-            /* "glypy\composition\ccomposition.pyx":301
+            /* "glypy\composition\ccomposition.pyx":324
  *                     if formula[i] == ']':
  *                         brace_pos = formula.rfind('[', 0, i)
  *                         if brace_pos == -1:             # <<<<<<<<<<<<<<
@@ -5778,7 +5451,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
           }
 
-          /* "glypy\composition\ccomposition.pyx":304
+          /* "glypy\composition\ccomposition.pyx":327
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:             # <<<<<<<<<<<<<<
@@ -5792,25 +5465,25 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __Pyx_XGOTREF(__pyx_t_8);
             /*try:*/ {
 
-              /* "glypy\composition\ccomposition.pyx":305
+              /* "glypy\composition\ccomposition.pyx":328
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:
  *                             isotope_num = int(formula[brace_pos + 1:i])             # <<<<<<<<<<<<<<
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  */
-              __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_v_brace_pos, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+              __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_v_brace_pos, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
               __Pyx_GOTREF(__pyx_t_2);
-              __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_formula, 0, __pyx_v_i, &__pyx_t_2, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+              __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_formula, 0, __pyx_v_i, &__pyx_t_2, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
               __Pyx_GOTREF(__pyx_t_5);
               __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-              __pyx_t_2 = PyNumber_Int(__pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
+              __pyx_t_2 = PyNumber_Int(__pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L24_error;}
               __Pyx_GOTREF(__pyx_t_2);
               __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
               __Pyx_XDECREF_SET(__pyx_v_isotope_num, __pyx_t_2);
               __pyx_t_2 = 0;
 
-              /* "glypy\composition\ccomposition.pyx":304
+              /* "glypy\composition\ccomposition.pyx":327
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:             # <<<<<<<<<<<<<<
@@ -5832,7 +5505,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
             __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-            /* "glypy\composition\ccomposition.pyx":306
+            /* "glypy\composition\ccomposition.pyx":329
  *                         try:
  *                             isotope_num = int(formula[brace_pos + 1:i])
  *                         except ValueError:             # <<<<<<<<<<<<<<
@@ -5842,29 +5515,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __pyx_t_6 = PyErr_ExceptionMatches(__pyx_builtin_ValueError);
             if (__pyx_t_6) {
               __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition._from_formula_parens", __pyx_clineno, __pyx_lineno, __pyx_filename);
-              if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_5, &__pyx_t_11) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+              if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_5, &__pyx_t_11) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
               __Pyx_GOTREF(__pyx_t_2);
               __Pyx_GOTREF(__pyx_t_5);
               __Pyx_GOTREF(__pyx_t_11);
 
-              /* "glypy\composition\ccomposition.pyx":307
+              /* "glypy\composition\ccomposition.pyx":330
  *                             isotope_num = int(formula[brace_pos + 1:i])
  *                         except ValueError:
  *                             raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         i = brace_pos - 1
  */
-              __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+              __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
               __Pyx_GOTREF(__pyx_t_4);
 
-              /* "glypy\composition\ccomposition.pyx":308
+              /* "glypy\composition\ccomposition.pyx":331
  *                         except ValueError:
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)             # <<<<<<<<<<<<<<
  *                         i = brace_pos - 1
  *                     else:
  */
-              __pyx_t_15 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_isotope_number_s, __pyx_v_formula); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 308; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+              __pyx_t_15 = __Pyx_PyString_Format(__pyx_kp_s_Badly_formed_isotope_number_s, __pyx_v_formula); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 331; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
               __Pyx_GOTREF(__pyx_t_15);
               __pyx_t_13 = NULL;
               if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -5877,29 +5550,29 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
                 }
               }
               if (!__pyx_t_13) {
-                __pyx_t_12 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_15); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+                __pyx_t_12 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_15); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
                 __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
                 __Pyx_GOTREF(__pyx_t_12);
               } else {
-                __pyx_t_14 = PyTuple_New(1+1); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+                __pyx_t_14 = PyTuple_New(1+1); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
                 __Pyx_GOTREF(__pyx_t_14);
                 __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13); __pyx_t_13 = NULL;
                 __Pyx_GIVEREF(__pyx_t_15);
                 PyTuple_SET_ITEM(__pyx_t_14, 0+1, __pyx_t_15);
                 __pyx_t_15 = 0;
-                __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_14, NULL); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+                __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_14, NULL); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
                 __Pyx_GOTREF(__pyx_t_12);
                 __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
               }
               __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
               __Pyx_Raise(__pyx_t_12, 0, 0, 0);
               __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
+              {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L26_except_error;}
             }
             goto __pyx_L26_except_error;
             __pyx_L26_except_error:;
 
-            /* "glypy\composition\ccomposition.pyx":304
+            /* "glypy\composition\ccomposition.pyx":327
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         try:             # <<<<<<<<<<<<<<
@@ -5914,20 +5587,20 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             __pyx_L31_try_end:;
           }
 
-          /* "glypy\composition\ccomposition.pyx":309
+          /* "glypy\composition\ccomposition.pyx":332
  *                             raise ChemicalCompositionError(
  *                                 'Badly-formed isotope number: %s' % formula)
  *                         i = brace_pos - 1             # <<<<<<<<<<<<<<
  *                     else:
  *                         isotope_num = 0
  */
-          __pyx_t_11 = __Pyx_PyInt_SubtractObjC(__pyx_v_brace_pos, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 309; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_11 = __Pyx_PyInt_SubtractObjC(__pyx_v_brace_pos, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_1 = __Pyx_PyIndex_AsSsize_t(__pyx_t_11); if (unlikely((__pyx_t_1 == (Py_ssize_t)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 309; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = __Pyx_PyIndex_AsSsize_t(__pyx_t_11); if (unlikely((__pyx_t_1 == (Py_ssize_t)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           __pyx_v_i = __pyx_t_1;
 
-          /* "glypy\composition\ccomposition.pyx":299
+          /* "glypy\composition\ccomposition.pyx":322
  * 
  *                     # Read isotope number if specified, else it is undefined (=0).
  *                     if formula[i] == ']':             # <<<<<<<<<<<<<<
@@ -5937,7 +5610,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           goto __pyx_L22;
         }
 
-        /* "glypy\composition\ccomposition.pyx":311
+        /* "glypy\composition\ccomposition.pyx":334
  *                         i = brace_pos - 1
  *                     else:
  *                         isotope_num = 0             # <<<<<<<<<<<<<<
@@ -5950,7 +5623,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         }
         __pyx_L22:;
 
-        /* "glypy\composition\ccomposition.pyx":314
+        /* "glypy\composition\ccomposition.pyx":337
  * 
  *                     # Match the element name to the mass_data.
  *                     element_found = False             # <<<<<<<<<<<<<<
@@ -5959,26 +5632,26 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_element_found = 0;
 
-        /* "glypy\composition\ccomposition.pyx":317
+        /* "glypy\composition\ccomposition.pyx":340
  *                     # Sort the keys from longest to shortest to workaround
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):             # <<<<<<<<<<<<<<
  *                         if formula.endswith(element_name, 0, i + 1):
  *                             isotope_string = _make_isotope_string(
  */
-        __pyx_t_11 = PyTuple_New(1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_11 = PyTuple_New(1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_INCREF(__pyx_v_mass_data);
         __Pyx_GIVEREF(__pyx_v_mass_data);
         PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_v_mass_data);
-        __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_2 = __Pyx_GetBuiltinName(__pyx_n_s_len); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_GetBuiltinName(__pyx_n_s_len); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_key, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_key, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_reverse, Py_True) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_sorted, __pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_reverse, Py_True) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_sorted, __pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -5986,9 +5659,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __pyx_t_5 = __pyx_t_2; __Pyx_INCREF(__pyx_t_5); __pyx_t_1 = 0;
           __pyx_t_16 = NULL;
         } else {
-          __pyx_t_1 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_1 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_16 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_16 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         for (;;) {
@@ -5996,17 +5669,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             if (likely(PyList_CheckExact(__pyx_t_5))) {
               if (__pyx_t_1 >= PyList_GET_SIZE(__pyx_t_5)) break;
               #if CYTHON_COMPILING_IN_CPYTHON
-              __pyx_t_2 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #else
-              __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               __Pyx_GOTREF(__pyx_t_2);
               #endif
             } else {
               if (__pyx_t_1 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
               #if CYTHON_COMPILING_IN_CPYTHON
-              __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               #else
-              __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               __Pyx_GOTREF(__pyx_t_2);
               #endif
             }
@@ -6016,7 +5689,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
               PyObject* exc_type = PyErr_Occurred();
               if (exc_type) {
                 if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+                else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
               }
               break;
             }
@@ -6025,16 +5698,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __Pyx_XDECREF_SET(__pyx_v_element_name, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":318
+          /* "glypy\composition\ccomposition.pyx":341
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):
  *                         if formula.endswith(element_name, 0, i + 1):             # <<<<<<<<<<<<<<
  *                             isotope_string = _make_isotope_string(
  *                                 element_name, isotope_num)
  */
-          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_formula, __pyx_n_s_endswith); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_formula, __pyx_n_s_endswith); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_12 = PyInt_FromSsize_t((__pyx_v_i + 1)); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_12 = PyInt_FromSsize_t((__pyx_v_i + 1)); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_12);
           __pyx_t_4 = NULL;
           __pyx_t_17 = 0;
@@ -6048,7 +5721,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
               __pyx_t_17 = 1;
             }
           }
-          __pyx_t_14 = PyTuple_New(3+__pyx_t_17); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_14 = PyTuple_New(3+__pyx_t_17); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_14);
           if (__pyx_t_4) {
             __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -6062,37 +5735,37 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __Pyx_GIVEREF(__pyx_t_12);
           PyTuple_SET_ITEM(__pyx_t_14, 2+__pyx_t_17, __pyx_t_12);
           __pyx_t_12 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_14, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_14, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           if (__pyx_t_3) {
 
-            /* "glypy\composition\ccomposition.pyx":320
+            /* "glypy\composition\ccomposition.pyx":343
  *                         if formula.endswith(element_name, 0, i + 1):
  *                             isotope_string = _make_isotope_string(
  *                                 element_name, isotope_num)             # <<<<<<<<<<<<<<
  *                             self[isotope_string] += num_atoms
  *                             i -= len(element_name)
  */
-            if (!(likely(PyString_CheckExact(__pyx_v_element_name))||((__pyx_v_element_name) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_element_name)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-            __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_v_isotope_num); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            if (!(likely(PyString_CheckExact(__pyx_v_element_name))||((__pyx_v_element_name) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_element_name)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 343; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_v_isotope_num); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 343; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-            /* "glypy\composition\ccomposition.pyx":319
+            /* "glypy\composition\ccomposition.pyx":342
  *                     for element_name in sorted(mass_data, key=len, reverse=True):
  *                         if formula.endswith(element_name, 0, i + 1):
  *                             isotope_string = _make_isotope_string(             # <<<<<<<<<<<<<<
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms
  */
-            __pyx_t_2 = __pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(((PyObject*)__pyx_v_element_name), __pyx_t_6); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 319; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_2 = __pyx_f_5glypy_11composition_12ccomposition__make_isotope_string(((PyObject*)__pyx_v_element_name), __pyx_t_6); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_XDECREF_SET(__pyx_v_isotope_string, __pyx_t_2);
             __pyx_t_2 = 0;
 
-            /* "glypy\composition\ccomposition.pyx":321
+            /* "glypy\composition\ccomposition.pyx":344
  *                             isotope_string = _make_isotope_string(
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms             # <<<<<<<<<<<<<<
@@ -6101,26 +5774,26 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
             __Pyx_INCREF(__pyx_v_isotope_string);
             __pyx_t_2 = __pyx_v_isotope_string;
-            __pyx_t_11 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_2); if (unlikely(__pyx_t_11 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+            __pyx_t_11 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_2); if (unlikely(__pyx_t_11 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 344; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
             __Pyx_GOTREF(__pyx_t_11);
-            __pyx_t_14 = PyNumber_InPlaceAdd(__pyx_t_11, __pyx_v_num_atoms); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_14 = PyNumber_InPlaceAdd(__pyx_t_11, __pyx_v_num_atoms); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 344; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_14);
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_2, __pyx_t_14) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_2, __pyx_t_14) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 344; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-            /* "glypy\composition\ccomposition.pyx":322
+            /* "glypy\composition\ccomposition.pyx":345
  *                                 element_name, isotope_num)
  *                             self[isotope_string] += num_atoms
  *                             i -= len(element_name)             # <<<<<<<<<<<<<<
  *                             prev_chem_symbol_start = i + 1
  *                             element_found = True
  */
-            __pyx_t_17 = PyObject_Length(__pyx_v_element_name); if (unlikely(__pyx_t_17 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_17 = PyObject_Length(__pyx_v_element_name); if (unlikely(__pyx_t_17 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __pyx_v_i = (__pyx_v_i - __pyx_t_17);
 
-            /* "glypy\composition\ccomposition.pyx":323
+            /* "glypy\composition\ccomposition.pyx":346
  *                             self[isotope_string] += num_atoms
  *                             i -= len(element_name)
  *                             prev_chem_symbol_start = i + 1             # <<<<<<<<<<<<<<
@@ -6129,7 +5802,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
             __pyx_v_prev_chem_symbol_start = (__pyx_v_i + 1);
 
-            /* "glypy\composition\ccomposition.pyx":324
+            /* "glypy\composition\ccomposition.pyx":347
  *                             i -= len(element_name)
  *                             prev_chem_symbol_start = i + 1
  *                             element_found = True             # <<<<<<<<<<<<<<
@@ -6138,7 +5811,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
             __pyx_v_element_found = 1;
 
-            /* "glypy\composition\ccomposition.pyx":325
+            /* "glypy\composition\ccomposition.pyx":348
  *                             prev_chem_symbol_start = i + 1
  *                             element_found = True
  *                             break             # <<<<<<<<<<<<<<
@@ -6147,7 +5820,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
             goto __pyx_L35_break;
 
-            /* "glypy\composition\ccomposition.pyx":318
+            /* "glypy\composition\ccomposition.pyx":341
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):
  *                         if formula.endswith(element_name, 0, i + 1):             # <<<<<<<<<<<<<<
@@ -6156,7 +5829,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
           }
 
-          /* "glypy\composition\ccomposition.pyx":317
+          /* "glypy\composition\ccomposition.pyx":340
  *                     # Sort the keys from longest to shortest to workaround
  *                     # the overlapping keys issue
  *                     for element_name in sorted(mass_data, key=len, reverse=True):             # <<<<<<<<<<<<<<
@@ -6167,7 +5840,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __pyx_L35_break:;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "glypy\composition\ccomposition.pyx":327
+        /* "glypy\composition\ccomposition.pyx":350
  *                             break
  * 
  *                     if not element_found:             # <<<<<<<<<<<<<<
@@ -6177,24 +5850,24 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __pyx_t_3 = ((!(__pyx_v_element_found != 0)) != 0);
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":328
+          /* "glypy\composition\ccomposition.pyx":351
  * 
  *                     if not element_found:
  *                         raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                             'Unknown chemical element in the formula: %s' % formula)
  *             else:
  */
-          __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
 
-          /* "glypy\composition\ccomposition.pyx":329
+          /* "glypy\composition\ccomposition.pyx":352
  *                     if not element_found:
  *                         raise ChemicalCompositionError(
  *                             'Unknown chemical element in the formula: %s' % formula)             # <<<<<<<<<<<<<<
  *             else:
  *                 ch = formula[i]
  */
-          __pyx_t_14 = __Pyx_PyString_Format(__pyx_kp_s_Unknown_chemical_element_in_the, __pyx_v_formula); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_14 = __Pyx_PyString_Format(__pyx_kp_s_Unknown_chemical_element_in_the, __pyx_v_formula); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 352; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_14);
           __pyx_t_11 = NULL;
           if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -6207,26 +5880,26 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
             }
           }
           if (!__pyx_t_11) {
-            __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_14); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_14); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
             __Pyx_GOTREF(__pyx_t_5);
           } else {
-            __pyx_t_12 = PyTuple_New(1+1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_12 = PyTuple_New(1+1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_12);
             __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_11); __pyx_t_11 = NULL;
             __Pyx_GIVEREF(__pyx_t_14);
             PyTuple_SET_ITEM(__pyx_t_12, 0+1, __pyx_t_14);
             __pyx_t_14 = 0;
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_12, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_12, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           }
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_Raise(__pyx_t_5, 0, 0, 0);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-          /* "glypy\composition\ccomposition.pyx":327
+          /* "glypy\composition\ccomposition.pyx":350
  *                             break
  * 
  *                     if not element_found:             # <<<<<<<<<<<<<<
@@ -6236,7 +5909,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         }
       }
 
-      /* "glypy\composition\ccomposition.pyx":273
+      /* "glypy\composition\ccomposition.pyx":296
  * 
  *         while i >= 0:
  *             if seek_mode < 1:             # <<<<<<<<<<<<<<
@@ -6246,7 +5919,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
       goto __pyx_L5;
     }
 
-    /* "glypy\composition\ccomposition.pyx":331
+    /* "glypy\composition\ccomposition.pyx":354
  *                             'Unknown chemical element in the formula: %s' % formula)
  *             else:
  *                 ch = formula[i]             # <<<<<<<<<<<<<<
@@ -6254,25 +5927,25 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  *                 i -= 1
  */
     /*else*/ {
-      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 331; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_XDECREF_SET(__pyx_v_ch, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":332
+      /* "glypy\composition\ccomposition.pyx":355
  *             else:
  *                 ch = formula[i]
  *                 parse_stack += ch             # <<<<<<<<<<<<<<
  *                 i -= 1
  *                 if(ch == "("):
  */
-      __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_parse_stack, __pyx_v_ch); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_parse_stack, __pyx_v_ch); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
-      if (!(likely(PyString_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_5)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (!(likely(PyString_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_5)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF_SET(__pyx_v_parse_stack, ((PyObject*)__pyx_t_5));
       __pyx_t_5 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":333
+      /* "glypy\composition\ccomposition.pyx":356
  *                 ch = formula[i]
  *                 parse_stack += ch
  *                 i -= 1             # <<<<<<<<<<<<<<
@@ -6281,17 +5954,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
       __pyx_v_i = (__pyx_v_i - 1);
 
-      /* "glypy\composition\ccomposition.pyx":334
+      /* "glypy\composition\ccomposition.pyx":357
  *                 parse_stack += ch
  *                 i -= 1
  *                 if(ch == "("):             # <<<<<<<<<<<<<<
  *                     seek_mode -= 1
  *                     if seek_mode == 0:
  */
-      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ch, __pyx_kp_s__4, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ch, __pyx_kp_s__4, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       if (__pyx_t_3) {
 
-        /* "glypy\composition\ccomposition.pyx":335
+        /* "glypy\composition\ccomposition.pyx":358
  *                 i -= 1
  *                 if(ch == "("):
  *                     seek_mode -= 1             # <<<<<<<<<<<<<<
@@ -6300,7 +5973,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_seek_mode = (__pyx_v_seek_mode - 1);
 
-        /* "glypy\composition\ccomposition.pyx":336
+        /* "glypy\composition\ccomposition.pyx":359
  *                 if(ch == "("):
  *                     seek_mode -= 1
  *                     if seek_mode == 0:             # <<<<<<<<<<<<<<
@@ -6310,83 +5983,83 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __pyx_t_3 = ((__pyx_v_seek_mode == 0) != 0);
         if (__pyx_t_3) {
 
-          /* "glypy\composition\ccomposition.pyx":338
+          /* "glypy\composition\ccomposition.pyx":361
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  */
-          __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_Composition_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_Composition_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 361; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
 
-          /* "glypy\composition\ccomposition.pyx":341
+          /* "glypy\composition\ccomposition.pyx":364
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],             # <<<<<<<<<<<<<<
  *                                              mass_data=mass_data)
  *                                              * group_coef)
  */
-          __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           if (unlikely(__pyx_v_parse_stack == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
-          __pyx_t_12 = PySequence_GetSlice(__pyx_v_parse_stack, 0, -1L); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_12 = PySequence_GetSlice(__pyx_v_parse_stack, 0, -1L); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_12);
-          __pyx_t_14 = PyObject_GetItem(__pyx_t_12, __pyx_slice__7); if (unlikely(__pyx_t_14 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_14 = PyObject_GetItem(__pyx_t_12, __pyx_slice__7); if (unlikely(__pyx_t_14 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_14);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-          if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_formula, __pyx_t_14) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_formula, __pyx_t_14) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":342
+          /* "glypy\composition\ccomposition.pyx":365
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],
  *                                              mass_data=mass_data)             # <<<<<<<<<<<<<<
  *                                              * group_coef)
  *                         prev_chem_symbol_start = i + 1
  */
-          if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mass_data, __pyx_v_mass_data) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mass_data, __pyx_v_mass_data) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-          /* "glypy\composition\ccomposition.pyx":338
+          /* "glypy\composition\ccomposition.pyx":361
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  */
-          __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 361; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_14);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":343
+          /* "glypy\composition\ccomposition.pyx":366
  *                                              formula=parse_stack[:-1][::-1],
  *                                              mass_data=mass_data)
  *                                              * group_coef)             # <<<<<<<<<<<<<<
  *                         prev_chem_symbol_start = i + 1
  *                         seek_mode = False
  */
-          __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_group_coef); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 343; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_group_coef); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 366; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_5 = PyNumber_Multiply(__pyx_t_14, __pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 343; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_5 = PyNumber_Multiply(__pyx_t_14, __pyx_t_2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 366; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":338
+          /* "glypy\composition\ccomposition.pyx":361
  *                     if seek_mode == 0:
  * 
  *                         resolve_stack.append(Composition(             # <<<<<<<<<<<<<<
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  */
-          __pyx_t_18 = __Pyx_PyList_Append(__pyx_v_resolve_stack, __pyx_t_5); if (unlikely(__pyx_t_18 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_18 = __Pyx_PyList_Append(__pyx_v_resolve_stack, __pyx_t_5); if (unlikely(__pyx_t_18 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 361; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":344
+          /* "glypy\composition\ccomposition.pyx":367
  *                                              mass_data=mass_data)
  *                                              * group_coef)
  *                         prev_chem_symbol_start = i + 1             # <<<<<<<<<<<<<<
@@ -6395,7 +6068,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
           __pyx_v_prev_chem_symbol_start = (__pyx_v_i + 1);
 
-          /* "glypy\composition\ccomposition.pyx":345
+          /* "glypy\composition\ccomposition.pyx":368
  *                                              * group_coef)
  *                         prev_chem_symbol_start = i + 1
  *                         seek_mode = False             # <<<<<<<<<<<<<<
@@ -6404,7 +6077,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
           __pyx_v_seek_mode = 0;
 
-          /* "glypy\composition\ccomposition.pyx":346
+          /* "glypy\composition\ccomposition.pyx":369
  *                         prev_chem_symbol_start = i + 1
  *                         seek_mode = False
  *                         parse_stack = ""             # <<<<<<<<<<<<<<
@@ -6414,7 +6087,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           __Pyx_INCREF(__pyx_kp_s__3);
           __Pyx_DECREF_SET(__pyx_v_parse_stack, __pyx_kp_s__3);
 
-          /* "glypy\composition\ccomposition.pyx":336
+          /* "glypy\composition\ccomposition.pyx":359
  *                 if(ch == "("):
  *                     seek_mode -= 1
  *                     if seek_mode == 0:             # <<<<<<<<<<<<<<
@@ -6423,7 +6096,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         }
 
-        /* "glypy\composition\ccomposition.pyx":334
+        /* "glypy\composition\ccomposition.pyx":357
  *                 parse_stack += ch
  *                 i -= 1
  *                 if(ch == "("):             # <<<<<<<<<<<<<<
@@ -6433,20 +6106,20 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         goto __pyx_L38;
       }
 
-      /* "glypy\composition\ccomposition.pyx":347
+      /* "glypy\composition\ccomposition.pyx":370
  *                         seek_mode = False
  *                         parse_stack = ""
  *                 elif(formula[i] == ")"):             # <<<<<<<<<<<<<<
  *                     seek_mode += 1
  *                 else:
  */
-      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 347; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_formula, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(__pyx_t_5 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_5, __pyx_kp_s__5, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 347; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_t_5, __pyx_kp_s__5, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (__pyx_t_3) {
 
-        /* "glypy\composition\ccomposition.pyx":348
+        /* "glypy\composition\ccomposition.pyx":371
  *                         parse_stack = ""
  *                 elif(formula[i] == ")"):
  *                     seek_mode += 1             # <<<<<<<<<<<<<<
@@ -6455,7 +6128,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
         __pyx_v_seek_mode = (__pyx_v_seek_mode + 1);
 
-        /* "glypy\composition\ccomposition.pyx":347
+        /* "glypy\composition\ccomposition.pyx":370
  *                         seek_mode = False
  *                         parse_stack = ""
  *                 elif(formula[i] == ")"):             # <<<<<<<<<<<<<<
@@ -6465,7 +6138,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         goto __pyx_L38;
       }
 
-      /* "glypy\composition\ccomposition.pyx":351
+      /* "glypy\composition\ccomposition.pyx":374
  *                 else:
  *                     # continue to accumulate tokens
  *                     pass             # <<<<<<<<<<<<<<
@@ -6480,7 +6153,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
     __pyx_L3_continue:;
   }
 
-  /* "glypy\composition\ccomposition.pyx":356
+  /* "glypy\composition\ccomposition.pyx":379
  *         # at this level. __add__ operates immutably, so must manually
  *         # loop through each chunk.
  *         for chunk in resolve_stack:             # <<<<<<<<<<<<<<
@@ -6491,22 +6164,22 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   for (;;) {
     if (__pyx_t_1 >= PyList_GET_SIZE(__pyx_t_5)) break;
     #if CYTHON_COMPILING_IN_CPYTHON
-    __pyx_t_2 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 356; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_1); __Pyx_INCREF(__pyx_t_2); __pyx_t_1++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 379; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     #else
-    __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 356; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PySequence_ITEM(__pyx_t_5, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 379; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     #endif
     __Pyx_XDECREF_SET(__pyx_v_chunk, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":357
+    /* "glypy\composition\ccomposition.pyx":380
  *         # loop through each chunk.
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():             # <<<<<<<<<<<<<<
  *                 self[elem] += cnt
  * 
  */
-    __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_v_chunk, __pyx_n_s_items); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_v_chunk, __pyx_n_s_items); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_14);
     __pyx_t_12 = NULL;
     if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_14))) {
@@ -6519,10 +6192,10 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
       }
     }
     if (__pyx_t_12) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_14, __pyx_t_12); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_14, __pyx_t_12); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     } else {
-      __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_14); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_14); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
@@ -6530,9 +6203,9 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
       __pyx_t_14 = __pyx_t_2; __Pyx_INCREF(__pyx_t_14); __pyx_t_17 = 0;
       __pyx_t_16 = NULL;
     } else {
-      __pyx_t_17 = -1; __pyx_t_14 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_17 = -1; __pyx_t_14 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_16 = Py_TYPE(__pyx_t_14)->tp_iternext; if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_16 = Py_TYPE(__pyx_t_14)->tp_iternext; if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     for (;;) {
@@ -6540,17 +6213,17 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         if (likely(PyList_CheckExact(__pyx_t_14))) {
           if (__pyx_t_17 >= PyList_GET_SIZE(__pyx_t_14)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_14, __pyx_t_17); __Pyx_INCREF(__pyx_t_2); __pyx_t_17++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_14, __pyx_t_17); __Pyx_INCREF(__pyx_t_2); __pyx_t_17++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_14, __pyx_t_17); __pyx_t_17++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_14, __pyx_t_17); __pyx_t_17++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         } else {
           if (__pyx_t_17 >= PyTuple_GET_SIZE(__pyx_t_14)) break;
           #if CYTHON_COMPILING_IN_CPYTHON
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_14, __pyx_t_17); __Pyx_INCREF(__pyx_t_2); __pyx_t_17++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_14, __pyx_t_17); __Pyx_INCREF(__pyx_t_2); __pyx_t_17++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_14, __pyx_t_17); __pyx_t_17++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_14, __pyx_t_17); __pyx_t_17++; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         }
@@ -6560,7 +6233,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
           break;
         }
@@ -6576,7 +6249,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         if (unlikely(size != 2)) {
           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         #if CYTHON_COMPILING_IN_CPYTHON
         if (likely(PyTuple_CheckExact(sequence))) {
@@ -6589,15 +6262,15 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __Pyx_INCREF(__pyx_t_12);
         __Pyx_INCREF(__pyx_t_11);
         #else
-        __pyx_t_12 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_12 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_11 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_11 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_11);
         #endif
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else {
         Py_ssize_t index = -1;
-        __pyx_t_4 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_4 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_t_19 = Py_TYPE(__pyx_t_4)->tp_iternext;
@@ -6605,7 +6278,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __Pyx_GOTREF(__pyx_t_12);
         index = 1; __pyx_t_11 = __pyx_t_19(__pyx_t_4); if (unlikely(!__pyx_t_11)) goto __pyx_L44_unpacking_failed;
         __Pyx_GOTREF(__pyx_t_11);
-        if (__Pyx_IternextUnpackEndCheck(__pyx_t_19(__pyx_t_4), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_19(__pyx_t_4), 2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_t_19 = NULL;
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         goto __pyx_L45_unpacking_done;
@@ -6613,7 +6286,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_t_19 = NULL;
         if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __pyx_L45_unpacking_done:;
       }
       __Pyx_XDECREF_SET(__pyx_v_elem, __pyx_t_12);
@@ -6621,7 +6294,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
       __Pyx_XDECREF_SET(__pyx_v_cnt, __pyx_t_11);
       __pyx_t_11 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":358
+      /* "glypy\composition\ccomposition.pyx":381
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():
  *                 self[elem] += cnt             # <<<<<<<<<<<<<<
@@ -6630,16 +6303,16 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
  */
       __Pyx_INCREF(__pyx_v_elem);
       __pyx_t_2 = __pyx_v_elem;
-      __pyx_t_11 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_2); if (unlikely(__pyx_t_11 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_11 = PyObject_GetItem(((PyObject *)__pyx_v_self), __pyx_t_2); if (unlikely(__pyx_t_11 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 381; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_12 = PyNumber_InPlaceAdd(__pyx_t_11, __pyx_v_cnt); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_12 = PyNumber_InPlaceAdd(__pyx_t_11, __pyx_v_cnt); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 381; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_2, __pyx_t_12) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self), __pyx_t_2, __pyx_t_12) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 381; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":357
+      /* "glypy\composition\ccomposition.pyx":380
  *         # loop through each chunk.
  *         for chunk in resolve_stack:
  *             for elem, cnt in chunk.items():             # <<<<<<<<<<<<<<
@@ -6649,7 +6322,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
     }
     __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":356
+    /* "glypy\composition\ccomposition.pyx":379
  *         # at this level. __add__ operates immutably, so must manually
  *         # loop through each chunk.
  *         for chunk in resolve_stack:             # <<<<<<<<<<<<<<
@@ -6659,7 +6332,7 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":255
+  /* "glypy\composition\ccomposition.pyx":278
  * 
  *     @cython.boundscheck(True)
  *     def _from_formula_parens(self, formula, mass_data):             # <<<<<<<<<<<<<<
@@ -6694,12 +6367,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
   __Pyx_XDECREF(__pyx_v_elem);
   __Pyx_XDECREF(__pyx_v_cnt);
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":360
+/* "glypy\composition\ccomposition.pyx":383
  *                 self[elem] += cnt
  * 
  *     cpdef _from_dict(self, comp):             # <<<<<<<<<<<<<<
@@ -6710,7 +6382,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_36_
 static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_39_from_dict(PyObject *__pyx_v_self, PyObject *__pyx_v_comp); /*proto*/
 static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__from_dict(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6722,12 +6393,11 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_from_dict", 0);
-  __Pyx_TraceCall("_from_dict", __pyx_f[0], 360, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_dict); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_from_dict); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_39_from_dict)) {
       __Pyx_XDECREF(__pyx_r);
@@ -6743,16 +6413,16 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
         }
       }
       if (!__pyx_t_4) {
-        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_comp); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_comp); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
       } else {
-        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
         __Pyx_INCREF(__pyx_v_comp);
         __Pyx_GIVEREF(__pyx_v_comp);
         PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_v_comp);
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
@@ -6765,16 +6435,16 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":365
+  /* "glypy\composition\ccomposition.pyx":388
  *         `comp` without checking their type.
  *         '''
  *         PyDict_Update(self, comp)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_6 = PyDict_Update(((PyObject *)__pyx_v_self), __pyx_v_comp); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyDict_Update(((PyObject *)__pyx_v_self), __pyx_v_comp); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 388; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-  /* "glypy\composition\ccomposition.pyx":360
+  /* "glypy\composition\ccomposition.pyx":383
  *                 self[elem] += cnt
  * 
  *     cpdef _from_dict(self, comp):             # <<<<<<<<<<<<<<
@@ -6795,7 +6465,6 @@ static PyObject *__pyx_f_5glypy_11composition_12ccomposition_12CComposition__fro
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -6816,16 +6485,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_39_
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_38_from_dict(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_comp) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_from_dict", 0);
-  __Pyx_TraceCall("_from_dict", __pyx_f[0], 360, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_12CComposition__from_dict(__pyx_v_self, __pyx_v_comp, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 360; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_12CComposition__from_dict(__pyx_v_self, __pyx_v_comp, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6838,12 +6505,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_38_
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":368
+/* "glypy\composition\ccomposition.pyx":391
  * 
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
@@ -6858,7 +6524,6 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
   PyObject *__pyx_v_mass_data = __pyx_k__8;
   long __pyx_v_mdid;
   double __pyx_r;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6876,7 +6541,6 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("calc_mass", 0);
-  __Pyx_TraceCall("calc_mass", __pyx_f[0], 368, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   if (__pyx_optional_args) {
     if (__pyx_optional_args->__pyx_n > 0) {
       __pyx_v_average = __pyx_optional_args->average;
@@ -6892,10 +6556,10 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_calc_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_calc_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_41calc_mass)) {
-      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_t_1);
       __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -6910,7 +6574,7 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
           __pyx_t_6 = 1;
         }
       }
-      __pyx_t_7 = PyTuple_New(3+__pyx_t_6); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = PyTuple_New(3+__pyx_t_6); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       if (__pyx_t_5) {
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -6924,11 +6588,11 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
       __Pyx_GIVEREF(__pyx_v_mass_data);
       PyTuple_SET_ITEM(__pyx_t_7, 2+__pyx_t_6, __pyx_v_mass_data);
       __pyx_t_3 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_r = __pyx_t_8;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6937,26 +6601,26 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":370
+  /* "glypy\composition\ccomposition.pyx":393
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
  *         cdef long mdid
  *         mdid = id(mass_data)             # <<<<<<<<<<<<<<
  *         if self._mass_args is not None and average is self._mass_args[0]\
  *                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:
  */
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_mass_data);
   __Pyx_GIVEREF(__pyx_v_mass_data);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_mass_data);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_id, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_id, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_9 == (long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_9 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_9 == (long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_mdid = __pyx_t_9;
 
-  /* "glypy\composition\ccomposition.pyx":371
+  /* "glypy\composition\ccomposition.pyx":394
  *         cdef long mdid
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\             # <<<<<<<<<<<<<<
@@ -6971,17 +6635,17 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
     goto __pyx_L4_bool_binop_done;
   }
 
-  /* "glypy\composition\ccomposition.pyx":372
+  /* "glypy\composition\ccomposition.pyx":395
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\
  *                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:             # <<<<<<<<<<<<<<
  *             return self._mass
  *         else:
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 371; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "glypy\composition\ccomposition.pyx":371
+  /* "glypy\composition\ccomposition.pyx":394
  *         cdef long mdid
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\             # <<<<<<<<<<<<<<
@@ -6990,7 +6654,7 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
  */
   if (unlikely(__pyx_v_self->_mass_args == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 371; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_t_12 = (__pyx_t_2 == PyTuple_GET_ITEM(__pyx_v_self->_mass_args, 0));
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7001,7 +6665,7 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
     goto __pyx_L4_bool_binop_done;
   }
 
-  /* "glypy\composition\ccomposition.pyx":372
+  /* "glypy\composition\ccomposition.pyx":395
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\
  *                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:             # <<<<<<<<<<<<<<
@@ -7010,30 +6674,30 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
  */
   if (unlikely(__pyx_v_self->_mass_args == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __pyx_t_2 = PyObject_RichCompare(__pyx_v_charge, PyTuple_GET_ITEM(__pyx_v_self->_mass_args, 1), Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_11 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyObject_RichCompare(__pyx_v_charge, PyTuple_GET_ITEM(__pyx_v_self->_mass_args, 1), Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_11 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_11) {
   } else {
     __pyx_t_10 = __pyx_t_11;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_v_mdid); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_v_mdid); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   if (unlikely(__pyx_v_self->_mass_args == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, PyTuple_GET_ITEM(__pyx_v_self->_mass_args, 2), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, PyTuple_GET_ITEM(__pyx_v_self->_mass_args, 2), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_11 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_11 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_10 = __pyx_t_11;
   __pyx_L4_bool_binop_done:;
 
-  /* "glypy\composition\ccomposition.pyx":371
+  /* "glypy\composition\ccomposition.pyx":394
  *         cdef long mdid
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\             # <<<<<<<<<<<<<<
@@ -7042,18 +6706,18 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
  */
   if (__pyx_t_10) {
 
-    /* "glypy\composition\ccomposition.pyx":373
+    /* "glypy\composition\ccomposition.pyx":396
  *         if self._mass_args is not None and average is self._mass_args[0]\
  *                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:
  *             return self._mass             # <<<<<<<<<<<<<<
  *         else:
  *             self._mass_args = (average, charge, mdid)
  */
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_v_self->_mass); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_v_self->_mass); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_r = __pyx_t_8;
     goto __pyx_L0;
 
-    /* "glypy\composition\ccomposition.pyx":371
+    /* "glypy\composition\ccomposition.pyx":394
  *         cdef long mdid
  *         mdid = id(mass_data)
  *         if self._mass_args is not None and average is self._mass_args[0]\             # <<<<<<<<<<<<<<
@@ -7062,7 +6726,7 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":375
+  /* "glypy\composition\ccomposition.pyx":398
  *             return self._mass
  *         else:
  *             self._mass_args = (average, charge, mdid)             # <<<<<<<<<<<<<<
@@ -7070,11 +6734,11 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
  *             return self._mass
  */
   /*else*/ {
-    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 375; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_v_mdid); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 375; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_v_mdid); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 375; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -7091,25 +6755,25 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
     __pyx_v_self->_mass_args = ((PyObject*)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":376
+    /* "glypy\composition\ccomposition.pyx":399
  *         else:
  *             self._mass_args = (average, charge, mdid)
  *             self._mass = calculate_mass(composition=self, average=average, charge=charge, mass_data=mass_data)             # <<<<<<<<<<<<<<
  *             return self._mass
  * 
  */
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_mass); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_mass); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_composition, ((PyObject *)__pyx_v_self)) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_composition, ((PyObject *)__pyx_v_self)) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_average); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_average, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_average, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_charge, __pyx_v_charge) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mass_data, __pyx_v_mass_data) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_charge, __pyx_v_charge) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mass_data, __pyx_v_mass_data) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 399; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7119,19 +6783,19 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
     __pyx_v_self->_mass = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":377
+    /* "glypy\composition\ccomposition.pyx":400
  *             self._mass_args = (average, charge, mdid)
  *             self._mass = calculate_mass(composition=self, average=average, charge=charge, mass_data=mass_data)
  *             return self._mass             # <<<<<<<<<<<<<<
  * 
  *     property mass:
  */
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_v_self->_mass); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_v_self->_mass); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 400; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_r = __pyx_t_8;
     goto __pyx_L0;
   }
 
-  /* "glypy\composition\ccomposition.pyx":368
+  /* "glypy\composition\ccomposition.pyx":391
  * 
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
@@ -7150,7 +6814,6 @@ static double __pyx_f_5glypy_11composition_12ccomposition_12CComposition_calc_ma
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1.0;
   __pyx_L0:;
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -7201,7 +6864,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_41c
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calc_mass") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calc_mass") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -7213,7 +6876,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_41c
       }
     }
     if (values[0]) {
-      __pyx_v_average = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_average == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      __pyx_v_average = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_average == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
     } else {
       __pyx_v_average = ((int)0);
     }
@@ -7222,13 +6885,13 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_41c
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("calc_mass", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("calc_mass", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.calc_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_40calc_mass(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
 
   /* function exit code */
@@ -7242,7 +6905,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_41c
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_40calc_mass(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
   struct __pyx_opt_args_5glypy_11composition_12ccomposition_12CComposition_calc_mass __pyx_t_2;
@@ -7251,14 +6913,13 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_40c
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("calc_mass", 0);
-  __Pyx_TraceCall("calc_mass", __pyx_f[0], 368, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 3;
   __pyx_t_2.average = __pyx_v_average;
   __pyx_t_2.charge = __pyx_v_charge;
   __pyx_t_2.mass_data = __pyx_v_mass_data;
-  __pyx_t_1 = __pyx_vtabptr_5glypy_11composition_12ccomposition_CComposition->calc_mass(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_vtabptr_5glypy_11composition_12ccomposition_CComposition->calc_mass(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -7271,12 +6932,11 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_40c
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":380
+/* "glypy\composition\ccomposition.pyx":403
  * 
  *     property mass:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -7299,7 +6959,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_12CComposition_4ma
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4mass___get__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -7307,24 +6966,23 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4ma
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 380, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
-  /* "glypy\composition\ccomposition.pyx":381
+  /* "glypy\composition\ccomposition.pyx":404
  *     property mass:
  *         def __get__(self):
  *             return self.calc_mass()             # <<<<<<<<<<<<<<
  * 
- *     def __init__(self, *args, **kwargs):
+ *     def __init__(self, args=None, formula=None, dict mass_data=None, **kwargs):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->calc_mass(__pyx_v_self, 0, NULL); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 381; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 381; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->calc_mass(__pyx_v_self, 0, NULL); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 404; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 404; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":380
+  /* "glypy\composition\ccomposition.pyx":403
  * 
  *     property mass:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -7339,15 +6997,14 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_12CComposition_4ma
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":383
+/* "glypy\composition\ccomposition.pyx":406
  *             return self.calc_mass()
  * 
- *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
+ *     def __init__(self, args=None, formula=None, dict mass_data=None, **kwargs):             # <<<<<<<<<<<<<<
  *         """
  *         A Composition object stores a chemical composition of a
  */
@@ -7360,590 +7017,418 @@ struct wrapperbase __pyx_wrapperbase_5glypy_11composition_12ccomposition_12CComp
 #endif
 static int __pyx_pw_5glypy_11composition_12ccomposition_12CComposition_43__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_args = 0;
+  PyObject *__pyx_v_formula = 0;
+  PyObject *__pyx_v_mass_data = 0;
   PyObject *__pyx_v_kwargs = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
-  if (unlikely(__pyx_kwds) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__init__", 1))) return -1;
-  __pyx_v_kwargs = (__pyx_kwds) ? PyDict_Copy(__pyx_kwds) : PyDict_New(); if (unlikely(!__pyx_v_kwargs)) return -1;
+  __pyx_v_kwargs = PyDict_New(); if (unlikely(!__pyx_v_kwargs)) return -1;
   __Pyx_GOTREF(__pyx_v_kwargs);
-  __Pyx_INCREF(__pyx_args);
-  __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_args, __pyx_v_kwargs);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_args,&__pyx_n_s_formula,&__pyx_n_s_mass_data,0};
+    PyObject* values[3] = {0,0,0};
+    values[0] = ((PyObject *)Py_None);
+    values[1] = ((PyObject *)Py_None);
+    values[2] = ((PyObject*)Py_None);
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (kw_args > 0) {
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_args);
+          if (value) { values[0] = value; kw_args--; }
+        }
+        case  1:
+        if (kw_args > 0) {
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_formula);
+          if (value) { values[1] = value; kw_args--; }
+        }
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_mass_data);
+          if (value) { values[2] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "__init__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 406; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_args = values[0];
+    __pyx_v_formula = values[1];
+    __pyx_v_mass_data = ((PyObject*)values[2]);
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 406; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __pyx_L3_error:;
+  __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
+  __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return -1;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mass_data), (&PyDict_Type), 1, "mass_data", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 406; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self), __pyx_v_args, __pyx_v_formula, __pyx_v_mass_data, __pyx_v_kwargs);
 
   /* function exit code */
-  __Pyx_XDECREF(__pyx_v_args);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = -1;
+  __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_kwargs);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
-  PyObject *__pyx_v_mass_data = 0;
-  PyObject *__pyx_v_kwa = 0;
-  PyObject *__pyx_v_kw_sources = 0;
-  PyObject *__pyx_v_kw_given = NULL;
+static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init__(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_formula, PyObject *__pyx_v_mass_data, PyObject *__pyx_v_kwargs) {
   int __pyx_r;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
+  int __pyx_t_1;
+  int __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  Py_ssize_t __pyx_t_5;
-  int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
-  int __pyx_t_11;
+  PyObject *__pyx_t_11 = NULL;
   PyObject *__pyx_t_12 = NULL;
   PyObject *__pyx_t_13 = NULL;
   PyObject *__pyx_t_14 = NULL;
-  int __pyx_t_15;
-  PyObject *__pyx_t_16 = NULL;
+  PyObject *__pyx_t_15 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
-  __Pyx_TraceCall("__init__", __pyx_f[0], 383, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
+  __Pyx_INCREF(__pyx_v_mass_data);
 
-  /* "glypy\composition\ccomposition.pyx":407
- *             value is :py:data:`nist_mass`). It is used for formulae parsing only.
+  /* "glypy\composition\ccomposition.pyx":431
  *         """
- *         dict.__init__(self)             # <<<<<<<<<<<<<<
- *         cdef:
- *             dict mass_data
- */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyDict_Type)), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 407; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = NULL;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-    }
-  }
-  if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 407; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_1);
-  } else {
-    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 407; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
-    __Pyx_INCREF(((PyObject *)__pyx_v_self));
-    __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
-    PyTuple_SET_ITEM(__pyx_t_4, 0+1, ((PyObject *)__pyx_v_self));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 407; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "glypy\composition\ccomposition.pyx":412
- *             str kwa
- *             set kw_sources
- *         mass_data = kwargs.get('mass_data', nist_mass)             # <<<<<<<<<<<<<<
+ *         #dict.__init__(self)
+ *         if mass_data is None:             # <<<<<<<<<<<<<<
+ *             mass_data = nist_mass
  * 
- *         kw_sources = set(
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_GetItemDefault(__pyx_v_kwargs, __pyx_n_s_mass_data, __pyx_t_1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_mass_data = ((PyObject*)__pyx_t_2);
-  __pyx_t_2 = 0;
+  __pyx_t_1 = (__pyx_v_mass_data == ((PyObject*)Py_None));
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
 
-  /* "glypy\composition\ccomposition.pyx":414
- *         mass_data = kwargs.get('mass_data', nist_mass)
+    /* "glypy\composition\ccomposition.pyx":432
+ *         #dict.__init__(self)
+ *         if mass_data is None:
+ *             mass_data = nist_mass             # <<<<<<<<<<<<<<
  * 
- *         kw_sources = set(             # <<<<<<<<<<<<<<
- *             ('formula',))
- *         kw_given = kw_sources.intersection(kwargs)
+ *         if formula is not None:
  */
-  __pyx_t_2 = PySet_New(0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 414; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PySet_Add(__pyx_t_2, __pyx_n_s_formula) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 414; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_kw_sources = ((PyObject*)__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "glypy\composition\ccomposition.pyx":416
- *         kw_sources = set(
- *             ('formula',))
- *         kw_given = kw_sources.intersection(kwargs)             # <<<<<<<<<<<<<<
- *         if len(kw_given) > 1:
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
- */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_kw_sources, __pyx_n_s_intersection); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 416; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = NULL;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_1))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
-    if (likely(__pyx_t_4)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-      __Pyx_INCREF(__pyx_t_4);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_1, function);
-    }
-  }
-  if (!__pyx_t_4) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_kwargs); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 416; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_2);
-  } else {
-    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 416; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __pyx_t_4 = NULL;
-    __Pyx_INCREF(__pyx_v_kwargs);
-    __Pyx_GIVEREF(__pyx_v_kwargs);
-    PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_kwargs);
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 416; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_2);
+    if (!(likely(PyDict_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_3)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF_SET(__pyx_v_mass_data, ((PyObject*)__pyx_t_3));
+    __pyx_t_3 = 0;
+
+    /* "glypy\composition\ccomposition.pyx":431
+ *         """
+ *         #dict.__init__(self)
+ *         if mass_data is None:             # <<<<<<<<<<<<<<
+ *             mass_data = nist_mass
+ * 
+ */
+  }
+
+  /* "glypy\composition\ccomposition.pyx":434
+ *             mass_data = nist_mass
+ * 
+ *         if formula is not None:             # <<<<<<<<<<<<<<
+ *             self._from_formula(formula, mass_data)
+ * 
+ */
+  __pyx_t_2 = (__pyx_v_formula != Py_None);
+  __pyx_t_1 = (__pyx_t_2 != 0);
+  if (__pyx_t_1) {
+
+    /* "glypy\composition\ccomposition.pyx":435
+ * 
+ *         if formula is not None:
+ *             self._from_formula(formula, mass_data)             # <<<<<<<<<<<<<<
+ * 
+ *         elif args:
+ */
+    if (!(likely(PyString_CheckExact(__pyx_v_formula))||((__pyx_v_formula) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_formula)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 435; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_v_formula), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 435; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_kw_given = __pyx_t_2;
-  __pyx_t_2 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":417
- *             ('formula',))
- *         kw_given = kw_sources.intersection(kwargs)
- *         if len(kw_given) > 1:             # <<<<<<<<<<<<<<
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
- *                 Given: {}'.format(', '.join(kw_sources),
- */
-  __pyx_t_5 = PyObject_Length(__pyx_v_kw_given); if (unlikely(__pyx_t_5 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 417; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_6 = ((__pyx_t_5 > 1) != 0);
-  if (__pyx_t_6) {
-
-    /* "glypy\composition\ccomposition.pyx":418
- *         kw_given = kw_sources.intersection(kwargs)
- *         if len(kw_given) > 1:
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\             # <<<<<<<<<<<<<<
- *                 Given: {}'.format(', '.join(kw_sources),
- *                                   ', '.join(kw_given)))
- */
-    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_1);
-
-    /* "glypy\composition\ccomposition.pyx":419
- *         if len(kw_given) > 1:
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
- *                 Given: {}'.format(', '.join(kw_sources),             # <<<<<<<<<<<<<<
- *                                   ', '.join(kw_given)))
+    /* "glypy\composition\ccomposition.pyx":434
+ *             mass_data = nist_mass
+ * 
+ *         if formula is not None:             # <<<<<<<<<<<<<<
+ *             self._from_formula(formula, mass_data)
  * 
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Only_one_of_can_be_specified_Giv, __pyx_n_s_format); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_7 = __Pyx_PyString_Join(__pyx_kp_s__9, __pyx_v_kw_sources); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_7);
-
-    /* "glypy\composition\ccomposition.pyx":420
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
- *                 Given: {}'.format(', '.join(kw_sources),
- *                                   ', '.join(kw_given)))             # <<<<<<<<<<<<<<
- * 
- *         elif kw_given:
- */
-    __pyx_t_8 = __Pyx_PyString_Join(__pyx_kp_s__9, __pyx_v_kw_given); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 420; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_9 = NULL;
-    __pyx_t_5 = 0;
-    if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_9)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_9);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_4, function);
-        __pyx_t_5 = 1;
-      }
-    }
-    __pyx_t_10 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_10);
-    if (__pyx_t_9) {
-      __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_9); __pyx_t_9 = NULL;
-    }
-    __Pyx_GIVEREF(__pyx_t_7);
-    PyTuple_SET_ITEM(__pyx_t_10, 0+__pyx_t_5, __pyx_t_7);
-    __Pyx_GIVEREF(__pyx_t_8);
-    PyTuple_SET_ITEM(__pyx_t_10, 1+__pyx_t_5, __pyx_t_8);
-    __pyx_t_7 = 0;
-    __pyx_t_8 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_10, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = NULL;
-    if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_1))) {
-      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
-      if (likely(__pyx_t_4)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-        __Pyx_INCREF(__pyx_t_4);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_1, function);
-      }
-    }
-    if (!__pyx_t_4) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_GOTREF(__pyx_t_2);
-    } else {
-      __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_10);
-      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_4); __pyx_t_4 = NULL;
-      __Pyx_GIVEREF(__pyx_t_3);
-      PyTuple_SET_ITEM(__pyx_t_10, 0+1, __pyx_t_3);
-      __pyx_t_3 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_10, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    }
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-
-    /* "glypy\composition\ccomposition.pyx":417
- *             ('formula',))
- *         kw_given = kw_sources.intersection(kwargs)
- *         if len(kw_given) > 1:             # <<<<<<<<<<<<<<
- *             raise ChemicalCompositionError('Only one of {} can be specified!\n\
- *                 Given: {}'.format(', '.join(kw_sources),
- */
+    goto __pyx_L4;
   }
 
-  /* "glypy\composition\ccomposition.pyx":422
- *                                   ', '.join(kw_given)))
+  /* "glypy\composition\ccomposition.pyx":437
+ *             self._from_formula(formula, mass_data)
  * 
- *         elif kw_given:             # <<<<<<<<<<<<<<
- *             kwa = kw_given.pop()
- *             if kwa == "formula":
- */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_kw_given); if (unlikely(__pyx_t_6 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 422; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (__pyx_t_6) {
-
-    /* "glypy\composition\ccomposition.pyx":423
- * 
- *         elif kw_given:
- *             kwa = kw_given.pop()             # <<<<<<<<<<<<<<
- *             if kwa == "formula":
- *                 self._from_formula(kwargs[kwa], mass_data)
- */
-    __pyx_t_2 = __Pyx_PyObject_Pop(__pyx_v_kw_given); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 423; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(PyString_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 423; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_v_kwa = ((PyObject*)__pyx_t_2);
-    __pyx_t_2 = 0;
-
-    /* "glypy\composition\ccomposition.pyx":424
- *         elif kw_given:
- *             kwa = kw_given.pop()
- *             if kwa == "formula":             # <<<<<<<<<<<<<<
- *                 self._from_formula(kwargs[kwa], mass_data)
- *         # can't build from kwargs
- */
-    __pyx_t_6 = (__Pyx_PyString_Equals(__pyx_v_kwa, __pyx_n_s_formula, Py_EQ)); if (unlikely(__pyx_t_6 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 424; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_11 = (__pyx_t_6 != 0);
-    if (__pyx_t_11) {
-
-      /* "glypy\composition\ccomposition.pyx":425
- *             kwa = kw_given.pop()
- *             if kwa == "formula":
- *                 self._from_formula(kwargs[kwa], mass_data)             # <<<<<<<<<<<<<<
- *         # can't build from kwargs
- *         elif args:
- */
-      __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_v_kwa); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 425; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
-      __Pyx_GOTREF(__pyx_t_2);
-      if (!(likely(PyString_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_2)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 425; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 425; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-      /* "glypy\composition\ccomposition.pyx":424
- *         elif kw_given:
- *             kwa = kw_given.pop()
- *             if kwa == "formula":             # <<<<<<<<<<<<<<
- *                 self._from_formula(kwargs[kwa], mass_data)
- *         # can't build from kwargs
- */
-    }
-
-    /* "glypy\composition\ccomposition.pyx":422
- *                                   ', '.join(kw_given)))
- * 
- *         elif kw_given:             # <<<<<<<<<<<<<<
- *             kwa = kw_given.pop()
- *             if kwa == "formula":
- */
-    goto __pyx_L3;
-  }
-
-  /* "glypy\composition\ccomposition.pyx":427
- *                 self._from_formula(kwargs[kwa], mass_data)
- *         # can't build from kwargs
  *         elif args:             # <<<<<<<<<<<<<<
- *             if isinstance(args[0], dict):
- *                 self._from_dict(args[0])
+ *             if isinstance(args, dict):
+ *                 self._from_dict(args)
  */
-  __pyx_t_11 = (__pyx_v_args != Py_None) && (PyTuple_GET_SIZE(__pyx_v_args) != 0);
-  if (__pyx_t_11) {
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_args); if (unlikely(__pyx_t_1 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 437; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__pyx_t_1) {
 
-    /* "glypy\composition\ccomposition.pyx":428
- *         # can't build from kwargs
+    /* "glypy\composition\ccomposition.pyx":438
+ * 
  *         elif args:
- *             if isinstance(args[0], dict):             # <<<<<<<<<<<<<<
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):
+ *             if isinstance(args, dict):             # <<<<<<<<<<<<<<
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):
  */
-    __pyx_t_1 = PyTuple_GET_ITEM(__pyx_v_args, 0);
-    __Pyx_INCREF(__pyx_t_1);
-    __pyx_t_11 = PyDict_Check(__pyx_t_1); 
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_6 = (__pyx_t_11 != 0);
-    if (__pyx_t_6) {
+    __pyx_t_1 = PyDict_Check(__pyx_v_args); 
+    __pyx_t_2 = (__pyx_t_1 != 0);
+    if (__pyx_t_2) {
 
-      /* "glypy\composition\ccomposition.pyx":429
+      /* "glypy\composition\ccomposition.pyx":439
  *         elif args:
- *             if isinstance(args[0], dict):
- *                 self._from_dict(args[0])             # <<<<<<<<<<<<<<
- *             elif isinstance(args[0], str):
+ *             if isinstance(args, dict):
+ *                 self._from_dict(args)             # <<<<<<<<<<<<<<
+ *             elif isinstance(args, str):
  *                 try:
  */
-      __pyx_t_1 = PyTuple_GET_ITEM(__pyx_v_args, 0);
-      __Pyx_INCREF(__pyx_t_1);
-      __pyx_t_2 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 429; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_3 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_args, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 439; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":428
- *         # can't build from kwargs
+      /* "glypy\composition\ccomposition.pyx":438
+ * 
  *         elif args:
- *             if isinstance(args[0], dict):             # <<<<<<<<<<<<<<
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):
+ *             if isinstance(args, dict):             # <<<<<<<<<<<<<<
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):
  */
       goto __pyx_L5;
     }
 
-    /* "glypy\composition\ccomposition.pyx":430
- *             if isinstance(args[0], dict):
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):             # <<<<<<<<<<<<<<
+    /* "glypy\composition\ccomposition.pyx":440
+ *             if isinstance(args, dict):
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):             # <<<<<<<<<<<<<<
  *                 try:
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  */
-    __pyx_t_2 = PyTuple_GET_ITEM(__pyx_v_args, 0);
-    __Pyx_INCREF(__pyx_t_2);
-    __pyx_t_6 = PyString_Check(__pyx_t_2); 
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_11 = (__pyx_t_6 != 0);
-    if (__pyx_t_11) {
+    __pyx_t_2 = PyString_Check(__pyx_v_args); 
+    __pyx_t_1 = (__pyx_t_2 != 0);
+    if (__pyx_t_1) {
 
-      /* "glypy\composition\ccomposition.pyx":431
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):
+      /* "glypy\composition\ccomposition.pyx":441
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):
  *                 try:             # <<<<<<<<<<<<<<
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  *                 except ChemicalCompositionError:
  */
       {
-        __Pyx_ExceptionSave(&__pyx_t_12, &__pyx_t_13, &__pyx_t_14);
-        __Pyx_XGOTREF(__pyx_t_12);
-        __Pyx_XGOTREF(__pyx_t_13);
-        __Pyx_XGOTREF(__pyx_t_14);
+        __Pyx_ExceptionSave(&__pyx_t_4, &__pyx_t_5, &__pyx_t_6);
+        __Pyx_XGOTREF(__pyx_t_4);
+        __Pyx_XGOTREF(__pyx_t_5);
+        __Pyx_XGOTREF(__pyx_t_6);
         /*try:*/ {
 
-          /* "glypy\composition\ccomposition.pyx":432
- *             elif isinstance(args[0], str):
+          /* "glypy\composition\ccomposition.pyx":442
+ *             elif isinstance(args, str):
  *                 try:
- *                     self._from_formula(args[0], mass_data)             # <<<<<<<<<<<<<<
+ *                     self._from_formula(args, mass_data)             # <<<<<<<<<<<<<<
  *                 except ChemicalCompositionError:
  *                     raise ChemicalCompositionError(
  */
-          if (!(likely(PyString_CheckExact(PyTuple_GET_ITEM(__pyx_v_args, 0)))||((PyTuple_GET_ITEM(__pyx_v_args, 0)) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(PyTuple_GET_ITEM(__pyx_v_args, 0))->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_v_args, 0);
-          __Pyx_INCREF(__pyx_t_2);
-          __pyx_t_1 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_t_2), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
-          __Pyx_GOTREF(__pyx_t_1);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+          if (!(likely(PyString_CheckExact(__pyx_v_args))||((__pyx_v_args) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_v_args)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 442; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
+          __pyx_t_3 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_formula(__pyx_v_self, ((PyObject*)__pyx_v_args), __pyx_v_mass_data, 0); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 442; __pyx_clineno = __LINE__; goto __pyx_L6_error;}
+          __Pyx_GOTREF(__pyx_t_3);
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-          /* "glypy\composition\ccomposition.pyx":431
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):
+          /* "glypy\composition\ccomposition.pyx":441
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):
  *                 try:             # <<<<<<<<<<<<<<
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  *                 except ChemicalCompositionError:
  */
         }
-        __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         goto __pyx_L13_try_end;
         __pyx_L6_error:;
-        __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-        __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "glypy\composition\ccomposition.pyx":433
+        /* "glypy\composition\ccomposition.pyx":443
  *                 try:
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  *                 except ChemicalCompositionError:             # <<<<<<<<<<<<<<
  *                     raise ChemicalCompositionError(
  *                         'Could not create a Composition object from '
  */
-        __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 433; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-        __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_15 = PyErr_ExceptionMatches(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        if (__pyx_t_15) {
+        __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_7 = PyErr_ExceptionMatches(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (__pyx_t_7) {
           __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_10) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 433; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-          __Pyx_GOTREF(__pyx_t_1);
-          __Pyx_GOTREF(__pyx_t_2);
-          __Pyx_GOTREF(__pyx_t_10);
+          if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_8, &__pyx_t_9) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+          __Pyx_GOTREF(__pyx_t_3);
+          __Pyx_GOTREF(__pyx_t_8);
+          __Pyx_GOTREF(__pyx_t_9);
 
-          /* "glypy\composition\ccomposition.pyx":434
- *                     self._from_formula(args[0], mass_data)
+          /* "glypy\composition\ccomposition.pyx":444
+ *                     self._from_formula(args, mass_data)
  *                 except ChemicalCompositionError:
  *                     raise ChemicalCompositionError(             # <<<<<<<<<<<<<<
  *                         'Could not create a Composition object from '
- *                         'string: "{}": not a valid sequence or '
+ *                         'string: "{}": not a '
  */
-          __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 444; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+          __Pyx_GOTREF(__pyx_t_11);
 
-          /* "glypy\composition\ccomposition.pyx":437
+          /* "glypy\composition\ccomposition.pyx":447
  *                         'Could not create a Composition object from '
- *                         'string: "{}": not a valid sequence or '
- *                         'formula'.format(args[0]))             # <<<<<<<<<<<<<<
+ *                         'string: "{}": not a '
+ *                         'formula'.format(args))             # <<<<<<<<<<<<<<
  *         else:
  *             self._from_dict(kwargs)
  */
-          __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Could_not_create_a_Composition_o, __pyx_n_s_format); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 437; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-          __Pyx_GOTREF(__pyx_t_7);
-          __pyx_t_9 = NULL;
-          if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_7))) {
-            __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_7);
-            if (likely(__pyx_t_9)) {
-              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-              __Pyx_INCREF(__pyx_t_9);
+          __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Could_not_create_a_Composition_o, __pyx_n_s_format); if (unlikely(!__pyx_t_13)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 447; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+          __Pyx_GOTREF(__pyx_t_13);
+          __pyx_t_14 = NULL;
+          if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_13))) {
+            __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_13);
+            if (likely(__pyx_t_14)) {
+              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_13);
+              __Pyx_INCREF(__pyx_t_14);
               __Pyx_INCREF(function);
-              __Pyx_DECREF_SET(__pyx_t_7, function);
+              __Pyx_DECREF_SET(__pyx_t_13, function);
             }
           }
-          if (!__pyx_t_9) {
-            __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_t_7, PyTuple_GET_ITEM(__pyx_v_args, 0)); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 437; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_GOTREF(__pyx_t_8);
+          if (!__pyx_t_14) {
+            __pyx_t_12 = __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_v_args); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 447; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_GOTREF(__pyx_t_12);
           } else {
-            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 437; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_GOTREF(__pyx_t_16);
-            __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_16, 0, __pyx_t_9); __pyx_t_9 = NULL;
-            __Pyx_INCREF(PyTuple_GET_ITEM(__pyx_v_args, 0));
-            __Pyx_GIVEREF(PyTuple_GET_ITEM(__pyx_v_args, 0));
-            PyTuple_SET_ITEM(__pyx_t_16, 0+1, PyTuple_GET_ITEM(__pyx_v_args, 0));
-            __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_16, NULL); if (unlikely(!__pyx_t_8)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 437; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_GOTREF(__pyx_t_8);
-            __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+            __pyx_t_15 = PyTuple_New(1+1); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 447; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_GOTREF(__pyx_t_15);
+            __Pyx_GIVEREF(__pyx_t_14); PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_14); __pyx_t_14 = NULL;
+            __Pyx_INCREF(__pyx_v_args);
+            __Pyx_GIVEREF(__pyx_v_args);
+            PyTuple_SET_ITEM(__pyx_t_15, 0+1, __pyx_v_args);
+            __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_15, NULL); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 447; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_GOTREF(__pyx_t_12);
+            __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
           }
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-          __pyx_t_7 = NULL;
-          if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_4))) {
-            __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_4);
-            if (likely(__pyx_t_7)) {
-              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-              __Pyx_INCREF(__pyx_t_7);
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __pyx_t_13 = NULL;
+          if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_11))) {
+            __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_11);
+            if (likely(__pyx_t_13)) {
+              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_11);
+              __Pyx_INCREF(__pyx_t_13);
               __Pyx_INCREF(function);
-              __Pyx_DECREF_SET(__pyx_t_4, function);
+              __Pyx_DECREF_SET(__pyx_t_11, function);
             }
           }
-          if (!__pyx_t_7) {
-            __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_8); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-            __Pyx_GOTREF(__pyx_t_3);
+          if (!__pyx_t_13) {
+            __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 444; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+            __Pyx_GOTREF(__pyx_t_10);
           } else {
-            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_GOTREF(__pyx_t_16);
-            __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_16, 0, __pyx_t_7); __pyx_t_7 = NULL;
-            __Pyx_GIVEREF(__pyx_t_8);
-            PyTuple_SET_ITEM(__pyx_t_16, 0+1, __pyx_t_8);
-            __pyx_t_8 = 0;
-            __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_16, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
-            __Pyx_GOTREF(__pyx_t_3);
-            __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+            __pyx_t_15 = PyTuple_New(1+1); if (unlikely(!__pyx_t_15)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 444; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_GOTREF(__pyx_t_15);
+            __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_13); __pyx_t_13 = NULL;
+            __Pyx_GIVEREF(__pyx_t_12);
+            PyTuple_SET_ITEM(__pyx_t_15, 0+1, __pyx_t_12);
+            __pyx_t_12 = 0;
+            __pyx_t_10 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_15, NULL); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 444; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+            __Pyx_GOTREF(__pyx_t_10);
+            __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
           }
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_Raise(__pyx_t_3, 0, 0, 0);
-          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_Raise(__pyx_t_10, 0, 0, 0);
+          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 444; __pyx_clineno = __LINE__; goto __pyx_L8_except_error;}
         }
         goto __pyx_L8_except_error;
         __pyx_L8_except_error:;
 
-        /* "glypy\composition\ccomposition.pyx":431
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):
+        /* "glypy\composition\ccomposition.pyx":441
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):
  *                 try:             # <<<<<<<<<<<<<<
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  *                 except ChemicalCompositionError:
  */
-        __Pyx_XGIVEREF(__pyx_t_12);
-        __Pyx_XGIVEREF(__pyx_t_13);
-        __Pyx_XGIVEREF(__pyx_t_14);
-        __Pyx_ExceptionReset(__pyx_t_12, __pyx_t_13, __pyx_t_14);
+        __Pyx_XGIVEREF(__pyx_t_4);
+        __Pyx_XGIVEREF(__pyx_t_5);
+        __Pyx_XGIVEREF(__pyx_t_6);
+        __Pyx_ExceptionReset(__pyx_t_4, __pyx_t_5, __pyx_t_6);
         goto __pyx_L1_error;
         __pyx_L13_try_end:;
       }
 
-      /* "glypy\composition\ccomposition.pyx":430
- *             if isinstance(args[0], dict):
- *                 self._from_dict(args[0])
- *             elif isinstance(args[0], str):             # <<<<<<<<<<<<<<
+      /* "glypy\composition\ccomposition.pyx":440
+ *             if isinstance(args, dict):
+ *                 self._from_dict(args)
+ *             elif isinstance(args, str):             # <<<<<<<<<<<<<<
  *                 try:
- *                     self._from_formula(args[0], mass_data)
+ *                     self._from_formula(args, mass_data)
  */
     }
     __pyx_L5:;
 
-    /* "glypy\composition\ccomposition.pyx":427
- *                 self._from_formula(kwargs[kwa], mass_data)
- *         # can't build from kwargs
+    /* "glypy\composition\ccomposition.pyx":437
+ *             self._from_formula(formula, mass_data)
+ * 
  *         elif args:             # <<<<<<<<<<<<<<
- *             if isinstance(args[0], dict):
- *                 self._from_dict(args[0])
+ *             if isinstance(args, dict):
+ *                 self._from_dict(args)
  */
-    goto __pyx_L3;
+    goto __pyx_L4;
   }
 
-  /* "glypy\composition\ccomposition.pyx":439
- *                         'formula'.format(args[0]))
+  /* "glypy\composition\ccomposition.pyx":449
+ *                         'formula'.format(args))
  *         else:
  *             self._from_dict(kwargs)             # <<<<<<<<<<<<<<
  *         self._mass = None
  *         self._mass_args = None
  */
   /*else*/ {
-    __pyx_t_10 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_kwargs, 0); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 439; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_10);
-    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __pyx_t_9 = ((struct __pyx_vtabstruct_5glypy_11composition_12ccomposition_CComposition *)__pyx_v_self->__pyx_vtab)->_from_dict(__pyx_v_self, __pyx_v_kwargs, 0); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 449; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   }
-  __pyx_L3:;
+  __pyx_L4:;
 
-  /* "glypy\composition\ccomposition.pyx":440
+  /* "glypy\composition\ccomposition.pyx":450
  *         else:
  *             self._from_dict(kwargs)
  *         self._mass = None             # <<<<<<<<<<<<<<
@@ -7956,7 +7441,7 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init_
   __Pyx_DECREF(__pyx_v_self->_mass);
   __pyx_v_self->_mass = Py_None;
 
-  /* "glypy\composition\ccomposition.pyx":441
+  /* "glypy\composition\ccomposition.pyx":451
  *             self._from_dict(kwargs)
  *         self._mass = None
  *         self._mass_args = None             # <<<<<<<<<<<<<<
@@ -7969,10 +7454,10 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init_
   __Pyx_DECREF(__pyx_v_self->_mass_args);
   __pyx_v_self->_mass_args = ((PyObject*)Py_None);
 
-  /* "glypy\composition\ccomposition.pyx":383
+  /* "glypy\composition\ccomposition.pyx":406
  *             return self.calc_mass()
  * 
- *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
+ *     def __init__(self, args=None, formula=None, dict mass_data=None, **kwargs):             # <<<<<<<<<<<<<<
  *         """
  *         A Composition object stores a chemical composition of a
  */
@@ -7981,37 +7466,33 @@ static int __pyx_pf_5glypy_11composition_12ccomposition_12CComposition_42__init_
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_XDECREF(__pyx_t_16);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_12);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_14);
+  __Pyx_XDECREF(__pyx_t_15);
   __Pyx_AddTraceback("glypy.composition.ccomposition.CComposition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_mass_data);
-  __Pyx_XDECREF(__pyx_v_kwa);
-  __Pyx_XDECREF(__pyx_v_kw_sources);
-  __Pyx_XDECREF(__pyx_v_kw_given);
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "glypy\composition\ccomposition.pyx":448
+/* "glypy\composition\ccomposition.pyx":458
  * @cython.wraparound(False)
  * @cython.boundscheck(False)
- * cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
+ * cpdef double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
  *     """Calculates the monoisotopic mass of a chemical formula or CComposition object.
  * 
  */
 
 static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_1calculate_mass(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args) {
+static double __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass *__pyx_optional_args) {
   struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_composition = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)Py_None);
   PyObject *__pyx_v_formula = ((PyObject*)Py_None);
   int __pyx_v_average = ((int)0);
@@ -8032,7 +7513,6 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   Py_ssize_t __pyx_v_iter_pos;
   PyObject *__pyx_v_interim;
   double __pyx_r;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   int __pyx_t_2;
@@ -8047,11 +7527,11 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   int __pyx_t_11;
   PyObject *__pyx_t_12 = NULL;
   double __pyx_t_13;
+  unsigned long __pyx_t_14;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("calculate_mass", 0);
-  __Pyx_TraceCall("calculate_mass", __pyx_f[0], 448, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   if (__pyx_optional_args) {
     if (__pyx_optional_args->__pyx_n > 0) {
       __pyx_v_composition = __pyx_optional_args->composition;
@@ -8072,7 +7552,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __Pyx_INCREF((PyObject *)__pyx_v_composition);
   __Pyx_INCREF(__pyx_v_charge);
 
-  /* "glypy\composition\ccomposition.pyx":481
+  /* "glypy\composition\ccomposition.pyx":491
  *         list key_list
  *         PyObject* interm
  *         Py_ssize_t iter_pos = 0             # <<<<<<<<<<<<<<
@@ -8081,7 +7561,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
   __pyx_v_iter_pos = 0;
 
-  /* "glypy\composition\ccomposition.pyx":483
+  /* "glypy\composition\ccomposition.pyx":493
  *         Py_ssize_t iter_pos = 0
  * 
  *     if mass_data is None:             # <<<<<<<<<<<<<<
@@ -8092,20 +7572,20 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":484
+    /* "glypy\composition\ccomposition.pyx":494
  * 
  *     if mass_data is None:
  *         mass_provider = nist_mass             # <<<<<<<<<<<<<<
  *     else:
  *         mass_provider = mass_data
  */
-    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 484; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 494; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(PyDict_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_3)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 484; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (!(likely(PyDict_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_3)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 494; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_v_mass_provider = ((PyObject*)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":483
+    /* "glypy\composition\ccomposition.pyx":493
  *         Py_ssize_t iter_pos = 0
  * 
  *     if mass_data is None:             # <<<<<<<<<<<<<<
@@ -8115,7 +7595,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     goto __pyx_L3;
   }
 
-  /* "glypy\composition\ccomposition.pyx":486
+  /* "glypy\composition\ccomposition.pyx":496
  *         mass_provider = nist_mass
  *     else:
  *         mass_provider = mass_data             # <<<<<<<<<<<<<<
@@ -8123,7 +7603,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  *     if composition is None:
  */
   /*else*/ {
-    if (!(likely(PyDict_CheckExact(__pyx_v_mass_data))||((__pyx_v_mass_data) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_mass_data)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 486; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (!(likely(PyDict_CheckExact(__pyx_v_mass_data))||((__pyx_v_mass_data) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_mass_data)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 496; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __pyx_t_3 = __pyx_v_mass_data;
     __Pyx_INCREF(__pyx_t_3);
     __pyx_v_mass_provider = ((PyObject*)__pyx_t_3);
@@ -8131,7 +7611,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   }
   __pyx_L3:;
 
-  /* "glypy\composition\ccomposition.pyx":488
+  /* "glypy\composition\ccomposition.pyx":498
  *         mass_provider = mass_data
  * 
  *     if composition is None:             # <<<<<<<<<<<<<<
@@ -8142,7 +7622,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "glypy\composition\ccomposition.pyx":489
+    /* "glypy\composition\ccomposition.pyx":499
  * 
  *     if composition is None:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -8153,25 +7633,25 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "glypy\composition\ccomposition.pyx":490
+      /* "glypy\composition\ccomposition.pyx":500
  *     if composition is None:
  *         if formula is not None:
  *             composition = CComposition(formula)             # <<<<<<<<<<<<<<
  *         else:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")
  */
-      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 490; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 500; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_v_formula);
       __Pyx_GIVEREF(__pyx_v_formula);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_formula);
-      __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 490; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 500; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF_SET(__pyx_v_composition, ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)__pyx_t_4));
       __pyx_t_4 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":489
+      /* "glypy\composition\ccomposition.pyx":499
  * 
  *     if composition is None:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -8181,7 +7661,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
       goto __pyx_L5;
     }
 
-    /* "glypy\composition\ccomposition.pyx":492
+    /* "glypy\composition\ccomposition.pyx":502
  *             composition = CComposition(formula)
  *         else:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")             # <<<<<<<<<<<<<<
@@ -8189,18 +7669,18 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  *         if formula is not None:
  */
     /*else*/ {
-      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 492; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 492; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 492; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __pyx_L5:;
 
-    /* "glypy\composition\ccomposition.pyx":488
+    /* "glypy\composition\ccomposition.pyx":498
  *         mass_provider = mass_data
  * 
  *     if composition is None:             # <<<<<<<<<<<<<<
@@ -8210,7 +7690,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     goto __pyx_L4;
   }
 
-  /* "glypy\composition\ccomposition.pyx":494
+  /* "glypy\composition\ccomposition.pyx":504
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")
  *     else:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -8222,23 +7702,23 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __pyx_t_1 = (__pyx_t_2 != 0);
     if (__pyx_t_1) {
 
-      /* "glypy\composition\ccomposition.pyx":495
+      /* "glypy\composition\ccomposition.pyx":505
  *     else:
  *         if formula is not None:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument, but not both")             # <<<<<<<<<<<<<<
  * 
  *     # Get charge.
  */
-      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 495; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 505; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 495; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 505; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_Raise(__pyx_t_4, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 495; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 505; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "glypy\composition\ccomposition.pyx":494
+      /* "glypy\composition\ccomposition.pyx":504
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")
  *     else:
  *         if formula is not None:             # <<<<<<<<<<<<<<
@@ -8249,7 +7729,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   }
   __pyx_L4:;
 
-  /* "glypy\composition\ccomposition.pyx":498
+  /* "glypy\composition\ccomposition.pyx":508
  * 
  *     # Get charge.
  *     if charge is None:             # <<<<<<<<<<<<<<
@@ -8260,19 +7740,19 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":499
+    /* "glypy\composition\ccomposition.pyx":509
  *     # Get charge.
  *     if charge is None:
  *         charge = composition.getitem('H+')             # <<<<<<<<<<<<<<
  *     else:
  *         if charge != 0 and composition.getitem('H+') != 0:
  */
-    __pyx_t_4 = __Pyx_PyInt_From_long(__pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_composition, __pyx_kp_s_H)); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 499; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = __Pyx_PyInt_From_long(__pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_composition, __pyx_kp_s_H)); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 509; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF_SET(__pyx_v_charge, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":498
+    /* "glypy\composition\ccomposition.pyx":508
  * 
  *     # Get charge.
  *     if charge is None:             # <<<<<<<<<<<<<<
@@ -8282,7 +7762,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     goto __pyx_L7;
   }
 
-  /* "glypy\composition\ccomposition.pyx":501
+  /* "glypy\composition\ccomposition.pyx":511
  *         charge = composition.getitem('H+')
  *     else:
  *         if charge != 0 and composition.getitem('H+') != 0:             # <<<<<<<<<<<<<<
@@ -8290,8 +7770,8 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  *     _charge = PyInt_AsLong(charge)
  */
   /*else*/ {
-    __pyx_t_4 = PyObject_RichCompare(__pyx_v_charge, __pyx_int_0, Py_NE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 501; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 501; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = PyObject_RichCompare(__pyx_v_charge, __pyx_int_0, Py_NE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 511; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 511; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_1) {
     } else {
@@ -8303,23 +7783,23 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __pyx_L9_bool_binop_done:;
     if (__pyx_t_2) {
 
-      /* "glypy\composition\ccomposition.pyx":502
+      /* "glypy\composition\ccomposition.pyx":512
  *     else:
  *         if charge != 0 and composition.getitem('H+') != 0:
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")             # <<<<<<<<<<<<<<
  *     _charge = PyInt_AsLong(charge)
  *     old_charge = composition.getitem('H+')
  */
-      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_ChemicalCompositionError); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 512; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 512; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 512; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "glypy\composition\ccomposition.pyx":501
+      /* "glypy\composition\ccomposition.pyx":511
  *         charge = composition.getitem('H+')
  *     else:
  *         if charge != 0 and composition.getitem('H+') != 0:             # <<<<<<<<<<<<<<
@@ -8330,17 +7810,17 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   }
   __pyx_L7:;
 
-  /* "glypy\composition\ccomposition.pyx":503
+  /* "glypy\composition\ccomposition.pyx":513
  *         if charge != 0 and composition.getitem('H+') != 0:
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")
  *     _charge = PyInt_AsLong(charge)             # <<<<<<<<<<<<<<
  *     old_charge = composition.getitem('H+')
  *     composition.setitem('H+', charge)
  */
-  __pyx_t_5 = PyInt_AsLong(__pyx_v_charge); if (unlikely(__pyx_t_5 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 503; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyInt_AsLong(__pyx_v_charge); if (unlikely(__pyx_t_5 == -1L && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 513; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v__charge = __pyx_t_5;
 
-  /* "glypy\composition\ccomposition.pyx":504
+  /* "glypy\composition\ccomposition.pyx":514
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")
  *     _charge = PyInt_AsLong(charge)
  *     old_charge = composition.getitem('H+')             # <<<<<<<<<<<<<<
@@ -8349,17 +7829,17 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
   __pyx_v_old_charge = __pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_composition, __pyx_kp_s_H);
 
-  /* "glypy\composition\ccomposition.pyx":505
+  /* "glypy\composition\ccomposition.pyx":515
  *     _charge = PyInt_AsLong(charge)
  *     old_charge = composition.getitem('H+')
  *     composition.setitem('H+', charge)             # <<<<<<<<<<<<<<
  * 
  *     # Calculate mass.
  */
-  __pyx_t_5 = __Pyx_PyInt_As_long(__pyx_v_charge); if (unlikely((__pyx_t_5 == (long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 505; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyInt_As_long(__pyx_v_charge); if (unlikely((__pyx_t_5 == (long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 515; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_composition, __pyx_kp_s_H, __pyx_t_5);
 
-  /* "glypy\composition\ccomposition.pyx":508
+  /* "glypy\composition\ccomposition.pyx":518
  * 
  *     # Calculate mass.
  *     mass = 0.0             # <<<<<<<<<<<<<<
@@ -8368,19 +7848,19 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
   __pyx_v_mass = 0.0;
 
-  /* "glypy\composition\ccomposition.pyx":509
+  /* "glypy\composition\ccomposition.pyx":519
  *     # Calculate mass.
  *     mass = 0.0
  *     key_list = PyDict_Keys(composition)             # <<<<<<<<<<<<<<
  *     for iter_pos in range(len(key_list)):
  *         isotope_string = <str>PyList_GET_ITEM(key_list, iter_pos)
  */
-  __pyx_t_3 = PyDict_Keys(((PyObject *)__pyx_v_composition)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 509; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyDict_Keys(((PyObject *)__pyx_v_composition)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 519; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_key_list = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":510
+  /* "glypy\composition\ccomposition.pyx":520
  *     mass = 0.0
  *     key_list = PyDict_Keys(composition)
  *     for iter_pos in range(len(key_list)):             # <<<<<<<<<<<<<<
@@ -8389,13 +7869,13 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
   if (unlikely(__pyx_v_key_list == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 510; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 520; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __pyx_t_6 = PyList_GET_SIZE(__pyx_v_key_list); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 510; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyList_GET_SIZE(__pyx_v_key_list); if (unlikely(__pyx_t_6 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 520; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_iter_pos = __pyx_t_7;
 
-    /* "glypy\composition\ccomposition.pyx":511
+    /* "glypy\composition\ccomposition.pyx":521
  *     key_list = PyDict_Keys(composition)
  *     for iter_pos in range(len(key_list)):
  *         isotope_string = <str>PyList_GET_ITEM(key_list, iter_pos)             # <<<<<<<<<<<<<<
@@ -8408,19 +7888,19 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __Pyx_XDECREF_SET(__pyx_v_isotope_string, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":513
+    /* "glypy\composition\ccomposition.pyx":523
  *         isotope_string = <str>PyList_GET_ITEM(key_list, iter_pos)
  *         # element_name, isotope_num = _parse_isotope_string(isotope_string)
  *         element_name = _parse_isotope_string(isotope_string, &isotope_num)             # <<<<<<<<<<<<<<
  * 
  *         # Calculate average mass if required and the isotope number is
  */
-    __pyx_t_3 = __pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(__pyx_v_isotope_string, (&__pyx_v_isotope_num)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 513; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __pyx_f_5glypy_11composition_12ccomposition__parse_isotope_string(__pyx_v_isotope_string, (&__pyx_v_isotope_num)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 523; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_XDECREF_SET(__pyx_v_element_name, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "glypy\composition\ccomposition.pyx":517
+    /* "glypy\composition\ccomposition.pyx":527
  *         # Calculate average mass if required and the isotope number is
  *         # not specified.
  *         if (not isotope_num) and average:             # <<<<<<<<<<<<<<
@@ -8438,7 +7918,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __pyx_L14_bool_binop_done:;
     if (__pyx_t_2) {
 
-      /* "glypy\composition\ccomposition.pyx":518
+      /* "glypy\composition\ccomposition.pyx":528
  *         # not specified.
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:             # <<<<<<<<<<<<<<
@@ -8447,17 +7927,17 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
       if (unlikely(__pyx_v_mass_provider == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
-      __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+      __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
       __Pyx_GOTREF(__pyx_t_3);
       if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
         __pyx_t_4 = __pyx_t_3; __Pyx_INCREF(__pyx_t_4); __pyx_t_9 = 0;
         __pyx_t_10 = NULL;
       } else {
-        __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       for (;;) {
@@ -8465,17 +7945,17 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
           if (likely(PyList_CheckExact(__pyx_t_4))) {
             if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_COMPILING_IN_CPYTHON
-            __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #else
-            __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_3);
             #endif
           } else {
             if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_COMPILING_IN_CPYTHON
-            __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             #else
-            __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             __Pyx_GOTREF(__pyx_t_3);
             #endif
           }
@@ -8485,17 +7965,17 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+              else {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
             }
             break;
           }
           __Pyx_GOTREF(__pyx_t_3);
         }
-        __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 518; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_v_isotope = __pyx_t_11;
 
-        /* "glypy\composition\ccomposition.pyx":519
+        /* "glypy\composition\ccomposition.pyx":529
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:
  *                 if isotope != 0:             # <<<<<<<<<<<<<<
@@ -8505,7 +7985,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
         __pyx_t_2 = ((__pyx_v_isotope != 0) != 0);
         if (__pyx_t_2) {
 
-          /* "glypy\composition\ccomposition.pyx":520
+          /* "glypy\composition\ccomposition.pyx":530
  *             for isotope in mass_provider[element_name]:
  *                 if isotope != 0:
  *                     quantity = <int>composition.getitem(element_name)             # <<<<<<<<<<<<<<
@@ -8514,7 +7994,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
           __pyx_v_quantity = ((int)__pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem(__pyx_v_composition, __pyx_v_element_name));
 
-          /* "glypy\composition\ccomposition.pyx":521
+          /* "glypy\composition\ccomposition.pyx":531
  *                 if isotope != 0:
  *                     quantity = <int>composition.getitem(element_name)
  *                     isotope_mass = <double>mass_provider[element_name][isotope][0]             # <<<<<<<<<<<<<<
@@ -8523,21 +8003,21 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
           if (unlikely(__pyx_v_mass_provider == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 521; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 531; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
-          __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 521; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 531; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_3);
-          __pyx_t_12 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_isotope, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(__pyx_t_12 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 521; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_12 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_isotope, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(__pyx_t_12 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 531; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_12);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_12, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 521; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_12, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 531; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_3);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-          __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 521; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 531; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __pyx_v_isotope_mass = ((double)__pyx_t_13);
 
-          /* "glypy\composition\ccomposition.pyx":522
+          /* "glypy\composition\ccomposition.pyx":532
  *                     quantity = <int>composition.getitem(element_name)
  *                     isotope_mass = <double>mass_provider[element_name][isotope][0]
  *                     isotope_frequency = <double>mass_provider[element_name][isotope][1]             # <<<<<<<<<<<<<<
@@ -8546,21 +8026,21 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
           if (unlikely(__pyx_v_mass_provider == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 522; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+            {__pyx_filename = __pyx_f[0]; __pyx_lineno = 532; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           }
-          __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 522; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 532; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_3);
-          __pyx_t_12 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_isotope, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(__pyx_t_12 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 522; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_12 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_isotope, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(__pyx_t_12 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 532; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_12);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_12, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 522; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+          __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_12, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(__pyx_t_3 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 532; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
           __Pyx_GOTREF(__pyx_t_3);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-          __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 522; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 532; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __pyx_v_isotope_frequency = ((double)__pyx_t_13);
 
-          /* "glypy\composition\ccomposition.pyx":524
+          /* "glypy\composition\ccomposition.pyx":534
  *                     isotope_frequency = <double>mass_provider[element_name][isotope][1]
  * 
  *                     mass += quantity * isotope_mass * isotope_frequency             # <<<<<<<<<<<<<<
@@ -8569,7 +8049,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
           __pyx_v_mass = (__pyx_v_mass + ((__pyx_v_quantity * __pyx_v_isotope_mass) * __pyx_v_isotope_frequency));
 
-          /* "glypy\composition\ccomposition.pyx":519
+          /* "glypy\composition\ccomposition.pyx":529
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:
  *                 if isotope != 0:             # <<<<<<<<<<<<<<
@@ -8578,7 +8058,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
         }
 
-        /* "glypy\composition\ccomposition.pyx":518
+        /* "glypy\composition\ccomposition.pyx":528
  *         # not specified.
  *         if (not isotope_num) and average:
  *             for isotope in mass_provider[element_name]:             # <<<<<<<<<<<<<<
@@ -8588,7 +8068,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
       }
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":517
+      /* "glypy\composition\ccomposition.pyx":527
  *         # Calculate average mass if required and the isotope number is
  *         # not specified.
  *         if (not isotope_num) and average:             # <<<<<<<<<<<<<<
@@ -8598,7 +8078,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
       goto __pyx_L13;
     }
 
-    /* "glypy\composition\ccomposition.pyx":526
+    /* "glypy\composition\ccomposition.pyx":536
  *                     mass += quantity * isotope_mass * isotope_frequency
  *         else:
  *             interim = PyDict_GetItem(mass_provider, element_name)             # <<<<<<<<<<<<<<
@@ -8608,30 +8088,30 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     /*else*/ {
       __pyx_v_interim = PyDict_GetItem(__pyx_v_mass_provider, __pyx_v_element_name);
 
-      /* "glypy\composition\ccomposition.pyx":527
+      /* "glypy\composition\ccomposition.pyx":537
  *         else:
  *             interim = PyDict_GetItem(mass_provider, element_name)
  *             interim = PyDict_GetItem(<dict>interim, isotope_num)             # <<<<<<<<<<<<<<
  *             isotope_mass = PyFloat_AsDouble(<object>PyTuple_GetItem(<tuple>interim, 0))
  * 
  */
-      __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_isotope_num); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 527; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_isotope_num); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 537; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_v_interim = PyDict_GetItem(((PyObject *)__pyx_v_interim), __pyx_t_4);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "glypy\composition\ccomposition.pyx":528
+      /* "glypy\composition\ccomposition.pyx":538
  *             interim = PyDict_GetItem(mass_provider, element_name)
  *             interim = PyDict_GetItem(<dict>interim, isotope_num)
  *             isotope_mass = PyFloat_AsDouble(<object>PyTuple_GetItem(<tuple>interim, 0))             # <<<<<<<<<<<<<<
  * 
  *             mass += (composition.getitem(isotope_string) * isotope_mass)
  */
-      __pyx_t_8 = PyTuple_GetItem(((PyObject *)__pyx_v_interim), 0); if (unlikely(__pyx_t_8 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __pyx_t_13 = PyFloat_AsDouble(((PyObject *)__pyx_t_8)); if (unlikely(__pyx_t_13 == -1.0 && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 528; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_8 = PyTuple_GetItem(((PyObject *)__pyx_v_interim), 0); if (unlikely(__pyx_t_8 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 538; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_13 = PyFloat_AsDouble(((PyObject *)__pyx_t_8)); if (unlikely(__pyx_t_13 == -1.0 && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 538; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __pyx_v_isotope_mass = __pyx_t_13;
 
-      /* "glypy\composition\ccomposition.pyx":530
+      /* "glypy\composition\ccomposition.pyx":540
  *             isotope_mass = PyFloat_AsDouble(<object>PyTuple_GetItem(<tuple>interim, 0))
  * 
  *             mass += (composition.getitem(isotope_string) * isotope_mass)             # <<<<<<<<<<<<<<
@@ -8643,40 +8123,41 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     __pyx_L13:;
   }
 
-  /* "glypy\composition\ccomposition.pyx":533
+  /* "glypy\composition\ccomposition.pyx":543
  * 
  *     # Calculate m/z if required.
  *     if _charge != 0:             # <<<<<<<<<<<<<<
- *         mass /= _charge
+ *         mass /= abs(_charge)
  * 
  */
   __pyx_t_2 = ((__pyx_v__charge != 0) != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":534
+    /* "glypy\composition\ccomposition.pyx":544
  *     # Calculate m/z if required.
  *     if _charge != 0:
- *         mass /= _charge             # <<<<<<<<<<<<<<
+ *         mass /= abs(_charge)             # <<<<<<<<<<<<<<
  * 
  *     if old_charge != 0:
  */
-    if (unlikely(__pyx_v__charge == 0)) {
+    __pyx_t_14 = __Pyx_abs_long(__pyx_v__charge); 
+    if (unlikely(__pyx_t_14 == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 534; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 544; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
-    __pyx_v_mass = (__pyx_v_mass / __pyx_v__charge);
+    __pyx_v_mass = (__pyx_v_mass / __pyx_t_14);
 
-    /* "glypy\composition\ccomposition.pyx":533
+    /* "glypy\composition\ccomposition.pyx":543
  * 
  *     # Calculate m/z if required.
  *     if _charge != 0:             # <<<<<<<<<<<<<<
- *         mass /= _charge
+ *         mass /= abs(_charge)
  * 
  */
   }
 
-  /* "glypy\composition\ccomposition.pyx":536
- *         mass /= _charge
+  /* "glypy\composition\ccomposition.pyx":546
+ *         mass /= abs(_charge)
  * 
  *     if old_charge != 0:             # <<<<<<<<<<<<<<
  *         composition.setitem('H+', old_charge)
@@ -8685,7 +8166,7 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __pyx_t_2 = ((__pyx_v_old_charge != 0) != 0);
   if (__pyx_t_2) {
 
-    /* "glypy\composition\ccomposition.pyx":537
+    /* "glypy\composition\ccomposition.pyx":547
  * 
  *     if old_charge != 0:
  *         composition.setitem('H+', old_charge)             # <<<<<<<<<<<<<<
@@ -8694,8 +8175,8 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
  */
     __pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem(__pyx_v_composition, __pyx_kp_s_H, __pyx_v_old_charge);
 
-    /* "glypy\composition\ccomposition.pyx":536
- *         mass /= _charge
+    /* "glypy\composition\ccomposition.pyx":546
+ *         mass /= abs(_charge)
  * 
  *     if old_charge != 0:             # <<<<<<<<<<<<<<
  *         composition.setitem('H+', old_charge)
@@ -8704,18 +8185,18 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
     goto __pyx_L20;
   }
 
-  /* "glypy\composition\ccomposition.pyx":539
+  /* "glypy\composition\ccomposition.pyx":549
  *         composition.setitem('H+', old_charge)
  *     else:
  *         PyDict_DelItem(composition, "H+")             # <<<<<<<<<<<<<<
  *     return mass
  */
   /*else*/ {
-    __pyx_t_11 = PyDict_DelItem(((PyObject *)__pyx_v_composition), __pyx_kp_s_H); if (unlikely(__pyx_t_11 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 539; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_11 = PyDict_DelItem(((PyObject *)__pyx_v_composition), __pyx_kp_s_H); if (unlikely(__pyx_t_11 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 549; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_L20:;
 
-  /* "glypy\composition\ccomposition.pyx":540
+  /* "glypy\composition\ccomposition.pyx":550
  *     else:
  *         PyDict_DelItem(composition, "H+")
  *     return mass             # <<<<<<<<<<<<<<
@@ -8723,10 +8204,10 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __pyx_r = __pyx_v_mass;
   goto __pyx_L0;
 
-  /* "glypy\composition\ccomposition.pyx":448
+  /* "glypy\composition\ccomposition.pyx":458
  * @cython.wraparound(False)
  * @cython.boundscheck(False)
- * cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
+ * cpdef double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:             # <<<<<<<<<<<<<<
  *     """Calculates the monoisotopic mass of a chemical formula or CComposition object.
  * 
  */
@@ -8745,7 +8226,6 @@ static CYTHON_INLINE double __pyx_f_5glypy_11composition_12ccomposition_calculat
   __Pyx_XDECREF(__pyx_v_key_list);
   __Pyx_XDECREF((PyObject *)__pyx_v_composition);
   __Pyx_XDECREF(__pyx_v_charge);
-  __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -8813,7 +8293,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_1calculate_mass(Py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_mass") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_mass") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -8829,7 +8309,7 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_1calculate_mass(Py
     __pyx_v_composition = ((struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *)values[0]);
     __pyx_v_formula = ((PyObject*)values[1]);
     if (values[2]) {
-      __pyx_v_average = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_average == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      __pyx_v_average = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_average == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
     } else {
       __pyx_v_average = ((int)0);
     }
@@ -8838,14 +8318,14 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_1calculate_mass(Py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("calculate_mass", 0, 0, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("calculate_mass", 0, 0, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("glypy.composition.ccomposition.calculate_mass", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_composition), __pyx_ptype_5glypy_11composition_12ccomposition_CComposition, 1, "composition", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_composition), __pyx_ptype_5glypy_11composition_12ccomposition_CComposition, 1, "composition", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_formula), (&PyString_Type), 1, "formula", 1))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(__pyx_self, __pyx_v_composition, __pyx_v_formula, __pyx_v_average, __pyx_v_charge, __pyx_v_mass_data);
 
   /* function exit code */
@@ -8859,7 +8339,6 @@ static PyObject *__pyx_pw_5glypy_11composition_12ccomposition_1calculate_mass(Py
 
 static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *__pyx_v_composition, PyObject *__pyx_v_formula, int __pyx_v_average, PyObject *__pyx_v_charge, PyObject *__pyx_v_mass_data) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
   double __pyx_t_1;
   struct __pyx_opt_args_5glypy_11composition_12ccomposition_calculate_mass __pyx_t_2;
@@ -8868,7 +8347,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(CYT
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("calculate_mass", 0);
-  __Pyx_TraceCall("calculate_mass", __pyx_f[0], 448, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 5;
   __pyx_t_2.composition = __pyx_v_composition;
@@ -8876,8 +8354,8 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(CYT
   __pyx_t_2.average = __pyx_v_average;
   __pyx_t_2.charge = __pyx_v_charge;
   __pyx_t_2.mass_data = __pyx_v_mass_data;
-  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(0, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_5glypy_11composition_12ccomposition_calculate_mass(0, &__pyx_t_2); if (unlikely(__pyx_t_1 == -1.0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 458; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -8890,7 +8368,6 @@ static PyObject *__pyx_pf_5glypy_11composition_12ccomposition_calculate_mass(CYT
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_TraceReturn(__pyx_r, 0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -9150,17 +8627,16 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Must_provide_a_composition_or_fo, __pyx_k_Must_provide_a_composition_or_fo, sizeof(__pyx_k_Must_provide_a_composition_or_fo), 0, 0, 1, 0},
   {&__pyx_kp_s_Must_provide_a_composition_or_fo_2, __pyx_k_Must_provide_a_composition_or_fo_2, sizeof(__pyx_k_Must_provide_a_composition_or_fo_2), 0, 0, 1, 0},
   {&__pyx_n_s_NotImplemented, __pyx_k_NotImplemented, sizeof(__pyx_k_NotImplemented), 0, 0, 1, 1},
-  {&__pyx_kp_s_Only_one_of_can_be_specified_Giv, __pyx_k_Only_one_of_can_be_specified_Giv, sizeof(__pyx_k_Only_one_of_can_be_specified_Giv), 0, 0, 1, 0},
   {&__pyx_kp_s_Unknown_chemical_element, __pyx_k_Unknown_chemical_element, sizeof(__pyx_k_Unknown_chemical_element), 0, 0, 1, 0},
   {&__pyx_kp_s_Unknown_chemical_element_in_the, __pyx_k_Unknown_chemical_element_in_the, sizeof(__pyx_k_Unknown_chemical_element_in_the), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
-  {&__pyx_kp_s__13, __pyx_k__13, sizeof(__pyx_k__13), 0, 0, 1, 0},
+  {&__pyx_kp_s__12, __pyx_k__12, sizeof(__pyx_k__12), 0, 0, 1, 0},
   {&__pyx_kp_s__2, __pyx_k__2, sizeof(__pyx_k__2), 0, 0, 1, 0},
   {&__pyx_kp_s__3, __pyx_k__3, sizeof(__pyx_k__3), 0, 0, 1, 0},
   {&__pyx_kp_s__4, __pyx_k__4, sizeof(__pyx_k__4), 0, 0, 1, 0},
   {&__pyx_kp_s__5, __pyx_k__5, sizeof(__pyx_k__5), 0, 0, 1, 0},
   {&__pyx_kp_s__6, __pyx_k__6, sizeof(__pyx_k__6), 0, 0, 1, 0},
-  {&__pyx_kp_s__9, __pyx_k__9, sizeof(__pyx_k__9), 0, 0, 1, 0},
+  {&__pyx_n_s_args, __pyx_k_args, sizeof(__pyx_k_args), 0, 0, 1, 1},
   {&__pyx_n_s_atom, __pyx_k_atom, sizeof(__pyx_k_atom), 0, 0, 1, 1},
   {&__pyx_n_s_average, __pyx_k_average, sizeof(__pyx_k_average), 0, 0, 1, 1},
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
@@ -9180,12 +8656,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_from_dict, __pyx_k_from_dict, sizeof(__pyx_k_from_dict), 0, 0, 1, 1},
   {&__pyx_n_s_from_formula, __pyx_k_from_formula, sizeof(__pyx_k_from_formula), 0, 0, 1, 1},
   {&__pyx_n_s_from_formula_parens, __pyx_k_from_formula_parens, sizeof(__pyx_k_from_formula_parens), 0, 0, 1, 1},
-  {&__pyx_n_s_get, __pyx_k_get, sizeof(__pyx_k_get), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
-  {&__pyx_n_s_init, __pyx_k_init, sizeof(__pyx_k_init), 0, 0, 1, 1},
-  {&__pyx_n_s_intersection, __pyx_k_intersection, sizeof(__pyx_k_intersection), 0, 0, 1, 1},
   {&__pyx_n_s_isdigit, __pyx_k_isdigit, sizeof(__pyx_k_isdigit), 0, 0, 1, 1},
   {&__pyx_n_s_isotope_pattern, __pyx_k_isotope_pattern, sizeof(__pyx_k_isotope_pattern), 0, 0, 1, 1},
   {&__pyx_n_s_isotope_string, __pyx_k_isotope_string, sizeof(__pyx_k_isotope_string), 0, 0, 1, 1},
@@ -9198,7 +8671,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_mass_dict, __pyx_k_mass_dict, sizeof(__pyx_k_mass_dict), 0, 0, 1, 1},
   {&__pyx_n_s_match, __pyx_k_match, sizeof(__pyx_k_match), 0, 0, 1, 1},
   {&__pyx_n_s_nist_mass, __pyx_k_nist_mass, sizeof(__pyx_k_nist_mass), 0, 0, 1, 1},
-  {&__pyx_n_s_pop, __pyx_k_pop, sizeof(__pyx_k_pop), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_capi, __pyx_k_pyx_capi, sizeof(__pyx_k_pyx_capi), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
@@ -9214,12 +8686,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_NotImplemented = __Pyx_GetBuiltinName(__pyx_n_s_NotImplemented); if (!__pyx_builtin_NotImplemented) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 197; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_round = __Pyx_GetBuiltinName(__pyx_n_s_round); if (!__pyx_builtin_round) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_sorted = __Pyx_GetBuiltinName(__pyx_n_s_sorted); if (!__pyx_builtin_sorted) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_builtin_id = __Pyx_GetBuiltinName(__pyx_n_s_id); if (!__pyx_builtin_id) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_NotImplemented = __Pyx_GetBuiltinName(__pyx_n_s_NotImplemented); if (!__pyx_builtin_NotImplemented) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 217; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_round = __Pyx_GetBuiltinName(__pyx_n_s_round); if (!__pyx_builtin_round) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_sorted = __Pyx_GetBuiltinName(__pyx_n_s_sorted); if (!__pyx_builtin_sorted) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_id = __Pyx_GetBuiltinName(__pyx_n_s_id); if (!__pyx_builtin_id) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -9229,49 +8701,49 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "glypy\composition\ccomposition.pyx":341
+  /* "glypy\composition\ccomposition.pyx":364
  *                                              # Omit the last character, then reverse the parse
  *                                              # stack string.
  *                                              formula=parse_stack[:-1][::-1],             # <<<<<<<<<<<<<<
  *                                              mass_data=mass_data)
  *                                              * group_coef)
  */
-  __pyx_slice__7 = PySlice_New(Py_None, Py_None, __pyx_int_neg_1); if (unlikely(!__pyx_slice__7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__7 = PySlice_New(Py_None, Py_None, __pyx_int_neg_1); if (unlikely(!__pyx_slice__7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 364; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__7);
   __Pyx_GIVEREF(__pyx_slice__7);
 
-  /* "glypy\composition\ccomposition.pyx":492
+  /* "glypy\composition\ccomposition.pyx":502
  *             composition = CComposition(formula)
  *         else:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument")             # <<<<<<<<<<<<<<
  *     else:
  *         if formula is not None:
  */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_s_Must_provide_a_composition_or_fo); if (unlikely(!__pyx_tuple__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 492; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_Must_provide_a_composition_or_fo); if (unlikely(!__pyx_tuple__9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "glypy\composition\ccomposition.pyx":495
+  /* "glypy\composition\ccomposition.pyx":505
  *     else:
  *         if formula is not None:
  *             raise ChemicalCompositionError("Must provide a composition or formula argument, but not both")             # <<<<<<<<<<<<<<
  * 
  *     # Get charge.
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_Must_provide_a_composition_or_fo_2); if (unlikely(!__pyx_tuple__11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 495; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_s_Must_provide_a_composition_or_fo_2); if (unlikely(!__pyx_tuple__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 505; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "glypy\composition\ccomposition.pyx":502
+  /* "glypy\composition\ccomposition.pyx":512
  *     else:
  *         if charge != 0 and composition.getitem('H+') != 0:
  *             raise ChemicalCompositionError("Charge is specified both by the number of protons and parameters")             # <<<<<<<<<<<<<<
  *     _charge = PyInt_AsLong(charge)
  *     old_charge = composition.getitem('H+')
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_Charge_is_specified_both_by_the); if (unlikely(!__pyx_tuple__12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 502; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple__12);
-  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_Charge_is_specified_both_by_the); if (unlikely(!__pyx_tuple__11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 512; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple__11);
+  __Pyx_GIVEREF(__pyx_tuple__11);
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -9280,7 +8752,6 @@ static int __Pyx_InitCachedConstants(void) {
 }
 
 static int __Pyx_InitGlobals(void) {
-  __pyx_umethod_PyList_Type_pop.type = (PyObject*)&PyList_Type;
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -9298,7 +8769,6 @@ PyMODINIT_FUNC PyInit_ccomposition(void); /*proto*/
 PyMODINIT_FUNC PyInit_ccomposition(void)
 #endif
 {
-  __Pyx_TraceDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   int __pyx_t_3;
@@ -9402,11 +8872,11 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __pyx_vtable_5glypy_11composition_12ccomposition_CComposition.getitem = (long (*)(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *, PyObject *))__pyx_f_5glypy_11composition_12ccomposition_12CComposition_getitem;
   __pyx_vtable_5glypy_11composition_12ccomposition_CComposition.setitem = (void (*)(struct __pyx_obj_5glypy_11composition_12ccomposition_CComposition *, PyObject *, long))__pyx_f_5glypy_11composition_12ccomposition_12CComposition_setitem;
   __pyx_type_5glypy_11composition_12ccomposition_CComposition.tp_base = (&PyDict_Type);
-  if (PyType_Ready(&__pyx_type_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 77; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 78; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_5glypy_11composition_12ccomposition_CComposition.tp_print = 0;
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_5glypy_11composition_12ccomposition_CComposition, "__init__"); if (unlikely(!wrapper)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 77; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_5glypy_11composition_12ccomposition_CComposition, "__init__"); if (unlikely(!wrapper)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 78; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
       __pyx_wrapperbase_5glypy_11composition_12ccomposition_12CComposition_42__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
       __pyx_wrapperbase_5glypy_11composition_12ccomposition_12CComposition_42__init__.doc = __pyx_doc_5glypy_11composition_12ccomposition_12CComposition_42__init__;
@@ -9414,8 +8884,8 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_5glypy_11composition_12ccomposition_CComposition.tp_dict, __pyx_vtabptr_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 77; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "CComposition", (PyObject *)&__pyx_type_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 77; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_SetVtable(__pyx_type_5glypy_11composition_12ccomposition_CComposition.tp_dict, __pyx_vtabptr_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 78; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "CComposition", (PyObject *)&__pyx_type_5glypy_11composition_12ccomposition_CComposition) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 78; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_5glypy_11composition_12ccomposition_CComposition = &__pyx_type_5glypy_11composition_12ccomposition_CComposition;
   /*--- Type import code ---*/
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
@@ -9433,7 +8903,6 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   #if defined(__Pyx_Generator_USED) || defined(__Pyx_Coroutine_USED)
   if (__Pyx_patch_abc() < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   #endif
-  __Pyx_TraceCall("PyMODINIT_FUNC PyInit_ccomposition(void)", __pyx_f[0], 1, 0, {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;});
 
   /* "glypy\composition\ccomposition.pyx":4
  * 
@@ -9496,7 +8965,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":16
+  /* "glypy\composition\ccomposition.pyx":17
  * 
  * 
  * if PY_MAJOR_VERSION < 3:             # <<<<<<<<<<<<<<
@@ -9507,7 +8976,7 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   if (__pyx_t_3) {
   }
 
-  /* "glypy\composition\ccomposition.pyx":26
+  /* "glypy\composition\ccomposition.pyx":27
  * # Forward Declaration
  * cdef:
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'             # <<<<<<<<<<<<<<
@@ -9519,14 +8988,14 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF_SET(__pyx_v_5glypy_11composition_12ccomposition__atom, __pyx_kp_s_A_Z_a_z_d_d);
   __Pyx_GIVEREF(__pyx_kp_s_A_Z_a_z_d_d);
 
-  /* "glypy\composition\ccomposition.pyx":27
+  /* "glypy\composition\ccomposition.pyx":28
  * cdef:
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
  *     str _formula = r'^({})*$'.format(_atom)             # <<<<<<<<<<<<<<
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s__13, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s__12, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -9539,27 +9008,27 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_5glypy_11composition_12ccomposition__atom); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_5glypy_11composition_12ccomposition__atom); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_INCREF(__pyx_v_5glypy_11composition_12ccomposition__atom);
     __Pyx_GIVEREF(__pyx_v_5glypy_11composition_12ccomposition__atom);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_v_5glypy_11composition_12ccomposition__atom);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 27; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "str", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 28; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_XGOTREF(__pyx_v_5glypy_11composition_12ccomposition__formula);
   __Pyx_DECREF_SET(__pyx_v_5glypy_11composition_12ccomposition__formula, ((PyObject*)__pyx_t_1));
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":28
+  /* "glypy\composition\ccomposition.pyx":29
  *     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
  *     str _formula = r'^({})*$'.format(_atom)
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'             # <<<<<<<<<<<<<<
@@ -9571,16 +9040,16 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_DECREF_SET(__pyx_v_5glypy_11composition_12ccomposition__isotope_string, __pyx_kp_s_A_Z_a_z_d);
   __Pyx_GIVEREF(__pyx_kp_s_A_Z_a_z_d);
 
-  /* "glypy\composition\ccomposition.pyx":30
+  /* "glypy\composition\ccomposition.pyx":31
  *     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
  * 
  *     object isotope_pattern = re.compile(_isotope_string)             # <<<<<<<<<<<<<<
  *     object formula_pattern = re.compile(_formula)
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_compile); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_compile); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -9594,16 +9063,16 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_5glypy_11composition_12ccomposition__isotope_string); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_5glypy_11composition_12ccomposition__isotope_string); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __pyx_t_2 = NULL;
     __Pyx_INCREF(__pyx_v_5glypy_11composition_12ccomposition__isotope_string);
     __Pyx_GIVEREF(__pyx_v_5glypy_11composition_12ccomposition__isotope_string);
     PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_5glypy_11composition_12ccomposition__isotope_string);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
@@ -9613,16 +9082,16 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":31
+  /* "glypy\composition\ccomposition.pyx":32
  * 
  *     object isotope_pattern = re.compile(_isotope_string)
  *     object formula_pattern = re.compile(_formula)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_re); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_compile); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_compile); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -9636,16 +9105,16 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_5glypy_11composition_12ccomposition__formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_5glypy_11composition_12ccomposition__formula); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_5); __pyx_t_5 = NULL;
     __Pyx_INCREF(__pyx_v_5glypy_11composition_12ccomposition__formula);
     __Pyx_GIVEREF(__pyx_v_5glypy_11composition_12ccomposition__formula);
     PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_v_5glypy_11composition_12ccomposition__formula);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
@@ -9655,37 +9124,37 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":368
+  /* "glypy\composition\ccomposition.pyx":391
  * 
  * 
  *     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:             # <<<<<<<<<<<<<<
  *         cdef long mdid
  *         mdid = id(mass_data)
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_k__8 = ((PyObject*)__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nist_mass); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_1)->tp_name), 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_k__8 = ((PyObject*)__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "glypy\composition\ccomposition.pyx":443
+  /* "glypy\composition\ccomposition.pyx":453
  *         self._mass_args = None
  * 
  * Composition = CComposition             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Composition_2, ((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition)) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Composition_2, ((PyObject *)__pyx_ptype_5glypy_11composition_12ccomposition_CComposition)) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 453; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "glypy\composition\ccomposition.pyx":1
- * #cython: boundscheck=False, debug=True, profile=True             # <<<<<<<<<<<<<<
+ * #cython: boundscheck=False             # <<<<<<<<<<<<<<
  * 
  * # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
  */
@@ -9693,7 +9162,6 @@ PyMODINIT_FUNC PyInit_ccomposition(void)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_TraceReturn(Py_None, 0);
 
   /*--- Wrapped vars code ---*/
 
@@ -9749,98 +9217,6 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
     }
     return result;
 }
-
-#if CYTHON_PROFILE
-static int __Pyx_TraceSetupAndCall(PyCodeObject** code,
-                                   PyFrameObject** frame,
-                                   const char *funcname,
-                                   const char *srcfile,
-                                   int firstlineno) {
-    PyObject *type, *value, *traceback;
-    int retval;
-    PyThreadState* tstate = PyThreadState_GET();
-    if (*frame == NULL || !CYTHON_PROFILE_REUSE_FRAME) {
-        if (*code == NULL) {
-            *code = __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);
-            if (*code == NULL) return 0;
-        }
-        *frame = PyFrame_New(
-            tstate,                          /*PyThreadState *tstate*/
-            *code,                           /*PyCodeObject *code*/
-            __pyx_d,                  /*PyObject *globals*/
-            0                                /*PyObject *locals*/
-        );
-        if (*frame == NULL) return 0;
-        if (CYTHON_TRACE && (*frame)->f_trace == NULL) {
-            Py_INCREF(Py_None);
-            (*frame)->f_trace = Py_None;
-        }
-#if PY_VERSION_HEX < 0x030400B1
-    } else {
-        (*frame)->f_tstate = tstate;
-#endif
-    }
-    (*frame)->f_lineno = firstlineno;
-    retval = 1;
-    tstate->tracing++;
-    tstate->use_tracing = 0;
-    PyErr_Fetch(&type, &value, &traceback);
-    #if CYTHON_TRACE
-    if (tstate->c_tracefunc)
-        retval = tstate->c_tracefunc(tstate->c_traceobj, *frame, PyTrace_CALL, NULL) == 0;
-    if (retval && tstate->c_profilefunc)
-    #endif
-        retval = tstate->c_profilefunc(tstate->c_profileobj, *frame, PyTrace_CALL, NULL) == 0;
-    tstate->use_tracing = (tstate->c_profilefunc ||
-                           (CYTHON_TRACE && tstate->c_tracefunc));
-    tstate->tracing--;
-    if (retval) {
-        PyErr_Restore(type, value, traceback);
-        return tstate->use_tracing && retval;
-    } else {
-        Py_XDECREF(type);
-        Py_XDECREF(value);
-        Py_XDECREF(traceback);
-        return -1;
-    }
-}
-static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno) {
-    PyObject *py_srcfile = 0;
-    PyObject *py_funcname = 0;
-    PyCodeObject *py_code = 0;
-    #if PY_MAJOR_VERSION < 3
-    py_funcname = PyString_FromString(funcname);
-    py_srcfile = PyString_FromString(srcfile);
-    #else
-    py_funcname = PyUnicode_FromString(funcname);
-    py_srcfile = PyUnicode_FromString(srcfile);
-    #endif
-    if (!py_funcname | !py_srcfile) goto bad;
-    py_code = PyCode_New(
-        0,
-        #if PY_MAJOR_VERSION >= 3
-        0,
-        #endif
-        0,
-        0,
-        0,
-        __pyx_empty_bytes,     /*PyObject *code,*/
-        __pyx_empty_tuple,     /*PyObject *consts,*/
-        __pyx_empty_tuple,     /*PyObject *names,*/
-        __pyx_empty_tuple,     /*PyObject *varnames,*/
-        __pyx_empty_tuple,     /*PyObject *freevars,*/
-        __pyx_empty_tuple,     /*PyObject *cellvars,*/
-        py_srcfile,       /*PyObject *filename,*/
-        py_funcname,      /*PyObject *name,*/
-        firstlineno,
-        __pyx_empty_bytes      /*PyObject *lnotab*/
-    );
-bad:
-    Py_XDECREF(py_srcfile);
-    Py_XDECREF(py_funcname);
-    return py_code;
-}
-#endif
 
 static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Generic(PyObject *o, PyObject* j) {
     PyObject *r;
@@ -11116,109 +10492,6 @@ static PyObject* __Pyx_PyInt_SubtractObjC(PyObject *op1, PyObject *op2, CYTHON_U
             return PyFloat_FromDouble(result);
     }
     return (inplace ? PyNumber_InPlaceSubtract : PyNumber_Subtract)(op1, op2);
-}
-#endif
-
-static PyObject* __Pyx_PyDict_GetItemDefault(PyObject* d, PyObject* key, PyObject* default_value) {
-    PyObject* value;
-#if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
-    value = PyDict_GetItemWithError(d, key);
-    if (unlikely(!value)) {
-        if (unlikely(PyErr_Occurred()))
-            return NULL;
-        value = default_value;
-    }
-    Py_INCREF(value);
-#else
-    if (PyString_CheckExact(key) || PyUnicode_CheckExact(key) || PyInt_CheckExact(key)) {
-        value = PyDict_GetItem(d, key);
-        if (unlikely(!value)) {
-            value = default_value;
-        }
-        Py_INCREF(value);
-    } else {
-        if (default_value == Py_None)
-            default_value = NULL;
-        value = PyObject_CallMethodObjArgs(
-            d, __pyx_n_s_get, key, default_value, NULL);
-    }
-#endif
-    return value;
-}
-
-static PyObject* __Pyx_PyObject_CallMethod0(PyObject* obj, PyObject* method_name) {
-    PyObject *method, *result = NULL;
-    method = __Pyx_PyObject_GetAttrStr(obj, method_name);
-    if (unlikely(!method)) goto bad;
-#if CYTHON_COMPILING_IN_CPYTHON
-    if (likely(PyMethod_Check(method))) {
-        PyObject *self = PyMethod_GET_SELF(method);
-        if (likely(self)) {
-            PyObject *function = PyMethod_GET_FUNCTION(method);
-            result = __Pyx_PyObject_CallOneArg(function, self);
-            Py_DECREF(method);
-            return result;
-        }
-    }
-#endif
-    result = __Pyx_PyObject_CallNoArg(method);
-    Py_DECREF(method);
-bad:
-    return result;
-}
-
-static int __Pyx_TryUnpackUnboundCMethod(__Pyx_CachedCFunction* target) {
-    PyObject *method;
-    method = __Pyx_PyObject_GetAttrStr(target->type, *target->method_name);
-    if (unlikely(!method))
-        return -1;
-    target->method = method;
-#if CYTHON_COMPILING_IN_CPYTHON
-    #if PY_MAJOR_VERSION >= 3
-    if (likely(PyObject_TypeCheck(method, &PyMethodDescr_Type)))
-    #endif
-    {
-        PyMethodDescrObject *descr = (PyMethodDescrObject*) method;
-        target->func = descr->d_method->ml_meth;
-        target->flag = descr->d_method->ml_flags & (METH_VARARGS | METH_KEYWORDS | METH_O | METH_NOARGS);
-    }
-#endif
-    return 0;
-}
-
-static PyObject* __Pyx__CallUnboundCMethod0(__Pyx_CachedCFunction* cfunc, PyObject* self) {
-    PyObject *args, *result = NULL;
-    if (unlikely(!cfunc->method) && unlikely(__Pyx_TryUnpackUnboundCMethod(cfunc) < 0)) return NULL;
-#if CYTHON_COMPILING_IN_CPYTHON
-    args = PyTuple_New(1);
-    if (unlikely(!args)) goto bad;
-    Py_INCREF(self);
-    PyTuple_SET_ITEM(args, 0, self);
-#else
-    args = PyTuple_Pack(1, self);
-    if (unlikely(!args)) goto bad;
-#endif
-    result = __Pyx_PyObject_Call(cfunc->method, args, NULL);
-    Py_DECREF(args);
-bad:
-    return result;
-}
-
-static CYTHON_INLINE PyObject* __Pyx__PyObject_Pop(PyObject* L) {
-#if CYTHON_COMPILING_IN_CPYTHON
-    if (Py_TYPE(L) == &PySet_Type) {
-        return PySet_Pop(L);
-    }
-#endif
-    return __Pyx_PyObject_CallMethod0(L, __pyx_n_s_pop);
-}
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyList_Pop(PyObject* L) {
-    if (likely(PyList_GET_SIZE(L) > (((PyListObject*)L)->allocated >> 1))) {
-        Py_SIZE(L) -= 1;
-        return PyList_GET_ITEM(L, PyList_GET_SIZE(L));
-    }
-    return __Pyx_CallUnboundCMethod0(&__pyx_umethod_PyList_Type_pop, L);
 }
 #endif
 

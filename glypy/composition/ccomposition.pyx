@@ -9,7 +9,8 @@ cimport cython
 from cpython cimport PY_MAJOR_VERSION
 
 from cpython.ref cimport PyObject
-from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next, PyDict_Keys, PyDict_Update, PyDict_DelItem
+from cpython.dict cimport (PyDict_GetItem, PyDict_SetItem, PyDict_Next,
+                           PyDict_Keys, PyDict_Update, PyDict_DelItem, PyDict_Size)
 from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
 
@@ -32,7 +33,7 @@ cdef:
 
 
 @cython.boundscheck(False)
-cdef inline str _parse_isotope_string(str label, int* isotope_num):
+cdef str _parse_isotope_string(str label, int* isotope_num):
     cdef:
         # int isotope_num = 0
         int i = 0
@@ -60,7 +61,7 @@ cdef inline str _parse_isotope_string(str label, int* isotope_num):
     return element_name
 
 
-cdef inline str _make_isotope_string(str element_name, int isotope_num):
+cdef str _make_isotope_string(str element_name, int isotope_num):
     """Form a string label for an isotope."""
     cdef:
         tuple parts
@@ -187,12 +188,31 @@ cdef class CComposition(dict):
 
 
     def __richcmp__(self, other, int code):
+        cdef:
+            Py_ssize_t self_size, other_size
+            PyObject *pkey
+            PyObject *pvalue
+            PyObject *pinterm
+            long self_value, other_value
+
         if code == 2:
             if not isinstance(other, dict):
                 return False
-            self_items = set([i for i in self.items() if i[1]])
-            other_items = set([i for i in other.items() if i[1]])
-            return self_items == other_items
+            self_size = PyDict_Size(self)
+            other_size = PyDict_Size(other)
+            if self_size > other_size:
+                self, other = other, self
+            other_size = 0
+            while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+                other_value = PyInt_AsLong(<object>pvalue)
+                pinterm = PyDict_GetItem(self, <object>pkey)
+                if pinterm == NULL:
+                    self_value = 0
+                else:
+                    self_value = PyInt_AsLong(<object>pinterm)
+                if self_value != other_value:
+                    return False
+            return True
         else:
             return NotImplemented
 
@@ -206,14 +226,17 @@ cdef class CComposition(dict):
 
     def __setitem__(self, str key, object value):
         cdef long int_value = PyInt_AsLong(round(value))
-        if value:  # Will not occur on 0 as 0 is falsey AND an integer
-            self.setitem(key, value)
+        if int_value:  # Will not occur on 0 as 0 is falsey AND an integer
+            self.setitem(key, int_value)
         elif key in self:
             del self[key]
         self._mass_args = None
 
     def copy(self):
-        return CComposition(self)
+        cdef CComposition dup
+        dup = CComposition()
+        PyDict_Update(dup, self)
+        return dup
 
     cdef inline long getitem(self, str elem):
         cdef:
@@ -380,7 +403,7 @@ cdef class CComposition(dict):
         def __get__(self):
             return self.calc_mass()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, args=None, formula=None, dict mass_data=None, **kwargs):
         """
         A Composition object stores a chemical composition of a
         substance. Basically it is a dict object, in which keys are the names
@@ -404,37 +427,24 @@ cdef class CComposition(dict):
             A dict with the masses of chemical elements (the default
             value is :py:data:`nist_mass`). It is used for formulae parsing only.
         """
-        dict.__init__(self)
-        cdef:
-            dict mass_data
-            str kwa
-            set kw_sources
-        mass_data = kwargs.get('mass_data', nist_mass)
+        #dict.__init__(self)
+        if mass_data is None:
+            mass_data = nist_mass
 
-        kw_sources = set(
-            ('formula',))
-        kw_given = kw_sources.intersection(kwargs)
-        if len(kw_given) > 1:
-            raise ChemicalCompositionError('Only one of {} can be specified!\n\
-                Given: {}'.format(', '.join(kw_sources),
-                                  ', '.join(kw_given)))
+        if formula is not None:
+            self._from_formula(formula, mass_data)
 
-        elif kw_given:
-            kwa = kw_given.pop()
-            if kwa == "formula":
-                self._from_formula(kwargs[kwa], mass_data)
-        # can't build from kwargs
         elif args:
-            if isinstance(args[0], dict):
-                self._from_dict(args[0])
-            elif isinstance(args[0], str):
+            if isinstance(args, dict):
+                self._from_dict(args)
+            elif isinstance(args, str):
                 try:
-                    self._from_formula(args[0], mass_data)
+                    self._from_formula(args, mass_data)
                 except ChemicalCompositionError:
                     raise ChemicalCompositionError(
                         'Could not create a Composition object from '
-                        'string: "{}": not a valid sequence or '
-                        'formula'.format(args[0]))
+                        'string: "{}": not a '
+                        'formula'.format(args))
         else:
             self._from_dict(kwargs)
         self._mass = None
@@ -445,7 +455,7 @@ Composition = CComposition
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-cpdef inline double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:
+cpdef double calculate_mass(CComposition composition=None, str formula=None, int average=False, charge=None, mass_data=None) except -1:
     """Calculates the monoisotopic mass of a chemical formula or CComposition object.
 
     Parameters
@@ -531,7 +541,7 @@ cpdef inline double calculate_mass(CComposition composition=None, str formula=No
 
     # Calculate m/z if required.
     if _charge != 0:
-        mass /= _charge
+        mass /= abs(_charge)
 
     if old_charge != 0:
         composition.setitem('H+', old_charge)

@@ -1,3 +1,5 @@
+[![https://img.shields.io/travis/mobiusklein/glypy.svg](https://img.shields.io/travis/mobiusklein/glypy.svg)](https://travis-ci.org/mobiusklein/glypy)
+[![Documentation Status](https://readthedocs.org/projects/glypy/badge/?version=master)](http://glypy.readthedocs.org/en/master/?badge=master)
 # glypy
 Glycan Analysis and Glycominformatics Library for Python
 
@@ -9,8 +11,6 @@ Much in the same way other bioinformatics libraries provide ways to represent DN
 this library attempts to provide a representation of glycans. Much of the variation found in the
 building blocks of these structures, monosaccharides, are caused by substitutions of functional groups on a
 common core structure.
-
-[Docs](http://glypy.readthedocs.org/)
 
 ## Features
 
@@ -26,7 +26,7 @@ common core structure.
 2. Add, remove, and modify these structures to alter glycan properties.
 3. Identify substructures and motifs, classifying glycans.
 4. Score structural similarities with one of several ordering and comparator methods.
-6. Plot tree structures with Matplotlib, rendering against any viable backend using configurable symbol nomenclature, such as Consortium for Functional Glycomics (CFG). Specialized SVG labeling for better web-interactivity.
+6. Plot tree structures with Matplotlib, rendering against any viable backend using configurable symbol nomenclature, such as Consortium for Functional Glycomics (CFG) or IUPAC text. Specialized SVG labeling for better web-interactivity.
 
 ### Example Cases
 3. Calculate the mass of a native or derivatized glycan.

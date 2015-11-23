@@ -1,28 +1,29 @@
 
 from ..utils import make_counter
-from ..structure.base import SaccharideCollection, SaccharideBase
+from ..structure.base import SaccharideCollection, SaccharideBase, SubstituentBase
 from ..structure import Substituent
 from ..structure import Monosaccharide
 from ..structure import Modification
-from ..structure import Glycan
-from ..algorithms.similarity import commutative_similarity
-
 from .composition import Composition
 
 
 def derivatize(saccharide, substituent):
-    '''
+    r'''
     For each monosaccharide and viable substituent, attach the specified
     substituent.
 
     .. warning::
         This function mutates the input `saccharide` object, because copying objects
         is expensive. If you want to continue using the underivatized object, create
-        a copy of it using the object's :meth:`.clone` method.
+        a copy of it using the object's `clone` method.
+
+    When called on an instance of :class:`SaccharideCollection`, such as |Glycan| or
+    :class:`GlycanComposition`, that type's `_derivatized` method will be called for
+    any special book-keeping that must be done. This is a NoOp for |Glycan|
 
     See Also
     --------
-    :func:`.strip_derivitization`
+    :func:`strip_derivitization`
 
     '''
     if isinstance(substituent, basestring):
@@ -30,8 +31,12 @@ def derivatize(saccharide, substituent):
     id_base = make_counter(-substituent.id * 32)
     if isinstance(saccharide, SaccharideCollection):
         for node in saccharide:
-            _strip_derivatization_monosaccharide(node)
-            _derivatize_monosaccharide(node, substituent, id_base)
+            if node.node_type is SaccharideBase.node_type:
+                _strip_derivatization_monosaccharide(node)
+                _derivatize_monosaccharide(node, substituent, id_base)
+            elif node.node_type is SubstituentBase.node_type:
+                _strip_derivatization_substituent(node)
+                _derivatize_substituent(node, substituent, id_base)
         saccharide._derivatized(substituent, id_base)
     elif isinstance(saccharide, SaccharideBase):
         _derivatize_monosaccharide(saccharide, substituent, id_base)
@@ -67,11 +72,7 @@ def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
             s, parent_loss=attachment_composition_loss,
             position=site, child_loss=Composition(H=1), child_position=1)
     for p, subst in monosaccharide_obj.substituents():
-        if subst.is_nh_derivatizable and substituent.can_nh_derivatize:
-            s = substituent.clone()
-            s._derivatize = True
-            s.id = id_base()
-            subst.add_substituent(s, position=2, child_position=1)
+        _derivatize_substituent(subst, substituent, id_base)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
         _derivatize_reducing_end(red_end, substituent, id_base)
@@ -84,6 +85,14 @@ def _derivatize_monosaccharide(monosaccharide_obj, substituent, id_base=None):
             monosaccharide_obj.add_substituent(
                 s, position=pos, parent_loss=attachment_composition_loss, max_occupancy=3,
                 child_loss=Composition(H=1), child_position=1)
+
+
+def _derivatize_substituent(subst, deriv, id_base):
+    if subst.is_nh_derivatizable and deriv.can_nh_derivatize:
+        s = deriv.clone()
+        s._derivatize = True
+        s.id = id_base()
+        subst.add_substituent(s, position=2, child_position=1)
 
 
 def _derivatize_reducing_end(reducing_end, substituent, id_base=None):
@@ -105,6 +114,10 @@ def strip_derivatization(saccharide):
     .. warning::
         This function, like :func:`derivatize`, will mutate the input `saccharide`.
 
+    When called on an instance of :class:`SaccharideCollection`, such as |Glycan| or
+    :class:`GlycanComposition`, that type's `_strip_derivatization` method will be called for
+    any special book-keeping that must be done. This is a NoOp for |Glycan|
+
     See Also
     --------
     :func:`.derivatize`
@@ -118,25 +131,29 @@ def strip_derivatization(saccharide):
 
 
 def _strip_derivatization_monosaccharide(monosaccharide_obj):
-    for pos, subst_link in monosaccharide_obj.substituent_links.items():
+    for pos, subst_link in list(monosaccharide_obj.substituent_links.items()):
         if subst_link.child._derivatize:
             monosaccharide_obj.drop_substituent(pos, subst_link.child)
         else:
             sub_node = subst_link.child
-            for sub_pos, subst_link in sub_node.links.items():
-                try:
-                    if subst_link.child._derivatize:
-                        sub_node.drop_substituent(sub_pos, subst_link.child)
-                except AttributeError:
-                    if subst_link.child.node_type is Monosaccharide.node_type:
-                        _strip_derivatization_monosaccharide(subst_link.child)
+            _strip_derivatization_substituent(sub_node)
     red_end = monosaccharide_obj.reducing_end
     if red_end is not None:
         _strip_derivatization_reducing_end(red_end)
 
 
+def _strip_derivatization_substituent(sub_node):
+    for sub_pos, subst_link in list(sub_node.links.items()):
+        try:
+            if subst_link.child._derivatize:
+                sub_node.drop_substituent(sub_pos, subst_link.child)
+        except AttributeError:
+            if subst_link.child.node_type is Monosaccharide.node_type:
+                _strip_derivatization_monosaccharide(subst_link.child)
+
+
 def _strip_derivatization_reducing_end(reducing_end):
-    for pos, subst_link in reducing_end.links.items():
+    for pos, subst_link in list(reducing_end.links.items()):
         if subst_link.child._derivatize:
             reducing_end.drop_substituent(pos, subst_link.child)
 

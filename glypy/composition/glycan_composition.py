@@ -1,17 +1,42 @@
+'''
+:class:`GlycanComposition`, :class:`MonosaccharideResidue`, and :class:`SubstituentResidue` are
+useful for working with bag-of-residues where topology and connections are not relevant, but
+the aggregate composition is known. These types work with a subset of the IUPAC three letter code
+for specifying compositions.
+
+
+>>> g = GlycanComposition(Hex=3, HexNAc=2)
+>>> g["Hex"]
+3
+>>> r = MonosaccharideResidue.from_iupac_lite("Hex")
+>>> r
+MonosaccharideResidue(Hex)
+>>> g[r]
+3
+>>> import glypy
+>>> abs(g.mass() - glypy.motifs["N-Glycan core basic 1"].mass()) < 1e-5
+True
+>>> g2 = GlycanComposition(Hex=5)
+>>> g["@n-acetyl"] = -2 # Remove two n-acetyl groups from the composition
+>>> abs(g.mass() - g2.mass()) < 1e-5
+True
+
+'''
 import re
 from glypy import Composition, Monosaccharide, Glycan, Substituent
 from glypy.utils import tree
 from glypy.utils.multimap import OrderedMultiMap
 
 from glypy.structure.base import SaccharideCollection
+
 from glypy.io.iupac import (
     parse_modifications, named_structures, Modification,
     substituent_from_iupac, Stem, extract_modifications,
-    resolve_substituent, SuperClass, Configuration, aminate_substituent,
+    resolve_substituent, aminate_substituent,
     resolve_special_base_type as _resolve_special_base_type)
 
 
-from .composition_transform import (
+from glypy.composition.composition_transform import (
     derivatize, has_derivatization, strip_derivatization,
     _derivatize_reducing_end, _strip_derivatization_reducing_end)
 
@@ -23,7 +48,7 @@ monosaccharide_parser_lite = re.compile(r'''(?P<modification>[a-z0-9_\-,]*)
 def from_iupac_lite(monosaccharide_str):
     """
     Parse a string in a limited subset of IUPAC three letter code into
-    an instance of :class:`MonosaccharideResidue`.
+    an instance of :class:`MonosaccharideResidue` or :class:`SubstituentResidue`.
 
     Parameters
     ----------
@@ -36,7 +61,11 @@ def from_iupac_lite(monosaccharide_str):
     """
     match = monosaccharide_parser_lite.search(monosaccharide_str)
     if match is None:
-        raise ValueError("Cannot find monosaccharide pattern in {}".format(monosaccharide_str))
+        try:
+            result = SubstituentResidue.from_iupac_lite(monosaccharide_str)
+            return result
+        except:
+            raise ValueError("Cannot find pattern in {}".format(monosaccharide_str))
     match_dict = match.groupdict()
     base_type = match_dict["base_type"]
 
@@ -62,6 +91,12 @@ def from_iupac_lite(monosaccharide_str):
                     "Cannot have ambiguous location of substituents on a base type which"
                     " has default modifications or substituents. {} {}".format(
                         residue, (position, substituent)))
+
+        # Often, acidic monosaccharides will be suffixed "A" instead of prefixed "a".
+        # Handle this here.
+        if substituent == "A":
+            residue.add_modification(Modification.a, position)
+            continue
 
         substituent = Substituent(substituent)
         try:
@@ -129,6 +164,9 @@ def to_iupac_lite(residue):
     --------
     :func:`from_iupac_lite`
     """
+    if isinstance(residue, (SubstituentResidue)):
+        return residue.to_iupac_lite()
+
     template = "{modification}{base_type}{substituent}"
     modification = ""
     base_type = _resolve_special_base_type(residue)
@@ -244,7 +282,7 @@ class MonosaccharideResidue(Monosaccharide):
     def open_attachment_sites(self, max_occupancy=0):
         sites, unknowns = super(
             MonosaccharideResidue, self).open_attachment_sites(max_occupancy)
-        return sites[:-3], unknowns
+        return sites[:-2], unknowns
 
     def __eq__(self, other):
         '''
@@ -265,6 +303,66 @@ class MonosaccharideResidue(Monosaccharide):
     drop_stem = drop_stem
     drop_positions = drop_positions
     drop_configuration = drop_configuration
+
+
+class SubstituentResidue(Substituent):
+    r'''
+    Represent substituent molecules unassociated with a specific
+    monosaccharide residue.
+
+
+    .. note::
+        :class:`SubstituentResidue`'s composition value includes the losses for forming a bond between
+        a monosaccharide residue and the substituent.
+
+    Attributes
+    ----------
+    name: str
+        As in |Substituent|, but with :attr:`SubstituentResidue.sigil` prepended.
+    composition: |Composition|
+    links: |OrderedMultiMap|
+    _order: |int|
+    '''
+    #: All substituent string identifiers are prefixed with this character
+    #: for the :func:`from_iupac_lite` parser
+    sigil = "@"
+
+    def __init__(self, name, composition=None, id=None,
+                 can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False,
+                 attachment_composition=None):
+        if name.startswith(SubstituentResidue.sigil):
+            name = name[1:]
+        super(SubstituentResidue, self).__init__(
+            name=name, composition=composition, links=None, id=id,
+            can_nh_derivatize=can_nh_derivatize, is_nh_derivatizable=is_nh_derivatizable,
+            derivatize=derivatize, attachment_composition=attachment_composition)
+
+        self.composition -= self.attachment_composition
+        self.composition -= {"H": 1}
+        self._name = SubstituentResidue.sigil + self._name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def to_iupac_lite(self):
+        return self.name
+
+    __str__ = to_iupac_lite
+
+    def __repr__(self):  # pragma: no cover
+        return "SubstituentResidue(%s)" % self.name
+
+    @classmethod
+    def from_iupac_lite(cls, name):
+        return cls(name)
+
+    def __eq__(self, other):
+        if (other is None):
+            return False
+        if not isinstance(other, SubstituentResidue):
+            return False
+        return self.name == other.name
+
 
 water_mass = Composition("H2O").mass
 
@@ -287,13 +385,14 @@ class GlycanComposition(dict, SaccharideCollection):
         self._reducing_end = kwargs.pop("reducing_end", None)
         dict.__init__(self)
         self._mass = None
+        self._charge = None
         self._composition_offset = Composition("H2O")
         self.update(*args, **kwargs)
 
     def __setitem__(self, key, value):
         if isinstance(key, basestring):
             key = from_iupac_lite(key)
-        if key.reducing_end is not None:
+        if key.node_type is Monosaccharide.node_type and key.reducing_end is not None:
             self.reducing_end = key.reducing_end
             key.reducing_end = None
         dict.__setitem__(self, key, value)
@@ -304,15 +403,26 @@ class GlycanComposition(dict, SaccharideCollection):
             key = from_iupac_lite(key)
         return dict.__getitem__(self, key)
 
+    def __delitem__(self, key):
+        if isinstance(key, basestring):
+            key = from_iupac_lite(key)
+        dict.__delitem__(self, key)
+
     def mass(self, average=False, charge=0, mass_data=None):
-        if self._mass is not None:
+        if self._mass is not None and charge == self._charge:
             return self._mass
-        mass = self._composition_offset.mass
-        for residue_type, count in list(self.items()):
-            mass += residue_type.mass(average=average, charge=charge, mass_data=mass_data) * count
-        if self._reducing_end is not None:
-            mass += self._reducing_end.mass(average=average, charge=charge, mass_data=mass_data)
-        self._mass = mass
+        if charge == 0:
+            mass = self._composition_offset.mass
+            for residue_type, count in list(self.items()):
+                mass += residue_type.mass(average=average, charge=0, mass_data=mass_data) * count
+            if self._reducing_end is not None:
+                mass += self._reducing_end.mass(average=average, charge=0, mass_data=mass_data)
+            self._mass = mass
+            self._charge = 0
+        else:
+            mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
+            self._mass = mass
+            self._charge = charge
         return mass
 
     def update(self, *args, **kwargs):
@@ -476,9 +586,13 @@ class GlycanComposition(dict, SaccharideCollection):
         return inst
 
     def _derivatized(self, substituent, id_base):
+        n = 2
+        for k, v in self.items():
+            if k.node_type is Substituent.node_type:
+                n -= v
         self._composition_offset += (
             substituent.total_composition() -
-            substituent.attachment_composition_loss() * 2) * 2
+            substituent.attachment_composition_loss() * 2) * n
         if self._reducing_end is not None:
             _derivatize_reducing_end(self._reducing_end, substituent, id_base)
         self._mass = None

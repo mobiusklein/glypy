@@ -424,7 +424,7 @@ class GlycanRecordBase(object):
             more complex operations like decompressing or joining other tables in
             the database.
         '''
-        record = pickle.loads(str(row["structure"]))
+        record = pickle.loads(bytes(row["structure"]))
         record._bound_db = kwargs.get("database")
         return record
 
@@ -846,9 +846,9 @@ class RecordDatabase(object):
         """
         if key is None:
             return {
-                row[0]: pickle.loads(str(row[1])) for row in self.execute("SELECT name, content FROM metadata")
+                row[0]: pickle.loads(bytes(row[1])) for row in self.execute("SELECT name, content FROM metadata")
             }
-        res = [pickle.loads(str(row[0])) for row in self.execute("SELECT content FROM metadata WHERE name = ?", (key,))]
+        res = [pickle.loads(bytes(row[0])) for row in self.execute("SELECT content FROM metadata WHERE name = ?", (key,))]
         if len(res) > 0:
             return res[0]
         else:

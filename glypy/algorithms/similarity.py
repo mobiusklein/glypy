@@ -1,5 +1,9 @@
 import operator
 from collections import defaultdict
+import functools
+
+from glypy import Substituent, monosaccharides
+from glypy.structure.constants import Modification
 
 
 def monosaccharide_similarity(node, target, include_substituents=True,
@@ -172,3 +176,60 @@ def build_unique_index_pairs(pairs):
         next_current = partial_solutions
         partial_solutions = set()
     return list(next_current)
+
+
+def has_substituent(monosaccharide, substituent):
+    # Use the setter property to force the translation
+    # of the name string.
+    if isinstance(substituent, basestring):
+        substituent = Substituent(substituent)
+    substituent = substituent._name
+    for position, subst in monosaccharide.substituents():
+        if substituent == subst._name:
+            return True
+    return False
+
+
+def has_modification(monosaccharide, modification):
+    for position, mod in monosaccharide.modifications.items():
+        if mod == modification:
+            return True
+    return False
+
+
+def has_monosaccharide(glycan, monosaccharide, tolerance=0):
+    if isinstance(monosaccharide, basestring):
+        monosaccharide = monosaccharides[monosaccharide]
+    visited = set()
+    for node in glycan:
+        if commutative_similarity(node, monosaccharide, tolerance=tolerance, visited=visited):
+            return node
+    return False
+
+
+def is_reduced(obj):
+    try:
+        return obj.reducing_end is not None
+    except:
+        return False
+
+
+def is_amine(substituent):
+    if isinstance(substituent, Substituent):
+        name = substituent.name
+    else:
+        name = substituent
+    return name.startswith("n_") or name == "amino"
+
+
+def is_aminated(monosaccharide):
+    for p, substituent in monosaccharide.substituents():
+        if is_amine(substituent):
+            return True
+    return False
+
+
+has_fucose = functools.partial(has_monosaccharide, monosaccharide=monosaccharides["Fucose"])
+has_n_acetyl = functools.partial(has_substituent, substituent=Substituent("n-acetyl"))
+is_acidic = functools.partial(has_modification, modification=Modification.Acidic)
+is_sulfated = functools.partial(has_substituent, substituent=Substituent("sulfate"))

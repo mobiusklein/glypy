@@ -376,6 +376,7 @@ class RepeatRecord(object):
         return glycan
 
 
+# Remark: Should this use a different "NoValue" type when input is not int-able?
 def try_int(v):
     try:
         return int(v)

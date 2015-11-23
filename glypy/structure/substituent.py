@@ -1,4 +1,3 @@
-from warnings import warn
 from uuid import uuid4
 
 from glypy.composition.structure_composition import substituent_compositions
@@ -30,6 +29,7 @@ attachment_composition_info = {
     "methyl": Composition("H"),
     "n_acetyl": Composition("OH"),
     "n_glycolyl": Composition("OH"),
+    "amino": Composition("OH")
 }
 default_attachment_composition = Composition("H")
 
@@ -81,9 +81,33 @@ derivatize_info = {
 
 
 class Substituent(SubstituentBase):
-
     '''
     Represents a non-saccharide molecule commonly found bound to saccharide units.
+
+    Attributes
+    ----------
+    name: |str|
+        The name of the substituent, used to uniquely identify it.
+    links: |OrderedMultiMap|
+        All links to all molecules connected to this one.
+    composition: |Composition|
+        The chemical makeup of this molecule.
+    attachment_composition: |Composition|
+        The default cost of attaching this substituent to a |Monosaccharide|
+    id: |int|
+        A unique identifier number for this molecule.
+
+    can_nh_derivatize: |bool|
+        Whether this substituent will derivatize at an amine group.
+    is_nh_derivatizable: |bool|
+        Whether this substituent contains a derivatizable amine group.
+    _derivatize: |bool|
+        Whether this substituent was added by a derivatization process.
+
+    _order: |int|
+        The number of connections to this molecule. Mutated internally by |Link| objects,
+        not for external use. See :meth:`order`.
+
     '''
 
     def __init__(self, name, links=None, composition=None, id=None,
@@ -94,7 +118,9 @@ class Substituent(SubstituentBase):
         self.name = name
         self.links = links
         if composition is None:
-            composition = substituent_compositions[self.name]
+            composition = substituent_compositions[self._name]
+        elif composition is not None and self._name not in substituent_compositions:
+            substituent_compositions[self._name] = composition.clone()
         self.composition = composition
         self.id = id or uuid4().int
         self._order = self.order()
@@ -111,7 +137,7 @@ class Substituent(SubstituentBase):
             self.is_nh_derivatizable = is_nh_derivatizable or False
         self._derivatize = derivatize
         self.attachment_composition = attachment_composition if attachment_composition is not None\
-            else attachment_composition_info.get(name, default_attachment_composition)
+            else attachment_composition_info.get(self.name, default_attachment_composition)
 
     @property
     def name(self):
@@ -249,11 +275,14 @@ class Substituent(SubstituentBase):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        mass = calculate_mass(
-            self.composition, average=average, charge=charge, mass_data=mass_data)
-        for link_pos, child in self.children():
-            mass += child.mass(average=average,
-                               charge=charge, mass_data=mass_data)
+        if charge == 0:
+            mass = calculate_mass(
+                self.composition, average=average, charge=0, mass_data=mass_data)
+            for link_pos, child in self.children():
+                mass += child.mass(average=average,
+                                   charge=0, mass_data=mass_data)
+        else:
+            mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
     def __setstate__(self, state):
@@ -285,7 +314,8 @@ class Substituent(SubstituentBase):
                                   can_nh_derivatize=self.can_nh_derivatize,
                                   is_nh_derivatizable=self.is_nh_derivatizable,
                                   id=self.id if prop_id else None,
-                                  derivatize=self._derivatize)
+                                  derivatize=self._derivatize,
+                                  attachment_composition=self.attachment_composition)
         for pos, link in self.links.items():
             if link.is_child(self):
                 continue

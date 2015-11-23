@@ -388,7 +388,7 @@ def pcalculate_mass(composition=None, formula=None, average=False, charge=None, 
 
     # Calculate m/z if required.
     if charge:
-        mass /= charge
+        mass /= abs(charge)
     if old_charge != 0:
         composition["H+"] = old_charge
     elif charge:
