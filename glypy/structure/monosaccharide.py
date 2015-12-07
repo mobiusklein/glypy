@@ -1272,7 +1272,7 @@ class Monosaccharide(SaccharideBase):
 
     def order(self, deep=False):
         '''
-        Return the "graph theory" order of this residue
+        Return the "graph theory" order of this molecule
 
         Returns
         -------

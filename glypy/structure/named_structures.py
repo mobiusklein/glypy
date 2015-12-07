@@ -19,7 +19,8 @@ class StructureIndex(dict):
 
     def __getitem__(self, key):
         x = dict.__getitem__(self, key)
-        ret = deepcopy(x)
+        # ret = deepcopy(x)
+        ret = x.clone()
         ret.id = uuid.uuid4().int
         return ret
 

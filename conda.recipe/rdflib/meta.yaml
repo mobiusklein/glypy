@@ -1,0 +1,50 @@
+package:
+    name: rdflib
+    version: "4.2.1"
+
+source:
+    fn: rdflib-4.2.1.tar.gz
+    url: https://pypi.python.org/packages/source/r/rdflib/rdflib-4.2.1.tar.gz
+    md5: 528adaa10536d14a608507d7831711f5
+
+build:
+    number: 1
+    entry_points:
+        - rdfpipe = rdflib.tools.rdfpipe:main
+        - csv2rdf = rdflib.tools.csv2rdf:main
+        - rdf2dot = rdflib.tools.rdf2dot:main
+        - rdfs2dot = rdflib.tools.rdfs2dot:main
+        - rdfgraphisomorphism = rdflib.tools.graphisomorphism:main
+
+requirements:
+    build:
+        - python
+        - setuptools
+        - pip
+        - isodate
+        - pyparsing
+        # NOTE: Using pip in build.sh/bld.bat to avoid circular dependency.
+        # - sparqlwrapper
+        - html5lib
+        - six
+    run:
+        - python
+        - setuptools
+        - isodate
+        - pyparsing
+        # NOTE: Using pip in build.sh/bld.bat to avoid circular dependency.
+        # - sparqlwrapper
+        - html5lib
+        - six
+
+test:
+    imports:
+        - rdflib
+        - rdflib.namespace
+    commands:
+        - rdfpipe --help
+
+about:
+    home: https://github.com/RDFLib/rdflib
+    license: BSD License
+    summary: 'RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information'

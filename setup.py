@@ -66,10 +66,7 @@ def status_msgs(*msgs):
         print(msg)
     print('*' * 75)
 
-required = []
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
-
+required = ["hjson", "six"]
 
 extras = {
     'plot': ["matplotlib>=1.4.3"],
@@ -83,7 +80,7 @@ extras['all'] = list({d for extra in extras.values() for d in extra})
 def run_setup(include_cext=True):
     setup(
           name='glypy',
-          version='0.0.5',
+          version='0.0.5rc2',
           packages=find_packages(),
           include_package_data=True,
           package_data={
@@ -102,7 +99,11 @@ def run_setup(include_cext=True):
           # ],
           cmdclass=cmdclass,
           zip_safe=False,
+          description="A Glycoinformatics Toolkit",
           ext_modules=extensions if include_cext else None,
+          url="https://github.com/mobiusklein/glypy",
+          maintainer='Joshua Klein',
+          maintainer_email="jaklein@bu.edu"
     )
 
 try:

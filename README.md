@@ -1,7 +1,7 @@
 [![https://img.shields.io/travis/mobiusklein/glypy.svg](https://img.shields.io/travis/mobiusklein/glypy.svg)](https://travis-ci.org/mobiusklein/glypy)
 [![Documentation Status](https://readthedocs.org/projects/glypy/badge/?version=master)](http://glypy.readthedocs.org/en/master/?badge=master)
 # glypy
-Glycan Analysis and Glycominformatics Library for Python
+Glycan Analysis and Glycoinformatics Library for Python
 
 Glycobiology is the study of the biological functions, properties, and structures of carbohydrate biomolecules,
 also called *glycans*. These large, tree-like molecules are complex, having a wide variety of building blocks
@@ -21,8 +21,8 @@ common core structure.
 1. IUPAC Three Letter Code (i/o)
 
 ### Manipulate glycan data structures like trees
-2. Traverse the structure with common algorithms like *breadth-first* and *depth-first*, or use node-level information to choose a customized path.
-2. Operate on monosaccharide and substituents as nodes and on bonds as edges.
+2. Traverse structures with common algorithms like *breadth-first* and *depth-first*, or use node-level information to choose a customized path.
+2. Operate on monosaccharide and substituents as nodes and bonds as edges.
 2. Add, remove, and modify these structures to alter glycan properties.
 3. Identify substructures and motifs, classifying glycans.
 4. Score structural similarities with one of several ordering and comparator methods.

@@ -123,7 +123,11 @@ def strip_derivatization(saccharide):
     :func:`.derivatize`
     '''
     if isinstance(saccharide, SaccharideCollection):
-        map(_strip_derivatization_monosaccharide, saccharide)
+        for node in saccharide:
+            if node.node_type is SaccharideBase.node_type:
+                _strip_derivatization_monosaccharide(node)
+            elif node.node_type is SubstituentBase.node_type:
+                _strip_derivatization_substituent(node)
         saccharide._strip_derivatization()
     else:
         _strip_derivatization_monosaccharide(saccharide)
