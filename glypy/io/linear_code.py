@@ -155,6 +155,8 @@ def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
         When an unknown symbol is encountered
     '''
     tolerance = 0
+    if identity.is_generic_monosaccharide(monosaccharide):
+        raise ValueError("Linear Code does not support generic monosaccharide %s" % str(monosaccharide))
     while tolerance <= max_tolerance:
         for k, v in monosaccharides_to.items():
             if k not in monosaccharide_reference:

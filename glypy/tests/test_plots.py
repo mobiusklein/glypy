@@ -93,10 +93,19 @@ class PlotTests(unittest.TestCase):
     def test_plot_monosaccharide(self):
         for name, residue in monosaccharides.items():
             plot.plot(residue)
-            #plt.savefig(plot_dir + os.sep + name + '.png')
             plt.clf()
             plt.close('all')
-            #os.remove(plot_dir + os.sep + name + '.png')
+
+    def test_draw_tree(self):
+        dt = plot.DrawTree(glycan_structure)
+        self.assertEqual(dt.get(1).tree, glycan_structure.get(1))
+        parent, child = dt.get_link_pair(1)
+        parent = parent.tree
+        child = child.tree
+        self.assertEqual(parent, glycan_structure.get(1))
+
+    def test_plot_iupac(self):
+        plot.plot(glycan_structure, symbol_nomenclature='iupac')
 
     def test_plot_glycans(self):
         for name, structure in glycans.items():
@@ -109,7 +118,6 @@ class PlotTests(unittest.TestCase):
                     plt.savefig(path)
                     plt.clf()
                     plt.close('all')
-            #os.remove(plot_dir + os.sep + name + '.png')
 
         plt.figure()
         plot.enumerate_tree(*plot.plot(glycan_structure))

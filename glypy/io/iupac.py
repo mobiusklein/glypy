@@ -48,7 +48,7 @@ def extract_modifications(modifications, base_type):
                 pop_ix = mods.index(mod)
                 pos.pop(pop_ix)
                 mods.pop(pop_ix)
-            except:
+            except:  # pragma: no cover
                 pass
 
     elif "Fuc" in base_type:
@@ -125,10 +125,10 @@ substituents_map_to["amino"] = "N"
 substituents_map_from = invert_dict(substituents_map_to)
 
 
-def resolve_substituent(residue):
+def resolve_substituent(residue, monosaccharide_reference=monosaccharide_reference):
     substituent = ""
     multi = False
-    for name, pos in get_relevant_substituents(residue):
+    for name, pos in get_relevant_substituents(residue, monosaccharide_reference):
         if pos in {-1, None}:
             pos = ""
         if name in substituents_map_to:
@@ -146,24 +146,28 @@ def resolve_substituent(residue):
     return substituent
 
 
-def get_relevant_substituents(residue):
+def get_relevant_substituents(residue, monosaccharide_reference=monosaccharide_reference):
     '''
     Retrieve the set of substituents not implicitly included
     in the base type's symbol name.
     '''
     positions = [p for p, sub in residue.substituents() if not sub._derivatize]
     substituents = [sub.name for p, sub in residue.substituents() if not sub._derivatize]
-    if identity.is_a(residue, monosaccharide_reference["NeuAc"], exact=False):
-        # i = substituents.index("n_acetyl")
-        # substituents.pop(i)
-        # positions.pop(i)
-        pass
-    elif identity.is_a(residue, monosaccharide_reference["NeuGc"], exact=False):
+    if identity.is_a(residue, monosaccharide_reference["NeuAc"], exact=False, short_circuit=True):
+        try:
+            i = substituents.index("n_acetyl")
+            substituents.pop(i)
+            j = positions.pop(i)
+            substituents.insert(i, "acetyl")
+            positions.insert(i, j)
+        except:  # pragma: no cover
+            pass
+    elif identity.is_a(residue, monosaccharide_reference["NeuGc"], exact=False, short_circuit=True):
         # i = substituents.index("n_glycolyl")
         # substituents.pop(i)
         # positions.pop(i)
         pass
-    elif identity.is_a(residue, monosaccharide_reference["Neu"], exact=False):
+    elif identity.is_a(residue, monosaccharide_reference["Neu"], exact=False, short_circuit=True):
         i = substituents.index("amino")
         substituents.pop(i)
         positions.pop(i)
@@ -171,7 +175,7 @@ def get_relevant_substituents(residue):
     return zip(substituents, positions)
 
 
-def resolve_special_base_type(residue):
+def resolve_special_base_type(residue, monosaccharide_reference=monosaccharide_reference):
     if residue.superclass == SuperClass.non:
         if residue.stem == (Stem.gro, Stem.gal):
             substituents = [sub.name for p, sub in residue.substituents() if not sub._derivatize]
@@ -186,7 +190,7 @@ def resolve_special_base_type(residue):
                 elif "n_glycolyl" in substituents:
                     return "Neu"  # Gc
                 elif "amino" in substituents:
-                    return "Neu"  #_
+                    return "Neu"  # _
 
     elif residue.superclass == SuperClass.oct:
         if residue.stem == (Stem.man,):
@@ -394,10 +398,14 @@ def substituent_from_iupac(substituents):
         try:
             name = (substituents_map_from[name])
         except KeyError:
-            # Acidic special case
+            # Acidic special case:
+            # Often, acidic monosaccharides are written with a trailing A like a substituent while
+            # GlycoCT treats acidic groups as modifications. If an A appears in the substituent suffix
+            # it will fail to be cast as a substituent, but pass it along raw and it will be handled
+            # downstream by :func:`monosaccharide_from_iupac`.
             if name == "A":
-                yield position, name
-            else:
+                pass
+            else:  # pragma: no cover
                 import warnings
                 warnings.warn("No translation rule found to convert %s into a Substituent" % name)
                 continue

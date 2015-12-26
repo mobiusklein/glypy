@@ -20,7 +20,6 @@ Supports RES, LIN, and un-nested REP sections.
 import re
 import logging
 import warnings
-from uuid import uuid4
 from glypy.utils import opener, StringIO, enum, root as rootp
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, link, glycan
@@ -128,7 +127,6 @@ def parse_link(line):
 
 
 def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
-    #logger.debug("form_link %s", (parent_loss, child_loss, id))
     if parent.node_type is Substituent.node_type and\
      child.node_type is Monosaccharide.node_type:
         warnings.warn(
@@ -173,7 +171,7 @@ def decorate_tree(tree, decorate_value):
     return tree
 
 
-def decorated_value(tree):
+def decorated_value(tree):  # pragma: no cover
     '''
     Get the decorating value from a tree's root node.id.
 
@@ -193,7 +191,7 @@ def decorated_value(tree):
         return None
 
 
-def get_decorated(tree, id):
+def get_decorated(tree, id):  # pragma: no cover
     '''
     As :meth:`Glycan.get`, but with awareness of decorated
     node.id attributes. Will fall back to the normal get method
@@ -275,7 +273,7 @@ class RepeatRecord(object):
                 n = 1
 
         if self.is_exact() is not StructurePrecisionEnum.unknown:
-            if not (self.multitude[0] <= n <= self.multitude[1]):
+            if not (self.multitude[0] <= n <= self.multitude[1]):  # pragma: no cover
                 raise ValueError("{} is not within the range of {}".format(n, self.multitude))
         sub_unit_indices = sorted(self.graph.keys())
 
@@ -348,7 +346,7 @@ class RepeatRecord(object):
                 parent, child, parent_position=parent_position, child_position=child_position,
                 parent_loss=parent_loss, child_loss=child_loss, id=id)
 
-    def get_node(self, id, direction=None):
+    def get_node(self, id, direction=None):  # pragma: no cover
         id = int(id)
         if direction is None or direction == "in":
             sub_unit_indices = sorted(self.graph.keys())
@@ -363,11 +361,12 @@ class RepeatRecord(object):
         else:
             raise Exception("Unknown direction %s" % direction)
 
-    def __root__(self):
+    def __root__(self):  # pragma: no cover
         root_node = rootp(self.graph[1])
         if root_node.node_type is Substituent.node_type:
-            root_node = root_node.links[1][0].parent if root_node.links[1][0].parent.node_type is Monosaccharide.node_type\
-                                                     else root_node.links[1][0].child
+            root_node = root_node.links[1][0].parent if root_node.links[
+                1][0].parent.node_type is Monosaccharide.node_type\
+                 else root_node.links[1][0].child
         return root_node
 
     def prepare_glycan(self):
@@ -697,3 +696,7 @@ def loads(glycoct_str, structure_class=Glycan):
         return collection
     except StopIteration:
         return first
+
+
+def detect_glycoct(string):
+    return string.lstrip()[:3] == "RES"

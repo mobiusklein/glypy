@@ -320,14 +320,14 @@ class GlySpaceRDFClient(RDFClientBase):
         self.bind("skos", NSSKOS)
 
     def from_taxon(self, taxon, limit=None):
-        sparql = '''
-        select distinct ?saccharide ?taxon where{
+        sparql = r'''
+        SELECT DISTINCT ?saccharide ?taxon WHERE {
             ?saccharide a glycan:saccharide .
             ?s skos:exactMatch ?gdb .
             ?gdb glycan:has_reference ?ref .
             ?ref glycan:is_from_source ?source .
             ?source glycan:has_taxon ?taxon
-            FILTER regex(str(?taxon),
+            FILTER REGEX(str(?taxon),
                 "http://www.uniprot.org/taxonomy/%s.rdf"^^<http://www.w3.org/2001/XMLSchema#anyURI>)
         }
         '''
@@ -338,6 +338,32 @@ class GlySpaceRDFClient(RDFClientBase):
         k = results.vars[0]
         return [BoundURIRef(row[k], source=self) for row in results.bindings]
 
+    def structures_with_motif(self, motif, limit=None):
+        sparql = r'''
+        SELECT DISTINCT ?saccharide ?glycoct WHERE {
+                ?saccharide a glycan:saccharide .
+                ?saccharide glycan:has_glycosequence ?sequence .
+                FILTER CONTAINS(str(?sequence), "glycoct") .
+                ?sequence glycan:has_sequence ?glycoct .
+                ?saccharide glycan:has_motif %s
+        }
+        '''
+        if isinstance(motif, URIRef):
+            motif_str = self.qname(motif)
+        else:
+            motif_str = self.qname(NSGlycoinfo[motif])
+        query_string = sparql % motif_str
+        if limit is not None:
+            query_string += " limit %d" % limit
+        results = self.query(query_string)
+        k = results.vars[0]
+        g = results.vars[1]
+        return [ReferenceEntity(row[k], glycoct=row[g]) for row in results.bindings]
+
+    def structure(self, *accessions):
+        results = []
+        for accession in accessions:
+            pass
 
 client = GlySpaceRDFClient()
 

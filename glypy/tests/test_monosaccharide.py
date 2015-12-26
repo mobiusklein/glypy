@@ -24,6 +24,9 @@ class MonosaccharideTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
     glycan = iter(glycoct.read(_file_path)).next()
 
+    def test_depth(self):
+        self.assertEqual(monosaccharide.depth(load("complex_glycan").root), 7)
+
     def test_from_glycoct(self):
         s = self.glycan.root.to_glycoct()
         b = StringIO(s)

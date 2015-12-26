@@ -260,8 +260,8 @@ class Subtree(object):
                            composition=fragment_composition)
 
     def __repr__(self):  # pragma: no cover
-        rep = "<Subtree include_nodes={} link_ids={} parent_breaks={}"
-        "child_breaks={} crossring_cleavages={}>\n{}".format(
+        rep = ("<Subtree include_nodes={} link_ids={} parent_breaks={}"
+               "child_breaks={} crossring_cleavages={}>\n{}").format(
             self.include_nodes, self.link_ids, self.parent_breaks,
             self.child_breaks, self.crossring_cleavages, self.tree)
         return rep

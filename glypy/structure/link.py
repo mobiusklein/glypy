@@ -8,6 +8,8 @@ from .base import SaccharideBase, SubstituentBase
 default_parent_loss = Composition(O=1, H=1)
 default_child_loss = Composition(H=1)
 
+unknown_position_set = {-1}
+
 
 class Link(object):
 
@@ -522,8 +524,12 @@ class AmbiguousLink(Link):
             self.break_link(refund=True)
         try:
             open_parent_sites, _ = self.parent.open_attachment_sites()
+            if -1 in open_parent_sites:
+                open_parent_sites += self.parent_position_choices
             parent_site = iter(set(open_parent_sites) & set(self.parent_position_choices)).next()
             open_child_sites, _ = self.child.open_attachment_sites()
+            if -1 in open_child_sites:
+                open_child_sites += self.child_position_choices
             child_site = iter(set(open_child_sites) & set(self.child_position_choices)).next()
             self.parent_position = parent_site
             self.child_position = child_site

@@ -3,7 +3,7 @@ import operator
 from ...utils import groupby
 from ...structure import named_structures, Monosaccharide, Substituent, Anomer, Stem, RingType, SuperClass
 from ...algorithms.similarity import (monosaccharide_similarity, has_substituent,
-                                      has_modification, has_monosaccharide)
+                                      has_modification, has_monosaccharide, is_generic_monosaccharide)
 from ...composition.composition_transform import strip_derivatization
 from .synonyms import monosaccharides as monosaccharide_synonyms
 
@@ -41,7 +41,7 @@ def get_preferred_name(name, selector=min, key=len):
     return preferred_name
 
 
-def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True, exact=True):
+def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True, exact=True, short_circuit=False):
     '''
     Perform a semi-fuzzy match between `node` and `target` where node is the unqualified
     residue queried and target is the known residue to be matched against
@@ -83,7 +83,8 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
             return False
         res, qs = monosaccharide_similarity(node, target, include_modifications=include_modifications,
                                             include_substituents=include_substituents,
-                                            include_children=False, exact=exact)
+                                            include_children=False, exact=exact,
+                                            short_circuit_after=tolerance if short_circuit else None)
     threshold = (qs - res) <= tolerance
     return threshold
 

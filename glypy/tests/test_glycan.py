@@ -1,10 +1,10 @@
 import unittest
 from common import load, glycoct, glycan, multimap, pickle, named_structures, monosaccharides
 
+from glypy import Substituent, tree
 from glypy.structure.fragment import Fragment
 
 Glycan = glycan.Glycan
-
 
 
 class GlycanTests(unittest.TestCase):
@@ -177,7 +177,7 @@ class GlycanTests(unittest.TestCase):
             '3,5A': 439.168,
             '3,5X': 1363.4769
         }
-        for fragment in structure.fragments("AX"):
+        for fragment in structure.fragments("AXB", max_cleavages=2):
             if fragment.link_ids == [3]:
                 self.assertAlmostEqual(frag_data[fragment.kind], fragment.mass, 2)
 
@@ -207,6 +207,40 @@ class GlycanTests(unittest.TestCase):
         subtree = glycan.fragment_to_substructure(fragment, structure)
         self.assertAlmostEqual(subtree.mass(), fragment.mass)
 
+    def test_get(self):
+        structure = load("branchy_glycan")
+        self.assertEqual(structure.get(1), structure.root)
+        self.assertEqual(structure.get_link(1), structure.iterlinks().next()[1])
+
+    def test_iternodes(self):
+        structure = load("branchy_glycan")
+        for a, b in zip(iter(structure), structure.iternodes()):
+            self.assertEqual(a, b)
+
+    def test_iterlinks_substituents(self):
+        had_substituents = False
+        structure = load("branchy_glycan")
+        for p, link in structure.iterlinks(substituents=True):
+            if isinstance(link.child, Substituent):
+                had_substituents = True
+        self.assertTrue(had_substituents)
+
+    def test_subtrees(self):
+        structure = load("branchy_glycan")
+        g = structure.subtrees()
+        s = g.next()
+        self.assertAlmostEqual(tree(s).mass(), 221.0899, 2)
+        s = g.next()
+        self.assertAlmostEqual(tree(s).mass(), 1599.565, 2)
+
+    def test_fragment_properties(self):
+        structure = load("branchy_glycan")
+        frags = {f.name: f for f in structure.fragments("Y")}
+        self.assertEqual(frags["Ya2"].fname, r"Y$\alpha$2")
+        Ya2 = frags["Ya2"]
+        self.assertTrue(Ya2.is_reducing())
+        self.assertFalse(Ya2.is_non_reducing())
+        self.assertFalse(Ya2.is_internal())
 
 if __name__ == '__main__':
     unittest.main()

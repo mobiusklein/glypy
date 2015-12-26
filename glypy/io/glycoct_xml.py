@@ -1,3 +1,5 @@
+
+# pragma: no cover
 import logging
 from operator import itemgetter
 from collections import defaultdict

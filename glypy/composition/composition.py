@@ -459,7 +459,8 @@ def most_probable_isotopic_composition(*args, **kwargs):
 
             # Write the number of the second isotopes.
             second_iso_str = _make_isotope_string(element_name, second_iso[0])
-            isotopic_composition[second_iso_str] = round((composition[element_name] - isotopic_composition[first_iso_str]))
+            isotopic_composition[second_iso_str] = round(
+                (composition[element_name] - isotopic_composition[first_iso_str]))
         else:
             isotopic_composition[element_name] = composition[element_name]
 
@@ -505,8 +506,7 @@ def isotopic_composition_abundance(*args, **kwargs):
         # If there is already an entry for this element and either it
         # contains a default isotope or newly added isotope is default
         # then raise an exception.
-        if ((element_name in isotopic_composition)
-           and (isotope_num == 0 or 0 in isotopic_composition[element_name])):
+        if ((element_name in isotopic_composition) and (isotope_num == 0 or 0 in isotopic_composition[element_name])):
             raise ChemicalCompositionError(
                 'Please specify the isotopic states of all atoms of '
                 '%s or do not specify them at all.' % element_name)
@@ -522,7 +522,11 @@ def isotopic_composition_abundance(*args, **kwargs):
         for isotope_num, isotope_content in isotope_dict.items():
             denom *= math.factorial(isotope_content)
             if isotope_num:
-                num2 *= (mass_data[element_name][isotope_num][1]
-                         ** isotope_content)
+                num2 *= (mass_data[element_name][isotope_num][1] ** isotope_content)
 
     return num2 * (num1 / denom)
+
+
+def formula(composition):
+    keys = sorted(composition)
+    return ''.join("%s%d" % (k, composition[k]) for k in keys)

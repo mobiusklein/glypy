@@ -24,6 +24,7 @@ ReducedEnd = monosaccharide.ReducedEnd
 Substituent = glypy.Substituent
 Glycan = glycan.Glycan
 
+
 def debug_on(*exceptions):
     if not exceptions:
         exceptions = (AssertionError, )
@@ -259,6 +260,13 @@ class NamedStructureTests(unittest.TestCase):
                          named_structures.glycans["N-Linked Core"])
         self.assertEqual(named_structures.motifs["N-Glycan hybrid 1"],
                          named_structures.motifs["N-Glycan hybrid 1"])
+        self.assertIn(
+            named_structures.motifs["N-Glycan core basic 1"],
+            named_structures.motifs.motif_class("N-Glycan").values())
+
+        self.assertIn(
+            named_structures.motifs['Beta-glucan'],
+            named_structures.motifs.motif_category("full").values())
 
 
 class StructureCompositionTests(unittest.TestCase):
@@ -334,6 +342,9 @@ class CrossRingTests(unittest.TestCase):
                     composition_transform.derivatize(target.clone(), "methyl"), k[0], k[1])}
                 for kind in {"A", "X"}:
                     self.assertAlmostEqual(v[kind].mass, target_d[kind].mass(), 3)
+                    self.assertEqual(
+                        target_d[kind].open_attachment_sites(),
+                        target_d[kind].clone().open_attachment_sites())
                     self.assertAlmostEqual(v[kind].permethylated_mass, target_d_permethylated[kind].mass(), 3)
 
 
@@ -508,30 +519,27 @@ class SubtreeSearchTests(unittest.TestCase):
         self.assertEqual(subtree_search.n_saccharide_similarity(core, copy), 0.7)
 
     def test_distinct_fragments(self):
-        try:
-            from glypy import glycomedb
-            bi = glycomedb.get(8960)
-            tet = glycomedb.get(576)
-            self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
-            bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
-            self.assertEqual(len(tet_dist), 0)
-            self.assertEqual(len(bi_dist), 13)
-        except ImportError:
-            pass
+        from glypy.io import glycomedb
+        bi = glycomedb.get(8960)
+        tet = glycomedb.get(576)
+        self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
+        bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
+        self.assertEqual(len(tet_dist), 0)
+        self.assertEqual(len(bi_dist), 4)
 
 
 class IdentifyTests(unittest.TestCase):
 
     def test_is_a_predicate(self):
-        for name, monosaccharide in monosaccharides.items():
-            result = identity.is_a(monosaccharide, name)
+        for name, mono in monosaccharides.items():
+            result = identity.is_a(mono, name)
             self.assertTrue(result)
 
     def test_identify_as(self):
-        for name, monosaccharide in monosaccharides.items():
+        for name, mono in monosaccharides.items():
             if name in {"Hex", "Pen", "Oct", "Hep", "Non"}:
                 continue
-            pref_name = identity.identify(monosaccharide)
+            pref_name = identity.identify(mono)
             if not (name == pref_name or name in synonyms.monosaccharides[pref_name]):
                 raise AssertionError(
                     "{}".format((name, pref_name, synonyms.monosaccharides[pref_name])))
@@ -582,26 +590,6 @@ class LinearCodeTests(unittest.TestCase):
         dup = linear_code.loads(linear_code.dumps(sulfated))
         self.assertNotEqual(sulfated, dup)
 
-
-class SimilarityTests(unittest.TestCase):
-
-    def test_deep_similarity(self):
-        branchy = glycoct.loads(branchy_glycan)
-        broad = glycoct.loads(broad_n_glycan)
-        ref = broad.clone()
-        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (5, 5))
-        self.assertEqual(
-            similarity.monosaccharide_similarity(branchy.root, branchy.root, include_children=True),
-            (26, 26))
-        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, broad.root), (4, 5))
-        self.assertEqual(
-            similarity.monosaccharide_similarity(branchy.root, broad.root, include_children=True),
-            (7, 10))
-        self.assertEqual(
-            similarity.monosaccharide_similarity(broad.root, branchy.root, include_children=True),
-            (11, 14))
-        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (54, 54))
-        self.assertEqual(ref, broad)
 
 if __name__ == '__main__':
     unittest.main()

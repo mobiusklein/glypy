@@ -15,7 +15,7 @@ def buchheim(tree, visited=None):
 layout = buchheim
 
 
-def third_walk(tree, n, visited=None):
+def third_walk(tree, n, visited=None):  # pragma: no cover
     if visited is None:
         visited = set()
 
@@ -31,9 +31,9 @@ def third_walk(tree, n, visited=None):
 
 
 def firstwalk(v, distance=1., visited=None):
-    if visited is None:
+    if visited is None:  # pragma: no cover
         visited = set()
-    if v.id in visited:
+    if v.id in visited:  # pragma: no cover
         return v
     visited.add(v.id)
     if len(v.children) == 0:
@@ -79,7 +79,7 @@ def apportion(v, default_ancestor, distance):
             vor = vor.right()
             vor.ancestor = v
             shift = (vil.x + sil) - (vir.x + sir) + distance
-            if shift > 0:
+            if shift > 0:  # pragma: no cover
                 move_subtree(ancestor(vil, v, default_ancestor), v, shift)
                 sir = sir + shift
                 sor = sor + shift
@@ -98,7 +98,7 @@ def apportion(v, default_ancestor, distance):
     return default_ancestor
 
 
-def move_subtree(wl, wr, shift):
+def move_subtree(wl, wr, shift):  # pragma: no cover
     subtrees = wr.number - wl.number
     wr.change -= shift / subtrees
     wr.shift += shift
@@ -116,7 +116,7 @@ def execute_shifts(v):
         shift += w.shift + change
 
 
-def ancestor(vil, v, default_ancestor):
+def ancestor(vil, v, default_ancestor):  # pragma: no cover
     # the relevant text is at the bottom of page 7 of
     # "Improving Walker's Algorithm to Run in Linear Time" by Buchheim et al, (2002)
     # http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.16.8757&rep=rep1&type=pdf

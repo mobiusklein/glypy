@@ -22,7 +22,7 @@ def flatten(iterable):
     return list(chain_iterable(map(ensure_iterable, iterable)))
 
 
-class GraphicalPatch(object):
+class GraphicalPatch(object):  # pragma: no cover
     def __init__(self, shape_patches, text_patches, parent=None, **kwargs):
         self.shape_patches = shape_patches
         self.text_patches = text_patches
@@ -88,7 +88,7 @@ class MonosaccharidePatch(GraphicalPatch):
         yield self.saccharide_label
 
 
-class EdgePatch(GraphicalPatch):
+class EdgePatch(GraphicalPatch):  # pragma: no cover
     def __init__(self, line, parent_label=None, child_label=None, parent=None, **kwargs):
         self.line_shape = ensure_iterable(line)
         self.parent_label = ensure_iterable(parent_label)

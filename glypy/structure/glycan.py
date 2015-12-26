@@ -201,6 +201,12 @@ class Glycan(SaccharideCollection):
 
         return self
 
+    def _build_link_index(self, method='dfs'):
+        link_index = []
+        for pos, link in self.iterlinks(method=method):
+            link_index.append(link)
+        self.link_index = link_index
+
     def deindex(self):
         '''
         When combining two Glycan structures, very often their component ids will
@@ -891,6 +897,8 @@ class Glycan(SaccharideCollection):
         ------
         Subtree
         """
+        if len(self.link_index) == 0:
+            self._build_link_index()
         links = list(self.link_index)
         for breaks in itertools.combinations(links, n_links):
 
@@ -947,6 +955,9 @@ class Glycan(SaccharideCollection):
         ------
         Subtree
         """
+        if len(self.link_index) == 0:
+            self._build_link_index()
+
         links = list(self.link_index)
         origin_mass = self.mass()
         # Localize globals
@@ -983,8 +994,10 @@ class Glycan(SaccharideCollection):
                     # breaks left over to be generated in glycosidic cleavages.
                     # Generate all possible glycosidic cleavage subtrees of the
                     # generated cross ring cleavage subtrees.
+
                     if n_links - i > 0:
                         for ids, subtree in unique_subtrees:
+                            subtree._build_link_index()
                             partitions = subtree.break_links_subtrees(n_links - i)
                             for part in partitions:
                                 included_crossring = {}

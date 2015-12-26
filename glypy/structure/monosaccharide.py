@@ -385,7 +385,7 @@ class Monosaccharide(SaccharideBase):
                 continue
             try:
                 modifications[k] = Modification[v]
-            except:
+            except:  # pragma: no cover
                 modifications[k] = v.clone()
 
         monosaccharide = monosaccharide_type(
@@ -533,7 +533,7 @@ class Monosaccharide(SaccharideBase):
                               self.substituent_links.items()):
             if obj == Modification.keto:
                 continue
-            if pos in {-1, 'x'}:
+            if pos in {-1, 'x'}:  # pragma: no cover
                 unknowns += 1
             else:
                 slots[pos - 1] += 1
@@ -576,7 +576,7 @@ class Monosaccharide(SaccharideBase):
         if (position > self.superclass.value) or (position < 1 and position not in {'x', -1, None}):
             raise IndexError("Index out of bounds")
         # The unknown position is always available
-        if position in {-1, 'x'}:
+        if position in {-1, 'x'}:  # pragma: no cover
             return 0
         n_occupants = len(self.links[position]) +\
             len(self.modifications[position]) +\
@@ -907,11 +907,14 @@ class Monosaccharide(SaccharideBase):
         Parameters
         ----------
         res_index : function, optional
-            A function to yield index numbers for the *RES* section. If not provided, defaults to :func:`~glypy.utils.make_counter`
+            A function to yield index numbers for the *RES* section. If not provided,
+            defaults to :func:`~glypy.utils.make_counter`
         lin_index : function, optional
-            A function to yield index numbers for the *LIN* section. If not provided, defaults to :func:`~glypy.utils.make_counter`
+            A function to yield index numbers for the *LIN* section. If not provided,
+            defaults to :func:`~glypy.utils.make_counter`
         complete : bool, optional
-            Format the object completely, returning a self-contained condensed GlycoCT string. Defaults to :const:`True`
+            Format the object completely, returning a self-contained condensed GlycoCT
+            string. Defaults to :const:`True`
 
         Returns
         -------
@@ -1078,9 +1081,9 @@ class Monosaccharide(SaccharideBase):
             cntr += 1
             for b_pos, b_substituent in b_substituents:
                 if b_pos in taken_b:
-                    if b_pos != -1:
+                    if b_pos != -1:  # pragma: no cover
                         continue
-                    else:
+                    else:  # pragma: no cover
                         if unknown_cntr < b_num_unknown:
                             unknown_cntr += 1
                         else:
@@ -1252,7 +1255,7 @@ class Monosaccharide(SaccharideBase):
 
     def substituents(self):
         '''
-        Returns an iterator over all substituents attached1
+        Returns an iterator over all substituents attached
         to :obj:`self` by a :class:`~.link.Link` object stored in :attr:`~.substituent_links`
 
         Yields

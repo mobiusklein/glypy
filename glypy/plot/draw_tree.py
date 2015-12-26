@@ -64,15 +64,6 @@ def box(node, ax=None):  # pragma: no cover
     ax.plot((xmax+0.2, xmax+0.2), (ymin-0.2, ymax+0.2), c='b')
 
 
-def sign(x, zero_dir=-1):
-    '''Return 1 if x > 0, -1 if x < 0, and `zero_dir` otherwise'''
-    if x > 0:
-        return 1
-    if x < 0:
-        return -1
-    return zero_dir
-
-
 def make_gid(s):  # pragma: no cover
     '''Formats a string to use ``kebab-case`` and sanitize illegal characters'''
     s = str(s)
@@ -115,7 +106,7 @@ def enumerate_tree(tree, ax, labeler=None):
     return tree, ax
 
 
-def find_link(parent, child):
+def find_link(parent, child):  # pragma: no cover
     for p, link in parent.links.items():
         if child.parent_linkage == p:
             if link.child == child:
@@ -688,6 +679,12 @@ class DrawTree(object):  # pragma: no cover
             ax.set_ylim(sign(ymin) * (abs(ymin) + 2), (1 * abs(ymax) + 2))
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
+
+    def get(self, node_id):
+        return self.root.get(node_id)
+
+    def get_link_pair(self, link_id):
+        return self.root.get_link_pair(link_id)
 
     def transform(self, *args, **kwargs):
         self.root.transform(*args, **kwargs)

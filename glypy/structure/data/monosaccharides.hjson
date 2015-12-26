@@ -1,4 +1,34 @@
 {
+  Altose:
+    '''
+    RES
+    1b:x-dalt-HEX-1:5
+    '''
+  Alt:
+    '''
+    RES
+    1b:x-dalt-HEX-1:5
+    '''
+  Gulose:
+    '''
+    RES
+    1b:x-dgul-HEX-1:5
+    '''
+  Gul:
+    '''
+    RES
+    1b:x-dgul-HEX-1:5
+    '''
+  Talose:
+    '''
+    RES
+    1b:x-dtal-HEX-1:5
+    '''
+  Tal:
+    '''
+    RES
+    1b:x-dtal-HEX-1:5
+    '''
   NeuGc:
     '''
     RES

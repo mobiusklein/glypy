@@ -1,6 +1,6 @@
-from glypy.io.glyspace import GlySpaceRDF, NSGlyTouCan, NSGlycan, NSGlycoinfo, NSGlycomeDB, NSSKOS
+from glypy.io.glyspace import GlySpaceRDFClient, NSGlyTouCan, NSGlycan, NSGlycoinfo, NSGlycomeDB, NSSKOS
 
-client = GlySpaceRDF()
+client = GlySpaceRDFClient()
 
 glycomedb_to_glyspace_map = {}
 

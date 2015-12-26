@@ -32,7 +32,7 @@ from glypy.structure.base import SaccharideCollection, MoleculeBase
 from glypy.io.iupac import (
     parse_modifications, named_structures, Modification,
     substituent_from_iupac, Stem, extract_modifications,
-    resolve_substituent, aminate_substituent,
+    resolve_substituent, aminate_substituent, monosaccharide_reference as _monosaccharide_reference,
     resolve_special_base_type as _resolve_special_base_type)
 
 
@@ -43,6 +43,9 @@ from glypy.composition.composition_transform import (
 monosaccharide_parser_lite = re.compile(r'''(?P<modification>[a-z0-9_\-,]*)
                                        (?P<base_type>[A-Z][a-z]+)
                                        (?P<substituent>[^-]*?)$''', re.VERBOSE)
+
+
+monosaccharide_residue_reference = {}
 
 
 def from_iupac_lite(monosaccharide_str, residue_class=None):
@@ -65,7 +68,7 @@ def from_iupac_lite(monosaccharide_str, residue_class=None):
             result = SubstituentResidue.from_iupac_lite(monosaccharide_str)
             return result
         except:
-            try:
+            try:  # pragma: no cover
                 result = MolecularComposition.from_iupac_lite(monosaccharide_str)
                 return result
             except:
@@ -86,6 +89,7 @@ def from_iupac_lite(monosaccharide_str, residue_class=None):
         residue.add_modification(mod, pos)
     i = 0
     strict = False
+
     for position, substituent in substituent_from_iupac(match_dict["substituent"]):
         i += 1
         if position == -1 and base_is_modified:
@@ -122,9 +126,9 @@ def from_iupac_lite(monosaccharide_str, residue_class=None):
                     if unplaced.name == "amino":
                         try:
                             substituent = aminate_substituent(substituent)
-                        except ValueError:
+                        except ValueError:  # pragma: no cover
                             pass
-                except:
+                except:  # pragma: no cover
                     # The site contains a modification which can be present alongside the substituent
                     occupancy = 1
                 try:
@@ -132,12 +136,12 @@ def from_iupac_lite(monosaccharide_str, residue_class=None):
                         substituent, position, occupancy,
                         parent_loss=substituent.attachment_composition_loss(),
                         child_loss='H')
-                except:
+                except:  # pragma: no cover
                     residue.add_substituent(
                         substituent, -1, occupancy,
                         parent_loss=substituent.attachment_composition_loss(),
                         child_loss='H')
-            else:
+            else:  # pragma: no cover
                 residue.add_substituent(
                     substituent, -1, occupancy,
                     parent_loss=substituent.attachment_composition_loss(),
@@ -184,7 +188,7 @@ def to_iupac_lite(residue):
 
     # Omit unknown coordinates on modifications and substituents
     modification = extract_modifications(residue.modifications, base_type).replace("-1-", "")
-    substituent = resolve_substituent(residue).replace("-1", "")
+    substituent = resolve_substituent(residue, monosaccharide_residue_reference).replace("-1", "")
     return template.format(
         modification=modification,
         base_type=base_type,
@@ -311,6 +315,11 @@ class MonosaccharideResidue(Monosaccharide):
     drop_configuration = drop_configuration
 
 
+monosaccharide_residue_reference.update({
+    k: MonosaccharideResidue.from_monosaccharide(v) for k, v in _monosaccharide_reference.items()
+    })
+
+
 class FrozenMonosaccharideResidue(MonosaccharideResidue):
     '''
     A subclass of |MonosaccharideResidue| which caches the result of :func:`to_iupac_lite` and instances returned
@@ -329,8 +338,10 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     _cache = {}
 
     @classmethod
-    def from_monosaccharide(cls, *args, **kwargs):
-        inst = super(FrozenMonosaccharideResidue, cls).from_monosaccharide(*args, **kwargs)
+    def from_monosaccharide(cls, monosaccharide, *args, **kwargs):
+        if has_derivatization(monosaccharide):
+            raise FrozenError("Cannot create Frozen derivatize type")
+        inst = super(FrozenMonosaccharideResidue, cls).from_monosaccharide(monosaccharide, *args, **kwargs)
         if str(inst) not in inst._cache:
             inst._cache[str(inst)] = inst
             inst._frozen = True
@@ -344,7 +355,8 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
 
     def __setattr__(self, key, value):
         if self._frozen:
-            raise ValueError("Cannot change a frozen object")
+            self._cache.pop(self._name, None)
+            raise FrozenError("Cannot change a frozen object")
         else:
             object.__setattr__(self, key, value)
 
@@ -360,6 +372,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         """
         return hash(self._name)
 
+    def _save_to_cache(self):
+        self._cache[str(self)] = self
+
     def __str__(self):
         try:
             return self._name
@@ -369,7 +384,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return name
 
     def clone(self, *args, **kwargs):
-        if self.frozen:
+        if self._frozen:
             return self
         else:
             return super(FrozenMonosaccharideResidue, self).clone(*args, **kwargs)
@@ -440,8 +455,11 @@ class SubstituentResidue(Substituent):
             return False
         return self.name == other.name
 
+    def __ne__(self, other):  # pragma: no cover
+        return not self == other
 
-class MolecularComposition(MoleculeBase):
+
+class MolecularComposition(MoleculeBase):  # pragma: no cover
     sigil = "#"
 
     def __init__(self, name, composition):
@@ -636,16 +654,17 @@ class GlycanComposition(dict, SaccharideCollection):
     def drop_stems(self):
         for t in self:
             drop_stem(t)
-        return self
+        self.collapse()
 
     def drop_positions(self):
         for t in self:
             drop_positions(t)
-        return self
+        self.collapse()
 
     def drop_configurations(self):
         for t in self:
             drop_configuration(t)
+        self.collapse()
 
     def total_composition(self):
         comp = self._composition_offset.clone()
@@ -778,3 +797,28 @@ class FrozenGlycanComposition(GlycanComposition):
         if isinstance(key, basestring):
             key = FrozenMonosaccharideResidue.from_iupac_lite(key)
         return dict.__contains__(self, key)
+
+    def _derivatized(self, *args, **kwargs):
+        raise FrozenError("Cannot derivatize a Frozen type")
+
+    def _strip_derivatization(self, *args, **kwargs):
+        raise FrozenError("Cannot derivatize a Frozen type")
+
+    def extend(self, *args):
+        if not isinstance(args[0], FrozenMonosaccharideResidue):
+            if isinstance(args[0], (Monosaccharide)):
+                args = map(FrozenMonosaccharideResidue.from_monosaccharide, args)
+            elif isinstance(args[0], Glycan):
+                args = map(
+                    FrozenMonosaccharideResidue.from_monosaccharide,
+                    [node for node in args[0] if node.node_type is FrozenMonosaccharideResidue.node_type])
+            else:
+                raise TypeError(
+                    "Can't convert {} to FrozenMonosaccharideResidue".format(
+                        type(args[0])))
+        for residue in args:
+            self[residue] += 1
+
+
+class FrozenError(ValueError):
+    pass

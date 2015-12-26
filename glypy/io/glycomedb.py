@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 cache = None
 
 
-def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):
+def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):  # pragma: no cover
     response = requests.get(u'http://www.glycome-db.org/http-services/getStructureDump.action?user=eurocarbdb')
     response.raise_for_status()
     handle = gzip.GzipFile(fileobj=StringIO(response.content))
@@ -107,7 +107,7 @@ def get_record(id):
     return glycan_record_from_xml(tree, id)
 
 
-def search_substructure(glycan_obj):
+def search_substructure(glycan_obj):  # pragma: no cover
     post_data = {
         "sequencetype": "glycoct_condenced",
         "sequence": glycan_obj.to_glycoct(),
@@ -139,7 +139,7 @@ _search_url = "http://www.glycome-db.org/database/searchSubStructure.action"
 _get_more_results_url = "http://www.glycome-db.org/database/showMultiStructure.action"
 
 
-def search_minimum_common_substructure(glycan_obj, minimum_residues=1):
+def search_minimum_common_substructure(glycan_obj, minimum_residues=1):  # pragma: no cover
     post_data = {
         "sequencetype": "glycoct_condenced",
         "sequence": glycan_obj.to_glycoct(),
@@ -200,7 +200,7 @@ def search_by_species(tax_id):
 _taxa_search_url = "http://www.glycome-db.org/database/searchBySpecies.action"
 
 
-def download_results(results, to=None):
+def download_results(results, to=None):  # pragma: no cover
     if to is not None:
         if isinstance(to, str):
             set_cache(to)

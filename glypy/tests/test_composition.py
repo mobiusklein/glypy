@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 from glypy.composition import composition, composition_transform
@@ -79,7 +80,19 @@ def make_composition_suite(composition_type):
             self.assertAlmostEqual(case.calc_mass(charge=1), 19.01784, 3)
             self.assertRaises(
                 composition.ChemicalCompositionError, lambda: protonated.calc_mass(charge=1))
+
+        def test_pickling(self):
+            case = composition_type("H2O")
+            self.assertEqual(case, pickle.loads(pickle.dumps(case)))
+
+        def test_most_probable_isotopic_composition(self):
+            case = composition_type("H2O")
+            comp, probability = composition.most_probable_isotopic_composition(case)
+            self.assertEqual(comp, {'H[1]': 2, 'O[16]': 1})
+            self.assertAlmostEqual(probability, 0.997, 3)
+
     return CompositionTests
+
 
 from glypy.composition.composition import PComposition
 PCompositionTests = make_composition_suite(PComposition)

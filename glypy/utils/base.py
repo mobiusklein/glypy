@@ -1,4 +1,6 @@
 import warnings
+import os
+import random
 import sys
 import gzip
 
@@ -22,6 +24,11 @@ except:  # pragma: no cover
         from StringIO import StringIO
     except:
         from io import StringIO
+
+try:
+    i128 = long
+except:
+    i128 = int
 
 
 def cyclewarning():
@@ -252,3 +259,8 @@ def groupby(ungrouped_list, key_fn=identity):
 
 def where(iterable, fn):
     return [i for i, k in enumerate(iterable) if fn(k)]
+
+
+def uid():
+    int_ = random.getrandbits(128)
+    return int_

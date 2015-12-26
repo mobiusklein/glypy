@@ -3,12 +3,13 @@ from collections import defaultdict
 import functools
 
 from glypy import Substituent, monosaccharides
-from glypy.structure.constants import Modification
+from glypy.structure.constants import Modification, Stem
 
 
 def monosaccharide_similarity(node, target, include_substituents=True,
                               include_modifications=True, include_children=False,
-                              exact=True, ignore_reduction=False, visited=None):
+                              exact=True, ignore_reduction=False, visited=None,
+                              short_circuit_after=None):
     '''
     A heuristic for measuring similarity between monosaccharide instances
 
@@ -70,6 +71,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
     qs += 1
     res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
     qs += 1
+    if short_circuit_after is not None and (res - qs) < short_circuit_after:
+        return res, qs
     if include_modifications:
         node_mods = list(node.modifications.values())
         node_reduced = False
@@ -90,6 +93,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
             if node_reduced:
                 res -= 1
         qs += len(node_mods) if exact else 0
+    if short_circuit_after is not None and (res - qs) < short_circuit_after:
+        return res, qs
     if include_substituents:
         node_subs = list(node for p, node in node.substituents())
         for pos, sub in target.substituents():
@@ -99,6 +104,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
                 node_subs.pop(node_subs.index(sub))
             qs += 1
         qs += len(node_subs) if exact else 0
+    if short_circuit_after is not None and (res - qs) < short_circuit_after:
+        return res, qs
     if include_children:
         node_children = list(child for p, child in node.children())
         match_index = dict()
@@ -233,3 +240,14 @@ has_fucose = functools.partial(has_monosaccharide, monosaccharide=monosaccharide
 has_n_acetyl = functools.partial(has_substituent, substituent=Substituent("n-acetyl"))
 is_acidic = functools.partial(has_modification, modification=Modification.Acidic)
 is_sulfated = functools.partial(has_substituent, substituent=Substituent("sulfate"))
+
+
+def is_generic_monosaccharide(monosaccharide):
+    return monosaccharide.stem[0] is Stem.x
+
+
+def is_derivatized(monosaccharide):
+    for pos, sub in monosaccharide.substituents():
+        if sub._derivatize:
+            return True
+    return False
