@@ -743,7 +743,7 @@ class Glycan(SaccharideCollection):
 
         return sum((node.total_composition() for node in self), Composition())
 
-    def clone(self, index_method='dfs', visited=None):
+    def clone(self, index_method='dfs', visited=None, cls=None):
         '''
         Create a copy of `self`, indexed using `index_method`, a *traversal method*  or |None|.
 
@@ -751,8 +751,10 @@ class Glycan(SaccharideCollection):
         -------
         :class:`~glypy.structure.glycan.Glycan`
         '''
+        if cls is None:
+            cls = self.__class__
         clone_root = graph_clone(self.root, visited=visited)
-        duplicate = Glycan(clone_root, index_method=index_method)
+        duplicate = cls(root=clone_root, index_method=index_method)
 
         return duplicate
 
@@ -1123,3 +1125,20 @@ class Glycan(SaccharideCollection):
                     source.crossring_subtrees(i))
             for subtree in gen:
                 yield subtree
+
+
+class NamedGlycan(Glycan):
+    def __init__(self, name=None, *args, **kwargs):
+        self.name = name
+        super(NamedGlycan, self).__init__(*args, **kwargs)
+
+    def clone(self, index_method='dfs', cls=None):
+        if cls is None:
+            cls = NamedGlycan
+        inst = super(NamedGlycan, self).clone(index_method=index_method, cls=cls)
+        inst.name = self.name
+        return inst
+
+    def __repr__(self):
+        rep = super(NamedGlycan, self).__repr__()
+        return "%s\n%s" % (self.name, rep)

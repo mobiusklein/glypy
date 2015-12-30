@@ -25,9 +25,9 @@ except:  # pragma: no cover
     except:
         from io import StringIO
 
-try:
+try:  # pragma: no cover
     i128 = long
-except:
+except:  # pragma: no cover
     i128 = int
 
 
@@ -56,12 +56,12 @@ def opener(obj, mode='r'):
 
     '''
     if isinstance(obj, basestring):
-        if obj[-2:] == 'gz':
+        if obj[-2:] == 'gz':  # pragma: no cover
             return gzip.open(obj, mode)
         return open(obj, mode)
     elif hasattr(obj, "read"):
         return obj
-    else:
+    else:  # pragma: no cover
         raise IOError("Can't find a way to open {}".format(obj))
 
 
@@ -157,7 +157,7 @@ class {name}(object):
         args=','.join(fields),
         self_fields=','.join('self.' + f for f in fields))
     d = {'fields': fields}
-    if debug:
+    if debug:  # pragma: no cover
         print(template)
     exec(template, d)
     result = d[name]
@@ -178,12 +178,12 @@ class ClassPropertyDescriptor(object):
         self.fset = fset
 
     def __get__(self, obj, klass=None):
-        if klass is None:
+        if klass is None:  # pragma: no cover
             klass = type(obj)
         return self.fget.__get__(obj, klass)()
 
     def __set__(self, obj, value):
-        if not self.fset:
+        if not self.fset:  # pragma: no cover
             raise AttributeError("can't set attribute")
         type_ = type(obj)
         return self.fset.__get__(obj, type_)(value)
@@ -244,7 +244,7 @@ def tree(structure):
     """
     try:
         tree = structure.__tree__()
-    except AttributeError:
+    except AttributeError:  # pragma: no cover
         raise TypeError("{} does not support the `tree` protocol.".format(structure.__class__.__name__))
     return tree
 

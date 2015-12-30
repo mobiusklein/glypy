@@ -132,8 +132,8 @@ class BoundURIRef(URIRef):
 
     Attributes
     ----------
-    _bind_source: GlySpaceRDFClient
-    _result_ref: ReferenceEntity
+    _bind_source: :class:`RDFClientBase`
+    _result_ref: :class:`ReferenceEntity`
         A reference to the ReferenceEntity fetched from this URI.
         Acts as a cache
 
@@ -153,7 +153,7 @@ class BoundURIRef(URIRef):
         Parameters
         ----------
         simplify : bool, optional
-            As in :meth:`.GlySpaceRDFClient.get`
+            As in :meth:`RDFClientBase.get`
         refresh : bool, optional
             If `True`, always request the URI's semantic reference,
             ignoring :attr:`_result_ref`
@@ -235,6 +235,19 @@ class RDFClientBase(ConjunctiveGraph):
 
     @classmethod
     def register_predicate_processor(cls, predicate):
+        """Decorator to register a callable processor for a `URIRef` `predicate` with this type's
+        :attr:`predicate_processor_map`. The actual decorated callable is returned unchanged.
+
+        Parameters
+        ----------
+        predicate : rdflib.term.URIRef or str
+            The type of URI to add the decorated callable
+            to the processor chain of
+
+        Returns
+        -------
+        callable
+        """
         def wrapper(f):
             cls.predicate_processor_map[predicate].append(f)
             return f
@@ -248,9 +261,50 @@ class RDFClientBase(ConjunctiveGraph):
         self.cache_size = cache_size
 
     def accession_to_uriref(self, accession):
+        """Utility method to translate free strings into full URIs
+        derived from this instance's :attr:`accession_ns`
+
+        Parameters
+        ----------
+        accession : str
+            A regular string comprised of just the accession number of
+            an entity.
+
+        Returns
+        -------
+        rdflib.term.URIRef
+        """
         return self.accession_ns[accession]
 
     def get(self, uriref, simplify=True):
+        """Download all related information for `uriref` from the remote
+        data source.
+
+        Collects all the triples from the remote data source where `uriref` is
+        the subject. If `uriref` is not the subject of any triples, it is re-queried
+        as a predicate, storing the subject-object pairs.
+
+        Any objects (and subjects) which are themselves :class:`rdflib.term.URIRef` instances
+        will be converted into :class:`BoundURIRef` which will silently fetch the relevant
+        entity from the remote source.
+
+        If the predicate matches a processor rules, instead of it's object value being
+        stored, the object will be transformed by each rule in the processor chain.
+
+        Parameters
+        ----------
+        uriref: str or rdflib.term.URIRef
+            A subject or predicate.
+        simplify: bool, optional
+            If true, any predicate with a single value will be a scalar,
+            and any other will be a list.
+
+        Returns
+        -------
+        ReferenceEntity
+            An object representing the subject whose attributes are named after
+            predicates with their objects as values.
+        """
         if not isinstance(uriref, URIRef):
             uriref = self.accession_to_uriref(uriref)
         if uriref in self.cache:
@@ -306,6 +360,30 @@ class UniprotRDFClient(RDFClientBase):
 
 
 class GlySpaceRDFClient(RDFClientBase):
+    '''
+    An RDF Client for glySpace. The default namespace is `glycoinfo`, and
+    the following namespaces are bound:
+
+    .. code-block:: python
+
+        glytoucan = NSGlyTouCan
+        glycomedb = NSGlycomeDB
+        glycan = NSGlycan
+        glycoinfo = NSGlycoinfo
+        skos = NSSKOS
+
+
+    Attributes
+    ----------
+    predicate_processor_map: :class:`ChainFunctionDict`
+        A dictionary keeping track of the chain of processors registered for
+        each predicate.
+    _sparql_endpoint_uri: str
+        The web address to use as the remote backend for SPARQL queries.
+        Passed on to :class:`rdflib.ConjunctiveGraph` and the `SPARQLStore`
+        storage plugin.
+
+    '''
 
     predicate_processor_map = ChainFunctionDict()
     _predicates_seen = set()
@@ -320,17 +398,48 @@ class GlySpaceRDFClient(RDFClientBase):
         self.bind("skos", NSSKOS)
 
     def from_taxon(self, taxon, limit=None):
+        r"""Fetch all accession numbers for all structures
+        from the given taxonomic identifier, up to `limit` records.
+
+        Equivalent to the following SPARQL
+
+        .. code-block:: sparql
+
+            SELECT DISTINCT ?saccharide WHERE {
+                ?saccharide a glycan:saccharide .
+                ?s skos:exactMatch ?gdb .
+                ?gdb glycan:has_reference ?ref .
+                ?ref glycan:is_from_source ?source .
+                ?source glycan:has_taxon ?taxon
+                FILTER REGEX(str(?taxon), "http://www.uniprot.org/taxonomy/<taxonomy-accession>.rdf")
+            }
+        The REGEX filter is used because at current taxonomic information in Glycome-DB
+        is encoded as a string instead of a URI.
+
+        Parameters
+        ----------
+        taxon : str or int
+            A string or number which corresponds to the taxonomy database
+            id for the taxon of interest.
+        limit : int, optional
+            The maximum number of results to retrieve.
+
+        Returns
+        -------
+        list of BoundURIRef
+        """
         sparql = r'''
-        SELECT DISTINCT ?saccharide ?taxon WHERE {
+        SELECT DISTINCT ?saccharide WHERE {
             ?saccharide a glycan:saccharide .
             ?s skos:exactMatch ?gdb .
             ?gdb glycan:has_reference ?ref .
             ?ref glycan:is_from_source ?source .
             ?source glycan:has_taxon ?taxon
             FILTER REGEX(str(?taxon),
-                "http://www.uniprot.org/taxonomy/%s.rdf"^^<http://www.w3.org/2001/XMLSchema#anyURI>)
+                "http://www.uniprot.org/taxonomy/%s.rdf")
         }
         '''
+
         query_string = sparql % str(taxon)
         if limit is not None:
             query_string += " limit %d" % limit
@@ -339,6 +448,33 @@ class GlySpaceRDFClient(RDFClientBase):
         return [BoundURIRef(row[k], source=self) for row in results.bindings]
 
     def structures_with_motif(self, motif, limit=None):
+        r"""Fetch all accession numbers and structures for all structures
+        which contain the given motif accession, up to `limit` records.
+
+        Equivalent to the following SPARQL
+
+        .. code-block:: sparql
+
+            SELECT DISTINCT ?saccharide ?glycoct WHERE {
+                ?saccharide a glycan:saccharide .
+                ?saccharide glycan:has_glycosequence ?sequence .
+                FILTER CONTAINS(str(?sequence), "glycoct") .
+                ?sequence glycan:has_sequence ?glycoct .
+                ?saccharide glycan:has_motif <motif-accession>
+            }
+
+        Parameters
+        ----------
+        taxon : str or int
+            A string or number which corresponds to the taxonomy database
+            id for the taxon of interest.
+        limit : int, optional
+            The maximum number of results to retrieve.
+
+        Returns
+        -------
+        list of :class:`ReferenceEntity`
+        """
         sparql = r'''
         SELECT DISTINCT ?saccharide ?glycoct WHERE {
                 ?saccharide a glycan:saccharide .
@@ -361,18 +497,58 @@ class GlySpaceRDFClient(RDFClientBase):
         return [ReferenceEntity(row[k], glycoct=row[g]) for row in results.bindings]
 
     def structure(self, *accessions):
-        results = []
+        accumulator = []
+        sparql = r'''
+        SELECT DISTINCT ?saccharide ?glycoct WHERE {
+            ?saccharide a glycan:saccharide .
+            ?saccharide glycan:has_glycosequence ?sequence .
+            FILTER CONTAINS(str(?sequence), "glycoct") .
+            ?sequence glycan:has_sequence ?glycoct .
+            FILTER ("%s" = str(?saccharide))
+        }
+        '''
         for accession in accessions:
-            pass
+            if isinstance(accession, URIRef):
+                accession_str = str(accession)
+            else:
+                accession_str = str(NSGlycoinfo[accession])
+            query_string = sparql % accession_str
+            results = self.query(query_string)
+            g = results.vars[1]
+            glycoct_string = results.bindings[0][g]
+            structure = glycoct.loads(glycoct_string)
+            accumulator.append(structure)
+        if len(accumulator) == 1:
+            return accumulator[0]
+        else:
+            return accumulator
+
 
 client = GlySpaceRDFClient()
 
 get = client.get
 query = client.query
+structure = client.structure
+from_taxon = client.from_taxon
+structures_with_motif = client.structures_with_motif
 
 
 @GlySpaceRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
 def has_glycosequence_processor(state, uri):
+    """Detect and extract GlycoCT sequence data and parse
+    into a |Glycan| object.
+
+    Parameters
+    ----------
+    state : ReferenceEntity or dict
+        The key-value store to add annotation to.
+    uri : rdflib.term.URIRef
+        The `URIRef` to load structure data from.
+
+    Returns
+    -------
+    BoundURIRef
+    """
     reference = uri()
     if reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_glycoct:
         # trailing underscore in case a URI would claim "structure"
@@ -381,6 +557,20 @@ def has_glycosequence_processor(state, uri):
 
 
 class ImageResource(dict):
+    """ImageResource wraps image resource URIs provided by the data source,
+    unifying the image fetching API.
+
+    ImageResource inherits from |dict|, and its keys
+    are pairs of (symbol_format, image_format), e.g. ("cgf", "png").
+
+    The wrapping :meth:`get` method will fetch the relevant URI from
+    storage and fetches the image data, which can be written to file.
+
+    Attributes
+    ----------
+    _uriref_list: list
+        List of wrapped resource URIs.
+    """
     def __init__(self):
         dict.__init__(self)
         self._uriref_list = []
@@ -394,6 +584,21 @@ class ImageResource(dict):
         self[symbol_format, image_format] = url
 
     def get(self, symbol_format, image_format='png'):
+        """Fetch image data from a remote source.
+
+        Parameters
+        ----------
+        symbol_format : str
+            The symbol format of the image to fetch.
+        image_format : str, optional
+            The image format to request. Defaults to 'png'. The supported
+            formats will vary depending upon the remote source.
+
+        Returns
+        -------
+        name : TYPE
+            Description
+        """
         url = self[symbol_format, image_format]
         return requests.get(url, verify=ssl_verification)
 

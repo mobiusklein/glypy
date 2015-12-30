@@ -7,6 +7,8 @@ from glypy.io import format_constants_map
 from glypy.io.nomenclature import identity
 from glypy.utils import invert_dict
 
+from glypy.io.file_utils import ParserInterface
+
 
 class IUPACError(Exception):
     pass
@@ -270,6 +272,17 @@ def glycan_to_iupac(structure=None, attach=None, open_edge='-(', close_edge=')-'
 
 
 def to_iupac(structure):
+    """Translate `structure` into its textual representation using IUPAC Three Letter Code
+
+    Parameters
+    ----------
+    structure : |Glycan| or |Monosaccharide|
+        The structure to be translated
+
+    Returns
+    -------
+    |str|
+    """
     if isinstance(structure, Monosaccharide):
         return monosaccharide_to_iupac(structure)
     else:
@@ -412,7 +425,7 @@ def substituent_from_iupac(substituents):
         yield int(position), name
 
 
-def glycan_from_iupac(text):
+def glycan_from_iupac(text, **kwargs):
     last_outedge = None
     root = None
     last_residue = None
@@ -456,9 +469,31 @@ def glycan_from_iupac(text):
     return res
 
 
-def from_iupac(text):
-    res = glycan_from_iupac(text)
+def from_iupac(text, **kwargs):
+    """Parse the given text into an instance of |Glycan|. If there is only a single monosaccharide
+    in the output, just the Monosaccharide instance is returned.
+
+    Parameters
+    ----------
+    text : |str|
+
+    Returns
+    -------
+    |Glycan| or |Monosaccharide|
+        If the resulting structure is just a single monosaccharide, the returned value is a Monosaccharide.
+    """
+    res = glycan_from_iupac(text, **kwargs)
     if len(res) > 1:
         return res
     else:
         return res.root
+
+
+loads = from_iupac
+dumps = to_iupac
+
+
+class IUPACParser(ParserInterface):
+    def process_result(self, line):
+        structure = loads(line)
+        return structure

@@ -2,6 +2,7 @@ import unittest
 
 from glypy.tests import common
 from glypy.io import iupac
+from StringIO import StringIO
 
 monosaccharides = common.monosaccharides
 
@@ -55,3 +56,17 @@ class IUPACTests(unittest.TestCase):
 -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
         reference = common.load("complex_glycan")
         self.assertEqual(iupac.from_iupac(text), reference)
+
+    def test_glycan_from_iupac_file_like(self):
+        text = '''>test
+        a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1
+        -3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp
+        -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'''
+        reader = iupac.IUPACParser.loads(text, 'fasta')
+        structure = reader.next()
+
+        text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1\
+-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp\
+-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
+        equiv = iupac.IUPACParser.loads(text, 'line').next()
+        self.assertEqual(equiv, structure)

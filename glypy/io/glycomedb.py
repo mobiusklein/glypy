@@ -45,6 +45,14 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):  # prag
 
 
 def set_cache(path):
+    '''Set the path to the current cache for use with this client.
+    This will create an instance of :class:`RecordDatabase` using the
+    path provided.
+
+    Any record lookups will first check the cache for that identifier, and
+    if found will return from there. Any records not found will be fetched from
+    the remote database and saved in the cache before returning.
+    '''
     global cache
     logger.info("Setting glycomedb client cache to %r", path)
     cache = RecordDatabase(path)
@@ -78,6 +86,17 @@ xpath = ".//condenced"
 def get(id):
     '''
     Get the structure for `id` from :title-reference:`GlycomeDB`.
+
+    GlycomeDB supplies a detailed schema link which allows `lxml` to easily pull out
+    more than just the GlycoCT string. To download a more informative record, use :func:`get_record`
+
+    Parameters
+    ----------
+    id: str or int
+
+    Returns
+    -------
+    Glycan
     '''
     if check_cache(id):
         return cache[id].structure
@@ -97,7 +116,7 @@ def get_record(id):
 
     Returns
     -------
-    |Glycan|
+    GlycanRecord
     '''
     if check_cache(id):
         return cache[id]
@@ -108,6 +127,18 @@ def get_record(id):
 
 
 def search_substructure(glycan_obj):  # pragma: no cover
+    '''
+    Select all structures which have contain `glycan_obj`.
+
+    Parameters
+    ----------
+    glycan_obj: Glycan
+        The glycan structure to search for
+
+    Yields
+    ------
+    GlycomeDBSearchMatch
+    '''
     post_data = {
         "sequencetype": "glycoct_condenced",
         "sequence": glycan_obj.to_glycoct(),
@@ -140,6 +171,21 @@ _get_more_results_url = "http://www.glycome-db.org/database/showMultiStructure.a
 
 
 def search_minimum_common_substructure(glycan_obj, minimum_residues=1):  # pragma: no cover
+    '''
+    Select all structures which have a minimum common substructure of `minimum_residues`
+    with `glycan_obj`.
+
+    Parameters
+    ----------
+    glycan_obj: Glycan
+        The glycan structure to search for
+    minimum_residues: int
+        The minimum number of residues to match
+
+    Yields
+    ------
+    GlycomeDBSearchMatch
+    '''
     post_data = {
         "sequencetype": "glycoct_condenced",
         "sequence": glycan_obj.to_glycoct(),
@@ -171,6 +217,19 @@ _mcs_search_url = "http://www.glycome-db.org/database/searchMCS.action"
 
 
 def search_by_species(tax_id):
+    '''
+    Select all structures which are associated with the provided taxonomy id, or
+    one of its children.
+
+    Parameters
+    ----------
+    tax_id: int or str
+        The taxonomy id to search for
+
+    Yields
+    ------
+    GlycomeDBSearchMatch
+    '''
     post_data = {
         "species": tax_id,
         "type": "ncbi",

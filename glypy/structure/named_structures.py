@@ -1,13 +1,11 @@
 import pkg_resources
 import hjson
-import uuid
 import re
 
-from copy import deepcopy
-
-from glypy.utils import StringIO, identity
+from glypy.utils import StringIO, identity, uid
 from glypy.utils.lazy import ProxyObject
 from glypy.io import glycoct
+from glypy.structure.glycan import NamedGlycan
 
 
 class StructureIndex(dict):
@@ -21,7 +19,7 @@ class StructureIndex(dict):
         x = dict.__getitem__(self, key)
         # ret = deepcopy(x)
         ret = x.clone()
-        ret.id = uuid.uuid4().int
+        ret.id = uid()
         return ret
 
     def __getattr__(self, name):
@@ -75,7 +73,7 @@ class MotifIndex(StructureIndex):
             name = motif['name']
             motif_class = motif['class']
             motif_category = motif['category']
-            motif_structure = glycoct.loads(motif['glycoct'])
+            motif_structure = NamedGlycan(name=name, root=glycoct.loads(motif['glycoct']).root, index_method=None)
             motif_structure.motif_name = name
             motif_structure.motif_class = motif_class
             motif_structure.motif_category = motif_category

@@ -21,6 +21,7 @@ common core structure.
    structure
    composition
    io
+   datasources
    algorithms
    utils
    tutorials

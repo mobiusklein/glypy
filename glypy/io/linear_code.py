@@ -15,6 +15,8 @@ from glypy.io.nomenclature import identity
 from glypy.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
 from glypy.utils import invert_dict
 
+from glypy.io.file_utils import ParserInterface
+
 Stem = constants.Stem
 Configuration = constants.Configuration
 
@@ -371,3 +373,9 @@ dumps = to_linear_code
 
 #: Common alias for :func:`parse_linear_code`
 loads = parse_linear_code
+
+
+class LinearCodeParser(ParserInterface):
+    def process_result(self, line):
+        structure = loads(line)
+        return structure

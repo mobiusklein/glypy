@@ -30,3 +30,9 @@ class GlySpaceClientTest(unittest.TestCase):
 
     def test_from_taxon(self):
         self.assertTrue(len(glyspace.client.from_taxon(9606, limit=10)) == 10)
+
+    def test_with_motif(self):
+        self.assertTrue(len(glyspace.structures_with_motif("G00026MO", limit=10)) == 10)
+
+    def test_structure(self):
+        self.assertAlmostEqual(glyspace.structure("G00026MO").mass(), 910.327, 2)
