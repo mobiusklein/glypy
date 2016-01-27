@@ -44,7 +44,7 @@ def line_to(ax, sx, sy, ex, ey, zorder=1, color=default_line_color):
 
 
 def draw_text(ax, x, y, text, scale=0.1, **kwargs):
-    fs = kwargs.get("fontsize", 2) * scale * 0.75
+    fs = kwargs.get("fontsize", 2) * scale * 0.55
     t_path = TextPath((x - 0.1, y), s=text, size=fs)
     center = centroid(t_path)
     dist = -1 * (center - (x, y))

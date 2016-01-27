@@ -219,28 +219,23 @@
       '''
       RES
       1b:x-dglc-HEX-x:x
-      2s:sulfate
-      3s:n-acetyl
+      2s:n-sulfate
+      3s:sulfate
       4b:a-dido-HEX-1:5|6:a
       5s:sulfate
       6b:b-dglc-HEX-1:5
-      7s:sulfate
-      8s:n-acetyl
+      7s:n-sulfate
+      8s:sulfate
       9b:a-dido-HEX-1:5|6:a
-      10s:sulfate
-      11s:sulfate
       LIN
-      1:1o(-1+-1)2n
-      2:1d(2+1)3n
+      1:1o(2+1)2n
+      2:1o(6+1)3n
       3:1o(4+1)4d
       4:4o(2+-1)5n
       5:4o(4+1)6d
-      6:6o(-1+-1)7n
-      7:6d(2+1)8n
+      6:6o(2+1)7n
+      7:6o(6+1)8n
       8:6o(4+1)9d
-      9:6o(6+1)10n
-      10:1o(6+1)11n
-
       '''
     class: Glycosaminoglycan
     name: Heparin

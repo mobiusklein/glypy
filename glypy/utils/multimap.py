@@ -79,6 +79,9 @@ class MultiMap(object):
             for v in self[k]:
                 yield (k, v)
 
+    def lists(self):
+        return self.contents.items()
+
     def __len__(self):
         '''
         Returns the number of items in :attr:`contents`
@@ -147,6 +150,10 @@ class OrderedMultiMap(MultiMap):
         for key in self.key_order:
             for v in self[key]:
                 yield (key, v)
+
+    def lists(self):
+        for key in self.key_order:
+            yield key, self[key]
 
     def __setitem__(self, key, value):
         if key not in self.key_order:

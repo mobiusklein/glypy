@@ -502,7 +502,35 @@ water_mass = Composition("H2O").mass
 
 
 class GlycanComposition(dict, SaccharideCollection):
+    """
+    Describe a glycan  as a collection of :class:`MonosaccharideResidue` counts without
+    explicit linkage information relating how each monosaccharide is connected to its neighbors.
 
+    This class subclasses |dict|, and assumes that keys will either be :class:`MonosaccharideResidue`
+    instances, :class:`SubstituentResidue` instances, or strings in `iupac_lite` format which will be parsed
+    into one of these types. While other types may be used, this is not recommended. All standard |dict| methods
+    are supported.
+
+    |GlycanComposition| objects may be derivatized just as |Glycan| objects are, with
+    :func:`glypy.composition.composition_transform.derivatize` and
+    :func:`glypy.composition.composition_transform.strip_derivatization`.
+
+    GlycanComposition objects also support composition arithmetic, and can be added or subtracted from each other
+    or multiplied by an integer.
+
+    As GlycanComposition is not a complete structure, they cannot be translated into text formats as
+    full |Glycan| objects are. They may instead be converted to and from a short-form text notation using
+    :meth:`GlycanComposition.serialize` and reconstructed from this format using :meth:`GlycanComposition.parse`.
+
+    Attributes
+    ----------
+    reducing_end : |ReducingEnd|
+        Describe the reducing end of the aggregate without binding it to a specific monosaccharide.
+        This will contribute to composition and mass calculations.
+    _composition_offset: |Composition|
+        Account for the one water molecule's worth of composition left over from applying the "residue"
+        transformation to each monosaccharide in the aggregate.
+    """
     @classmethod
     def from_glycan(cls, glycan):
         inst = cls()
@@ -757,7 +785,8 @@ class FrozenGlycanComposition(GlycanComposition):
     of |MonosaccharideResidue| which reduces the number of times :func:`from_iupac_lite` is called.
 
     Only use this type if residue names are pre-validated, residue types will not be transformed,
-    and when creating many, many instances.
+    and when creating many, many instances. :func:`from_iupac_lite` invokes expensive introspection
+    algorithms which can be costly when repeatedly manipulating the same residue types.
     '''
 
     _str = None

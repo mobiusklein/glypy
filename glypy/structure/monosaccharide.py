@@ -298,26 +298,28 @@ class Monosaccharide(SaccharideBase):
         if modifications is None:  # pragma: no cover
             modifications = OrderedMultiMap()
 
+        self.modifications = modifications
+        self._reducing_end = None
+
         if fast:
             self._anomer = anomer
             self._configuration = tuple(configuration)
             self._stem = tuple(stem)
             self._superclass = superclass
+            self._fast_reduce(reduced)
         else:
             self.anomer = anomer
             self.configuration = configuration
             self.stem = stem
             self.superclass = superclass
+            self.reducing_end = reduced
 
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.modifications = modifications
         self.links = OrderedMultiMap() if links is None else links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
         self.id = id or uuid4().int
-        self._reducing_end = None
-        self.reducing_end = reduced
         if composition is None:
             composition = _get_standard_composition(self)
         self.composition = composition
@@ -380,22 +382,23 @@ class Monosaccharide(SaccharideBase):
         if monosaccharide_type is None:
             monosaccharide_type = Monosaccharide
         modifications = OrderedMultiMap()
-        for k, v in self.modifications.items():
-            if isinstance(v, ReducedEnd):
-                continue
-            try:
-                modifications[k] = Modification[v]
-            except:  # pragma: no cover
-                modifications[k] = v.clone()
+        for k, items in self.modifications.lists():
+            for v in items:
+                if isinstance(v, ReducedEnd):
+                    continue
+                try:
+                    modifications[k] = Modification[v]
+                except:  # pragma: no cover
+                    modifications[k] = v.clone()
 
         monosaccharide = monosaccharide_type(
-            superclass=self.superclass,
-            stem=self.stem,
-            configuration=self.configuration,
+            superclass=self._superclass,
+            stem=self._stem,
+            configuration=self._configuration,
             ring_start=self.ring_start,
             ring_end=self.ring_end,
             modifications=modifications,
-            anomer=self.anomer,
+            anomer=self._anomer,
             reduced=self._reducing_end.clone() if self._reducing_end is not None else None,
             id=self.id if prop_id else None,
             fast=fast)
@@ -480,6 +483,11 @@ class Monosaccharide(SaccharideBase):
             self.modifications[1] = value
             self._reducing_end = value
         else:
+            self._reducing_end = value
+
+    def _fast_reduce(self, value):
+        if value is not None:
+            self.modifications[1] = value
             self._reducing_end = value
 
     def __getitem__(self, position):
@@ -1186,8 +1194,8 @@ class Monosaccharide(SaccharideBase):
                     subst_visited.add(subst.id)
                     mass += subst.mass(
                         average=average, charge=0, mass_data=mass_data)
-            if self.reducing_end is not None:
-                mass += self.reducing_end.mass(
+            if self._reducing_end is not None:
+                mass += self._reducing_end.mass(
                     average=average, charge=0, mass_data=mass_data)
         else:
             mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
@@ -1220,58 +1228,67 @@ class Monosaccharide(SaccharideBase):
         >>> from glypy import glycans
         >>> n_linked_core = glycans["N-Linked Core"]
         >>> ch = n_linked_core.root.children()
-        >>> ch.next()
+        >>> ch[0]
         (4, RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n)
         >>>
 
-        Yields
-        ------
+        Returns
+        -------
+        |list| of
         position: int
             Location of the bond to the child |Monosaccharide|
         child: |Monosaccharide|
             |Monosaccharide| at `position`
         '''
-        for pos, link in self.links.items():
-            if link.is_child(self):
-                continue
-            yield (pos, link.child)
+        result = [(pos, link.child) for pos, link in self.links.items() if not link.is_child(self)]
+        return result
+        # for pos, link in self.links.items():
+        #     if link.is_child(self):
+        #         continue
+        #     yield (pos, link.child)
 
     def parents(self):
         '''
         Returns an iterator over the :class:`Monosaccharide` instances which are considered
         the ancestors of `self`.
 
-        Yields
-        ------
+        Returns
+        -------
+        |list| of
         position: int
             Location of the bond to the parent |Monosaccharide|
         parent: |Monosaccharide|
             |Monosaccharide| at `position`
         '''
-        for pos, link in self.links.items():
-            if link.is_parent(self):
-                continue
-            yield (pos, link.parent)
+        result = [(pos, link.parent) for pos, link in self.links.items() if not link.is_parent(self)]
+        return result
+        # for pos, link in self.links.items():
+        #     if link.is_parent(self):
+        #         continue
+        #     yield (pos, link.parent)
 
     def substituents(self):
         '''
         Returns an iterator over all substituents attached
         to :obj:`self` by a :class:`~.link.Link` object stored in :attr:`~.substituent_links`
 
-        Yields
-        ------
+        Returns
+        -------
+        |list| of
         position: int
             Location of the bond to the substituent
         substituent: Substituent
             |Substituent| at `position`
         '''
         subst_visited = set()
+        results = []
         for pos, link in self.substituent_links.items():
             subst = link.to(self)
             if subst.id in subst_visited:
                 continue
             subst_visited.add(subst.id)
-            yield pos, subst
+            results.append((pos, subst))
+        return results
 
     def order(self, deep=False):
         '''

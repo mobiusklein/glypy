@@ -22,7 +22,6 @@ toggle = monosaccharide.toggle
 SuperClass = constants.SuperClass
 modification_compositions = structure_composition.modification_compositions
 
-ID = id
 chain = itertools.chain
 Counter = collections.Counter
 
@@ -32,12 +31,12 @@ class CrossRingPair(object):
     def can_crossring_fragment(cls, link):
         """Test if the given |Link| object's :attr:`child` supports
         cross ring fragments.
-        
+
         Parameters
         ----------
         link : Link
             |Link| object whose child will be cross ring cleaved
-        
+
         Returns
         -------
         bool
@@ -50,12 +49,12 @@ class CrossRingPair(object):
     def from_link(cls, link):
         """Generate an instance of :class:`CrossRingPair` for each method
         in which the :attr:`child` of `link` can be cross ring cleaved.
-        
+
         Parameters
         ----------
         link : Link
             |Link| object whose child will be cross ring cleaved
-        
+
         Yields
         ------
         :class:`CrossRingPair` :
@@ -111,7 +110,7 @@ class CrossRingPair(object):
         """Emulate |Link| interface for passing state with the removal of
         links to the associated :class:`CrossRingFragment` objects.
 
-        Calls :meth:`CrossRingFragment.release` on :attr:`parent` and :attr:`child`. 
+        Calls :meth:`CrossRingFragment.release` on :attr:`parent` and :attr:`child`.
 
         Calls :meth:`LinkMaskContext.unmask`.
 
@@ -119,7 +118,7 @@ class CrossRingPair(object):
             This method cannot find |Link| objects that are already hidden under another
             :class:`LinkMaskContext`. If using multiple masks on adjacent nodes, make sure
             to rerun :meth:`CrossRingPair.release` again after all links are unmasked.
-        
+
         """
         self.toggler.unmask()
         self.parent.release()

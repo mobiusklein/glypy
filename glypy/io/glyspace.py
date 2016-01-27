@@ -19,39 +19,20 @@ ssl_verification = False
 
 sparql_endpoint = "http://ts.glytoucan.org/sparql"
 
-
-def execute_sparql(query):  # pragma: no cover
-    payload = {
-        "query": query,
-        "format": "json",
-        "debug": "on",
-        "timeout": 10
-    }
-    r = requests.post(sparql_endpoint, params=payload)
-    r.raise_for_status()
-    return r.json()
-
-
-_get_all_glycans_sparql = '''
+_get_all_glycans_sparql = r'''
 PREFIX glycan: <http://purl.jp/bio/12/glyco/glycan#>
 PREFIX glytoucan:  <http://www.glytoucan.org/glyco/owl/glytoucan#>
 
 
 SELECT DISTINCT ?Saccharide ?PrimaryId ?Sequence
 WHERE {
-?Saccharide glytoucan:has_primary_id ?PrimaryId .
-?Saccharide glycan:has_glycosequence ?GlycoSequence .
-?GlycoSequence glycan:has_sequence ?Sequence .
-?GlycoSequence glycan:in_carbohydrate_format glycan:carbohydrate_format_glycoct
+    ?Saccharide glytoucan:has_primary_id ?PrimaryId .
+    ?Saccharide glycan:has_glycosequence ?GlycoSequence .
+    ?GlycoSequence glycan:has_sequence ?Sequence .
+    ?GlycoSequence glycan:in_carbohydrate_format glycan:carbohydrate_format_glycoct
 }
 ORDER BY ?PrimaryId
 '''
-
-
-def download_all_sequences():
-    data = execute_sparql(_get_all_glycans_sparql)
-    return data
-
 
 NSGlyTouCan = Namespace("http://www.glytoucan.org/glyco/owl/glytoucan#")
 NSGlycan = Namespace("http://purl.jp/bio/12/glyco/glycan#")

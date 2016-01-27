@@ -108,7 +108,7 @@ class GlycanTests(unittest.TestCase):
                 len(list(node.children())) == 0 or node == structure.root)
 
     def test_custom_traversal_method(self):
-        def rev_sort_dfs(self, visited=None, from_node=None, *args, **kwargs):
+        def rev_sort_dfs(self, apply_fn=lambda x: x, visited=None, from_node=None, *args, **kwargs):
             node_stack = list([self.root])
             visited = set()
             while len(node_stack) > 0:
@@ -116,7 +116,7 @@ class GlycanTests(unittest.TestCase):
                 if node.id in visited:
                     continue
                 visited.add(node.id)
-                yield (node)
+                yield apply_fn(node)
                 node_stack.extend(reversed(list(terminal for pos, link in node.links.items()
                                                 for terminal in link if terminal.id not in visited and
                                                 len(link.child.substituent_links) < 1)))
@@ -183,10 +183,10 @@ class GlycanTests(unittest.TestCase):
 
     def test_subtree_from(self):
         structure = load("branchy_glycan")
-        child = structure.root.children().next()[1]
+        child = structure.root.children()[0][1]
         subtree = Glycan.subtree_from(structure, child)
         temp = structure.clone()
-        temproot = temp.root.children().next()[1]
+        temproot = temp.root.children()[0][1]
         for link in temp.root.links.values():
             link.break_link(refund=True)
         temp.root = temproot

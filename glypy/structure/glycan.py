@@ -357,8 +357,15 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            node_stack.extend(terminal for link in node.links.values()
-                              for terminal in link if terminal.id not in visited)
+            # node_stack.extend(terminal for link in node.links.values()
+            #                   for terminal in link if terminal.id not in visited)
+            for link in node.links.values():
+                terminal = link.parent
+                if terminal.id not in visited:
+                    node_stack.append(terminal)
+                terminal = link.child
+                if terminal.id not in visited:
+                    node_stack.append(terminal)
 
     # Convenience aliases and the set up the traversal_methods entry
     dfs = depth_first_traversal
@@ -404,8 +411,15 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            node_queue.extend(terminal for link in node.links.values()
-                              for terminal in link if terminal.id not in visited)
+            # node_queue.extend(terminal for link in node.links.values()
+            #                   for terminal in link if terminal.id not in visited)
+            for link in node.links.values():
+                terminal = link.parent
+                if terminal.id not in visited:
+                    node_queue.append(terminal)
+                terminal = link.child
+                if terminal.id not in visited:
+                    node_queue.append(terminal)
 
     # Convenience aliases and the set up the traversal_methods entry
     bfs = breadth_first_traversal
@@ -543,12 +557,12 @@ class Glycan(SaccharideCollection):
 
         def parent_link_symbol(node):
             try:
-                label = node.links[node.parents().next()[0]][0].label
+                label = node.links[node.parents()[0][0]][0].label
                 if label is None:
                     return MAIN_BRANCH_SYM
                 else:
                     return label[0]
-            except StopIteration:
+            except IndexError:
                 return MAIN_BRANCH_SYM
 
         for node in self:

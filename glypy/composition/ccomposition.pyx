@@ -1,4 +1,5 @@
-#cython: boundscheck=False
+# cython: boundscheck=False
+# cython: profile=True
 
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
@@ -62,6 +63,12 @@ cdef str _parse_isotope_string(str label, int* isotope_num):
         isotope_num[0] = 0
     return element_name
 
+def parse_isotope_string(str label):
+    cdef:
+        int iso
+        str elem
+    elem = _parse_isotope_string(label, &iso)
+    return (elem, iso)
 
 cdef str _make_isotope_string(str element_name, int isotope_num):
     """Form a string label for an isotope."""
