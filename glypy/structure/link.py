@@ -32,6 +32,9 @@ class Link(object):
 
     '''
 
+    has_ambiguous_linkage = False
+    has_ambiguous_termini = False
+
     def __init__(self, parent, child, parent_position=-1, child_position=-1,
                  parent_loss=None, child_loss=None, id=None, attach=True):
         '''
@@ -131,56 +134,6 @@ class Link(object):
             return self.parent
         else:
             raise KeyError("Could not find connection for {0}".format(mol))
-
-    def _glycoct_sigils(self):
-        '''
-        Helper method for determining which GlycoCT symbols and losses to present
-        '''
-        parent_loss_str = 'x'
-        child_loss_str = 'x'
-        if self.child_loss == Composition(O=1, H=1):
-            child_loss_str = "d"
-            parent_loss_str = "o"
-        elif self.parent_loss == Composition(O=1, H=1):
-            child_loss_str = 'o'
-            parent_loss_str = 'd'
-
-        if self.child_loss == Composition(
-                H=1) and (self.child.node_type is SubstituentBase.node_type):
-            child_loss_str = "n"
-            if self.parent_loss == Composition(O=1, H=1):
-                parent_loss_str = "d"
-            else:
-                parent_loss_str = "o"
-
-        if self.child_loss is None:
-            child_loss_str = 'x'
-        if self.parent_loss is None:
-            parent_loss_str = 'x'
-
-        return parent_loss_str, child_loss_str
-
-    def to_glycoct(self, ix, parent_ix, child_ix):
-        '''
-        Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
-        the textual indices of its parent and child lines.
-
-        See also
-        --------
-        :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
-        :meth:`glypy.structure.glycan.Glycan.to_glycoct`
-        '''
-
-        parent_loss_str, child_loss_str = self._glycoct_sigils()
-        rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
-        return rep.format(
-            ix=ix,
-            parent_ix=parent_ix,
-            parent_loss=parent_loss_str,
-            parent_position=self.parent_position,
-            child_ix=child_ix,
-            child_loss=child_loss_str,
-            child_position=self.child_position)
 
     #: Alias for :meth:`to`
     __getitem__ = to
@@ -433,6 +386,8 @@ class LinkMaskContext(object):
 
 
 class AmbiguousLink(Link):
+    has_ambiguous_linkage = True
+
     def __init__(self, parent, child, parent_position=(-1,), child_position=(-1,),
                  parent_loss=None, child_loss=None, id=None, attach=True):
         if not isinstance(parent, (list, tuple)):
@@ -493,27 +448,27 @@ class AmbiguousLink(Link):
         assert not self.is_attached(deep=True)
         return res
 
-    def to_glycoct(self, ix, parent_ix, child_ix):  # pragma: no cover
-        '''
-        Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
-        the textual indices of its parent and child lines.
+    # def to_glycoct(self, ix, parent_ix, child_ix):  # pragma: no cover
+    #     '''
+    #     Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
+    #     the textual indices of its parent and child lines.
 
-        See also
-        --------
-        :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
-        :meth:`glypy.structure.glycan.Glycan.to_glycoct`
-        '''
+    #     See also
+    #     --------
+    #     :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
+    #     :meth:`glypy.structure.glycan.Glycan.to_glycoct`
+    #     '''
 
-        parent_loss_str, child_loss_str = self._glycoct_sigils()
-        rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
-        return rep.format(
-            ix=ix,
-            parent_ix=parent_ix,
-            parent_loss=parent_loss_str,
-            parent_position='|'.join(map(str, self.parent_position_choices)),
-            child_ix=child_ix,
-            child_loss=child_loss_str,
-            child_position='|'.join(map(str, self.child_position_choices)))
+    #     parent_loss_str, child_loss_str = self._glycoct_sigils()
+    #     rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
+    #     return rep.format(
+    #         ix=ix,
+    #         parent_ix=parent_ix,
+    #         parent_loss=parent_loss_str,
+    #         parent_position='|'.join(map(str, self.parent_position_choices)),
+    #         child_ix=child_ix,
+    #         child_loss=child_loss_str,
+    #         child_position='|'.join(map(str, self.child_position_choices)))
 
     def __repr__(self):
         rep = super(AmbiguousLink, self).__repr__()

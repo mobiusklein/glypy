@@ -13,7 +13,7 @@ class GlycanTests(unittest.TestCase):
     def test_from_glycoct(self):
         for structure in glycoct.read(self._file_path):
             self.assertEqual(
-                structure, glycoct.loads(structure.to_glycoct()))
+                structure, glycoct.loads(structure.serialize("glycoct")))
 
     def test_fragments_preserve(self):
         structure = load("branchy_glycan")

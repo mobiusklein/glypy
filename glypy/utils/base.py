@@ -222,8 +222,11 @@ def root(structure):
     -------
     Monosaccharide : The root of the |Glycan| tree
     """
-    root = structure.__root__()
-    return root
+    try:
+        root = structure.__root__()
+        return root
+    except AttributeError:
+        raise TypeError("{} does not support the `root` protocol".format(structure.__class__.__name__))
 
 
 def tree(structure):

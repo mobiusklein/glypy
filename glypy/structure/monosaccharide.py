@@ -224,7 +224,6 @@ def depth(monosaccharide, visited=None):
 
 
 class Monosaccharide(SaccharideBase):
-
     '''
     Represents a single monosaccharide molecule, and its relationships with other
     molcules through |Link| objects. |Link| objects stored in :attr:`links` for connections to other
@@ -289,6 +288,7 @@ class Monosaccharide(SaccharideBase):
         from `modifications` if "aldi" is present
 
     '''
+    _serializers = {}
 
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=None, ring_end=None,
@@ -898,88 +898,12 @@ class Monosaccharide(SaccharideBase):
         link_obj.break_link(refund=refund)
         return self
 
-    def to_glycoct(self, res_index=None, lin_index=None, complete=True):
-        '''
-        If ``complete`` is True, returns the Monosaccharide instance formatted as condensed GlycoCT text.
-        Otherwise, returns each line of the representation in a partitioned list:
-        1. ``list`` of each line in the *RES* section, the monosaccharide residue itself,
-        and each of its substituents
-        2. ``list`` of each line in the *LIN* section connecting the monosaccharide to each substituent.
-        Does *not* include links to other objects from `self.links` to avoid recursively building an
-        entire glycan graph.
-        3. ``int`` corresponding to the numerical index of the monosaccharide residue to be used to refer
-        to it when building monosaccharide to monosaccharide *LIN* entries.
+    @classmethod
+    def register_serializer(cls, name, method):
+        cls._serializers[name] = method
 
-        ``complete = False`` is used by :meth:`~.glycan.Glycan.to_glycoct` to build the full graph in parts.
-
-        Parameters
-        ----------
-        res_index : function, optional
-            A function to yield index numbers for the *RES* section. If not provided,
-            defaults to :func:`~glypy.utils.make_counter`
-        lin_index : function, optional
-            A function to yield index numbers for the *LIN* section. If not provided,
-            defaults to :func:`~glypy.utils.make_counter`
-        complete : bool, optional
-            Format the object completely, returning a self-contained condensed GlycoCT
-            string. Defaults to :const:`True`
-
-        Returns
-        -------
-        :class:`str`
-        '''
-        residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
-        if res_index is None:
-            res_index = make_counter()
-        if lin_index is None:
-            lin_index = make_counter()
-
-        # This index is reused many times
-        monosaccharide_index = res_index()
-
-        # Format individual fields
-        anomer = anomer_map[self.anomer]
-        conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
-                            for c, s in zip(self.configuration, self.stem))
-        superclass = "-" + superclass_map[self.superclass]
-
-        modifications = '|'.join(
-            "{0}:{1}".format(k, v.name) for k, v in self.modifications.items())
-
-        modifications = "|" + modifications if modifications != "" else ""
-        ring_start = self.ring_start if self.ring_start is not None else 'x'
-        ring_end = self.ring_end if self.ring_end is not None else 'x'
-
-        # The complete monosaccharide residue line
-        residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
-                                              superclass=superclass, modifications=modifications,
-                                              ring_start=ring_start, ring_end=ring_end)
-        res = [residue_str]
-        lin = []
-        visited_subst = dict()
-        # Construct the substituent lines
-        # and their links
-        for lin_pos, link_obj in self.substituent_links.items():
-            sub = link_obj.to(self)
-            if sub.id not in visited_subst:
-                sub_index = res_index()
-                subst_str = str(sub_index) + sub.to_glycoct()
-                res.append(subst_str)
-                visited_subst[sub.id] = sub_index
-            lin.append(
-                link_obj.to_glycoct(lin_index(), monosaccharide_index, visited_subst[sub.id]))
-
-        # Completely render the data if `complete`
-        if complete:
-            buff = StringIO()
-            buff.write("RES\n")
-            buff.write('\n'.join(res))
-            if len(lin) > 0:
-                buff.write("\nLIN\n")
-                buff.write("\n".join(lin))
-            return buff.getvalue()
-        else:
-            return [res, lin, monosaccharide_index]
+    def serialize(self, name='glycoct'):
+        return self._serializers[name](self)
 
     def _flat_equality(self, other, lengths=True):
         '''
@@ -1120,8 +1044,9 @@ class Monosaccharide(SaccharideBase):
     def __ne__(self, other):
         return not (self == other)
 
-    def __repr__(self):  # pragma: no cover
-        return self.to_glycoct().replace("\n", ' ')
+    # def __repr__(self):  # pragma: no cover
+    #     return self.to_glycoct().replace("\n", ' ')
+    __repr__ = serialize
 
     def __getstate__(self):
         return self.__dict__

@@ -28,10 +28,10 @@ class MonosaccharideTests(unittest.TestCase):
         self.assertEqual(monosaccharide.depth(load("complex_glycan").root), 7)
 
     def test_from_glycoct(self):
-        s = self.glycan.root.to_glycoct()
+        s = self.glycan.root.serialize('glycoct')
         b = StringIO(s)
         g = iter(glycoct.read(b)).next()
-        self.assertEqual(g.root.to_glycoct(), s)
+        self.assertEqual(g.root.serialize('glycoct'), s)
 
     def test_named_structure_masses(self):
         for name, mass in wiki_masses.items():
@@ -41,7 +41,8 @@ class MonosaccharideTests(unittest.TestCase):
     def test_named_structure_glycoct(self):
         for name, glycoct_str in monosaccharide_structures.items():
             structure = named_structures.monosaccharides[name]
-            test, ref = (structure.to_glycoct(), glycoct_str)
+            glycoct_str = structure._serializers['glycoct'](glycoct_str, convert=False)
+            test, ref = (structure.serialize('glycoct'), glycoct_str)
             i = 0
             for j, k in zip(test, ref):
                 if j != k:

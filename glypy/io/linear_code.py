@@ -379,3 +379,6 @@ class LinearCodeParser(ParserInterface):
     def process_result(self, line):
         structure = loads(line)
         return structure
+
+Monosaccharide.register_serializer('linear_code', dumps)
+Glycan.register_serializer('linear_code', dumps)

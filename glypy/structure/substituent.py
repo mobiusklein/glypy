@@ -157,9 +157,6 @@ class Substituent(SubstituentBase):
         '''
         self._name = value.replace("-", "_")
 
-    def to_glycoct(self, *args, **kwargs):
-        return "s:{0}".format(self.name.replace("_", "-"))
-
     def __repr__(self):  # pragma: no cover
         return "<Substituent {name}>".format(name=self._name)
 

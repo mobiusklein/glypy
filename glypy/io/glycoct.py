@@ -20,9 +20,11 @@ Supports RES, LIN, and un-nested REP sections.
 import re
 import logging
 import warnings
-from glypy.utils import opener, StringIO, enum, root as rootp
+from collections import defaultdict
+
+from glypy.utils import opener, StringIO, enum, root as rootp, tree as treep, make_counter, invert_dict
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, link, glycan
+from glypy.structure import monosaccharide, substituent, link, glycan, base
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from glypy.composition import Composition
@@ -700,3 +702,251 @@ def loads(glycoct_str, structure_class=Glycan):
 
 def detect_glycoct(string):
     return string.lstrip()[:3] == "RES"
+
+
+invert_anomer_map = invert_dict(anomer_map)
+invert_superclass_map = invert_dict(superclass_map)
+
+
+class GlycoCTWriter(object):
+    def __init__(self, structure=None, buffer=None):
+        self.nobuffer = False
+        if buffer is None:
+            buffer = StringIO()
+            self.nobuffer = True
+        self.buffer = buffer
+        self.structure = structure
+
+        self.res_counter = make_counter()
+        self.lin_counter = make_counter()
+
+        # Look-ups for mapping RES nodes to objects by section index and id,
+        # respectively
+        self.index_to_residue = {}
+        self.residue_to_index = {}
+
+        # Accumulator for linkage indices and mapping linkage indices to
+        # dependent RES indices
+        self.lin_accumulator = []
+        self.dependencies = defaultdict(dict)
+
+    @property
+    def structure(self):
+        return self._structure
+
+    @structure.setter
+    def structure(self, value):
+        if value is None:
+            self._structure = value
+            return
+        try:
+            structure = treep(value)
+        except TypeError:
+            try:
+                root = rootp(value)
+                structure = Glycan(root, index_method=None)
+            except TypeError:
+                raise TypeError("Could not extract or construct a tree structure from %r" % value)
+        self._structure = structure
+
+    def _reset(self):
+        self.res_counter = make_counter()
+        self.lin_counter = make_counter()
+
+        self.index_to_residue = {}
+        self.residue_to_index = {}
+
+        self.lin_accumulator = []
+        self.dependencies = defaultdict(dict)
+
+        if self.nobuffer:
+            self.buffer = StringIO()
+
+    def _glycoct_sigils(self, link):
+        '''
+        Helper method for determining which GlycoCT symbols and losses to present
+        '''
+        parent_loss_str = 'x'
+        child_loss_str = 'x'
+        if link.child_loss == Composition(O=1, H=1):
+            child_loss_str = "d"
+            parent_loss_str = "o"
+        elif link.parent_loss == Composition(O=1, H=1):
+            child_loss_str = 'o'
+            parent_loss_str = 'd'
+
+        if link.child_loss == Composition(
+                H=1) and (link.child.node_type is base.SubstituentBase.node_type):
+            child_loss_str = "n"
+            if link.parent_loss == Composition(O=1, H=1):
+                parent_loss_str = "d"
+            else:
+                parent_loss_str = "o"
+
+        if link.child_loss is None:
+            child_loss_str = 'x'
+        if link.parent_loss is None:
+            parent_loss_str = 'x'
+
+        return parent_loss_str, child_loss_str
+
+    def handle_link(self, link, ix, parent_ix, child_ix):
+        parent_loss_str, child_loss_str = self._glycoct_sigils(link)
+
+        if link.has_ambiguous_linkage:
+            rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
+            return rep.format(
+                    ix=ix,
+                    parent_ix=parent_ix,
+                    parent_loss=parent_loss_str,
+                    parent_position='|'.join(map(str, link.parent_position_choices)),
+                    child_ix=child_ix,
+                    child_loss=child_loss_str,
+                    child_position='|'.join(map(str, link.child_position_choices)))
+        else:
+            rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
+            return rep.format(
+                ix=ix,
+                parent_ix=parent_ix,
+                parent_loss=parent_loss_str,
+                parent_position=link.parent_position,
+                child_ix=child_ix,
+                child_loss=child_loss_str,
+                child_position=link.child_position)
+
+    def handle_substituent(self, substituent):
+        return "s:{0}".format(substituent.name.replace("_", "-"))
+
+    def handle_monosaccharide(self, monosaccharide):
+        residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
+
+        # This index is reused many times
+        monosaccharide_index = self.res_counter()
+
+        # Format individual fields
+        anomer = invert_anomer_map[monosaccharide.anomer]
+        conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
+                            for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
+        superclass = "-" + invert_superclass_map[monosaccharide.superclass]
+
+        modifications = '|'.join(
+            "{0}:{1}".format(k, v.name) for k, v in monosaccharide.modifications.items())
+
+        modifications = "|" + modifications if modifications != "" else ""
+        ring_start = monosaccharide.ring_start if monosaccharide.ring_start is not None else 'x'
+        ring_end = monosaccharide.ring_end if monosaccharide.ring_end is not None else 'x'
+
+        # The complete monosaccharide residue line
+        residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
+                                              superclass=superclass, modifications=modifications,
+                                              ring_start=ring_start, ring_end=ring_end)
+        res = [residue_str]
+        lin = []
+        visited_subst = dict()
+        # Construct the substituent lines
+        # and their links
+        for lin_pos, link_obj in monosaccharide.substituent_links.items():
+            sub = link_obj.to(monosaccharide)
+            if sub.id not in visited_subst:
+                sub_index = self.res_counter()
+                subst_str = str(sub_index) + self.handle_substituent(sub)
+                res.append(subst_str)
+                visited_subst[sub.id] = sub_index
+            lin.append(
+                self.handle_link(link_obj, self.lin_counter(), monosaccharide_index, visited_subst[sub.id])
+                )
+
+        return [res, lin, monosaccharide_index]
+
+    def handle_glycan(self):
+        if self.structure is None:
+            raise ValueError("No structure is ready to be written.")
+
+        self.buffer.write("RES\n")
+
+        visited = set()
+        for node in (self.structure):
+            if node.id in visited:
+                continue
+            visited.add(node.id)
+            res, lin, index = self.handle_monosaccharide(node)
+
+            self.lin_accumulator.append((index, lin))
+            self.residue_to_index[node.id] = index
+            self.index_to_residue[index] = node
+
+            for pos, lin in node.links.items():
+                if lin.is_child(node):
+                    continue
+                self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
+            for line in res:
+                self.buffer.write(line + '\n')
+
+        self.buffer.write("LIN\n")
+        for res_ix, links in self.lin_accumulator:
+            for line in links:
+                self.buffer.write(line + '\n')
+            residue = self.index_to_residue[res_ix]
+            for pos, lin in residue.links.items():
+                if lin.is_child(residue):
+                    continue
+                child_res = lin.child
+                ix, lin = self.dependencies[child_res.id][residue.id]
+                self.buffer.write(
+                    self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
+        return self.buffer
+
+    def dump(self):
+        buffer = self.handle_glycan()
+        if self.nobuffer:
+            value = buffer.getvalue()
+            self._reset()
+            return value
+        return buffer
+
+    def write(self, structure):
+        self.structure = structure
+        self._reset()
+        return self.dump()
+
+
+def dump(structure, buffer=None, close=False):
+    '''
+    Serialize the |Glycan| graph object into condensed GlycoCT, using
+    `buffer` to store the result. If `buffer` is |None|, then the
+    function will operate on a newly created :class:`~glypy.utils.StringIO` object.
+
+    Parameters
+    ----------
+    structure: |Glycan|
+        The structure to serialize
+    buffer: file-like or None
+        The stream to write the serialized structure to. If |None|, uses an instance
+        of `StringIO`
+
+    Returns
+    -------
+    file-like or str if ``buffer`` is :const:`None`
+
+    '''
+    return GlycoCTWriter(structure, buffer).dump()
+
+
+def dumps(structure):
+    return GlycoCTWriter(structure, None).dump()
+
+
+def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
+    if convert:
+        monostring = dumps(monosaccharide)
+    else:
+        monostring = monosaccharide
+    monostring = monostring.replace("\n", " ")
+    if monostring.endswith("LIN "):
+        monostring = monostring.replace(" LIN ", "")
+    else:
+        monostring = monostring.strip()
+    return monostring
+
+Monosaccharide.register_serializer("glycoct", _postprocessed_single_monosaccharide)
+Glycan.register_serializer("glycoct", dumps)

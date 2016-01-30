@@ -109,7 +109,6 @@ def fragment_to_substructure(fragment, tree):
 
 
 class Glycan(SaccharideCollection):
-
     '''
     Represents a full graph of connected |Monosaccharide| objects and their connecting bonds.
 
@@ -128,6 +127,8 @@ class Glycan(SaccharideCollection):
     branch_lengths: |dict|
         A dictionary mapping branch symbols to their lengths
     '''
+
+    _serializers = {}
 
     @classmethod
     def subtree_from(cls, tree, node, visited=None):
@@ -631,89 +632,14 @@ class Glycan(SaccharideCollection):
 
     __len__ = order
 
-    def to_glycoct(self, buffer=None, close=False):
-        '''
-        Serialize the |Glycan| graph object into condensed GlycoCT, using
-        `buffer` to store the result. If `buffer` is |None|, then the
-        function will operate on a newly created :class:`~glypy.utils.StringIO` object.
+    @classmethod
+    def register_serializer(cls, name, method):
+        cls._serializers[name] = method
 
-        Parameters
-        ----------
-        buffer: file-like or None
-            The stream to write the serialized structure to. If |None|, uses an instance
-            of `StringIO`
-        close: bool
-            Whether or not to close the stream in `buffer` after writing is done
+    def serialize(self, name='glycoct'):
+        return self._serializers[name](self)
 
-        Returns
-        -------
-        file-like or str if ``buffer`` is :const:`None`
-
-        '''
-        is_stringio = False
-        if buffer is None:
-            buffer = StringIO()
-            is_stringio = True
-
-        buffer.write("RES\n")
-
-        res_counter = make_counter()
-        lin_counter = make_counter()
-
-        # Look-ups for mapping RES nodes to objects by section index and id,
-        # respectively
-        index_to_residue = {}
-        residue_to_index = {}
-
-        # Accumulator for linkage indices and mapping linkage indices to
-        # dependent RES indices
-        lin_accumulator = []
-        dependencies = defaultdict(dict)
-
-        # Detect cycles and avoid including the same residue twice
-        visited = set()
-
-        for node in (self):
-            if node.id in visited:
-                continue
-            visited.add(node.id)
-            try:
-                res, lin, index = node.to_glycoct(
-                    res_counter, lin_counter, complete=False)
-
-                lin_accumulator.append((index, lin))
-                residue_to_index[node.id] = index
-                index_to_residue[index] = node
-
-                for pos, link in node.links.items():
-                    if link.is_child(node):
-                        continue
-                    dependencies[link.child.id][node.id] = ((lin_counter(), link))
-                for line in res:
-                    buffer.write(line + '\n')
-            except:
-                pass
-        buffer.write("LIN\n")
-        for res_ix, links in lin_accumulator:
-            for line in links:
-                buffer.write(line + '\n')
-            residue = index_to_residue[res_ix]
-            for pos, link in residue.links.items():
-                if link.is_child(residue):
-                    continue
-                child_res = link.child
-                ix, link = dependencies[child_res.id][residue.id]
-                buffer.write(
-                    link.to_glycoct(ix, res_ix, residue_to_index[child_res.id]) + "\n")
-
-        if is_stringio:
-            return buffer.getvalue()
-        else:  # pragma: no cover
-            if close:
-                buffer.close()
-            return buffer
-
-    __repr__ = to_glycoct
+    __repr__ = serialize
 
     def mass(self, average=False, charge=0, mass_data=None):
         '''
