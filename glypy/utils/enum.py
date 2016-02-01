@@ -18,21 +18,23 @@ class EnumValue(object):
         try:
             if self.group is not other.group:
                 return False
-            if self is other:
-                return True
-            return self.value == other.value or self.names == other.names
+            # if self is other:
+            #     return True
+            # return self.value == other.value or self.names == other.names
+            return self is other
         except AttributeError:
             return self.value == other or other in self.names
 
     def __ne__(self, other):
-        if isinstance(other, EnumValue) and self.group != other.group:
-            return True
-        return other not in self.names or self.value != other
+        return not self == other
 
     def __repr__(self):  # pragma: no cover
-        return "<{group_name} {names}:{value}>".format(names='|'.join(self.names),
-                                                       group_name=self.group.__name__,
-                                                       value=self.value)
+        return "<{group_name} {name}:{value}>".format(name=self.name,
+                                                      group_name=self.group.__name__,
+                                                      value=self.value)
+
+    def __reduce__(self):
+        return self.group, (self.name,)
 
     def add_name(self, name, force=False):
         if name not in self.group or force:
@@ -172,6 +174,8 @@ class EnumMeta(type):
 
     def __repr__(self):
         return "<Enum {0}>".format(self.__name__)
+
+    __call__ = translate
 
 
 class Enum(object):
