@@ -305,7 +305,7 @@ class MonosaccharideResidue(Monosaccharide):
             return False
         if not isinstance(other, MonosaccharideResidue):
             return False
-        return self.name() == other.name()
+        return str(self) == str(other)
 
     from_iupac_lite = staticmethod(from_iupac_lite)
     name = to_iupac_lite
