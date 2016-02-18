@@ -408,12 +408,12 @@ class GlycoCT(object):
     '''
 
     @classmethod
-    def loads(cls, glycoct_str, structure_class=Glycan):
+    def loads(cls, glycoct_str, structure_class=Glycan, allow_repeats=True):
         '''Parse results from |str|'''
         rep = StringIO(glycoct_str)
-        return cls(rep, structure_class=structure_class)
+        return cls(rep, structure_class=structure_class, allow_repeats=allow_repeats)
 
-    def __init__(self, stream, structure_class=Glycan):
+    def __init__(self, stream, structure_class=Glycan, allow_repeats=True):
         '''
         Creates a parser of condensed GlycoCT.
 
@@ -431,6 +431,7 @@ class GlycoCT(object):
         self.postponed = []
         self.root = None
         self._iter = None
+        self.allow_repeats = allow_repeats
         self.structure_class = structure_class
 
     def _read(self):
@@ -593,6 +594,9 @@ class GlycoCT(object):
             parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)
 
     def handle_repeat_stub(self, line):
+        if not self.allow_repeats:
+            raise GlycoCTSectionUnsupported(
+                "Repeat are not allowed (set allow_repeats=True to allow them)")
         match = repeat_line_pattern.search(line).groupdict()
         graph_index = (match['graph_index'])
         repeat_index = (match["repeat_index"])
@@ -641,7 +645,9 @@ class GlycoCT(object):
                 self.state = REP
                 logger.debug("REP")
                 self.in_repeat = True
-                #raise GlycoCTSectionUnsupported(REP)
+                if not self.allow_repeats:
+                    raise GlycoCTSectionUnsupported(
+                        "Repeat are not allowed (set allow_repeats=True to allow them)")
 
             elif line.strip()[:3] == REP:
                 logger.debug(line)
@@ -681,14 +687,14 @@ class GlycoCT(object):
         yield self.postprocess()
 
 
-def read(stream, structure_class=Glycan):
+def read(stream, structure_class=Glycan, allow_repeats=True):
     '''
     A convenience wrapper for :class:`GlycoCT`
     '''
-    return GlycoCT(stream, structure_class=structure_class)
+    return GlycoCT(stream, structure_class=structure_class, allow_repeats=allow_repeats)
 
 
-def loads(glycoct_str, structure_class=Glycan):
+def loads(glycoct_str, structure_class=Glycan, allow_repeats=True):
     '''
     A convenience wrapper for :meth:`GlycoCT.loads`
 
@@ -697,7 +703,7 @@ def loads(glycoct_str, structure_class=Glycan):
     one is present, or a list of instances otherwise.
     '''
 
-    g = GlycoCT.loads(glycoct_str, structure_class=structure_class)
+    g = GlycoCT.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
     first = g.next()
     second = None
     try:
