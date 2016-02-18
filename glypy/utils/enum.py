@@ -85,11 +85,12 @@ class EnumMeta(type):
         enum_type = type.__new__(cls, name, parents, attrs)
         mapped = {}
         attr_pairs = attrs.items()
+        EunmType = attrs.get("__enum_type__", EnumValue)
         for label, value in attr_pairs:
             if not label.startswith("__") or label == "mro":
                 attrs.pop(label)
                 delattr(enum_type, label)
-                enum_value = EnumValue(enum_type, label, value)
+                enum_value = EunmType(enum_type, label, value)
                 if value in mapped:
                     try:
                         mapped[value].add_name(label)

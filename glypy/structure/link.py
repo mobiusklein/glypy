@@ -334,6 +334,34 @@ class Link(object):
             return self.apply()
         return False
 
+    def _glycoct_sigils(link):
+        '''
+        Helper method for determining which GlycoCT symbols and losses to present
+        '''
+        parent_loss_str = 'x'
+        child_loss_str = 'x'
+        if link.child_loss == Composition(O=1, H=1):
+            child_loss_str = "d"
+            parent_loss_str = "o"
+        elif link.parent_loss == Composition(O=1, H=1):
+            child_loss_str = 'o'
+            parent_loss_str = 'd'
+
+        if link.child_loss == Composition(
+                H=1) and (link.child.node_type is SubstituentBase.node_type):
+            child_loss_str = "n"
+            if link.parent_loss == Composition(O=1, H=1):
+                parent_loss_str = "d"
+            else:
+                parent_loss_str = "o"
+
+        if link.child_loss is None:
+            child_loss_str = 'x'
+        if link.parent_loss is None:
+            parent_loss_str = 'x'
+
+        return parent_loss_str, child_loss_str
+
     def __repr__(self):  # pragma: no cover
         parent_loss_str, child_loss_str = self._glycoct_sigils()
         rep = "({parent.id}){parent_loss}({parent_position}+{child_position}){child_loss}({child.id})"

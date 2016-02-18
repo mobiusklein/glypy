@@ -473,6 +473,7 @@
       '''
     class: Epitope
     name: VIM
+    accession: G00065MO
     core_motif: false
   }
   {
@@ -524,6 +525,7 @@
       '''
     class: Epitope
     name: Blood group H
+    accession: G00068MO
     core_motif: false
   }
   {
@@ -788,6 +790,7 @@
       '''
     class: Epitope
     name: Lactosamine motif
+    accession: G00055MO
     core_motif: false
   }
   {
@@ -908,6 +911,7 @@
       '''
     class: Epitope
     name: Lewis X
+    accession: G00051MO
     core_motif: false
   }
   {
@@ -1357,6 +1361,7 @@
       '''
     class: N-Glycan Subclass
     name: N-Glycan complex 1
+    accession: G00030MO
     core_motif: false
   }
   {
@@ -1390,6 +1395,7 @@
       '''
     class: N-Glycan Subclass
     name: N-Glycan complex 2
+    accession: G00030MO
     core_motif: false
   }
   {
@@ -1487,6 +1493,7 @@
       '''
     class: N-Glycan
     name: N-Glycan core basic 1
+    accession: G00026MO
     core_motif: false
   }
   {
@@ -1512,6 +1519,7 @@
       '''
     class: N-Glycan
     name: N-Glycan core basic 2
+    accession: G00026MO
     core_motif: false
   }
   {

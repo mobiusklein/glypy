@@ -361,8 +361,8 @@ class SubstituentTests(unittest.TestCase):
             parent.mass(), (pmass + cmass - Composition(H=2).mass))
         self.assertEqual(
             parent.total_composition(), parent.composition + child.composition)
-        self.assertEqual(parent.children().next()[1], child)
-        self.assertEqual(child.parents().next()[1], parent)
+        self.assertEqual(parent.children()[0][1], child)
+        self.assertEqual(child.parents()[0][1], parent)
         parent.drop_substituent(2)
         self.assertAlmostEqual(parent.mass(), pmass)
 

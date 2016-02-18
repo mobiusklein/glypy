@@ -343,20 +343,24 @@ class Substituent(SubstituentBase):
         Returns an iterator over the :class:`Monosaccharide`s which are considered
         the descendants of ``self``.
         '''
+        result = []
         for pos, link in self.links.items():
             if link.is_child(self):
                 continue
-            yield (pos, link.child)
+            result.append((pos, link.child))
+        return result
 
     def parents(self):
         '''
         Returns an iterator over the objects which are considered
         the ancestors of ``self``.
         '''
+        result = []
         for pos, link in self.links.items():
             if link.is_parent(self):
                 continue
-            yield (pos, link.parent)
+            result.append((pos, link.parent))
+        return result
 
     def attachment_composition_loss(self):
         return self.attachment_composition.clone()

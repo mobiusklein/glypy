@@ -83,6 +83,14 @@ get_url_template = "http://www.glycome-db.org/database/showStructure.action?glyc
 xpath = ".//condenced"
 
 
+def _get_raw(id):
+    r = requests.get(get_url_template.format(id=id))
+    r.raise_for_status()
+    tree = etree.fromstring(r.content)
+    condensed = tree.find(xpath).text
+    return condensed
+
+
 def get(id):
     '''
     Get the structure for `id` from :title-reference:`GlycomeDB`.

@@ -181,6 +181,7 @@ class Glycan(SaccharideCollection):
                 continue
             visited.add(addr)
             index.append(node)
+
         for node in index:
             if node.id < 0:
                 node.id = i

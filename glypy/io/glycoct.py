@@ -24,7 +24,7 @@ from collections import defaultdict
 
 from glypy.utils import opener, StringIO, enum, root as rootp, tree as treep, make_counter, invert_dict
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, link, glycan, base
+from glypy.structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from glypy.composition import Composition
@@ -115,8 +115,8 @@ def parse_link(line):
     else:
         raise GlycoCTError("Could not interpret link", line)
     id = link_dict['doc_index']
-    parent_residue_index = link_dict['parent_residue_index']
-    child_residue_index = link_dict['child_residue_index']
+    parent_residue_index = int(link_dict['parent_residue_index'])
+    child_residue_index = int(link_dict['child_residue_index'])
 
     parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
     parent_attachment_position = map(int, link_dict["parent_attachment_position"].split("|"))
@@ -237,6 +237,16 @@ def undecorate_tree(tree):
     return tree
 
 
+def find_root(tree):
+    root = rootp(tree)
+    while True:
+        parents = root.parents()
+        if not parents:
+            break
+        root = parents[0][1]
+    return root
+
+
 class RepeatRecord(object):
     def __init__(self, graph_index, repeat_index, internal_linkage=None,
                  external_linkage=None, multitude=(-1, -1), graph=None,
@@ -277,15 +287,15 @@ class RepeatRecord(object):
         if self.is_exact() is not StructurePrecisionEnum.unknown:
             if not (self.multitude[0] <= n <= self.multitude[1]):  # pragma: no cover
                 raise ValueError("{} is not within the range of {}".format(n, self.multitude))
-        sub_unit_indices = sorted(self.graph.keys())
+        sub_unit_indices = sorted(map(try_int, self.graph.keys()))
 
         if self.original_graph is None:
-            glycan_graph = Glycan(self.graph[sub_unit_indices[0]], index_method=None).clone()
+            glycan_graph = Glycan(find_root(self.graph[sub_unit_indices[0]]), index_method=None).clone()
             self.original_graph = {}
             for k, v in self.graph.items():
                 try:
-                    self.orignal_graph[k] = glycan_graph.get(v.id)
-                except:
+                    self.original_graph[k] = glycan_graph.get(v.id)
+                except IndexError:
                     self.original_graph[k] = self.graph[k]
 
         else:
@@ -294,9 +304,11 @@ class RepeatRecord(object):
 
         graph = {1: glycan_graph.clone(index_method=None)}
         decorate_tree(graph[1], 1)
+
         parent_residue_index = int(self.internal_linkage["parent_residue_index"])
         parent_atom_replaced = link_replacement_composition_map[self.internal_linkage["parent_atom_replaced"]]
         parent_attachment_position = self.internal_linkage["parent_attachment_position"]
+
         child_residue_index = int(self.internal_linkage["child_residue_index"])
         child_atom_replaced = link_replacement_composition_map[self.internal_linkage["child_atom_replaced"]]
         child_attachment_position = self.internal_linkage["child_attachment_position"]
@@ -364,11 +376,7 @@ class RepeatRecord(object):
             raise Exception("Unknown direction %s" % direction)
 
     def __root__(self):  # pragma: no cover
-        root_node = rootp(self.graph[1])
-        if root_node.node_type is Substituent.node_type:
-            root_node = root_node.links[1][0].parent if root_node.links[
-                1][0].parent.node_type is Monosaccharide.node_type\
-                 else root_node.links[1][0].child
+        root_node = find_root(self.graph[1])
         return root_node
 
     def prepare_glycan(self):
@@ -508,7 +516,7 @@ class GlycoCT(object):
             graph = self.current_repeat.graph
         else:
             graph = self.graph
-        graph[ix] = residue
+        graph[int(ix)] = residue
 
         residue.id = int(ix)
         if self.root is None:
@@ -534,7 +542,7 @@ class GlycoCT(object):
         else:
             graph = self.graph
 
-        graph[ix] = sub
+        graph[int(ix)] = sub
 
     def get_node(self, id):
         if self.in_repeat:
@@ -588,9 +596,9 @@ class GlycoCT(object):
         match = repeat_line_pattern.search(line).groupdict()
         graph_index = (match['graph_index'])
         repeat_index = (match["repeat_index"])
-        repeat = RepeatRecord(graph_index, repeat_index, parser=self)
-        self.graph[graph_index] = repeat
-        self.repeats[repeat_index] = repeat
+        repeat = RepeatRecord(int(graph_index), int(repeat_index), parser=self)
+        self.graph[int(graph_index)] = repeat
+        self.repeats[int(repeat_index)] = repeat
 
     def postprocess(self):
         '''
@@ -640,7 +648,7 @@ class GlycoCT(object):
                 if not self.in_repeat:
                     raise GlycoCTError("Encountered {} outside of REP".format(line))
                 header_dict = rep_header_pattern.search(line).groupdict()
-                repeat_index = (header_dict['repeat_index'])
+                repeat_index = int(header_dict['repeat_index'])
                 repeat_record = self.repeats[repeat_index]
                 self.current_repeat = repeat_record
                 linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
@@ -709,13 +717,14 @@ invert_superclass_map = invert_dict(superclass_map)
 
 
 class GlycoCTWriter(object):
-    def __init__(self, structure=None, buffer=None):
+    def __init__(self, structure=None, buffer=None, full=True):
         self.nobuffer = False
         if buffer is None:
             buffer = StringIO()
             self.nobuffer = True
         self.buffer = buffer
         self.structure = structure
+        self.full = full
 
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
@@ -766,27 +775,7 @@ class GlycoCTWriter(object):
         '''
         Helper method for determining which GlycoCT symbols and losses to present
         '''
-        parent_loss_str = 'x'
-        child_loss_str = 'x'
-        if link.child_loss == Composition(O=1, H=1):
-            child_loss_str = "d"
-            parent_loss_str = "o"
-        elif link.parent_loss == Composition(O=1, H=1):
-            child_loss_str = 'o'
-            parent_loss_str = 'd'
-
-        if link.child_loss == Composition(
-                H=1) and (link.child.node_type is base.SubstituentBase.node_type):
-            child_loss_str = "n"
-            if link.parent_loss == Composition(O=1, H=1):
-                parent_loss_str = "d"
-            else:
-                parent_loss_str = "o"
-
-        if link.child_loss is None:
-            child_loss_str = 'x'
-        if link.parent_loss is None:
-            parent_loss_str = 'x'
+        parent_loss_str, child_loss_str = link._glycoct_sigils()
 
         return parent_loss_str, child_loss_str
 
@@ -875,25 +864,32 @@ class GlycoCTWriter(object):
             self.residue_to_index[node.id] = index
             self.index_to_residue[index] = node
 
-            for pos, lin in node.links.items():
-                if lin.is_child(node):
-                    continue
-                self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
+            if self.full:
+                for pos, lin in node.links.items():
+                    if lin.is_child(node):
+                        continue
+                    self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
             for line in res:
                 self.buffer.write(line + '\n')
+
+            # If this serialization is not meant to be full
+            # do not visit residues beyond the first.
+            if not self.full:
+                break
 
         self.buffer.write("LIN\n")
         for res_ix, links in self.lin_accumulator:
             for line in links:
                 self.buffer.write(line + '\n')
             residue = self.index_to_residue[res_ix]
-            for pos, lin in residue.links.items():
-                if lin.is_child(residue):
-                    continue
-                child_res = lin.child
-                ix, lin = self.dependencies[child_res.id][residue.id]
-                self.buffer.write(
-                    self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
+            if self.full:
+                for pos, lin in residue.links.items():
+                    if lin.is_child(residue):
+                        continue
+                    child_res = lin.child
+                    ix, lin = self.dependencies[child_res.id][residue.id]
+                    self.buffer.write(
+                        self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
         return self.buffer
 
     def dump(self):
@@ -932,13 +928,13 @@ def dump(structure, buffer=None, close=False):
     return GlycoCTWriter(structure, buffer).dump()
 
 
-def dumps(structure):
-    return GlycoCTWriter(structure, None).dump()
+def dumps(structure, full=True):
+    return GlycoCTWriter(structure, None, full=full).dump()
 
 
 def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
     if convert:
-        monostring = dumps(monosaccharide)
+        monostring = dumps(monosaccharide, full=False)
     else:
         monostring = monosaccharide
     monostring = monostring.replace("\n", " ")
