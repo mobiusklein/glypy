@@ -1,9 +1,8 @@
-from uuid import uuid4
-
 from glypy.composition.structure_composition import substituent_compositions
 from .base import SubstituentBase
 from .link import Link
 
+from glypy.utils import uid
 from glypy.composition import Composition, calculate_mass
 from glypy.utils.multimap import OrderedMultiMap
 
@@ -122,7 +121,7 @@ class Substituent(SubstituentBase):
         elif composition is not None and self._name not in substituent_compositions:
             substituent_compositions[self._name] = composition.clone()
         self.composition = composition
-        self.id = id or uuid4().int
+        self.id = id or uid()
         self._order = self.order()
         try:
             if can_nh_derivatize is is_nh_derivatizable is None:

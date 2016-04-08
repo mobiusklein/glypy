@@ -1,4 +1,5 @@
 recursive-include glypy *.pyx
+recursive-include glypy *.pxd
 recursive-include glypy *.c
 recursive-include glypy/structure/data *.hjson
 recursive-include glypy/io/nomenclature/data *.json

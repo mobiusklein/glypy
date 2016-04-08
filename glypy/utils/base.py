@@ -264,6 +264,6 @@ def where(iterable, fn):
     return [i for i, k in enumerate(iterable) if fn(k)]
 
 
-def uid():
-    int_ = random.getrandbits(128)
+def uid(n=128):
+    int_ = random.getrandbits(n)
     return int_

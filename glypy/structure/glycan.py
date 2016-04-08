@@ -11,10 +11,10 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideCollection
-from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth, _traverse_debug
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
-from glypy.utils import make_counter, identity, StringIO, chrinc
+from glypy.utils import identity, chrinc
 from glypy.composition import Composition
 
 methodcaller = operator.methodcaller
@@ -41,7 +41,7 @@ def fragment_to_substructure(fragment, tree):
     >>> n_linked_core = glycan_factory["N-Linked Core"]
     >>> frag = n_linked_core.fragments().next()
     >>> frag
-    <Fragment  mass=221.089937203 kind=Y included_nodes=set([1]) link_ids={1: ('', 'Y')} name=Y1 crossring_cleavages={} score=0.0>
+    <Fragment  mass=221.089937203 kind=Y included_nodes=set([1]) link_ids={1: ('', 'Y')} name=Y1 crossring_cleavages={} score=0.0 composition=Composition({'H': 15, 'C': 8, 'O': 6, 'N': 1})>
     >>> glycan.fragment_to_substructure(frag, n_linked_core)
     RES
     1b:b-dglc-HEX-1:5

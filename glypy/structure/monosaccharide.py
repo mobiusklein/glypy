@@ -8,7 +8,7 @@ from .link import Link
 from .base import SaccharideBase
 
 from glypy.io.format_constants_map import anomer_map, superclass_map
-from glypy.utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning
+from glypy.utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning, uid
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.utils.enum import EnumValue
 from glypy.composition import Composition, calculate_mass
@@ -319,7 +319,7 @@ class Monosaccharide(SaccharideBase):
         self.links = OrderedMultiMap() if links is None else links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
-        self.id = id or uuid4().int
+        self.id = id or uid()
         if composition is None:
             composition = _get_standard_composition(self)
         self.composition = composition
@@ -1260,7 +1260,7 @@ class ReducedEnd(object):
         self.base_composition = self.composition.clone()
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
-        self.id = id or uuid4().int
+        self.id = id or uid()
         self._order = len(self.links)
 
     def is_occupied(self, position):
