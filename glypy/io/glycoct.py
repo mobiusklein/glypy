@@ -34,7 +34,8 @@ try:
 except:
     pass
 
-logger = logging.getLogger("glycoct")
+# logger = logging.getLogger("glycoct")
+# logger.disabled = True
 
 
 Glycan = glycan.Glycan
@@ -619,7 +620,7 @@ class GlycoCT(object):
             repeater.expand_inner()
 
         for postop in self.postponed:
-            logger.debug("Postprocessing %s", postop)
+            # logger.debug("Postprocessing %s", postop)
             postop[0](*postop[1:])
 
         return undecorate_tree(self.structure_class(rootp(self.root)))
@@ -643,14 +644,14 @@ class GlycoCT(object):
 
             elif REP == line.strip():
                 self.state = REP
-                logger.debug("REP")
+                # logger.debug("REP")
                 self.in_repeat = True
                 if not self.allow_repeats:
                     raise GlycoCTSectionUnsupported(
                         "Repeat are not allowed (set allow_repeats=True to allow them)")
 
             elif line.strip()[:3] == REP:
-                logger.debug(line)
+                # logger.debug(line)
                 if not self.in_repeat:
                     raise GlycoCTError("Encountered {} outside of REP".format(line))
                 header_dict = rep_header_pattern.search(line).groupdict()

@@ -1,6 +1,7 @@
 
 class MoleculeBase(object):
     _order = 0
+    node_type = object()
 
     def order(self, deep=False):
         '''

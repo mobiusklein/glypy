@@ -65,9 +65,13 @@ class Link(object):
             by using :meth:`Link.apply`
         '''
 
-        if isinstance(parent_loss, basestring):
+        if parent_loss is None:
+            parent_loss = default_parent_loss
+        elif isinstance(parent_loss, basestring):
             parent_loss = Composition(formula=parent_loss)
-        if isinstance(child_loss, basestring):
+        if child_loss is None:
+            child_loss = default_child_loss
+        elif isinstance(child_loss, basestring):
             child_loss = Composition(formula=child_loss)
 
         self.parent = parent
@@ -98,9 +102,9 @@ class Link(object):
 
         '''
         # assert not self.is_attached(), ("Cannot apply an already attached link")
-        self.parent.composition -= (self.parent_loss or default_parent_loss)
+        self.parent.composition -= (self.parent_loss)# or default_parent_loss)
 
-        self.child.composition -= (self.child_loss or default_child_loss)
+        self.child.composition -= (self.child_loss)# or default_child_loss)
         if self.is_substituent_link():
             self.parent.substituent_links[self.parent_position] = self
         else:
@@ -268,8 +272,6 @@ class Link(object):
             self.parent.substituent_links[self.parent_position] = self
         else:
             self.parent.links[self.parent_position] = self
-            # sorted(
-            #     self.parent.links[self.parent_position], key=lambda x: x.child.order())
 
         self.child.links[self.child_position] = self
 

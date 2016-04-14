@@ -11,7 +11,7 @@ from collections import deque, defaultdict, Callable
 from uuid import uuid4
 
 from .base import SaccharideCollection
-from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle, depth
+from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
 from glypy.utils import identity, chrinc

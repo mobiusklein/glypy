@@ -253,7 +253,7 @@ class CrossRingFragment(Monosaccharide):
     def __ne__(self, other):
         return not self == other
 
-    def graph_mass(self, average=False, charge=0, mass_data=None):
+    def graph_mass(self, average=False, mass_data=None):
         '''
         Calcules the total mass of all connected residues.
 
@@ -261,6 +261,7 @@ class CrossRingFragment(Monosaccharide):
         --------
         glypy.structure.glycan.Glycan.mass
         '''
+        charge = 0
         return sum(
             node.mass(average=average, charge=charge, mass_data=mass_data) for node in traverse(self))
 

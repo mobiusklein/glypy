@@ -424,6 +424,9 @@ class SubstituentResidue(Substituent):
                  attachment_composition=None):
         if name.startswith(SubstituentResidue.sigil):
             name = name[1:]
+        elif name.startswith(MolecularComposition.sigil):
+            raise TypeError("Invalid Sigil. SubstituentResidue instances must be given names with either"
+                            " no sigil prefix or with '@'")
         super(SubstituentResidue, self).__init__(
             name=name, composition=composition, links=None, id=id,
             can_nh_derivatize=can_nh_derivatize, is_nh_derivatizable=is_nh_derivatizable,
@@ -470,7 +473,9 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
         return self.composition.calc_mass(average=average, charge=charge, mass_data=mass_data)
 
     def __repr__(self):
-        return "%s%s::%s" % (self.sigil, self.name, ''.join("%s%d" % kv for kv in self.composition.items()))
+        return "%s%s%s%s" % (
+            self.sigil, self.name, self.sigil,
+            ''.join("%s%d" % kv for kv in self.composition.items()))
 
     to_iupac_lite = __repr__
 
@@ -480,19 +485,25 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
     def clone(self):
         return self.__class__(self.name, Composition(self.composition))
 
+    def total_composition(self):
+        return self.composition.clone()
+
     @classmethod
     def from_iupac_lite(cls, string):
         if not string.startswith(cls.sigil):
             raise TypeError("%s does not start with header %s" % (string, cls.sigil))
-        header, composition = string.split("::")
-        name = header[1:]
+        _, header, composition = string.split("#")
+        name = header
         return cls(name, Composition(composition))
 
     def __hash__(self):
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other or self.name == other.name
+        try:
+            return self.name == other or self.name == other.name
+        except:
+            return self.name == str(other)
 
     def __ne__(self, other):
         return not (self == other)
@@ -533,6 +544,18 @@ class GlycanComposition(dict, SaccharideCollection):
     """
     @classmethod
     def from_glycan(cls, glycan):
+        """
+        Convert a |Glycan| into a |GlycanComposition|.
+
+        Parameters
+        ----------
+        glycan : Glycan
+            The instance to be converted
+
+        Returns
+        -------
+        GlycanComposition
+        """
         inst = cls()
         glycan = tree(glycan)
         inst.extend(glycan)
@@ -774,6 +797,10 @@ class GlycanComposition(dict, SaccharideCollection):
         if self._reducing_end is not None:
             _strip_derivatization_reducing_end(self._reducing_end)
         self._mass = None
+
+    def _invalidate(self):
+        self._mass = None
+        self._charge = None
 
 from_glycan = GlycanComposition.from_glycan
 parse = GlycanComposition.parse
