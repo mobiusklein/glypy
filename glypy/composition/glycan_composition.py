@@ -593,6 +593,7 @@ class GlycanComposition(dict, SaccharideCollection):
             key = from_iupac_lite(key)
         if key.node_type is Monosaccharide.node_type and key.reducing_end is not None:
             self.reducing_end = key.reducing_end
+            key = key.clone()
             key.reducing_end = None
         dict.__setitem__(self, key, int(value))
         self._mass = None
