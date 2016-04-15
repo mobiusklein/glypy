@@ -575,18 +575,51 @@ class GlycanComposition(dict, SaccharideCollection):
         self.update(*args, **kwargs)
 
     def __setitem__(self, key, value):
+        """
+        Set the quantity of `key` to `value`
+
+        If `key` is a string, it will be passed through :func:`from_iupac_lite`
+
+        If `key` has a reducing end value, that reducing end will be set on `self`
+
+        Parameters
+        ----------
+        key : str, MonosaccharideResidue, SubstituentResidue, or MolecularComposition
+            The entity to store
+        value : int
+            The value to store
+        """
         if isinstance(key, basestring):
             key = from_iupac_lite(key)
         if key.node_type is Monosaccharide.node_type and key.reducing_end is not None:
             self.reducing_end = key.reducing_end
             key.reducing_end = None
-        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, int(value))
         self._mass = None
 
     def __getitem__(self, key):
+        """
+        Get the quantity of `key`
+
+        If `key` is a string, it will be passed through :func:`from_iupac_lite`
+
+        If `key` has a reducing end value, that reducing end will be set on `self`
+
+        Parameters
+        ----------
+        key : str, MonosaccharideResidue, SubstituentResidue, or MolecularComposition
+            The entity to store
+
+        Returns
+        -------
+        int
+        """
         if isinstance(key, basestring):
             key = from_iupac_lite(key)
-        return dict.__getitem__(self, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return 0
 
     def __delitem__(self, key):
         if isinstance(key, basestring):

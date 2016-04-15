@@ -29,7 +29,7 @@ attachment_composition_info = {
     "n_acetyl": Composition("OH"),
     "n_glycolyl": Composition("OH"),
     "amino": Composition("OH"),
-    "anhydro": Composition("")
+    "anhydro": Composition("H")
 }
 default_attachment_composition = Composition("H")
 

@@ -99,6 +99,7 @@ def run_setup(include_cext=True):
           # ],
           cmdclass=cmdclass,
           zip_safe=False,
+          keywords="glycomics glycan carbohydrate glycoinformatics",
           description="A Glycoinformatics Toolkit",
           ext_modules=extensions if include_cext else None,
           url="https://github.com/mobiusklein/glypy",
