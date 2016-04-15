@@ -80,7 +80,7 @@ extras['all'] = list({d for extra in extras.values() for d in extra})
 def run_setup(include_cext=True):
     setup(
           name='glypy',
-          version='0.0.8',
+          version='0.0.9',
           packages=find_packages(),
           include_package_data=True,
           package_data={
@@ -99,7 +99,7 @@ def run_setup(include_cext=True):
           # ],
           cmdclass=cmdclass,
           zip_safe=False,
-          keywords="glycomics glycan carbohydrate glycoinformatics",
+          keywords="glycomics glycan carbohydrate glycoinformatics glypy n-linked o-linked glycosaminoglycan",
           description="A Glycoinformatics Toolkit",
           ext_modules=extensions if include_cext else None,
           url="https://github.com/mobiusklein/glypy",
