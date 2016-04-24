@@ -285,7 +285,7 @@ class GlycanRecordBase(object):
 
     def __repr__(self):  # pragma: no cover
         rep = '<{type} {id} {mass}>\n{glycoct}'.format(
-                id=(self.id or ''), mass=self.mass(), glycoct=self.structure.to_glycoct(),
+                id=(self.id or ''), mass=self.mass(), glycoct=self.structure.serialize("glycoct"),
                 type=self.__class__.__name__
             )
         return rep

@@ -795,8 +795,7 @@ class Monosaccharide(SaccharideBase):
         return self
 
     def add_monosaccharide(self, monosaccharide, position=-1, max_occupancy=0,
-                           child_position=-1,
-                           parent_loss=None, child_loss=None):
+                           child_position=-1, parent_loss=None, child_loss=None):
         '''
         Adds a |Monosaccharide| and associated |Link| to :attr:`links` at the site given by
         ``position``.

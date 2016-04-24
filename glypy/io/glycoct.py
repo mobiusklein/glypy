@@ -38,6 +38,8 @@ except:
 # logger.disabled = True
 
 
+__id = id
+
 Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
 Substituent = substituent.Substituent
@@ -45,11 +47,21 @@ Link = link.Link
 AmbiguousLink = link.AmbiguousLink
 
 START = "!START"
+REPINNER = "!REPINNER"
 RES = "RES"
 LIN = "LIN"
 REP = "REP"
 ALT = "ALT"
 UND = "UND"
+ISO = "ISO"
+NON = "NON"
+
+TERMINAL_STATES = {
+    RES,
+    LIN,
+    ISO,
+    NON
+}
 
 subsituent_start = "s"
 base_start = "b"
@@ -423,6 +435,7 @@ class GlycoCT(object):
         stream: basestring or file-like
             A path to a file or a file-like object to be processed
         '''
+        self._state = None
         self.graph = {}
         self.handle = opener(stream, "r")
         self.state = START
@@ -430,13 +443,17 @@ class GlycoCT(object):
         self.in_repeat = False
         self.repeats = {}
         self.postponed = []
+        self.context_stack = []
         self.root = None
         self._iter = None
         self.allow_repeats = allow_repeats
         self.structure_class = structure_class
+        self._index = 0
+        self._source_line = 0
 
     def _read(self):
         for line in self.handle:
+            self._source_line += 1
             for token in re.split(r"\s|;", line):
                 # logger.debug(token)
                 if "" == token.strip():
@@ -444,9 +461,26 @@ class GlycoCT(object):
                 yield token
 
     def _reset(self):
-        self.graph = {}
+        self.graph.clear()
         self.root = None
         self.postponed = []
+        self.repeats.clear()
+        self.context_stack = []
+        self.current_repeat = None
+        self.in_repeat = False
+        self._index += 1
+
+    def push_repeat_context(self, repeat):
+        self.context_stack.append(repeat)
+        self.current_repeat = self.context_stack[-1]
+
+    def pop_repeat_context(self):
+        popped = self.context_stack.pop(-1)
+        if self.context_stack:
+            self.current_repeat = self.context_stack[-1]
+        else:
+            self.current_repeat = None
+            self.in_repeat = False
 
     def __iter__(self):
         '''
@@ -458,7 +492,6 @@ class GlycoCT(object):
     def next(self):
         '''
         Calls :meth:`parse` if the internal iterator has not been instantiated
-
         '''
         if self._iter is None:
             iter(self)
@@ -466,6 +499,15 @@ class GlycoCT(object):
 
     #: Alias for next. Supports Py3 Iterator interface
     __next__ = next
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        # print "Entering State: ", value
+        self._state = value
 
     def deferred_retrieval(self, id, direction=None):
         def retrieval():
@@ -602,6 +644,7 @@ class GlycoCT(object):
         graph_index = (match['graph_index'])
         repeat_index = (match["repeat_index"])
         repeat = RepeatRecord(int(graph_index), int(repeat_index), parser=self)
+        repeat._index = self._index
         self.graph[int(graph_index)] = repeat
         self.repeats[int(repeat_index)] = repeat
 
@@ -632,38 +675,51 @@ class GlycoCT(object):
         '''
         for line in self._read():
             if RES == line.strip():
-                self.state = RES
-                # logger.debug("RES")
-                if self.root is not None and not self.in_repeat:
+                if self.state == START:
+                    pass
+                elif self.state in TERMINAL_STATES:
                     yield self.postprocess()
                     self._reset()
+                else:
+                    raise GlycoCTError("Invalid State Transition at line %d" % self._source_line)
+
+                self.state = RES
+
+                # if self.root is not None and not self.in_repeat:
+                #     yield self.postprocess()
+                #     self._reset()
+                # elif self.root is not None and self.in_repeat:
+                #     pass
             elif LIN == line.strip():
                 if self.state != RES:
-                    raise GlycoCTError("LIN before RES")
+                    raise GlycoCTError("LIN before RES at line %d" % self._source_line)
                 self.state = LIN
 
             elif REP == line.strip():
+                if not self.allow_repeats:
+                    raise GlycoCTSectionUnsupported(
+                        "Repeat are not allowed (set allow_repeats=True to allow them) at line %d" % self._source_line)
                 self.state = REP
                 # logger.debug("REP")
                 self.in_repeat = True
-                if not self.allow_repeats:
-                    raise GlycoCTSectionUnsupported(
-                        "Repeat are not allowed (set allow_repeats=True to allow them)")
 
             elif line.strip()[:3] == REP:
                 # logger.debug(line)
                 if not self.in_repeat:
-                    raise GlycoCTError("Encountered {} outside of REP".format(line))
+                    raise GlycoCTError("Encountered %r outside of REP at line %d" % (line, self._source_line))
                 header_dict = rep_header_pattern.search(line).groupdict()
+
                 repeat_index = int(header_dict['repeat_index'])
                 repeat_record = self.repeats[repeat_index]
-                self.current_repeat = repeat_record
+
+                self.push_repeat_context(repeat_record)
+                
                 linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
                 repeat_record.internal_linkage = linkage
                 repeat_record.external_linkage = linkage
                 repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
                                                               header_dict['higher_multitude'])))
-                self.state = START
+                self.state = REPINNER
             elif ALT == line.strip():
                 raise GlycoCTSectionUnsupported(ALT)
             elif UND == line.strip():
@@ -672,7 +728,6 @@ class GlycoCT(object):
             elif re.search(r"^(\d+)b", line) and self.state == RES:
                 # logger.debug("handling residue")
                 self.handle_residue_line(line)
-
             elif re.search(r"^(\d+)s:", line) and self.state == RES:
                 # logger.debug("handling subsituent")
                 self.handle_residue_substituent(line)
@@ -683,9 +738,10 @@ class GlycoCT(object):
                 # logger.debug("handling linkage")
                 self.handle_linkage(line)
             else:
-                raise GlycoCTError("Unknown format error: {}".format(line))
+                raise GlycoCTError("Unknown format error: %s on line %d" % (line, self._source_line))
         self.in_repeat = False
         yield self.postprocess()
+        self._reset()
 
 
 def read(stream, structure_class=Glycan, allow_repeats=True):
@@ -913,7 +969,7 @@ class GlycoCTWriter(object):
         return self.dump()
 
 
-def dump(structure, buffer=None, close=False):
+def dump(structure, buffer=None):
     '''
     Serialize the |Glycan| graph object into condensed GlycoCT, using
     `buffer` to store the result. If `buffer` is |None|, then the

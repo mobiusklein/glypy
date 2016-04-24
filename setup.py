@@ -80,7 +80,7 @@ extras['all'] = list({d for extra in extras.values() for d in extra})
 def run_setup(include_cext=True):
     setup(
           name='glypy',
-          version='0.0.9',
+          version='0.0.10',
           packages=find_packages(),
           include_package_data=True,
           package_data={
@@ -89,14 +89,6 @@ def run_setup(include_cext=True):
           },
           install_requires=required,
           extras_require=extras,
-          # namespace_packages=[
-          #   "glypy",
-          #   "glypy.algorithms",
-          #   "glypy.io",
-          #   "glypy.io.nomenclature",
-          #   "glypy.composition",
-          #   "glypy.tests"
-          # ],
           cmdclass=cmdclass,
           zip_safe=False,
           keywords="glycomics glycan carbohydrate glycoinformatics glypy n-linked o-linked glycosaminoglycan",

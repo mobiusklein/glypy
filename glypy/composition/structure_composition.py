@@ -117,6 +117,10 @@ _modification_compositions = {
         "O": 1
     }, {1: {"H": 2}}),
     "keto": CompositionRule({"H": -2}),
+    "en": CompositionRule({
+        "H": -2,
+        "O": -1
+    })
 }
 
 modification_compositions = CompositionRuleIndex(_modification_compositions)
@@ -200,7 +204,7 @@ _substituent_compositions = {
     "(s)_lactate": Composition("CH3CHCO"),
     "ethanolamine": Composition("NHCH2CH2OHH"),
     "anhydro": -Composition("O"),  # Semantically, anhydro is more like a Modification
-    "phospho_ethanolamine": Composition("NHCH2CH2OH"),  # Missing the Phospho,
+    "phospho_ethanolamine": Composition("C2H8NO4P"),
     "glycolyl": Composition("COCH2OH")
 }
 
