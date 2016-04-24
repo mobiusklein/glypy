@@ -143,7 +143,7 @@ def parse_link(line):
 
 def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
     if parent.node_type is Substituent.node_type and\
-     child.node_type is Monosaccharide.node_type:
+            child.node_type is Monosaccharide.node_type:
         warnings.warn(
             "A monosaccharide with a substituent parent has been detected. "
             "These structures are not fully supported and may not traverse as expected "
@@ -454,11 +454,11 @@ class GlycoCT(object):
     def _read(self):
         for line in self.handle:
             self._source_line += 1
-            for token in re.split(r"\s|;", line):
-                # logger.debug(token)
-                if "" == token.strip():
+            for segment in re.split(r"\s|;", line):
+                if "" == segment.strip():
                     continue
-                yield token
+                self._current_segment = segment
+                yield segment
 
     def _reset(self):
         self.graph.clear()
@@ -481,12 +481,14 @@ class GlycoCT(object):
         else:
             self.current_repeat = None
             self.in_repeat = False
+        return popped
 
     def __iter__(self):
         '''
         Calls :meth:`parse` and stores it for reuse with :meth:`__next__`
         '''
-        self._iter = self.parse()
+        if self._iter is None:
+            self._iter = self.parse()
         return self._iter
 
     def next(self):
@@ -675,9 +677,10 @@ class GlycoCT(object):
         '''
         for line in self._read():
             if RES == line.strip():
-                if self.state == START:
+                if self.state == START or self.state == REPINNER:
                     pass
                 elif self.state in TERMINAL_STATES:
+                    self.in_repeat = False
                     yield self.postprocess()
                     self._reset()
                 else:
@@ -685,11 +688,6 @@ class GlycoCT(object):
 
                 self.state = RES
 
-                # if self.root is not None and not self.in_repeat:
-                #     yield self.postprocess()
-                #     self._reset()
-                # elif self.root is not None and self.in_repeat:
-                #     pass
             elif LIN == line.strip():
                 if self.state != RES:
                     raise GlycoCTError("LIN before RES at line %d" % self._source_line)
@@ -713,7 +711,7 @@ class GlycoCT(object):
                 repeat_record = self.repeats[repeat_index]
 
                 self.push_repeat_context(repeat_record)
-                
+
                 linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
                 repeat_record.internal_linkage = linkage
                 repeat_record.external_linkage = linkage
@@ -739,9 +737,11 @@ class GlycoCT(object):
                 self.handle_linkage(line)
             else:
                 raise GlycoCTError("Unknown format error: %s on line %d" % (line, self._source_line))
-        self.in_repeat = False
-        yield self.postprocess()
-        self._reset()
+
+        if self.root is not None:
+            self.in_repeat = False
+            yield self.postprocess()
+            self._reset()
 
 
 def read(stream, structure_class=Glycan, allow_repeats=True):

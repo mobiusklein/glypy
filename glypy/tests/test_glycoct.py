@@ -92,6 +92,103 @@ LIN
 '''
 
 
+test_multiple_repeating_buffer = '''
+RES
+1b:b-dglc-HEX-1:5
+2s:n-acetyl
+3b:b-dglc-HEX-1:5
+4s:n-acetyl
+5b:b-dman-HEX-1:5
+6b:a-dman-HEX-1:5
+7b:b-dglc-HEX-1:5
+8s:n-acetyl
+9r:r1
+10b:b-dgal-HEX-1:5
+11b:a-dman-HEX-1:5
+12b:b-dglc-HEX-1:5
+13s:n-acetyl
+14r:r2
+15b:b-dgal-HEX-1:5
+16b:a-lgal-HEX-1:5|6:d
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3d(2+1)4n
+4:3o(4+1)5d
+5:5o(3+1)6d
+6:6o(2+1)7d
+7:7d(2+1)8n
+8:7o(4+1)9n
+9:9n(4+1)10d
+10:5o(6+1)11d
+11:11o(2+1)12d
+12:12d(2+1)13n
+13:12o(4+1)14n
+14:14n(4+1)15d
+15:1o(6+1)16d
+REP
+REP1:18o(4+1)17d=-1--1
+RES
+17b:b-dgal-HEX-1:5
+18b:b-dglc-HEX-1:5
+19s:n-acetyl
+LIN
+16:17o(3+1)18d
+17:18d(2+1)19n
+REP2:21o(4+1)20d=-1--1
+RES
+20b:b-dgal-HEX-1:5
+21b:b-dglc-HEX-1:5
+22s:n-acetyl
+LIN
+18:20o(3+1)21d
+19:21d(2+1)22n
+
+
+RES
+1b:x-dglc-HEX-x:x
+2s:n-acetyl
+3b:b-dglc-HEX-1:5
+4s:n-acetyl
+5b:b-dman-HEX-1:5
+6b:a-dman-HEX-1:5
+7b:b-dglc-HEX-1:5
+8s:n-acetyl
+9b:b-dgal-HEX-1:5
+10b:b-dglc-HEX-1:5
+11s:n-acetyl
+12b:b-dgal-HEX-1:5
+13b:a-dman-HEX-1:5
+14b:b-dglc-HEX-1:5
+15s:n-acetyl
+16b:b-dgal-HEX-1:5
+17b:b-dglc-HEX-1:5
+18s:n-acetyl
+19b:b-dgal-HEX-1:5
+20b:a-lgal-HEX-1:5|6:d
+LIN
+1:1d(2+1)2n
+2:1o(4+1)3d
+3:3d(2+1)4n
+4:3o(4+1)5d
+5:5o(3+1)6d
+6:6o(2+1)7d
+7:7d(2+1)8n
+8:7o(4+1)9d
+9:6o(4+1)10d
+10:10d(2+1)11n
+11:10o(4+1)12d
+12:5o(6+1)13d
+13:13o(2+1)14d
+14:14d(2+1)15n
+15:14o(4+1)16d
+16:13o(6+1)17d
+17:17d(2+1)18n
+18:17o(4+1)19d
+19:1o(6+1)20d
+'''
+
+
 class GlycoCTParserTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
@@ -102,6 +199,13 @@ class GlycoCTParserTests(unittest.TestCase):
     def test_parse_cyclical(self):
         structure = load("cyclical_glycan")
         self.assertAlmostEqual(structure.mass(), 810.2641170925)
+
+    def test_parse_multiple_structures_in_buffer(self):
+        structures = glycoct.loads(test_multiple_repeating_buffer)
+        self.assertEqual(len(structures), 2)
+
+        self.assertAlmostEqual(structures[0].mass(), structures[1].mass(), 3)
+        self.assertNotEqual(*structures)
 
     def test_parse_repeating(self):
         structure = load("repeating_glycan")
