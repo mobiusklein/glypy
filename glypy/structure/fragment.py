@@ -90,12 +90,15 @@ class Fragment(object):
         "name",
         "crossring_cleavages",
         "score",
-        "composition"
+        "composition",
+        "attributes"
     ]
 
     def __init__(self, kind, link_ids, included_nodes, mass,
                  name=None, crossring_cleavages=None, composition=None,
-                 score=0.0):
+                 score=0.0, attributes=None):
+        if attributes is None:
+            attributes = {}
         self.mass = mass
         self.kind = kind
         self.link_ids = link_ids
@@ -104,6 +107,7 @@ class Fragment(object):
         self.name = name
         self.composition = composition
         self.score = score
+        self.attributes = attributes
 
     def is_reducing(self):
         """Is this fragment from the reducing end
@@ -178,6 +182,10 @@ class Subtree(object):
         self.child_breaks = child_breaks
         self.crossring_cleavages = crossring_cleavages or {}
 
+    def contains_reducing_end(self):
+        if self.tree.root.reducing_end is not None:
+            return True
+
     def to_fragments(
             self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True):
         """Transform an instance of :class:`Subtree` into every combination of
@@ -195,6 +203,8 @@ class Subtree(object):
             If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
             Defaults to :const:`None`.
+        include_composition: bool, optional
+            Whether or not to populate the `composition` attribute of the fragment. Defaults to :const:`True`
 
         Yields
         -------
@@ -238,8 +248,8 @@ class Subtree(object):
             composition_offset = Composition()
             link_ids = {}
             # The type of fragment being produced, expressed a collection of ABCXYZs
-            kind = [] + [''.join(kind)
-                         for kind in self.crossring_cleavages.values()]
+            kind = [] + [''.join(cr_kind)
+                         for cr_kind in self.crossring_cleavages.values()]
             i = 0
             shift_set = list(shift_set)
             for shift in shift_set:

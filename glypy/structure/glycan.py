@@ -141,6 +141,9 @@ class Glycan(SaccharideCollection):
             index_method=None, visited=visited)
         return subtree
 
+    def fragment_to_substructure(self, fragment):
+        return fragment_to_substructure(fragment, self)
+
     traversal_methods = {}
 
     def __init__(self, root=None, index_method='dfs'):
@@ -321,8 +324,7 @@ class Glycan(SaccharideCollection):
     def reducing_end(self, value):
         self.set_reducing_end(value)
 
-    def depth_first_traversal(
-            self, from_node=None, apply_fn=identity, visited=None):
+    def depth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
         Make a depth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
@@ -374,8 +376,7 @@ class Glycan(SaccharideCollection):
     traversal_methods['dfs'] = "dfs"
     traversal_methods['depth_first_traversal'] = "dfs"
 
-    def breadth_first_traversal(
-            self, from_node=None, apply_fn=identity, visited=None):
+    def breadth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
         '''
         Make a breadth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
@@ -444,8 +445,7 @@ class Glycan(SaccharideCollection):
     def __iter__(self):
         return self.dfs()
 
-    def iternodes(
-            self, from_node=None, apply_fn=identity, method='dfs', visited=None):
+    def iternodes(self, from_node=None, apply_fn=identity, method='dfs', visited=None):
         '''
         Generic iterator over nodes. :meth:`Glycan.__iter__` is an alias of this method
 
@@ -476,8 +476,7 @@ class Glycan(SaccharideCollection):
         return traversal(
             from_node=from_node, apply_fn=apply_fn, visited=visited)
 
-    def iterlinks(
-            self, apply_fn=identity, substituents=False, method='dfs', visited=None):
+    def iterlinks(self, apply_fn=identity, substituents=False, method='dfs', visited=None):
         '''
         Iterates over all |Link| objects in |Glycan|.
 
@@ -1024,7 +1023,6 @@ class Glycan(SaccharideCollection):
         '''
         seen = set()
         source = self.clone()
-        origin_mass = self.mass()
         for i in range(1, max_cleavages + 1):
             gen = source.break_links_subtrees(i)
             if len(set("AX") & set(kind)) > 0:
@@ -1040,7 +1038,6 @@ class Glycan(SaccharideCollection):
                     else:
                         seen.add(fragment.name)
                     yield fragment
-            assert round(source.mass(), 4) == round(origin_mass, 4)
 
     def subtrees(self, max_cleavages=1, include_crossring=False):
         '''

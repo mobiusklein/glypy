@@ -53,6 +53,23 @@ class MonosaccharideIndex(StructureIndex):
 monosaccharides = (MonosaccharideIndex)()
 
 
+class MonosaccharideResidueIndex(MonosaccharideIndex):
+    def __init__(self, stream=None, **kwargs):
+        from glypy.composition.glycan_composition import MonosaccharideResidue
+
+        key_transform = identity
+
+        def value_transform(x):
+            return MonosaccharideResidue.from_monosaccharide(x.root)
+
+        if stream is None:
+            stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.hjson")
+        super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
+
+
+monosaccharide_residues = ProxyObject(MonosaccharideResidueIndex)
+
+
 class GlycanIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
