@@ -10,6 +10,7 @@ before_install:
 cache: pip
 # command to install dependencies
 install:
+  - pip install cython
   - pip install -e .[plot,glycomedb,glyspace]
   # - pip install -r requirements.txt
 # command to run tests

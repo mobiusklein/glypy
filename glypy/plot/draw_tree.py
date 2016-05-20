@@ -33,6 +33,13 @@ DEFAULT_SYMBOL_SCALE_FACTOR = 0.17
 special_cases = [monosaccharides["Fuc"], monosaccharides["Xyl"]]
 
 
+def sign(x):
+    if x > 0:
+        return 1
+    else:
+        return -1
+
+
 def flatten(iterable):
     acc = []
     for item in iterable:
@@ -58,10 +65,10 @@ def box(node, ax=None):  # pragma: no cover
     if ax is None:
         ax = node.axes
     xmin, xmax, ymin, ymax = node.extrema()
-    ax.plot((xmin-0.2, xmax+0.2), (ymin-0.2, ymin-0.2), c='b')
-    ax.plot((xmin-0.2, xmax+0.2), (ymax+0.2, ymax+0.2), c='b')
-    ax.plot((xmin-0.2, xmin-0.2), (ymin-0.2, ymax+0.2), c='b')
-    ax.plot((xmax+0.2, xmax+0.2), (ymin-0.2, ymax+0.2), c='b')
+    ax.plot((xmin - 0.2, xmax + 0.2), (ymin - 0.2, ymin - 0.2), c='b')
+    ax.plot((xmin - 0.2, xmax + 0.2), (ymax + 0.2, ymax + 0.2), c='b')
+    ax.plot((xmin - 0.2, xmin - 0.2), (ymin - 0.2, ymax + 0.2), c='b')
+    ax.plot((xmax + 0.2, xmax + 0.2), (ymin - 0.2, ymax + 0.2), c='b')
 
 
 def make_gid(s):  # pragma: no cover
@@ -137,7 +144,7 @@ def resolve_creation_cycle(node, parent, depth, i, parent_linkage, visited):
     if node.id in visited:
         return visited[node.id]
     else:
-        return DrawTreeNode(node, parent, depth+1, i+1, parent_linkage, visited)
+        return DrawTreeNode(node, parent, depth + 1, i + 1, parent_linkage, visited)
 
 
 class DrawTreeNode(object):
@@ -175,7 +182,7 @@ class DrawTreeNode(object):
             self.data = defaultdict(lambda: defaultdict(dict))
             self.uuid = uuid4().hex
 
-        self.children = [resolve_creation_cycle(c[1], self, depth+1, i+1, c[0], visited)
+        self.children = [resolve_creation_cycle(c[1], self, depth + 1, i + 1, c[0], visited)
                          for i, c
                          in enumerate(tree.children())]
 
@@ -192,7 +199,8 @@ class DrawTreeNode(object):
     @property
     def children(self):
         if self.mask_special_cases:
-            return [child for child in self._children if not (is_special_case(child.tree) and len(child.children) == 0)]
+            return [child for child in self._children if not (
+                is_special_case(child.tree) and len(child.children) == 0)]
         else:
             return self._children
 
@@ -244,8 +252,10 @@ class DrawTreeNode(object):
         self.draw_nodes(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                         label=label, visited=set(), **kwargs)
 
-    def coords(self, *args, **kwargs):
-        return self.x, self.y
+    def coords(self, at=None):
+        if at is None:
+            at = (0, 0)
+        return self.x + at[0], self.y + at[1]
 
     def draw_branches(self, at=(0, 0), ax=None, symbol_nomenclature=None,
                       label=True, visited=None, **kwargs):
@@ -268,7 +278,7 @@ class DrawTreeNode(object):
         '''
         if visited is None:
             visited = set()
-        x, y = self.coords()
+        x, y = self.coords(at)
         if self.id in visited:
             return x, y
         visited.add(self.id)
