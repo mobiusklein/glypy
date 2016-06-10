@@ -3,6 +3,7 @@ from uuid import uuid4
 from collections import Iterable
 
 from glypy.composition import Composition
+from glypy.utils import uid
 from .base import SaccharideBase, SubstituentBase
 
 default_parent_loss = Composition(O=1, H=1)
@@ -65,6 +66,9 @@ class Link(object):
             by using :meth:`Link.apply`
         '''
 
+        if id is None:
+            id = uid()
+
         if parent_loss is None:
             parent_loss = default_parent_loss
         elif isinstance(parent_loss, basestring):
@@ -80,7 +84,7 @@ class Link(object):
         self.child_position = child_position
         self.parent_loss = parent_loss
         self.child_loss = child_loss
-        self.id = id or uuid4().int
+        self.id = id
         self.label = None
         self._attached = False
         if attach:
@@ -102,9 +106,9 @@ class Link(object):
 
         '''
         # assert not self.is_attached(), ("Cannot apply an already attached link")
-        self.parent.composition -= (self.parent_loss)# or default_parent_loss)
+        self.parent.composition -= (self.parent_loss)
 
-        self.child.composition -= (self.child_loss)# or default_child_loss)
+        self.child.composition -= (self.child_loss)
         if self.is_substituent_link():
             self.parent.substituent_links[self.parent_position] = self
         else:

@@ -5,6 +5,9 @@ from uuid import uuid4
 from itertools import chain
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import matplotlib.patches as patches
+from matplotlib.textpath import TextPath
+
 import numpy as np
 from glypy import monosaccharides
 from glypy.utils import root
@@ -14,6 +17,10 @@ from .buchheim import buchheim
 from .topological_layout import layout as topological
 from . import cfg_symbols, iupac_symbols
 from .geometry import centroid
+
+
+line_to = cfg_symbols.line_to
+
 
 nomenclature_map = {
     "cfg": cfg_symbols,
@@ -86,6 +93,22 @@ def breadth_first_traversal(tree, visited=None):
         for child in tree:
             for descend in breadth_first_traversal(child, visited=visited):
                 yield descend
+
+
+def _bounding_box_to_limits(dtree):
+    scale_up = mtransforms.Affine2D().scale(1.1).get_matrix()
+    points = dtree._compute_bounding_box()
+    stretched = []
+    for x, y in points:
+        x, y, w = scale_up.dot(np.array((x, y, 1)))
+        x /= w
+        y /= w
+        stretched.append((x, y))
+    points = stretched
+    xs, ys = zip(*points)
+    min_x, max_x = min(xs) - 2, max(xs) + 2
+    min_y, max_y = min(ys) - 2, max(ys) + 2
+    return np.array((min_x, max_x)), np.array((min_y, max_y))
 
 
 def enumerate_tree(tree, ax, labeler=None):
@@ -255,6 +278,9 @@ class DrawTreeNode(object):
     def coords(self, at=None):
         if at is None:
             at = (0, 0)
+        if self.transform:
+            at = self.transform.transform(at)
+        # print self.x + at[0], self.y + at[1], at
         return self.x + at[0], self.y + at[1]
 
     def draw_branches(self, at=(0, 0), ax=None, symbol_nomenclature=None,
@@ -283,7 +309,7 @@ class DrawTreeNode(object):
             return x, y
         visited.add(self.id)
         for child in self:
-            cx, cy = child.draw_branches(at, ax=ax,
+            cx, cy = child.draw_branches(at=at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
                                          label=label, visited=visited, **kwargs)
             patch = symbol_nomenclature.line_to(
@@ -339,7 +365,7 @@ class DrawTreeNode(object):
         patch_node.set_gid(self.uuid, self.id)
 
         for child in self:
-            child.draw_nodes(at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+            child.draw_nodes(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                              visited=visited, **kwargs)
 
     def draw_linkage_annotations(self, at=(0, 0), ax=None,
@@ -392,7 +418,7 @@ class DrawTreeNode(object):
                 position_num = pos
                 break
 
-        anomer_x = ((sx * 0.4 + cx * 0.6))# + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
+        anomer_x = ((sx * 0.4 + cx * 0.6))  # + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
         anomer_y = ((sy * 0.4 + cy * 0.6))
         if sx > cx:
             anomer_x = (sx * 0.3) + (cx * 0.7) - 0.2
@@ -503,84 +529,143 @@ class DrawTreeNode(object):
     def draw_cleavage(self, fragment=None, at=(0, 0), ax=None, scale=0.1, color='red', label=True):  # pragma: no cover
         '''
         .. warning::
-            Here be magical numbers
+            Here be magical numbers. This method is highly experimental and may not behave nicely
+            when projected onto a transformed topology
 
         '''
         if ax is None:
             ax = self.axes
         if ax is None:
-            raise Exception("`ax` is required")
+            raise ValueError("`ax` is required")
         if fragment is None:
-            raise Exception("`fragment` is required")
-        scale *= 2
+            raise ValueError("`fragment` is required")
 
         break_targets = fragment.link_ids
         crossring_targets = fragment.crossring_cleavages
+
+        def isclose(a, b):
+            return abs(a - b) < 1e-4
+
+        def save_patch(data, key, value):
+            _created_patches.append(value)
+            if key in data:
+                data[key].append([value])
+            else:
+                data[key] = [[value]]
+
+        def get_scale(trans_mat):
+            ty = trans_mat[1, 0]
+            return ty
+
+        def textpath(x, y, text, line_weight=0.5, **kwargs):
+            fs = kwargs.get("fontsize", 2) * scale * .5
+            t_path = TextPath((x, y), s=text, size=fs)
+            patch = patches.PathPatch(t_path, facecolor="black", lw=line_weight / 20., zorder=4)
+            a = ax.add_patch(patch)
+            return a
+
+        if self.transform:
+            trans_scale = max(get_scale(self.transform.get_matrix()) * 3e-5, 0.5)
+        else:
+            trans_scale = 1
+
+        scale *= 2 * trans_scale
+        print scale, trans_scale
+
+        patch_dict = self.data['patches']
+        _created_patches = []
 
         for link_break in break_targets:
             parent, child = self.get_link_pair(link_break)
             px, py = parent.coords(at)
             cx, cy = child.coords(at)
 
+            print 'p', (px, py), 'c', (cx, cy)
             branch_point = False
-            if py == cy and px != cx:
+            length = scale
+            if isclose(py, cy) and not isclose(px, cx):
                 center = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
-                lx1, ly1 = center, py + scale
-                lx2, ly2 = center, py - scale
-            elif py != cy and px == cx:
+                length = max((center - min(px, cx)) * trans_scale, scale)
+                if length < 1:
+                    length = length / length * 0.25
+                else:
+                    length = length * length * 0.5
+                lx1, ly1 = center, py + length
+                lx2, ly2 = center, py - length
+                edge_size = max(abs(ly1 - ly2) / 4000., scale * 2)
+            elif not isclose(py, cy) and isclose(px, cx):
                 center = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
-                lx1, ly1 = px + scale, center
-                lx2, ly2 = px - scale, center
+                length = max((center - min(py, cy)) * trans_scale, scale)
+                if length < 1:
+                    length = length / length * 0.25
+                else:
+                    length = length * length * 0.5
+                lx1, ly1 = px + length, center
+                lx2, ly2 = px - length, center
+                edge_size = max(abs(lx1 - lx2) / 4000., scale * 2)
             else:
                 branch_point = True
                 xcenter = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
                 ycenter = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
+                xlength = (xcenter - min(px, cx)) * trans_scale
+                ylength = (ycenter - min(py, cy)) * trans_scale
                 if py < cy:
                     lx2, ly2 = xcenter + scale, ycenter + scale
                     lx1, ly1 = xcenter - scale, ycenter - scale
                 else:
                     lx1, ly1 = xcenter - scale, ycenter + scale
                     lx2, ly2 = xcenter + scale, ycenter - scale
+                edge_size = scale * 2  # max(min(abs(lx1 - lx2) / 40000., abs(ly1 - ly2) / 40000.),scale * 2)
 
-            line = ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3)
-            self.data['patches'][fragment.name] = line[0]
+            print "Main Line: ", (lx1, lx2), (ly1, ly2, ly2 - ly1)
+
+            lw = 2
+
+            line = ax.plot((lx1, lx2), (ly1, ly2), color=color, zorder=3, lw=lw)
+            save_patch(patch_dict, fragment.name, line[0])
             self.data['position'][fragment.name] = (lx1, lx2), (ly1, ly2)
             line[0].set_gid(self.uuid + '-' + fragment.name)
-            if fragment.kind[-1] in {"B", "C"}:
-                label_x = (lx2, lx2 - scale)
+
+            print (lx1, lx2), (ly1, ly2), length, edge_size
+
+            if fragment.link_ids[link_break][1] in {"B", "C"}:
+                label_x = (lx2, lx2 - edge_size)
                 if branch_point:
                     label_x = [x - 2 * scale for x in label_x]
 
-                line = ax.plot(label_x, (ly1, ly1), color=color, zorder=3)
+                line = ax.plot(label_x, (ly1, ly1), color=color, zorder=3, lw=lw)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
-                self.data['patches'][fragment.name + "_direction"] = line[0]
+                save_patch(patch_dict, fragment.name + "_direction", line[0])
                 self.data['position'][fragment.name + "_direction"] = label_x, (ly1, ly1)
                 if label:
-                    text = ax.text(label_x[0] - .4, ly1 + 0.05, fragment.fname)
-                    self.data['patches'][fragment.name + "_text"] = text
+                    text = textpath(label_x[0] - .4, ly1 + 0.05, fragment.fname)
+                    save_patch(patch_dict, fragment.name + "_text", text)
                     self.data['position'][fragment.name + "_text"] = label_x[0] - .4, ly1 + 0.05
             else:
-                line = ax.plot((lx2, lx2 + scale), (ly2, ly2), color=color, zorder=3)
+                line = ax.plot((lx2, lx2 + edge_size), (ly2, ly2), color=color, zorder=3, lw=lw)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
-                self.data['patches'][fragment.name + "_direction"] = line[0]
+                save_patch(patch_dict, fragment.name + "_direction", line[0])
                 self.data['position'][fragment.name + "_direction"] = (lx2, lx2 + scale), (ly2, ly2)
 
                 if label:
-                    self.data['patches'][fragment.name + "_text"] = ax.text(lx2 + 0.05, ly2 - 0.15, fragment.fname)
+                    lx2 += (0.05 * scale)
+                    ly2 -= (0.15 * scale)
+                    save_patch(patch_dict, fragment.name + "_text", textpath(lx2 + 0.05, ly2 - 0.15,
+                                                                            fragment.fname))
                     self.data['position'][fragment.name + "_text"] = lx2 + 0.05, ly2 - 0.15
 
         for crossring in crossring_targets:
             target = self.get(crossring)
             cx, cy = target.coords(at)
             line = ax.plot((cx - scale, cx + scale), (cy + scale, cy - scale), color=color, zorder=3)
-            self.data['patches'][fragment.name] = line[0]
+            patch_dict[fragment.name] = line[0]
             self.data['position'][fragment.name] = (cx - scale, cx + scale), (cy + scale, cy - scale)
             line[0].set_gid(self.uuid + '-' + fragment.name.replace(",", '_'))
             annotation_name = re.sub(r'\d,\d', '', fragment.fname)
-            if fragment.kind[-1] == "X":
+            if fragment.crossring_cleavages[crossring][1] == "X":
                 line = ax.plot((cx + scale, cx + 2 * scale), (cy - scale, cy - scale), color=color, zorder=3)
                 line[0].set_gid(self.uuid + '-' + fragment.name + "-direction")
-                self.data['patches'][fragment.name + "_direction"] = line[0]
+                patch_dict[fragment.name + "_direction"] = line[0]
                 self.data['position'][fragment.name + "_direction"] =\
                     (cx + scale, cx + 2 * scale), (cy - scale, cy - scale)
 
@@ -589,20 +674,15 @@ class DrawTreeNode(object):
             else:
                 line = ax.plot((cx - scale, cx - scale * 2), (cy + scale, cy + scale), color=color, zorder=3)
                 line[0].set_gid(self.uuid + '-' + fragment.name.replace(",", '_') + "-direction")
-                self.data['patches'][fragment.name + "_direction"] = line[0]
+                patch_dict[fragment.name + "_direction"] = line[0]
                 self.data['position'][fragment.name + "_direction"] =\
                     (cx - scale, cx - scale * 2), (cy + scale, cy + scale)
                 if label:
                     ax.text((cx - scale) - 0.32, (cy + scale) + .035, annotation_name)
 
-    def transform(self, transform):
+    def set_transform(self, transform):
         """Apply the passed Affine2D to each graphical unit. The transform is additive
-        with any previous affine transformation. The (x, y) values of each node are updated
-        by matrix-vector dot product.
-
-        .. math::
-
-            M \dot [x, y, 1]
+        with any previous affine transformation.
 
         where `M` is the value of `transform.get_matrix()`
 
@@ -610,11 +690,14 @@ class DrawTreeNode(object):
         ----------
         transform : matplotlib.transforms.Affine2D
         """
-        base_transform = transform
-        current_transform = self.data.get("transform")
+        current_transform = self.transform
         if current_transform is not None:
             transform = transform + current_transform
         self.data["transform"] = transform
+        # IMPORTANT: Merge the aggregated transform of the graph
+        # structure with the transformation induced by the Axes object
+        # which draws each component. If this is skipped, all of the
+        # geometries are wrong and the drawing will fail (or not even appear)
         transform = transform + self.axes.transData
         for i, patches in self.data['patches'].items():
             for entity in patches:
@@ -633,23 +716,44 @@ class DrawTreeNode(object):
             text = flatten(groups.values())
             [t.set_transform(transform) for t in text]
 
-        mat = base_transform.get_matrix()
-        for node in breadth_first_traversal(self):
-            x, y, w = mat.dot(np.array((node.x, node.y, 1)))
-            x /= w
-            y /= w
-            node.x = x
-            node.y = y
-
         if self.data['orientation'] == 'h':
             self._rotate_text(-90)
+
+    def get_transform(self):
+        if "transform" in self.data:
+            trans = self.data["transform"]
+            return trans
+        else:
+            return None
+
+    transform = property(get_transform, set_transform)
+
+    def _compute_bounding_box(self):
+        xmin, xmax, ymin, ymax = self.extrema()
+        trans = self.transform
+        upper_left = (xmin, ymax)
+        lower_left = (xmin, ymin)
+        upper_right = (xmax, ymax)
+        lower_right = (xmin, ymin)
+        points = [upper_left, lower_left, upper_right, lower_right]
+        if trans:
+            mat = trans.get_matrix()
+            result = []
+            for x, y in points:
+                x, y, w = mat.dot(np.array((x, y, 1)))
+                x /= w
+                y /= w
+                point = (x, y)
+                result.append(point)
+            points = result
+        return points
 
     def _rotate_text(self, degrees):
         '''
         This is a hack needed to orient text appropriately when the tree is rotated after labels
         are inscribed, as any new transform will override the correction.
         '''
-        current_transform = self.data.get("transform")
+        current_transform = self.transform
         for i, groups in self.data['text'].items():
             for t in flatten(groups.values()):
                 cent = (centroid(t.get_path().transformed(current_transform)))
@@ -709,8 +813,8 @@ class DrawTree(object):  # pragma: no cover
         self.figure.canvas.draw()
 
 
-def plot(tree, at=(1, 1), ax=None, orientation='h', center=False, label=False,
-         symbol_nomenclature='cfg', layout='balanced', **kwargs):
+def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
+         symbol_nomenclature='cfg', layout='balanced', fragment=None, **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -739,7 +843,12 @@ def plot(tree, at=(1, 1), ax=None, orientation='h', center=False, label=False,
         affected by `orientation`
     '''
 
-    scale = kwargs.get("scale", DEFAULT_SYMBOL_SCALE_FACTOR)
+    scale = DEFAULT_SYMBOL_SCALE_FACTOR
+    transform_scale = kwargs.pop("scale", (1,))
+    try:
+        transform_scale = tuple(transform_scale)
+    except:
+        transform_scale = (transform_scale, transform_scale)
 
     if isinstance(symbol_nomenclature, basestring):
         symbol_nomenclature = nomenclature_map.get(symbol_nomenclature)
@@ -761,26 +870,28 @@ def plot(tree, at=(1, 1), ax=None, orientation='h', center=False, label=False,
     # Create a figure if no axes are provided
     if ax is None:
         fig, ax = plt.subplots()
-        at = (0, 0)
+        # at = (0, 0)
         center = True
         ax.axis('off')
     dtree.draw(at=at, ax=ax, scale=scale, label=False,
                symbol_nomenclature=symbol_nomenclature, **kwargs)
     dtree.axes = ax
     dtree.data['orientation'] = orientation
+    dtree.set_transform(mtransforms.Affine2D())
     if label:
         dtree.draw_linkage_annotations(
             at=at, ax=ax, scale=scale,
             symbol_nomenclature=symbol_nomenclature, **kwargs)
     if orientation in {"h", "horizontal"}:
-        dtree.transform(mtransforms.Affine2D().rotate_deg(90))
-        dtree._rotate_text(-90)
+        dtree.set_transform(mtransforms.Affine2D().rotate_deg(90).scale(*transform_scale))
+        # dtree._rotate_text(-90)
+    if fragment is not None:
+        dtree.draw_cleavage(fragment, ax=ax, at=at)
     # If the figure is stand-alone, center it
     if fig is not None or center:
-        xmin, xmax, ymin, ymax = dtree.extrema(at=at)
-        ax.set_xlim(xmin - 2, xmax + 2)
-        ax.set_ylim(ymin - 2, ymax + 2)
-        ax.autoscale_view()
+        xlim, ylim = _bounding_box_to_limits(dtree)
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
     return (dtree, ax)

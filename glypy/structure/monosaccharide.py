@@ -1,6 +1,6 @@
 import logging
-from uuid import uuid4
 from itertools import chain, izip_longest
+from collections import deque
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
 from .substituent import Substituent
@@ -41,7 +41,7 @@ def _get_standard_composition(monosaccharide):
     :class:`~glypy.composition.composition.Composition`:
         The baseline composition from `monosaccharide.superclass` + `monosaccharide.modifications`
     '''
-    base = monosaccharide_composition[monosaccharide.superclass]
+    base = monosaccharide_composition[monosaccharide.superclass.name]
     modifications = list(monosaccharide.modifications.items())
     for mod_pos, mod_val in modifications:
         # Don't set the reducing end here
@@ -147,7 +147,7 @@ def graph_clone(monosaccharide, visited=None):
     visited = set() if visited is None else visited
     clone_root = monosaccharide.clone(prop_id=True)
     index[clone_root.id] = clone_root
-    node_stack = [(clone_root, monosaccharide)]
+    node_stack = deque([(clone_root, monosaccharide)])
     node_stack_append = node_stack.append
     node_stack_pop = node_stack.pop
     while(llen(node_stack) > 0):
@@ -298,6 +298,12 @@ class Monosaccharide(SaccharideBase):
         if modifications is None:  # pragma: no cover
             modifications = OrderedMultiMap()
 
+        if links is None:
+            links = OrderedMultiMap()
+
+        if id is None:
+            id = uid()
+
         self.modifications = modifications
         self._reducing_end = None
 
@@ -316,10 +322,10 @@ class Monosaccharide(SaccharideBase):
 
         self.ring_start = ring_start
         self.ring_end = ring_end
-        self.links = OrderedMultiMap() if links is None else links
+        self.links = links
         self.substituent_links = OrderedMultiMap() if substituent_links\
             is None else substituent_links
-        self.id = id or uid()
+        self.id = id
         if composition is None:
             composition = _get_standard_composition(self)
         self.composition = composition
@@ -387,7 +393,7 @@ class Monosaccharide(SaccharideBase):
                 if isinstance(v, ReducedEnd):
                     continue
                 try:
-                    modifications[k] = Modification[v]
+                    modifications[k] = v
                 except:  # pragma: no cover
                     modifications[k] = v.clone()
 

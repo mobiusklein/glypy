@@ -1,3 +1,5 @@
+debug = False
+
 
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
@@ -52,7 +54,7 @@ class EnumValue(object):
                 pass
         raise KeyError("Could not resolve {} against {}".format(self, mapping))
 
-debug = False
+debug = True
 
 
 class EnumMeta(type):
@@ -160,6 +162,9 @@ class EnumMeta(type):
         :class:`EnumValue`
 
         '''
+        # global debug
+        # if debug:
+        #     print "Translating", k
 
         if k in self.__dict__:
             return self.__dict__[k]

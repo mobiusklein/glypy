@@ -1,8 +1,6 @@
 import re
-from glypy.utils import opener, Enum, root
+from glypy.utils import opener, Enum, root, StringIO
 from glypy.structure.glycan import NamedGlycan
-
-from StringIO import StringIO
 
 
 class ParserState(Enum):
@@ -11,10 +9,10 @@ class ParserState(Enum):
 
 
 class FormatRegisteringMeta(type):
-    registry = {}
-
     def __new__(cls, name, parents, attrs):
         new_type = type.__new__(cls, name, parents, attrs)
+        if not hasattr(cls, "registry"):
+            cls.registry = {}
 
         if 'format_name' in attrs:
             cls.registry[attrs["format_name"]] = new_type

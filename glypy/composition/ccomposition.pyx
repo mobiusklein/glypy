@@ -195,6 +195,18 @@ cdef class CComposition(dict):
             prod.setitem(k, v * rep)
         return prod
 
+    def __imul__(self, other):
+        cdef:
+            str k
+            int v, rep
+        if not isinstance(other, int):
+            raise ChemicalCompositionError(
+                'Cannot multiply Composition by non-integer',
+                other)
+        rep = other
+        for k, v in list(self.items()):
+            self.setitem(k, v * rep)
+        return self
 
     def __richcmp__(self, other, int code):
         cdef:
@@ -222,6 +234,24 @@ cdef class CComposition(dict):
                 if self_value != other_value:
                     return False
             return True
+        elif code == 3:
+            if not isinstance(other, dict):
+                return True
+            self_size = PyDict_Size(self)
+            other_size = PyDict_Size(other)
+            if self_size > other_size:
+                self, other = other, self
+            other_size = 0
+            while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
+                other_value = PyInt_AsLong(<object>pvalue)
+                pinterm = PyDict_GetItem(self, <object>pkey)
+                if pinterm == NULL:
+                    self_value = 0
+                else:
+                    self_value = PyInt_AsLong(<object>pinterm)
+                if self_value != other_value:
+                    return True
+            return False
         else:
             return NotImplemented
 

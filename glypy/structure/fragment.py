@@ -170,6 +170,14 @@ class Fragment(object):
     def __dict__(self):
         return self.__getstate__()
 
+    @property
+    def break_count(self):
+        return len(self.link_ids) + len(self.crossring_cleavages)
+
+    @property
+    def residues_contained(self):
+        return len(self.included_nodes)
+
 
 class Subtree(object):
 
@@ -187,7 +195,8 @@ class Subtree(object):
             return True
 
     def to_fragments(
-            self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True):
+            self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True,
+            traversal_method='dfs'):
         """Transform an instance of :class:`Subtree` into every combination of
         :class:`Fragment` allowed under `kind`.
 
@@ -237,9 +246,9 @@ class Subtree(object):
         base_mass = self.tree.mass(
             average=average,
             charge=charge,
-            mass_data=mass_data)
+            mass_data=mass_data, method=traversal_method)
         if include_composition:
-            base_composition = self.tree.total_composition()
+            base_composition = self.tree.total_composition(method=traversal_method)
         # product of splat of empty list is a list of the empty list. So a fragment with
         # no glycosidic cleavages still enters this outer loop, letting only crossring-cleavage
         # Subtree instances through without issue

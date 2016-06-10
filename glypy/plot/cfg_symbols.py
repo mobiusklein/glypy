@@ -524,7 +524,7 @@ def format_text(text):
     return label
 
 
-def line_to(ax, sx, sy, ex, ey, zorder=1, color='black'):
+def line_to(ax, sx, sy, ex, ey, zorder=1, color='black', lw=1):
     vertices = [
         (sx, sy),
         (ex, ey),
@@ -536,6 +536,6 @@ def line_to(ax, sx, sy, ex, ey, zorder=1, color='black'):
         Path.STOP
     ]
     path = Path(vertices, codes)
-    patch = patches.PathPatch(path)
+    patch = patches.PathPatch(path, color=color, lw=lw, zorder=zorder)
     ax.add_patch(patch)
     return patch

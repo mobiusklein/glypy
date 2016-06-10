@@ -8,13 +8,13 @@ import logging
 import itertools
 from functools import partial
 from collections import deque, defaultdict, Callable
-from uuid import uuid4
+
 
 from .base import SaccharideCollection
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
-from glypy.utils import identity, chrinc
+from glypy.utils import identity, chrinc, uid
 from glypy.composition import Composition
 
 methodcaller = operator.methodcaller
@@ -165,7 +165,7 @@ class Glycan(SaccharideCollection):
 
     def reindex(self, method='dfs'):
         '''
-        Traverse the graph using the function specified by ``method``. The order of
+        Traverse the graph using the function specified by `method`. The order of
         traversal defines the new :attr:`id` value for each |Monosaccharide|
         and |Link|.
 
@@ -212,6 +212,12 @@ class Glycan(SaccharideCollection):
             link_index.append(link)
         self.link_index = link_index
 
+    def _build_node_index(self, method='dfs'):
+        index = []
+        for node in self.iternodes(method=method):
+            index.append(node)
+        self.index = index
+
     def deindex(self):
         '''
         When combining two Glycan structures, very often their component ids will
@@ -220,7 +226,7 @@ class Glycan(SaccharideCollection):
         distinct from the pre-existing nodes.
         '''
         if self.index is not None and len(self.index) > 0:
-            base = uuid4().int
+            base = uid()
             for node in self.index:
                 node.id += base
                 node.id *= -1
@@ -233,7 +239,7 @@ class Glycan(SaccharideCollection):
         '''
         Set :attr:`root` to the node with the lowest :attr:`id`
         '''
-        self.root = sorted(self, key=operator.attrgetter('id'))[0]
+        self.root = sorted(iter(self), key=operator.attrgetter('id'))[0]
         if index_method is not None:
             self.reindex(index_method)
         return self
@@ -269,7 +275,11 @@ class Glycan(SaccharideCollection):
         pass
 
     def get(self, ix):
-        for node in self:
+        if self.index:
+            iterable = self.index
+        else:
+            iterable = self
+        for node in iterable:
             if node.id == ix:
                 return node
         raise IndexError(
@@ -350,7 +360,7 @@ class Glycan(SaccharideCollection):
         --------
         Glycan.breadth_first_traversal
         '''
-        node_stack = list([self.root if from_node is None else from_node])
+        node_stack = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_stack) > 0:
             node = node_stack.pop()
@@ -361,8 +371,7 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            # node_stack.extend(terminal for link in node.links.values()
-            #                   for terminal in link if terminal.id not in visited)
+
             for link in node.links.values():
                 terminal = link.parent
                 if terminal.id not in visited:
@@ -428,6 +437,34 @@ class Glycan(SaccharideCollection):
     bfs = breadth_first_traversal
     traversal_methods['bfs'] = "bfs"
     traversal_methods['breadth_first_traversal'] = "bfs"
+
+    def indexed_traversal(self, from_node=None, apply_fn=identity, visited=None):
+        if not self.index:
+            self._build_node_index()
+        if from_node is None and apply_fn is identity:
+            for node in self.index:
+                yield node
+        else:
+            i = 0
+            n = len(self.index)
+            if from_node is not None:
+                while i < n:
+                    node = self.index[i]
+                    if node == from_node:
+                        break
+                    i += 1
+            while i < n:
+                node = self.index[i]
+                if apply_fn is identity:
+                    yield node
+                else:
+                    value = apply_fn(node)
+                    if value is not None:
+                        yield value
+
+                i += 1
+
+    traversal_methods['index'] = "indexed_traversal"
 
     def _get_traversal_method(self, method):
         if method == 'dfs':
@@ -566,7 +603,7 @@ class Glycan(SaccharideCollection):
             except IndexError:
                 return MAIN_BRANCH_SYM
 
-        for node in self:
+        for node in self.dfs():
             links = []
             for link in node.links.values():
                 if link.is_child(node):
@@ -591,6 +628,7 @@ class Glycan(SaccharideCollection):
                     label = "{}{}".format(
                         new_label_key, self.branch_lengths[new_label_key])
                     link.label = label
+
         # Update parent branch lengths
         longest = self.branch_lengths[MAIN_BRANCH_SYM]
         for branch in sorted(list(self.branch_lengths.keys()), reverse=True):
@@ -626,7 +664,7 @@ class Glycan(SaccharideCollection):
         int
         '''
         count = 0
-        for node in self:
+        for node in self.dfs():
             count += 1
         return count
 
@@ -641,7 +679,7 @@ class Glycan(SaccharideCollection):
 
     __repr__ = serialize
 
-    def mass(self, average=False, charge=0, mass_data=None):
+    def mass(self, average=False, charge=0, mass_data=None, method='dfs'):
         '''
         Calculates the total mass of the intact graph by querying each
         node for its mass.
@@ -668,11 +706,11 @@ class Glycan(SaccharideCollection):
         '''
         if charge == 0:
             return sum(
-                node.mass(average=average, charge=0, mass_data=mass_data) for node in self)
+                node.mass(average=average, charge=0, mass_data=mass_data) for node in self.iternodes(method=method))
         else:
             return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
 
-    def total_composition(self):
+    def total_composition(self, method='dfs'):
         '''
         Computes the sum of the composition of all |Monosaccharide| objects in ``self``
 
@@ -681,7 +719,7 @@ class Glycan(SaccharideCollection):
         :class:`~glypy.composition.Composition`
         '''
 
-        return sum((node.total_composition() for node in self), Composition())
+        return sum((node.total_composition() for node in self.iternodes(method=method)), Composition())
 
     def clone(self, index_method='dfs', visited=None, cls=None):
         '''
@@ -901,7 +939,7 @@ class Glycan(SaccharideCollection):
             self._build_link_index()
 
         links = list(self.link_index)
-        origin_mass = self.mass()
+        # origin_mass = self.mass()
         # Localize globals
         _str = str
         # Break at least one ring
@@ -919,13 +957,15 @@ class Glycan(SaccharideCollection):
                     for ring in breaks:
                         parent, child = ring.break_link()
                         parent_tree = Glycan(parent, index_method=None)
+                        parent_tree._build_node_index()
                         child_tree = Glycan(child, index_method=None)
+                        child_tree._build_node_index()
                         subtrees.append(parent_tree)
                         subtrees.append(child_tree)
 
                     unique_subtrees = []
                     for tree in subtrees:
-                        ids = {n.id for n in tree}
+                        ids = {n.id for n in tree.index}
                         for uids, unique in unique_subtrees:
                             if ids == uids:
                                 break
@@ -964,7 +1004,7 @@ class Glycan(SaccharideCollection):
                                 index_method=None)
 
                             included_crossring = {}
-                            include_nodes = {n.id for n in subtree}
+                            include_nodes = {n.id for n in subtree.indexed_traversal()}
                             for crossring in breaks:
                                 if crossring.id in include_nodes:
                                     xring_residue = subtree.get(crossring.id)
@@ -986,9 +1026,10 @@ class Glycan(SaccharideCollection):
                             ring.release()
                     for ring in breaks:
                         ring.release()
-                    assert round(self.mass(), 4) == round(origin_mass, 4)
+                    # assert round(self.mass(), 4) == round(origin_mass, 4)
 
-    def fragments(self, kind="BY", max_cleavages=1, average=False, charge=0, mass_data=None):
+    def fragments(self, kind="BY", max_cleavages=1, average=False, charge=0, mass_data=None,
+                  traversal_method='dfs'):
         '''
         Generate carbohydrate backbone fragments from this glycan by examining the disjoint subtrees
         created by removing one or more monosaccharide-monosaccharide bond.
@@ -1031,7 +1072,8 @@ class Glycan(SaccharideCollection):
                     source.crossring_subtrees(i))
             for subtree in gen:
                 for fragment in subtree.to_fragments(kind, average=average,
-                                                     charge=charge, mass_data=mass_data):
+                                                     charge=charge, mass_data=mass_data,
+                                                     traversal_method=traversal_method):
                     fragment.name = self.name_fragment(fragment)
                     if fragment.name in seen:
                         continue
