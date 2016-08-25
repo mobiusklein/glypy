@@ -18,8 +18,10 @@ class SynonymIndex(dict):
 class MonosaccharideSynonymIndex(SynonymIndex):
     def __init__(self, stream=None):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/monosaccharide_synonyms.json")
-        super(MonosaccharideSynonymIndex, self).__init__(json.load(stream))
+            data_buffer = pkg_resources.resource_string(__name__, "data/monosaccharide_synonyms.json")
+            if isinstance(data_buffer, bytes):
+                data_buffer = data_buffer.decode("utf-8")
+        super(MonosaccharideSynonymIndex, self).__init__(json.loads(data_buffer))
 
 #: A mapping of monosaccharide names to their synonyms
 monosaccharides = MonosaccharideSynonymIndex()

@@ -1,5 +1,8 @@
 import logging
-from itertools import chain, izip_longest
+try:
+    from itertools import chain, izip_longest
+except:
+    from itertools import chain, zip_longest as izip_longest
 from collections import deque
 
 from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
@@ -240,11 +243,12 @@ class Monosaccharide(SaccharideBase):
 
     .. warning::
 
-        While |Monosaccharide| objects expose their :attr:`.modifications`, :attr:`.links`, and :attr:`.substituent_links` attributes as mutable,
-        you should treat them as **read-only**. The methods for altering their contents, :meth:`add_substituent`, :meth:`add_monosaccharide`,
-        :meth:`add_modification`, :meth:`drop_substituent`, :meth:`drop_monosaccharide`, and :meth:`drop_modification` are all responsible
-        for handling these mutations for you. |Link| methods like :meth:`Link.apply`, :meth:`Link.break_link`, and :meth:`Link.reconnect`
-        are used internally.
+        While |Monosaccharide| objects expose their :attr:`.modifications`, :attr:`.links`, and
+        :attr:`.substituent_links` attributes as mutable, you should treat them as **read-only**.
+        The methods for altering their contents, :meth:`add_substituent`, :meth:`add_monosaccharide`,
+        :meth:`add_modification`, :meth:`drop_substituent`, :meth:`drop_monosaccharide`, and
+        :meth:`drop_modification` are all responsible for handling these mutations for you. |Link| methods
+        like :meth:`Link.apply`, :meth:`Link.break_link`, and :meth:`Link.reconnect` are used internally.
 
 
     Attributes
@@ -510,7 +514,7 @@ class Monosaccharide(SaccharideBase):
             'modifications': self.modifications[position],
             'substituent_links': self.substituent_links[position],
             'links': self.links[position]
-            }
+        }
 
     def open_attachment_sites(self, max_occupancy=0):
         '''

@@ -230,7 +230,7 @@ class CrossRingFragment(Monosaccharide):
         return residue
 
     def __repr__(self):  # pragma: no cover
-        return "CrossRingFragment({kind}({cleave}, {c2}) {contains} {mass})".format(
+        return "CrossRingFragment({kind}({c1}, {c2}) {contains} {mass})".format(
             kind=self.kind, c1=self.cleave_1, c2=self.cleave_2, contains=self.contains, mass=self.mass())
 
     def __eq__(self, other):

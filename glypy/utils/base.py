@@ -27,8 +27,10 @@ except:  # pragma: no cover
 
 try:  # pragma: no cover
     i128 = long
+    basestring = basestring
 except:  # pragma: no cover
     i128 = int
+    basestring = (bytes, str)
 
 
 def cyclewarning():

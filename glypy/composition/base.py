@@ -10,7 +10,11 @@ def composition_factory(*args, **kwargs):  # pragma: nocover
     on deserialization.
     '''
     try:
-        from composition import CComposition as Composition
+        from .composition import CComposition as Composition
     except:
-        from composition import PComposition as Composition
+        from .composition import PComposition as Composition
     return Composition()
+
+
+def formula(composition):
+    return ''.join("%s%d" % (k, v) for k, v in sorted(composition.items()))

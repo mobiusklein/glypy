@@ -1,6 +1,9 @@
 import logging
 import json
-from itertools import izip_longest
+try:
+    from itertools import izip_longest
+except:
+    from itertools import zip_longest as izip_longest
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

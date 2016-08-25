@@ -1,3 +1,9 @@
+from six import add_metaclass
+try:
+    intern
+except:
+    from sys import intern
+
 debug = False
 
 
@@ -86,7 +92,7 @@ class EnumMeta(type):
             attrs['__doc__'] = "EnumType"
         enum_type = type.__new__(cls, name, parents, attrs)
         mapped = {}
-        attr_pairs = attrs.items()
+        attr_pairs = list(attrs.items())
         EunmType = attrs.get("__enum_type__", EnumValue)
         for label, value in attr_pairs:
             if not label.startswith("__") or label == "mro":
@@ -97,8 +103,8 @@ class EnumMeta(type):
                     try:
                         mapped[value].add_name(label)
                         setattr(enum_type, label, mapped[value])
-                    except KeyError, e:
-                        print e
+                    except KeyError as e:
+                        print(e)
                 else:
                     mapped[value] = enum_value
                     setattr(enum_type, label, enum_value)
@@ -184,12 +190,13 @@ class EnumMeta(type):
     __call__ = translate
 
 
+@add_metaclass(EnumMeta)
 class Enum(object):
     '''
     A simple class implementing :class:`EnumMeta`. Useful base type for other
     enumerated types.
     '''
-    __metaclass__ = EnumMeta
+    # __metaclass__ = EnumMeta
 
     def __init__(self):
         raise Exception("This class is not meant to be instantiated. Reference its attribute members directly")

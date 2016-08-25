@@ -387,11 +387,11 @@ class SubstituentTests(unittest.TestCase):
     def test_derivatize_pathway_setter(self):
         substituent.Substituent("not-real", None, Composition("H2O"), can_nh_derivatize=False, is_nh_derivatizable=True)
         x = substituent.Substituent("not-real", None, Composition("H2O"))
-        self.assertFalse(x.is_nh_derivatizable)
-        substituent.DerivatizePathway.register("not-real", False, True)
+        self.assertTrue(x.is_nh_derivatizable)
+        substituent.DerivatizePathway.register("not-real", False, False)
         substituent.Substituent("not-real", None, Composition("H2O"))
         x = substituent.Substituent("not-real", None, Composition("H2O"))
-        self.assertTrue(x.is_nh_derivatizable)
+        self.assertFalse(x.is_nh_derivatizable)
 
 
 class MultiMapTests(unittest.TestCase):

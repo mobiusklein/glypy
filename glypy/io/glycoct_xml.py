@@ -74,7 +74,7 @@ class GlycoCTXML(object):
         '''
         if self._iter is None:
             iter(self)
-        return self._iter.next()
+        return next(self._iter)
 
     __next__ = next
 

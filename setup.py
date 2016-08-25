@@ -19,7 +19,7 @@ try:
       [Extension("glypy.composition.ccomposition", ["glypy/composition/ccomposition.pyx"]),
        ],
       annotate=True)
-except ImportError, AttributeError:
+except (ImportError, AttributeError):
     print("No Cython")
     extensions = [
       Extension('glypy.composition.ccomposition', sources=['glypy/composition/ccomposition.c']),

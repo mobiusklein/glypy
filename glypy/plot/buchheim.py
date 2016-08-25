@@ -4,7 +4,7 @@
 def buchheim(tree, visited=None):
     if visited is None:
         visited = set()
-    dt = firstwalk(tree, visited=visited)
+    dt = first_walk(tree, visited=visited)
     visited = set()
     min = second_walk(dt, visited=visited)
     if min < 0:
@@ -30,7 +30,7 @@ def third_walk(tree, n, visited=None):  # pragma: no cover
         third_walk(c, n, visited=visited)
 
 
-def firstwalk(v, distance=1., visited=None):
+def first_walk(v, distance=1., visited=None):
     if visited is None:  # pragma: no cover
         visited = set()
     if v.id in visited:  # pragma: no cover
@@ -44,7 +44,7 @@ def firstwalk(v, distance=1., visited=None):
     else:
         default_ancestor = v.children[0]
         for w in v.children:
-            firstwalk(w, distance, visited)
+            first_walk(w, distance, visited)
             default_ancestor = apportion(w, default_ancestor, distance)
         execute_shifts(v)
 
@@ -141,6 +141,6 @@ def second_walk(v, m=0, depth=0, min=None, visited=None):
         min = v.x
 
     for w in v.children:
-        min = second_walk(w, m + v.mod, depth+1, min, visited=visited)
+        min = second_walk(w, m + v.mod, depth + 1, min, visited=visited)
 
     return min

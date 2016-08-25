@@ -80,6 +80,52 @@ derivatize_info = {
 }
 
 
+def register(name, composition, can_nh_derivatize=None, is_nh_derivatizable=None,
+             attachment_composition=None):
+    """Register common information about a |Substituent| group to be used during initialization
+    of instances of |Substituent| which share that name.
+
+    Parameters
+    ----------
+    name : str
+        The name to be registered
+    composition : |Composition|
+        The shared base composition that will be initialized for each instance
+    can_nh_derivatize : None, optional
+        Passed to `DerivatizePathway.register`
+    is_nh_derivatizable : None, optional
+        Passed to `DerivatizePathway.register`
+    attachment_composition : None, optional
+        The shared composition that will be lost from the parent molecule when forming
+        a bond with substituents of this type.
+    """
+    name = name.replace("-", "_")
+    substituent_compositions[name] = composition.clone()
+    attachment_composition_info[name] = attachment_composition if attachment_composition is not None\
+        else default_attachment_composition
+    DerivatizePathway.register(name, can_nh_derivatize or False, is_nh_derivatizable or False)
+
+
+def unregister(name):
+    """Removes all information about the |Substituent| group denoted by `name` from
+    the shared indices.
+
+    Parameters
+    ----------
+    name : str
+        The name to un-register
+    """
+    name = name.replace("-", "_")
+    substituent_compositions.pop(name)
+    attachment_composition_info.pop(name)
+    derivatize_info.pop(name)
+
+
+def is_registered(name):
+    name = name.replace("-", "_")
+    return name in substituent_compositions
+
+
 class Substituent(SubstituentBase):
     '''
     Represents a non-saccharide molecule commonly found bound to saccharide units.
@@ -110,6 +156,9 @@ class Substituent(SubstituentBase):
 
     '''
 
+    register = staticmethod(register)
+    unregister = staticmethod(unregister)
+
     def __init__(self, name, links=None, composition=None, id=None,
                  can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False,
                  attachment_composition=None):
@@ -119,8 +168,12 @@ class Substituent(SubstituentBase):
         self.links = links
         if composition is None:
             composition = substituent_compositions[self._name]
-        elif composition is not None and self._name not in substituent_compositions:
-            substituent_compositions[self._name] = composition.clone()
+        elif composition is not None and not is_registered(self._name):
+            self.register(
+                name, composition, can_nh_derivatize=can_nh_derivatize,
+                is_nh_derivatizable=is_nh_derivatizable,
+                attachment_composition=attachment_composition)
+
         self.composition = composition
         self.id = id or uid()
         self._order = self.order()
@@ -282,6 +335,9 @@ class Substituent(SubstituentBase):
             mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
         return mass
 
+    def __getstate__(self):
+        return self.__dict__
+
     def __setstate__(self, state):
         self.__dict__.update(state)
         self._order = state.get("_order", len(self.links))
@@ -364,3 +420,17 @@ class Substituent(SubstituentBase):
 
     def attachment_composition_loss(self):
         return self.attachment_composition.clone()
+
+    def _backsolve_original_composition(self):
+        comp = self.composition.clone()
+        has_substituent_link = 0
+        for pos, link in self.links.items():
+            if link.is_child(self):
+                if link.is_substituent_link():
+                    has_substituent_link += 1
+                comp += link.child_loss
+            else:
+                comp += link.parent_loss
+        if has_substituent_link == 0:
+            comp += self.attachment_composition
+        return comp

@@ -36,7 +36,7 @@ def download_all_structures(db_path, record_type=GlycanRecordWithTaxon):  # prag
             db.load_data(record, commit=False, set_id=False)
             if i % 1000 == 0:
                 print(i, "Records parsed.")
-        except Exception, e:
+        except Exception as e:
             misses.append((glycomedb_id, e))
             print(glycomedb_id, e)
     db.set_metadata("misses", misses)
@@ -64,7 +64,7 @@ def add_cache(record):
     for stmt in record.to_sql():
         try:
             cache.connection.execute(stmt)
-        except Exception, e:
+        except Exception as e:
             logger.error("An error occurred while adding %r", record, exc_info=e)
 
 
@@ -275,10 +275,10 @@ def download_results(results, to=None):  # pragma: no cover
             global cache
             cache = to
     for r in results:
-        print r.id
+        print(r.id)
         try:
             r.get_record()
-        except glycoct.GlycoCTError, e:
+        except glycoct.GlycoCTError as e:
             logger.exception("Exception %r", e, exc_info=e)
 
 

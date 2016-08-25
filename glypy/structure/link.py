@@ -3,7 +3,7 @@ from uuid import uuid4
 from collections import Iterable
 
 from glypy.composition import Composition
-from glypy.utils import uid
+from glypy.utils import uid, basestring
 from .base import SaccharideBase, SubstituentBase
 
 default_parent_loss = Composition(O=1, H=1)
@@ -515,11 +515,11 @@ class AmbiguousLink(Link):
             open_parent_sites, _ = self.parent.open_attachment_sites()
             if -1 in open_parent_sites:
                 open_parent_sites += self.parent_position_choices
-            parent_site = iter(set(open_parent_sites) & set(self.parent_position_choices)).next()
+            parent_site = next(iter(set(open_parent_sites) & set(self.parent_position_choices)))
             open_child_sites, _ = self.child.open_attachment_sites()
             if -1 in open_child_sites:
                 open_child_sites += self.child_position_choices
-            child_site = iter(set(open_child_sites) & set(self.child_position_choices)).next()
+            child_site = next(iter(set(open_child_sites) & set(self.child_position_choices)))
             self.parent_position = parent_site
             self.child_position = child_site
             if attach:

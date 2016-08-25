@@ -455,7 +455,7 @@ class GlycanRecordBase(object):
         '''
         try:
             return self.structure == other.structure
-        except Exception, e:  # pragma: no cover
+        except Exception as e:  # pragma: no cover
             logger.exception(exc_info=e)
             return False
 
@@ -759,7 +759,7 @@ class RecordDatabase(object):
             self._id = len(self)
         try:
             self._patch_querymethods()
-        except Exception, e:
+        except Exception as e:
             logger.error(exc_info=e)
 
     def apply_schema(self):

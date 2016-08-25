@@ -88,7 +88,7 @@ def fragment_to_substructure(fragment, tree):
     for target, c1, c2 in crossring_targets_nodes:
         a_frag, x_frag = crossring_fragments(
             target, c1, c2, attach=True, copy=False)
-        residue_toggle(target).next()
+        next(residue_toggle(target))
 
         if crossring_targets[target.id][1] == "A":
             anchor = a_frag

@@ -13,7 +13,7 @@ Supports RES, LIN, and un-nested REP sections.
     1:1o(3+1)2d
     2:2o(2+1)3n
     3:2o(4+1)4d
-    """).next()
+    """)
     >>>
 '''
 
@@ -132,10 +132,10 @@ def parse_link(line):
     child_residue_index = int(link_dict['child_residue_index'])
 
     parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
-    parent_attachment_position = map(int, link_dict["parent_attachment_position"].split("|"))
+    parent_attachment_position = list(map(int, link_dict["parent_attachment_position"].split("|")))
 
     child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
-    child_attachment_position = map(int, link_dict["child_attachment_position"].split("|"))
+    child_attachment_position = list(map(int, link_dict["child_attachment_position"].split("|")))
 
     return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
             child_residue_index, child_atom_replaced, child_attachment_position)
@@ -201,7 +201,7 @@ def decorated_value(tree):  # pragma: no cover
     int or None
     '''
     try:
-        return iter(tree.root.id).next()
+        return next(iter(tree.root.id))
     except:
         return None
 
@@ -497,7 +497,7 @@ class GlycoCT(object):
         '''
         if self._iter is None:
             iter(self)
-        return self._iter.next()
+        return next(self._iter)
 
     #: Alias for next. Supports Py3 Iterator interface
     __next__ = next
@@ -761,10 +761,10 @@ def loads(glycoct_str, structure_class=Glycan, allow_repeats=True):
     '''
 
     g = GlycoCT.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
-    first = g.next()
+    first = next(g)
     second = None
     try:
-        second = g.next()
+        second = next(g)
         collection = [first, second] + list(g)
         return collection
     except StopIteration:

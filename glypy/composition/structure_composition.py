@@ -31,6 +31,10 @@ class CompositionIndex(dict):
         # Explicitly copies
         return (composition_dict).clone()
 
+    def __setitem__(self, key, value):
+        value = Composition(value)
+        super(CompositionIndex, self).__setitem__(key, value)
+
 
 class CompositionRuleIndex(dict):
 
@@ -194,6 +198,7 @@ _substituent_compositions = {
     "n_dimethyl": Composition("N(CH3)2H"),
     "n_formyl": Composition("NHCHOH"),
     "n_methyl": Composition("NHCH3H"),
+    "dimethylamine": Composition("NHC2H6"),
     "n_succinate": Composition("NCOCH2CH2COOHH"),
     "n_trifluoroacetyl": Composition("NHCOCF3H"),
     "thio": Composition("SHH"),
@@ -203,6 +208,7 @@ _substituent_compositions = {
     "(r)_lactate": Composition("CH3CHCO"),
     "(s)_lactate": Composition("CH3CHCO"),
     "ethanolamine": Composition("NHCH2CH2OHH"),
+    "lactonization": -Composition("O"),
     "anhydro": -Composition("O"),  # Semantically, anhydro is more like a Modification
     "phospho_ethanolamine": Composition("C2H8NO4P"),
     "glycolyl": Composition("COCH2OH")

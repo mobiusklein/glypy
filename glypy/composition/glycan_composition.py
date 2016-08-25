@@ -23,7 +23,7 @@ True
 
 '''
 import re
-from glypy import Composition, Monosaccharide, Glycan, Substituent
+from glypy import Composition, Monosaccharide, Glycan, Substituent, ReducedEnd
 from glypy.utils import tree
 from glypy.utils.multimap import OrderedMultiMap
 
@@ -35,12 +35,12 @@ from glypy.io.iupac import (
     resolve_substituent, aminate_substituent, monosaccharide_reference as _monosaccharide_reference,
     resolve_special_base_type as _resolve_special_base_type)
 
-
+from glypy.composition.base import formula
 from glypy.composition.composition_transform import (
     derivatize, has_derivatization, strip_derivatization,
     _derivatize_reducing_end, _strip_derivatization_reducing_end)
 
-monosaccharide_parser_lite = re.compile(r'''(?P<modification>[a-z0-9_\-,]*)
+monosaccharide_parser_lite = re.compile(r'''^(?P<modification>[a-z0-9_\-,]*)
                                        (?P<base_type>[A-Z][a-z]+)
                                        (?P<substituent>[^-]*?)$''', re.VERBOSE)
 
@@ -219,7 +219,7 @@ def drop_configuration(residue):
         residue.configuration = (None,)
 
 
-water_composition = {"O": 1, "H": 2}
+water_composition = Composition({"O": 1, "H": 2})
 
 
 class MonosaccharideResidue(Monosaccharide):
@@ -317,7 +317,7 @@ class MonosaccharideResidue(Monosaccharide):
 
 monosaccharide_residue_reference.update({
     k: MonosaccharideResidue.from_monosaccharide(v) for k, v in _monosaccharide_reference.items()
-    })
+})
 
 
 class FrozenMonosaccharideResidue(MonosaccharideResidue):
@@ -352,9 +352,10 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     def __init__(self, *args, **kwargs):
         super(FrozenMonosaccharideResidue, self).__init__(*args, **kwargs)
         self._frozen = kwargs.get("_frozen", False)
+        self._hash = None
 
     def __setattr__(self, key, value):
-        if self._frozen:
+        if self._frozen and key != "_hash":
             self._cache.pop(self._name, None)
             raise FrozenError("Cannot change a frozen object")
         else:
@@ -370,7 +371,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         -------
         int
         """
-        return hash(self._name)
+        if self._hash is None:
+            self._hash = hash(str(self))
+        return self._hash
 
     def _save_to_cache(self):
         self._cache[str(self)] = self
@@ -419,7 +422,7 @@ class SubstituentResidue(Substituent):
     #: for the :func:`from_iupac_lite` parser
     sigil = "@"
 
-    def __init__(self, name, composition=None, id=None,
+    def __init__(self, name, composition=None, id=None, links=None,
                  can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False,
                  attachment_composition=None):
         if name.startswith(SubstituentResidue.sigil):
@@ -428,24 +431,33 @@ class SubstituentResidue(Substituent):
             raise TypeError("Invalid Sigil. SubstituentResidue instances must be given names with either"
                             " no sigil prefix or with '@'")
         super(SubstituentResidue, self).__init__(
-            name=name, composition=composition, links=None, id=id,
+            name=name, composition=composition, links=links, id=id,
             can_nh_derivatize=can_nh_derivatize, is_nh_derivatizable=is_nh_derivatizable,
             derivatize=derivatize, attachment_composition=attachment_composition)
 
         self.composition -= self.attachment_composition
         self.composition -= {"H": 1}
-        self._name = SubstituentResidue.sigil + self._name
+        self._residue_name = SubstituentResidue.sigil + self._name
+        self._hash = None
 
-    def __hash__(self):
-        return hash(self.name)
+    def __hash__(self):  # pragma: no cover
+        """Obtain a hash value from `self` based on :attr:`name`.
+
+        Returns
+        -------
+        int
+        """
+        if self._hash is None:
+            self._hash = hash(self._residue_name)
+        return self._hash
 
     def to_iupac_lite(self):
-        return self.name
+        return self._residue_name
 
     __str__ = to_iupac_lite
 
     def __repr__(self):  # pragma: no cover
-        return "SubstituentResidue(%s)" % self.name
+        return "SubstituentResidue(%s)" % self._residue_name
 
     @classmethod
     def from_iupac_lite(cls, name):
@@ -461,6 +473,11 @@ class SubstituentResidue(Substituent):
     def __ne__(self, other):  # pragma: no cover
         return not self == other
 
+    def _backsolve_original_composition(self):
+        comp = super(SubstituentResidue, self)._backsolve_original_composition()
+        comp += {"H": 1}
+        return comp
+
 
 class MolecularComposition(MoleculeBase):  # pragma: no cover
     sigil = "#"
@@ -468,6 +485,7 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
     def __init__(self, name, composition):
         self.name = name
         self.composition = composition
+        self._hash = None
 
     def mass(self, average=False, charge=0, mass_data=None):
         return self.composition.calc_mass(average=average, charge=charge, mass_data=mass_data)
@@ -475,7 +493,7 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
     def __repr__(self):
         return "%s%s%s%s" % (
             self.sigil, self.name, self.sigil,
-            ''.join("%s%d" % kv for kv in self.composition.items()))
+            formula(self.composition))
 
     to_iupac_lite = __repr__
 
@@ -496,8 +514,16 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
         name = header
         return cls(name, Composition(composition))
 
-    def __hash__(self):
-        return hash(self.name)
+    def __hash__(self):  # pragma: no cover
+        """Obtain a hash value from `self` based on :attr:`name`.
+
+        Returns
+        -------
+        int
+        """
+        if self._hash is None:
+            self._hash = hash(self.name)
+        return self._hash
 
     def __eq__(self, other):
         try:
@@ -567,12 +593,20 @@ class GlycanComposition(dict, SaccharideCollection):
         return inst
 
     def __init__(self, *args, **kwargs):
-        self._reducing_end = kwargs.pop("reducing_end", None)
+        self._reducing_end = None
         dict.__init__(self)
         self._mass = None
         self._charge = None
         self._composition_offset = Composition("H2O")
         self.update(*args, **kwargs)
+        try:
+            template = args[0]
+        except IndexError:
+            template = None
+        if template is not None and isinstance(template, GlycanComposition):
+            reduced = template.reducing_end
+            if reduced is not None:
+                self.reducing_end = reduced.clone()
 
     def __setitem__(self, key, value):
         """
@@ -800,18 +834,34 @@ class GlycanComposition(dict, SaccharideCollection):
         return self.__class__(self)
 
     def serialize(self):
-        return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
+        form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
             self.items(), key=lambda x: x[0].mass()) if v > 0)
+        reduced = self.reducing_end
+        if reduced is not None:
+            form = "%s$%s" % (form, formula(reduced.total_composition()))
+        return form
 
     __str__ = serialize
 
     @classmethod
     def parse(cls, string):
+        string = str(string)
         inst = cls()
-        tokens = string[1:-1].split('; ')
+        parts = string.split('$')
+        if len(parts) == 1:
+            tokens = parts[0]
+            reduced = None
+        elif len(parts) == 2:
+            tokens, reduced = parts
+        else:
+            raise ValueError("Could not interpret %r" % string)
+        tokens = tokens[1:-1].split('; ')
         for token in tokens:
             residue, count = token.split(":")
             inst[from_iupac_lite(residue)] = int(count)
+        if reduced:
+            reduced = ReducedEnd(Composition(reduced))
+            inst.reducing_end = reduced
         return inst
 
     def _derivatized(self, substituent, id_base):
@@ -868,17 +918,28 @@ class FrozenGlycanComposition(GlycanComposition):
 
     @classmethod
     def parse(cls, string):
+        string = str(string)
         inst = cls()
-        tokens = string[1:-1].split('; ')
+        parts = string.split('$')
+        if len(parts) == 1:
+            tokens = parts[0]
+            reduced = None
+        elif len(parts) == 2:
+            tokens, reduced = parts
+        else:
+            raise ValueError("Could not interpret %r" % string)
+        tokens = tokens[1:-1].split('; ')
         for token in tokens:
             residue, count = token.split(":")
             inst[FrozenMonosaccharideResidue.from_iupac_lite(residue)] = int(count)
+        if reduced:
+            reduced = ReducedEnd(Composition(reduced))
+            inst.reducing_end = reduced
         return inst
 
     def serialize(self):
         if self._mass is None or self._str is None:
-            self._str = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
-                self.items(), key=lambda x: x[0].mass()) if v > 0)
+            self._str = super(FrozenGlycanComposition, self).serialize()
         return self._str
 
     __str__ = serialize

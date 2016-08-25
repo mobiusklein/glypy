@@ -10,7 +10,7 @@ import os
 use_cython = bool(int(os.environ.get("USE_CYTHON_COMPOSITION", 1)))
 
 try:
-    from ccomposition import CComposition, calculate_mass as ccalculate_mass
+    from .ccomposition import CComposition, calculate_mass as ccalculate_mass
 except ImportError:  # pragma: no cover
     use_cython = False
 
@@ -124,7 +124,7 @@ class PComposition(defaultdict):
     def __setitem__(self, key, value):
         if isinstance(value, float):
             value = int(round(value))
-        elif not isinstance(value, (int, long)):
+        elif not isinstance(value, (int)):
             raise ChemicalCompositionError(
                 'Only integers allowed as values in Composition, got {}.'.format(type(value).__name__))
         if value:  # Will not occur on 0 as 0 is falsey AND an integer

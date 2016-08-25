@@ -15,11 +15,13 @@ from cpython.dict cimport (PyDict_GetItem, PyDict_SetItem, PyDict_Next,
 from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
 
-if PY_MAJOR_VERSION < 3:
-    from cpython.string cimport PyString_Format
+# if PY_MAJOR_VERSION < 3:
+#     from cpython.string cimport PyString_Format
 
-cdef extern from *:
-    unicode PyUnicode_Format(object format, object args)
+# cdef extern from *:
+#     unicode PyUnicode_Format(object format, object args)
+
+from glypy.composition.compat cimport PyStr_Format
 
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
@@ -78,10 +80,7 @@ cdef str _make_isotope_string(str element_name, int isotope_num):
         return element_name
     else:
         parts = (element_name, isotope_num)
-        if PY_MAJOR_VERSION < 3:
-            return <str>PyString_Format('%s[%d]', parts)
-        else:
-            return <str>PyUnicode_Format('%s[%d]', parts)
+        return <str>PyStr_Format('%s[%d]', parts)
 
 
 cdef class CComposition(dict):
@@ -428,7 +427,7 @@ cdef class CComposition(dict):
 
 
     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
-        cdef long mdid
+        cdef object mdid
         mdid = id(mass_data)
         if self._mass_args is not None and average is self._mass_args[0]\
                 and charge == self._mass_args[1] and mdid == self._mass_args[2]:
