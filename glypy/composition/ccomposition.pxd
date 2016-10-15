@@ -9,6 +9,7 @@ cdef class CComposition(dict):
     cdef long getitem(self, str elem)
     cdef void setitem(self, str elem, long val)
 
+
 cdef: 
     str _atom
     str _formula

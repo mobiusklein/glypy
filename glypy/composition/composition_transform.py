@@ -163,9 +163,10 @@ def _strip_derivatization_reducing_end(reducing_end):
 
 
 def has_derivatization(residue):
-    for pos, link in tuple(residue.substituent_links.items()):
-        if link.child._derivatize:
-            return link.child
+    if residue.node_type is Monosaccharide.node_type:
+        for pos, link in tuple(residue.substituent_links.items()):
+            if link.child._derivatize:
+                return link.child
     return False
 
 

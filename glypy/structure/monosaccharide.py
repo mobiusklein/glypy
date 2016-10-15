@@ -310,6 +310,7 @@ class Monosaccharide(SaccharideBase):
 
         self.modifications = modifications
         self._reducing_end = None
+        self._checked_for_reduction = False
 
         if fast:
             self._anomer = anomer
@@ -450,19 +451,26 @@ class Monosaccharide(SaccharideBase):
         If `Modification.aldi` is present, it will be converted into
         an instance of :class:`.ReducedEnd` with default arguments.
 
+        TODO: Remove Redundancy between `aldi` check and reduction.
+
         Returns
         -------
         ReducedEnd or None
         """
         if self._reducing_end is None:
-            for pos, mod in list(self.modifications.items()):
-                if isinstance(mod, ReducedEnd):
-                    self._reducing_end = mod
-                    break
-                elif mod is Modification.aldi:  # pragma: no cover
-                    self.modifications.popv(Modification.aldi)
-                    self.reducing_end = ReducedEnd()
-                    break
+            if not self._checked_for_reduction:
+                for pos, mod in list(self.modifications.items()):
+                    if isinstance(mod, ReducedEnd):
+                        self._reducing_end = mod
+                        break
+                    elif mod is Modification.aldi:  # pragma: no cover
+                        self.modifications.popv(Modification.aldi)
+                        self.reducing_end = ReducedEnd()
+                        break
+            else:
+                return self._reducing_end
+        if self._reducing_end is None:
+            self._checked_for_reduction = True
         return self._reducing_end
 
     @reducing_end.setter
@@ -487,6 +495,7 @@ class Monosaccharide(SaccharideBase):
             self.modifications.pop(1, red_end)
         # Setting to None will un-reduce the sugar, but should not
         # put a None in :attr:`modifications`
+        self._checked_for_reduction = False
         if value:
             if value is True:
                 value = ReducedEnd()
@@ -515,6 +524,16 @@ class Monosaccharide(SaccharideBase):
             'substituent_links': self.substituent_links[position],
             'links': self.links[position]
         }
+
+    def _is_full(self, max_occupancy=0):
+        return self.remaining_capacity() >= 0
+
+    def _remaining_capacity(self):
+        bonds = self.order(deep=True)
+        max_size = self.superclass.value - 1
+        if self.ring_type == RingType.open:
+            max_size += 1
+        return max_size - bonds
 
     def open_attachment_sites(self, max_occupancy=0):
         '''
@@ -633,6 +652,7 @@ class Monosaccharide(SaccharideBase):
         '''
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
+        self._checked_for_reduction = False
         if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = ReducedEnd()
         else:
@@ -675,7 +695,7 @@ class Monosaccharide(SaccharideBase):
             self.modifications.pop(position, modification)
         except IndexError:
             raise ValueError("Modification {} not found at {}".format(modification, position))
-
+        self._checked_for_reduction = False
         if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = None
         else:
@@ -847,9 +867,9 @@ class Monosaccharide(SaccharideBase):
             `self`, for chain calls
         '''
         if parent_loss is None:
-            parent_loss = Composition(H=1)
+            parent_loss = Composition("H")
         if child_loss is None:
-            child_loss = Composition(H=1, O=1)
+            child_loss = Composition("OH")
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Parent Site is already occupied")  # pragma: no cover
         if monosaccharide.is_occupied(child_position) > max_occupancy:
@@ -1065,6 +1085,7 @@ class Monosaccharide(SaccharideBase):
         Does some testing to upgrade outdated, but equivalent
         modification models.
         '''
+        self._checked_for_reduction = False
         self.anomer = state['_anomer']
         self.superclass = state['_superclass']
         self.stem = state['_stem']

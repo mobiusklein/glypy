@@ -175,24 +175,47 @@ cdef class CComposition(dict):
         self._mass = None
         self._mass_args = None
 
-
     def __mul__(self, other):
         cdef:
-            CComposition prod = CComposition()
+            CComposition prod
             int rep, v
             str k
+            PyObject *pkey
+            PyObject *pvalue
+            Py_ssize_t ppos = 0
 
         if isinstance(other, CComposition):
             self, other = other, self
         
+        prod = self.clone()
+
         if not isinstance(other, int):
             raise ChemicalCompositionError(
-                'Cannot multiply Composition by non-integer',
-                other)
+                'Cannot multiply Composition by non-integer', other)
+
         rep = other
-        for k, v in self.items():
+        while(PyDict_Next(self, &ppos, &pkey, &pvalue)):
+            k = <str>pkey
+            v = PyInt_AsLong(<object>pvalue)
             prod.setitem(k, v * rep)
+
         return prod
+        # cdef:
+        #     CComposition prod = CComposition()
+        #     int rep, v
+        #     str k
+
+        # if isinstance(other, CComposition):
+        #     self, other = other, self
+        
+        # if not isinstance(other, int):
+        #     raise ChemicalCompositionError(
+        #         'Cannot multiply Composition by non-integer',
+        #         other)
+        # rep = other
+        # for k, v in self.items():
+        #     prod.setitem(k, v * rep)
+        # return prod
 
     def __imul__(self, other):
         cdef:
@@ -489,6 +512,28 @@ cdef class CComposition(dict):
         self._mass_args = None
 
 Composition = CComposition
+
+
+cpdef CComposition composition_sum(list compositions):
+    cdef:
+        size_t i
+        CComposition accumulator, current
+        str elem
+        long cnt
+        PyObject *pkey
+        PyObject *pvalue
+        Py_ssize_t ppos = 0
+
+    accumulator = CComposition()
+    for i in range(len(compositions)):
+        current = compositions[i]
+        ppos = 0
+
+        while(PyDict_Next(current, &ppos, &pkey, &pvalue)):
+            elem = <str>pkey
+            cnt = accumulator.getitem(elem)
+            accumulator.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))
+    return accumulator
 
 
 @cython.wraparound(False)

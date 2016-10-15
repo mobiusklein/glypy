@@ -33,6 +33,7 @@ attachment_composition_info = {
 }
 default_attachment_composition = Composition("H")
 
+
 derivatize_info = {
     "acetyl": DerivatizePathway(True, False),
     "amino": DerivatizePathway(True, False),

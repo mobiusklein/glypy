@@ -3,3 +3,4 @@ __package__ = "glypy.composition"
 
 from . import composition
 from .composition import Composition, calculate_mass
+from .base import formula, ChemicalCompositionError

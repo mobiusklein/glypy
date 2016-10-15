@@ -1,3 +1,8 @@
+'''
+An implementation of a subset of the following symbolic nomenclature:
+    http://www.ncbi.nlm.nih.gov/books/NBK310273/table/symbolnomenclature.T.monosaccharide_symb/?report=objectonly
+'''
+
 import logging
 from functools import partial
 from collections import Counter

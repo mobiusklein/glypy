@@ -1,5 +1,8 @@
 import unittest
 
+
+import glypy
+from glypy.composition import composition_transform
 from glypy.tests import common
 from glypy.io import iupac
 from StringIO import StringIO
@@ -70,3 +73,41 @@ class IUPACTests(unittest.TestCase):
 -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
         equiv = iupac.IUPACParser.loads(text, 'line').next()
         self.assertEqual(equiv, structure)
+
+
+class DerivatizationAwareIUPACTests(unittest.TestCase):
+    def test_monosaccharide_parse(self):
+        text = '?-?-Hexp2NAc^Me'
+        parser = iupac.DerivatizationAwareMonosaccharideDeserializer()
+        obj, _ = parser(text)
+        ref = composition_transform.derivatize(glypy.monosaccharides.HexNAc, 'methyl')
+        self.assertEqual(obj, ref)
+
+    def test_monosaccharide_serialize(self):
+        obj = composition_transform.derivatize(glypy.monosaccharides.HexNAc, 'methyl')
+        ref = '?-?-Hexp2NAc^Me'
+        serializer = iupac.DerivatizationAwareMonosaccharideSerializer()
+        text = serializer(obj)
+        self.assertEqual(text, ref)
+
+    def test_derivatized_glycan_parse(self):
+        ref = composition_transform.derivatize(
+            glypy.motifs["N-Glycan complex 1"], "methyl")
+        serializer = iupac.GlycanSerializer(iupac.DerivatizationAwareMonosaccharideSerializer())
+        text = serializer(ref)
+        deserializer = iupac.GlycanDeserializer(iupac.DerivatizationAwareMonosaccharideDeserializer())
+        obj = deserializer(text)
+        self.assertEqual(obj, ref)
+
+    def test_compatible_with_non_derivatized(self):
+        serializer = iupac.GlycanSerializer(iupac.DerivatizationAwareMonosaccharideSerializer())
+        deserializer = iupac.GlycanDeserializer(iupac.DerivatizationAwareMonosaccharideDeserializer())
+        self.assertEqual(
+            deserializer(
+                serializer(
+                    glypy.motifs["N-Glycan complex 1"])),
+            glypy.motifs["N-Glycan complex 1"])
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -446,7 +446,7 @@ def unroll_ring(residue):
     Parameters
     ----------
     residue: Monosaccharide
-        The cyclical carbohydrate to unroll
+        The carbohydrate to unroll
 
     Returns
     -------
@@ -508,14 +508,14 @@ def cleave_ring(residue, c1, c2):
     # If the ring's start is associated with c1, add all positions prior to ring start
     # to c1.
     if ring_start in c1_include and ring_start - 1 not in c1_include and ring_start != 1:
-        c1_segment = linear[:ring_start-1] + c1_segment
+        c1_segment = linear[:ring_start - 1] + c1_segment
         c1_include = list(i + 1 for i in range(ring_start + 1)) + c1_include
     # Alternatively if the ring start is in c2, add the preceding residues to it
     elif ring_start in c2_include and ring_start - 1 not in c2_include and ring_start != 1:
-        c2_segment = linear[:ring_start-1] + c2_segment
+        c2_segment = linear[:ring_start - 1] + c2_segment
         c2_include = list(i + 1 for i in range(ring_start + 1)) + c2_include
 
-    # If the ring's end is associated withc2, add all positions proceeding ring end
+    # If the ring's end is associated with c2, add all positions proceeding ring end
     # to c2
     if ring_end in c2_include:
         c2_segment = c2_segment + linear[ring_end:]

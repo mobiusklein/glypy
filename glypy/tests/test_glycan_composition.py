@@ -131,6 +131,7 @@ class GlycanCompositionTests(unittest.TestCase):
         comp = self.GlycanCompositionType.from_glycan(glycans["N-Linked Core"])
         composition_transform.derivatize(comp, "methyl")
         self.assertAlmostEqual(glyc.mass(), comp.mass(), 3)
+        self.assertAlmostEqual(self.GlycanCompositionType.parse(comp).mass(), comp.mass(), 3)
 
     def test_contains(self):
         glyc = glycans["N-Linked Core"]
@@ -171,11 +172,14 @@ class GlycanCompositionTests(unittest.TestCase):
         comp["Man"] += 5
         self.assertEqual(comp["Man"], 8)
         comp2 = self.GlycanCompositionType(Neu5NAc=2, Fuc=1, Man=1)
-        self.assertEqual(comp2 + comp, self.GlycanCompositionType(Neu5NAc=2, Fuc=1, Man=9, Glc2NAc=2))
+        self.assertEqual(comp2 + comp, self.GlycanCompositionType(
+            Neu5NAc=2, Fuc=1, Man=9, Glc2NAc=2))
         comp -= {'Man': 5}
-        self.assertEqual(comp, self.GlycanCompositionType(Man=4, Glc2NAc=2) - self.GlycanCompositionType(Man=1, Glc2NAc=0))
+        self.assertEqual(comp, self.GlycanCompositionType(
+            Man=4, Glc2NAc=2) - self.GlycanCompositionType(Man=1, Glc2NAc=0))
         comp *= 2
-        self.assertEqual(comp, (self.GlycanCompositionType(Man=4, Glc2NAc=2) - self.GlycanCompositionType(Man=1, Glc2NAc=0)) * 2)
+        self.assertEqual(comp, (self.GlycanCompositionType(
+            Man=4, Glc2NAc=2) - self.GlycanCompositionType(Man=1, Glc2NAc=0)) * 2)
 
         comp3 = comp2.clone()
         comp3 += comp2
@@ -217,6 +221,16 @@ class FrozenGlycanCompositionTests(GlycanCompositionTests):
             comp = self.GlycanCompositionType.from_glycan(glycans["N-Linked Core"])
             composition_transform.derivatize(comp, "methyl")
             self.assertAlmostEqual(glyc.mass(), comp.mass(), 3)
+            self.assertAlmostEqual(self.GlycanCompositionType.parse(comp).mass(), comp.mass(), 3)
+
+    def test_parse_derivatized(self):
+        glyc = glycans["N-Linked Core"]
+        composition_transform.derivatize(glyc, "methyl")
+        comp = GlycanComposition.from_glycan(glycans["N-Linked Core"])
+        composition_transform.derivatize(comp, "methyl")
+        self.assertAlmostEqual(glyc.mass(), comp.mass(), 3)
+        frozen_comp = self.GlycanCompositionType.parse(comp)
+        self.assertAlmostEqual(glyc.mass(), frozen_comp.mass(), 3)
 
     def test_serialize(self):
         ref = '{Man:3; Glc2NAc:2}'
