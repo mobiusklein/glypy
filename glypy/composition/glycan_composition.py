@@ -333,9 +333,12 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         -------
         int
         """
-        if self._hash is None:
-            self._hash = hash(str(self))
-        return self._hash
+        try:
+            if self._hash is None:
+                self._hash = hash(str(self))
+            return self._hash
+        except AttributeError:
+            return hash(str(self))
 
     def _save_to_cache(self):
         self._cache[str(self)] = self
@@ -417,9 +420,12 @@ class SubstituentResidue(Substituent):
         -------
         int
         """
-        if self._hash is None:
-            self._hash = hash(self._residue_name)
-        return self._hash
+        try:
+            if self._hash is None:
+                self._hash = hash(self._residue_name)
+            return self._hash
+        except AttributeError:
+            return hash(self._residue_name)
 
     def to_iupac_lite(self):
         return self._residue_name
@@ -491,9 +497,12 @@ class MolecularComposition(MoleculeBase):  # pragma: no cover
         -------
         int
         """
-        if self._hash is None:
-            self._hash = hash(self.name)
-        return self._hash
+        try:
+            if self._hash is None:
+                self._hash = hash(self.name)
+            return self._hash
+        except AttributeError:
+            return hash(self.name)
 
     def __eq__(self, other):
         try:

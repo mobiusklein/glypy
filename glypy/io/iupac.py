@@ -526,6 +526,8 @@ class MonosaccharideDeserializer(object):
                     except ValueError:
                         # The site contains a modification which can be present alongside the substituent
                         occupancy = 1
+                    except IndexError:
+                        occupancy = 1
                     try:
                         residue.add_substituent(
                             substituent, position, occupancy,
