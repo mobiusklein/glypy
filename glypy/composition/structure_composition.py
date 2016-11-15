@@ -35,6 +35,9 @@ class CompositionIndex(dict):
         value = Composition(value)
         super(CompositionIndex, self).__setitem__(key, value)
 
+    def register(self, key, value):
+        self[key] = value
+
 
 class CompositionRuleIndex(dict):
 

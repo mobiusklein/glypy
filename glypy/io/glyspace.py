@@ -388,7 +388,7 @@ class GlySpaceRDFClient(RDFClientBase):
 
             SELECT DISTINCT ?saccharide WHERE {
                 ?saccharide a glycan:saccharide .
-                ?s skos:exactMatch ?gdb .
+                ?saccharide skos:exactMatch ?gdb .
                 ?gdb glycan:has_reference ?ref .
                 ?ref glycan:is_from_source ?source .
                 ?source glycan:has_taxon ?taxon
@@ -412,7 +412,7 @@ class GlySpaceRDFClient(RDFClientBase):
         sparql = r'''
         SELECT DISTINCT ?saccharide WHERE {
             ?saccharide a glycan:saccharide .
-            ?s skos:exactMatch ?gdb .
+            ?saccharide skos:exactMatch ?gdb .
             ?gdb glycan:has_reference ?ref .
             ?ref glycan:is_from_source ?source .
             ?source glycan:has_taxon ?taxon
@@ -446,9 +446,8 @@ class GlySpaceRDFClient(RDFClientBase):
 
         Parameters
         ----------
-        taxon : str or int
-            A string or number which corresponds to the taxonomy database
-            id for the taxon of interest.
+        motif : str
+            The accession number of the motif of interest.
         limit : int, optional
             The maximum number of results to retrieve.
 
@@ -512,6 +511,7 @@ query = client.query
 structure = client.structure
 from_taxon = client.from_taxon
 structures_with_motif = client.structures_with_motif
+triples = client.triples
 
 
 @GlySpaceRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)

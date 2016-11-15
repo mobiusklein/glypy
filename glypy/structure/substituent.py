@@ -29,7 +29,8 @@ attachment_composition_info = {
     "n_acetyl": Composition("OH"),
     "n_glycolyl": Composition("OH"),
     "amino": Composition("OH"),
-    "anhydro": Composition("H")
+    "anhydro": Composition("H"),
+    "dimethylamine": Composition("OH")
 }
 default_attachment_composition = Composition("H")
 
@@ -105,6 +106,7 @@ def register(name, composition, can_nh_derivatize=None, is_nh_derivatizable=None
     attachment_composition_info[name] = attachment_composition if attachment_composition is not None\
         else default_attachment_composition
     DerivatizePathway.register(name, can_nh_derivatize or False, is_nh_derivatizable or False)
+    return Substituent(name)
 
 
 def unregister(name):
