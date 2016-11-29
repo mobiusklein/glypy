@@ -152,6 +152,9 @@ class BoundURIRef(URIRef):
 
     __call__ = get
 
+    def _repr_pretty_(self, p, cycle):
+        return p.pretty(repr(self))
+
     def __getattr__(self, name):
         '''
         A convenience method to forward missed attribute lookup

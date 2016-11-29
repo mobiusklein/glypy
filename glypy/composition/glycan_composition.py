@@ -352,7 +352,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return name
 
     def clone(self, *args, **kwargs):
-        if self._frozen:
+        if self._frozen and kwargs.get(
+                "monosaccharide_type",
+                FrozenMonosaccharideResidue) is FrozenMonosaccharideResidue:
             return self
         else:
             return super(FrozenMonosaccharideResidue, self).clone(*args, **kwargs)

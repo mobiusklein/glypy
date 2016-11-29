@@ -214,7 +214,8 @@ _substituent_compositions = {
     "lactonization": -Composition("O"),
     "anhydro": -Composition("O"),  # Semantically, anhydro is more like a Modification
     "phospho_ethanolamine": Composition("C2H8NO4P"),
-    "glycolyl": Composition("COCH2OH")
+    "glycolyl": Composition("COCH2OH"),
+    "esterification": Composition("CH3CH3")
 }
 
 substituent_compositions = CompositionIndex(_substituent_compositions)

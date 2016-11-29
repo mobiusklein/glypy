@@ -3,3 +3,4 @@ test_reports/
 *.pyc
 .ipynb_checkpoints/
 *.pyd
+*__pycache__

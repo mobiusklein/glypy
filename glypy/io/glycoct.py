@@ -414,7 +414,7 @@ class GlycoCTSectionUnsupported(GlycoCTError):
     pass
 
 
-class GlycoCT(object):
+class GlycoCTReader(object):
     '''
     Simple State-Machine parser for condensed GlycoCT representations. Yields
     |Glycan| instances.
@@ -668,7 +668,7 @@ class GlycoCT(object):
             # logger.debug("Postprocessing %s", postop)
             postop[0](*postop[1:])
 
-        return undecorate_tree(self.structure_class(rootp(self.root)))
+        return undecorate_tree(self.structure_class(root=rootp(self.root)))
 
     def parse(self):
         '''
@@ -743,24 +743,26 @@ class GlycoCT(object):
             yield self.postprocess()
             self._reset()
 
+GlycoCT = GlycoCTReader
+
 
 def read(stream, structure_class=Glycan, allow_repeats=True):
     '''
-    A convenience wrapper for :class:`GlycoCT`
+    A convenience wrapper for :class:`GlycoCTReader`
     '''
-    return GlycoCT(stream, structure_class=structure_class, allow_repeats=allow_repeats)
+    return GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
 
 
 def loads(glycoct_str, structure_class=Glycan, allow_repeats=True):
     '''
-    A convenience wrapper for :meth:`GlycoCT.loads`
+    A convenience wrapper for :meth:`GlycoCTReader.loads`
 
     As additional convenience, this function does not return an
     iterator over glycans, and returns a single instance if only
     one is present, or a list of instances otherwise.
     '''
 
-    g = GlycoCT.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
+    g = GlycoCTReader.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
     first = next(g)
     second = None
     try:
