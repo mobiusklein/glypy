@@ -5,8 +5,6 @@ from glypy.composition import composition_transform
 from glypy.composition import glycan_composition
 from glypy import monosaccharides, Substituent, glycans
 
-from common import load
-
 water_mass = glypy.Composition("H2O").mass
 
 GlycanComposition = glycan_composition.GlycanComposition

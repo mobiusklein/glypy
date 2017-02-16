@@ -1,5 +1,5 @@
 import unittest
-from common import load, glycoct, glycan, multimap, pickle, named_structures, monosaccharides
+from .common import load, glycoct, glycan, multimap, pickle, named_structures, monosaccharides
 
 from glypy import Substituent, tree
 from glypy.structure.fragment import Fragment
@@ -11,9 +11,10 @@ class GlycanTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
     def test_from_glycoct(self):
-        for structure in glycoct.read(self._file_path):
-            self.assertEqual(
-                structure, glycoct.loads(structure.serialize("glycoct")))
+        with open(self._file_path) as stream:
+            for structure in glycoct.read(stream):
+                self.assertEqual(
+                    structure, glycoct.loads(structure.serialize("glycoct")))
 
     def test_fragments_preserve(self):
         structure = load("branchy_glycan")
@@ -31,7 +32,8 @@ class GlycanTests(unittest.TestCase):
         structure = load("common_glycan")
         frags = list(structure.fragments('ZCBY', 1))
         import json
-        frags_ref = json.load(open('test_data/fragments-example.json'))
+        with open('test_data/fragments-example.json') as f:
+            frags_ref = json.load(f)
         container = multimap.MultiMap()
         for frag in frags_ref:
             container[frag['kind']] = frag['mass']
@@ -210,7 +212,7 @@ class GlycanTests(unittest.TestCase):
     def test_get(self):
         structure = load("branchy_glycan")
         self.assertEqual(structure.get(1), structure.root)
-        self.assertEqual(structure.get_link(1), structure.iterlinks().next()[1])
+        self.assertEqual(structure.get_link(1), next(structure.iterlinks())[1])
 
     def test_iternodes(self):
         structure = load("branchy_glycan")
@@ -228,9 +230,9 @@ class GlycanTests(unittest.TestCase):
     def test_subtrees(self):
         structure = load("branchy_glycan")
         g = structure.subtrees()
-        s = g.next()
+        s = next(g)
         self.assertAlmostEqual(tree(s).mass(), 221.0899, 2)
-        s = g.next()
+        s = next(g)
         self.assertAlmostEqual(tree(s).mass(), 1599.565, 2)
 
     def test_fragment_properties(self):

@@ -42,7 +42,7 @@ class GlycomeDBClientTests(unittest.TestCase):
 
     def test_search_by_species(self):
         r = glycomedb.search_by_species(9606)
-        g = r.next()
+        g = next(r)
         self.assertEqual(g.id, 28)
         self.assertEqual(g.num_species, '3')
         case = g.get()
@@ -57,9 +57,10 @@ class GlycomeDBClientTests(unittest.TestCase):
     @unittest.skip(True)
     def test_minimum_common_substructure(self):
         case = glycomedb.get(576)
-        g = glycomedb.search_minimum_common_substructure(case).next()
+        g = next(glycomedb.search_minimum_common_substructure(case))
         self.assertEqual(g.id, 576)
         self.assertEqual(g.score, '20,000')
+
 
 if __name__ == '__main__':
     unittest.main()

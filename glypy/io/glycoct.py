@@ -668,7 +668,7 @@ class GlycoCTReader(object):
             # logger.debug("Postprocessing %s", postop)
             postop[0](*postop[1:])
 
-        return undecorate_tree(self.structure_class(root=rootp(self.root)))
+        return undecorate_tree(self.structure_class(root=rootp(self.root), index_method=None))
 
     def parse(self):
         '''

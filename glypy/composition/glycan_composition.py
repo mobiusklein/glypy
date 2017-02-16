@@ -42,6 +42,8 @@ from glypy.composition.composition_transform import (
     _derivatize_reducing_end, _strip_derivatization_reducing_end,
     make_counter)
 
+from six import string_types as basestring
+
 monosaccharide_parser_lite = re.compile(r'''^(?P<modification>[a-z0-9_\-,]*)
                                        (?P<base_type>[A-Z][a-z]+)
                                        (?P<substituent>[^-]*?)

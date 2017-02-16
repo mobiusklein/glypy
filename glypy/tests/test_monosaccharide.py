@@ -6,7 +6,7 @@ from glypy.structure import named_structures, constants, monosaccharide, substit
 from glypy.composition import structure_composition, Composition, composition_transform
 from glypy.io import glycoct
 
-from common import StringIO, load, pickle
+from .common import StringIO, load, pickle
 
 monosaccharide_structures = hjson.load(
     open("./glypy/structure/data/monosaccharides.hjson"))
@@ -22,7 +22,7 @@ ReducedEnd = monosaccharide.ReducedEnd
 
 class MonosaccharideTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
-    glycan = iter(glycoct.read(_file_path)).next()
+    glycan = next(iter(glycoct.read(_file_path)))
 
     def test_depth(self):
         self.assertEqual(monosaccharide.depth(load("complex_glycan").root), 7)
@@ -30,7 +30,7 @@ class MonosaccharideTests(unittest.TestCase):
     def test_from_glycoct(self):
         s = self.glycan.root.serialize('glycoct')
         b = StringIO(s)
-        g = iter(glycoct.read(b)).next()
+        g = next(iter(glycoct.read(b)))
         self.assertEqual(g.root.serialize('glycoct'), s)
 
     def test_named_structure_masses(self):
@@ -191,7 +191,7 @@ class MonosaccharideTests(unittest.TestCase):
         branchy = load("branchy_glycan")
         t1 = monosaccharide.traverse(branchy.root)
         t2 = branchy.dfs()
-        for a, b in itertools.izip(list(t1), list(t2)):
+        for a, b in zip(list(t1), list(t2)):
             self.assertEqual(a, b)
 
     def test_low_level_graph_clone(self):

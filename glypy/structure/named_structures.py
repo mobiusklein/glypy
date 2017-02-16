@@ -48,7 +48,9 @@ class MonosaccharideIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=lambda x: x.root):
         if stream is None:
             stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.hjson")
-        super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
+        with stream:
+            super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
+
 
 monosaccharides = (MonosaccharideIndex)()
 
@@ -76,6 +78,7 @@ class GlycanIndex(StructureIndex):
             stream = pkg_resources.resource_stream(__name__, "data/glycans.hjson")
         super(GlycanIndex, self).__init__(stream, key_transform, value_transform)
 
+
 glycans = ProxyObject(GlycanIndex)
 
 
@@ -83,7 +86,8 @@ class MotifIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
             stream = pkg_resources.resource_stream(__name__, "data/motifs.hjson")
-        data = hjson.load(stream)
+        with stream:
+            data = hjson.load(stream)
         motif_classes = set()
         motif_categories = set()
         for motif in data:

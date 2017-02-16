@@ -4,7 +4,7 @@ import unittest
 from glypy.composition import composition, composition_transform
 from glypy.structure import monosaccharide
 
-from common import load
+from .common import load
 
 ReducedEnd = monosaccharide.ReducedEnd
 

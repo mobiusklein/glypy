@@ -5,6 +5,7 @@ from ..structure import Substituent
 from ..structure import Monosaccharide
 from ..structure import Modification
 from .composition import Composition
+from six import string_types as basestring
 
 
 def derivatize(saccharide, substituent):

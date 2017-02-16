@@ -1,5 +1,8 @@
 from collections import defaultdict
 import operator
+
+from six import string_types as basestring
+
 from ...utils import groupby
 from ...structure import named_structures, Monosaccharide, Substituent, Anomer, Stem, RingType, SuperClass
 from ...algorithms.similarity import (monosaccharide_similarity, has_substituent,

@@ -5,18 +5,20 @@ except:
     from itertools import chain, zip_longest as izip_longest
 from collections import deque
 
-from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
-from .substituent import Substituent
-from .link import Link
-from .base import SaccharideBase
+from six import string_types as basestring
 
 from glypy.io.format_constants_map import anomer_map, superclass_map
-from glypy.utils import invert_dict, make_counter, StringIO, identity as ident_op, cyclewarning, uid
+from glypy.utils import invert_dict, identity as ident_op, cyclewarning, uid
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.utils.enum import EnumValue
 from glypy.composition import Composition, calculate_mass
 from glypy.composition.structure_composition import monosaccharide_composition
 from glypy.composition.structure_composition import modification_compositions
+
+from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
+from .substituent import Substituent
+from .link import Link
+from .base import SaccharideBase
 
 
 anomer_map = invert_dict(anomer_map)
@@ -88,7 +90,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
     yield apply_fn(monosaccharide)
     visited.add(monosaccharide.id)
     outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
-    for p, link in outnodes:
+    for link_pos, link in outnodes:
         child = link[monosaccharide]
         if child.id in visited:
             continue
@@ -120,7 +122,7 @@ def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma:
     yield apply_fn(monosaccharide)
     visited.add(id(monosaccharide))
     outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
-    for p, link in outnodes:
+    for link_pos, link in outnodes:
         child = link[monosaccharide]
         if id(child) in visited:
             continue
@@ -153,7 +155,7 @@ def graph_clone(monosaccharide, visited=None):
     node_stack = deque([(clone_root, monosaccharide)])
     node_stack_append = node_stack.append
     node_stack_pop = node_stack.pop
-    while(llen(node_stack) > 0):
+    while llen(node_stack) > 0:
         clone, ref = node_stack_pop()
         if ref.id in visited:
             continue
@@ -207,7 +209,8 @@ def toggle(monosaccharide):
     '''
     links = release(monosaccharide)
     yield links
-    [link.try_apply() for link, termini in links]
+    for link, termini in links:
+        link.try_apply()
     yield False
 
 
@@ -220,10 +223,10 @@ def depth(monosaccharide, visited=None):
     if monosaccharide.id in visited:  # pragma: no cover
         return 0
     visited.add(monosaccharide.id)
-    d = 1
+    depth_count = 1
     if(len(monosaccharide.links) > 1):
-        d += max(depth(ch, visited) for p, ch in monosaccharide.children())
-    return d
+        depth_count += max(depth(ch, visited) for p, ch in monosaccharide.children())
+    return depth_count
 
 
 class Monosaccharide(SaccharideBase):
@@ -393,14 +396,14 @@ class Monosaccharide(SaccharideBase):
         if monosaccharide_type is None:
             monosaccharide_type = Monosaccharide
         modifications = OrderedMultiMap()
-        for k, items in self.modifications.lists():
-            for v in items:
-                if isinstance(v, ReducedEnd):
+        for site, modification_list in self.modifications.lists():
+            for mod in modification_list:
+                if isinstance(mod, ReducedEnd):
                     continue
                 try:
-                    modifications[k] = v
+                    modifications[site] = mod
                 except:  # pragma: no cover
-                    modifications[k] = v.clone()
+                    modifications[site] = mod.clone()
 
         monosaccharide = monosaccharide_type(
             superclass=self._superclass,
@@ -505,6 +508,15 @@ class Monosaccharide(SaccharideBase):
             self._reducing_end = value
 
     def _fast_reduce(self, value):
+        """Expedite adding a reducing end to this monosaccharide. Assumes
+        that `value` is a :class:`ReducedEnd` and that this monosaccharide is not
+        already reduced.
+        
+        Parameters
+        ----------
+        value : ReducedEnd
+            Description
+        """
         if value is not None:
             self.modifications[1] = value
             self._reducing_end = value
@@ -526,7 +538,7 @@ class Monosaccharide(SaccharideBase):
         }
 
     def _is_full(self, max_occupancy=0):
-        return self.remaining_capacity() >= 0
+        return self._remaining_capacity() >= 0
 
     def _remaining_capacity(self):
         bonds = self.order(deep=True)
@@ -1166,7 +1178,7 @@ class Monosaccharide(SaccharideBase):
         :class:`~glypy.composition.Composition`
         '''
         comp = self.composition.clone()
-        for p, sub in self.substituents():
+        for pos, sub in self.substituents():
             comp += sub.total_composition()
         red_end = self.reducing_end
         if red_end is not None:
@@ -1197,10 +1209,6 @@ class Monosaccharide(SaccharideBase):
         '''
         result = [(pos, link.child) for pos, link in self.links.items() if not link.is_child(self)]
         return result
-        # for pos, link in self.links.items():
-        #     if link.is_child(self):
-        #         continue
-        #     yield (pos, link.child)
 
     def parents(self):
         '''
@@ -1217,10 +1225,6 @@ class Monosaccharide(SaccharideBase):
         '''
         result = [(pos, link.parent) for pos, link in self.links.items() if not link.is_parent(self)]
         return result
-        # for pos, link in self.links.items():
-        #     if link.is_parent(self):
-        #         continue
-        #     yield (pos, link.parent)
 
     def substituents(self):
         '''
@@ -1506,6 +1510,9 @@ class ReducedEnd(object):
             if not spair[1]._flat_equality(opair[1]):  # pragma: no cover
                 return False
         return True
+
+    def __hash__(self):
+        return hash(self.name)
 
     def __ne__(self, other):
         return not self == other

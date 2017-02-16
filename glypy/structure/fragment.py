@@ -238,7 +238,8 @@ class Subtree(object):
         # were not requested.
         if len(crossring_contained & crossring_type) == 0 and len(
                 crossring_contained) != 0:
-            raise StopIteration()
+            # raise StopIteration()
+            return
 
         all_shifts = parent_shifts + child_shifts
         all_link_ids = [i for i, t in all_shifts]

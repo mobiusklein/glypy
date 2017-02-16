@@ -5,7 +5,6 @@ import glypy
 from glypy.composition import composition_transform
 from glypy.tests import common
 from glypy.io import iupac
-from StringIO import StringIO
 
 monosaccharides = common.monosaccharides
 
@@ -66,12 +65,12 @@ class IUPACTests(unittest.TestCase):
         -3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp
         -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'''
         reader = iupac.IUPACParser.loads(text, 'fasta')
-        structure = reader.next()
+        structure = next(reader)
 
         text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1\
 -3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp\
 -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
-        equiv = iupac.IUPACParser.loads(text, 'line').next()
+        equiv = next(iupac.IUPACParser.loads(text, 'line'))
         self.assertEqual(equiv, structure)
 
 

@@ -544,7 +544,7 @@ class MonosaccharideDeserializer(object):
     def monosaccharide_from_iupac(self, monosaccharide_str, parent=None):
         match_dict = self.extract_pattern(monosaccharide_str)
         residue, linkage = self.build_residue(match_dict)
-        linkage = map(tryint, linkage)
+        linkage = list(map(tryint, linkage))
 
         self.add_monosaccharide_bond(residue, parent, linkage)
         return residue, linkage
@@ -596,7 +596,7 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
     def monosaccharide_from_iupac(self, monosaccharide_str, parent=None):
         match_dict = self.extract_pattern(monosaccharide_str)
         residue, linkage = self.build_residue(match_dict)
-        linkage = map(tryint, linkage)
+        linkage = list(map(tryint, linkage))
 
         self.add_monosaccharide_bond(residue, parent, linkage)
 

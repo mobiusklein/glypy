@@ -735,7 +735,7 @@ class RecordDatabase(object):
                 self.record_type = GlycanRecord
             else:
                 self.record_type = record_type
-            rec = iter(self).next()
+            rec = next(iter(self))
             if not type(rec) == record_type:
                 if record_type is not None:
                     logger.warn("Record class {0} is not the same as {1}. Using {0}".format(type(rec), record_type))

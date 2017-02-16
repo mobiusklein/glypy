@@ -4,7 +4,7 @@ import glypy
 from glypy.composition import composition_transform
 from glypy.algorithms import similarity
 
-from common import load
+from .common import load
 
 
 class SimilarityTests(unittest.TestCase):

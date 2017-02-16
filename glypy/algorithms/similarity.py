@@ -2,6 +2,8 @@ import operator
 from collections import defaultdict
 import functools
 
+from six import string_types as basestring
+
 from glypy import Substituent, monosaccharides
 from glypy.structure.constants import Modification, Stem
 

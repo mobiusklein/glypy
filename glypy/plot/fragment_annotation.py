@@ -7,6 +7,7 @@ from glypy.plot.cfg_symbols import line_to
 def isclose(a, b):
     return abs(a - b) < 1e-4
 
+
 rot90 = mtransforms.Affine2D().rotate_deg(90)
 
 

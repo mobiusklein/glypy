@@ -18,7 +18,7 @@ from glypy.composition import Composition, composition_transform
 from glypy.algorithms import subtree_search
 from glypy.algorithms import similarity
 
-from common import emit, load
+from .common import emit, load
 
 ReducedEnd = monosaccharide.ReducedEnd
 Substituent = glypy.Substituent

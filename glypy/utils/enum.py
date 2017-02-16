@@ -60,6 +60,7 @@ class EnumValue(object):
                 pass
         raise KeyError("Could not resolve {} against {}".format(self, mapping))
 
+
 debug = True
 
 

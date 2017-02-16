@@ -8,6 +8,8 @@ import matplotlib.transforms as mtransforms
 import matplotlib.patches as patches
 from matplotlib.textpath import TextPath
 
+from six import string_types as basestring
+
 import numpy as np
 from glypy import monosaccharides
 from glypy.utils import root

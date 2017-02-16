@@ -9,15 +9,14 @@ import itertools
 from functools import partial
 from collections import deque, defaultdict, Callable
 
+from glypy.utils import identity, chrinc, uid
+from glypy.composition import Composition
 
 from .base import SaccharideCollection
 from .monosaccharide import Monosaccharide, graph_clone, toggle as residue_toggle
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
-from glypy.utils import identity, chrinc, uid
-from glypy.composition import Composition
 
-methodcaller = operator.methodcaller
 logger = logging.getLogger("Glycan")
 
 _fragment_direction = {
@@ -258,9 +257,7 @@ class Glycan(SaccharideCollection):
         return self.__dict__
 
     def __setstate__(self, state):
-        self.__dict__ = state
-        if "_root" in state:
-            self.root = self._root
+        self.__dict__.update(state)
 
     def __root__(self):
         return self.root

@@ -1,5 +1,5 @@
 import unittest
-from common import monosaccharides, link, glycoct
+from .common import monosaccharides, link, glycoct
 from glypy.composition.composition_transform import derivatize
 from glypy.composition import Composition
 

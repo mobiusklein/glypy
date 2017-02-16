@@ -1,7 +1,7 @@
 import unittest
 
 from glypy.io import glycoct
-from common import load, glycan
+from .common import load, glycan
 
 
 example_multiplicity = '''
@@ -193,8 +193,9 @@ class GlycoCTParserTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
     def test_parse_file(self):
-        for g in glycoct.read(self._file_path):
-            self.assertTrue(isinstance(g, glycan.Glycan))
+        with open(self._file_path) as stream:
+            for g in glycoct.read(stream):
+                self.assertTrue(isinstance(g, glycan.Glycan))
 
     def test_parse_cyclical(self):
         structure = load("cyclical_glycan")

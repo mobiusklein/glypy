@@ -1,6 +1,7 @@
 import re
 from glypy.utils import opener, Enum, root, StringIO
 from glypy.structure.glycan import NamedGlycan
+from six import add_metaclass
 
 
 class ParserState(Enum):
@@ -34,7 +35,7 @@ class TextFileParserBase(object):
     def __next__(self):
         if self._iter is None:
             iter(self)
-        return self._iter.next()
+        return next(self._iter)
 
     next = __next__
 
@@ -43,6 +44,7 @@ class TextFileParserBase(object):
         return cls(StringIO(text))
 
 
+@add_metaclass(FormatRegisteringMeta)
 class FastaLikeFileParser(TextFileParserBase):
     format_name = 'fasta'
 
@@ -89,6 +91,7 @@ class FastaLikeFileParser(TextFileParserBase):
         return NamedGlycan(name=name, root=root_node, index_method=None)
 
 
+@add_metaclass(FormatRegisteringMeta)
 class StructurePerLineParser(TextFileParserBase):
     format_name = 'line'
 
