@@ -97,9 +97,22 @@ class MultiMap(object):
     def __eq__(self, other):
         if other is None:  # pragma: no cover
             return False
-        for a, b in izip_longest(self.items(), other.items()):
-            if a != b:
-                return False
+        for a in self.keys():
+            if a in other:
+                if self[a] != other[a]:
+                    return False
+            else:
+                if self[a] != []:
+                    return False
+        for b in other.keys():
+            if b in self:
+                continue
+            else:
+                if other[b] != []:
+                    return False
+        # for a, b in izip_longest(self.items(), other.items()):
+        #     if a != b:
+        #         return False
         return True
 
     def __ne__(self, other):

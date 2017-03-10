@@ -84,7 +84,7 @@ extras['all'] = list({d for extra in extras.values() for d in extra})
 def run_setup(include_cext=True):
     setup(
         name='glypy',
-        version='0.0.10',
+        version='0.10.0',
         packages=find_packages(),
         include_package_data=True,
         package_data={

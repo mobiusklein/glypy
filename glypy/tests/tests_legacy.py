@@ -583,8 +583,8 @@ class LinearCodeTests(unittest.TestCase):
         sulfated.reducing_end = None
         sulfated.root.ring_start = 1
         sulfated.root.ring_end = 5
-        dup = linear_code.loads(linear_code.dumps(sulfated))
-        self.assertEqual(dup, sulfated)
+        dup2 = linear_code.loads(linear_code.dumps(sulfated))
+        self.assertEqual(dup2, sulfated)
 
         sulfated = glycoct.loads(sulfated_glycan)
         dup = linear_code.loads(linear_code.dumps(sulfated))
