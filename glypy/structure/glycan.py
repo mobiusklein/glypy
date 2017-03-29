@@ -809,6 +809,23 @@ class Glycan(SaccharideCollection):
         '''
         Attempt to assign a full name to a fragment based on the branch and position relative to
         the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
+
+        The formal grammar for fragment names in Backus-Naur Form:
+        .. code::
+            <full-name> ::= <fragment-name>|<fragment-name-list>
+            <fragment-name> ::= <glycosidic-fragment-name>|<crossring-fragment-name>
+            <fragment-name-list> ::= <fragment-name>"-"<fragment-name-list>|<fragment-name>
+            <glycosidic-fragment-name> ::= <branch-identifier><fragment-type><index>
+            <crossring-fragment-name> ::= <ring-coordinates><fragment-type><branch-identifier><index>
+            <fragment-type> ::= "A" | "B" | "C" | "X" | "Y" | "Z"
+            <ring-coordinate> ::= <integer>,<integer>
+            <index> ::= <integer>
+            <integer> ::= <digit>|<integer><digit>
+            <digit>   ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+            <branch-identifier> ::= <letter>|<letter><digit>|""
+            <letter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" |
+                        "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+
         '''
 
         break_targets = fragment.link_ids

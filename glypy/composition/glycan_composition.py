@@ -262,7 +262,7 @@ class MonosaccharideResidue(Monosaccharide):
         '''
         if (other is None):
             return False
-        if not isinstance(other, MonosaccharideResidue):
+        if not isinstance(other, (MonosaccharideResidue, str)):
             return False
         return str(self) == str(other)
 
@@ -348,7 +348,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     def __str__(self):
         try:
             return self._name
-        except:
+        except AttributeError:
             name = to_iupac_lite(self)
             self._name = name
             return name
