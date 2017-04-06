@@ -74,7 +74,6 @@ required = ["hjson", "six"]
 
 extras = {
     'plot': ["matplotlib>=1.4.3"],
-    'glycomedb': ['lxml', 'requests'],
     'glyspace': ['requests', 'rdflib', "SPARQLWrapper"]
 }
 

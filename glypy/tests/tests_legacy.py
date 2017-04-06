@@ -518,14 +518,14 @@ class SubtreeSearchTests(unittest.TestCase):
         copy.root.add_monosaccharide(monosaccharides.Fucose, 3)
         self.assertEqual(subtree_search.n_saccharide_similarity(core, copy), 0.7)
 
-    def test_distinct_fragments(self):
-        from glypy.io import glycomedb
-        bi = glycomedb.get(8960)
-        tet = glycomedb.get(576)
-        self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
-        bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
-        self.assertEqual(len(tet_dist), 0)
-        self.assertEqual(len(bi_dist), 4)
+    # def test_distinct_fragments(self):
+    #     from glypy.io import glycomedb
+    #     bi = glycomedb.get(8960)
+    #     tet = glycomedb.get(576)
+    #     self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
+    #     bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
+    #     self.assertEqual(len(tet_dist), 0)
+    #     self.assertEqual(len(bi_dist), 4)
 
 
 class IdentifyTests(unittest.TestCase):

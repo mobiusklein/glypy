@@ -18,6 +18,8 @@ monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.it
 anomer_map_from = dict(format_constants_map.anomer_map)
 anomer_map_from['?'] = anomer_map_from.pop('x')
 anomer_map_to = invert_dict(anomer_map_from)
+anomer_map_from['beta'] = anomer_map_from['b']
+anomer_map_from['alpha'] = anomer_map_from['a']
 
 
 Stem = constants.Stem
@@ -427,13 +429,14 @@ substituent_from_iupac = SubstituentDeserializer()
 
 
 class MonosaccharideDeserializer(object):
-    pattern = re.compile(r'''(?P<anomer>[abo?])-
-                             (?P<configuration>[LD?])-
-                             (?P<modification>[a-z0-9_\-,]*)
-                             (?P<base_type>[^-]{3}?)
-                             (?P<ring_type>[xpfo?])
-                             (?P<substituent>[^-]*?)
-                             (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
+    pattern = re.compile(r'''(?:(?P<anomer>[abo?]|alpha|beta)-)?
+                         (?P<configuration>[LD?])-
+                         (?P<modification>[a-z0-9_\-,]*)
+                         (?P<base_type>[^-]{3}?)
+                         (?P<ring_type>[xpfo?])?
+                         (?P<substituent>[^-]*?)
+                         (?P<linkage>-\([0-9?]->?[0-9?]\)-?)?
+                         $''', re.VERBOSE)
 
     def __init__(self, modification_parser=None, substituent_parser=None):
         if modification_parser is None:
@@ -464,7 +467,10 @@ class MonosaccharideDeserializer(object):
             residue.ring_end = residue.ring_start = None
 
     def build_residue(self, match_dict):
-        anomer = anomer_map_from[match_dict['anomer']]
+        try:
+            anomer = anomer_map_from[match_dict['anomer']]
+        except KeyError:
+            anomer = anomer_map_from['?']
         base_type = match_dict["base_type"]
         configuration = match_dict["configuration"].lower()
         ring_type = match_dict['ring_type']
@@ -562,14 +568,14 @@ class MonosaccharideDeserializer(object):
 
 
 class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
-    pattern = re.compile(r'''(?P<anomer>[abo?])-
+    pattern = re.compile(r'''(?:(?P<anomer>[abo?]|alpha|beta)-)?
                              (?P<configuration>[LD?])-
                              (?P<modification>[a-z0-9_\-,]*)
                              (?P<base_type>[^-]{3}?)
-                             (?P<ring_type>[xpfo?])
+                             (?P<ring_type>[xpfo?])?
                              (?P<substituent>[^-]*?)
                              (?P<derivatization>\^[^\s-]*?)?
-                             (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
+                             (?P<linkage>-\([0-9?]->?[0-9?]\)-?)?$''', re.VERBOSE)
 
     def add_monosaccharide_bond(self, residue, parent, linkage):
         if parent is not None and linkage != ():
@@ -645,6 +651,9 @@ class GlycanDeserializer(object):
         root = None
         last_residue = None
         branch_stack = []
+
+        # Remove the base
+        text = re.sub(r"\(\?->?$", "", text)
 
         while len(text) > 0:
 

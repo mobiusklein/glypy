@@ -12,8 +12,12 @@ from glypy.algorithms.database import (Taxon, Aglyca, Motif,
 
 try:
     xrange
-except:
+except NameError:
     xrange = range
+
+
+import warnings
+warnings.warn("Glycome-DB is no longer available. All Methods Will Fail.", DeprecationWarning)
 
 
 logger = logging.getLogger(__name__)
