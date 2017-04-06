@@ -29,6 +29,16 @@ except (ImportError, AttributeError):
 cmdclass = {}
 
 
+with open("glypy/version.py") as version_file:
+    version = None
+    for line in version_file.readlines():
+        if "version = " in line:
+            version = line.split(" = ")[1].replace("\"", "").strip()
+            break
+    else:
+        print("Cannot determine version")
+
+
 class BuildFailed(Exception):
 
     def __init__(self):
@@ -83,7 +93,7 @@ extras['all'] = list({d for extra in extras.values() for d in extra})
 def run_setup(include_cext=True):
     setup(
         name='glypy',
-        version='0.10.0',
+        version=version,
         packages=find_packages(),
         include_package_data=True,
         package_data={

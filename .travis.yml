@@ -13,7 +13,7 @@ cache: pip
 install:
   - pip install -U setuptools
   - pip install cython
-  - pip install -e .[plot,glycomedb,glyspace]
+  - pip install -e .[plot,glyspace]
   # - pip install -r requirements.txt
 # command to run tests
 script: nosetests
