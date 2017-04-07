@@ -743,6 +743,7 @@ class GlycoCTReader(object):
             yield self.postprocess()
             self._reset()
 
+
 GlycoCT = GlycoCTReader
 
 
@@ -850,13 +851,13 @@ class GlycoCTWriter(object):
         if link.has_ambiguous_linkage:
             rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
             return rep.format(
-                    ix=ix,
-                    parent_ix=parent_ix,
-                    parent_loss=parent_loss_str,
-                    parent_position='|'.join(map(str, link.parent_position_choices)),
-                    child_ix=child_ix,
-                    child_loss=child_loss_str,
-                    child_position='|'.join(map(str, link.child_position_choices)))
+                ix=ix,
+                parent_ix=parent_ix,
+                parent_loss=parent_loss_str,
+                parent_position='|'.join(map(str, link.parent_position_choices)),
+                child_ix=child_ix,
+                child_loss=child_loss_str,
+                child_position='|'.join(map(str, link.child_position_choices)))
         else:
             rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
             return rep.format(
@@ -1008,6 +1009,7 @@ def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
     else:
         monostring = monostring.strip()
     return monostring
+
 
 Monosaccharide.register_serializer("glycoct", _postprocessed_single_monosaccharide)
 Glycan.register_serializer("glycoct", dumps)

@@ -596,6 +596,13 @@
     1b:a-dman-HEX-1:5
 
     '''
+  ManAnhydro:
+    '''
+    RES
+    1b:b-dman-HEX-1:5
+    2s:anhydro
+    LIN 1:1o(2+1)2n
+    '''
   Neu5Ac:
     '''
     RES
