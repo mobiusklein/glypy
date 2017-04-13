@@ -48,6 +48,7 @@ class SuperClass(Enum):
     #: Unknown
     x = None
 
+
 #: Sugose alias of `sug`
 SuperClass.sug.add_name("Sugose")
 #: Triose alias of `tri`
@@ -109,6 +110,7 @@ class Stem(Enum):
 
     thr = 16
 
+
 Stem.gro.add_name("Glyceraldehyde")
 Stem.ery.add_name("Erythrose")
 Stem.rib.add_name("Ribose")
@@ -139,6 +141,7 @@ class Configuration(Enum):
     l = 2
     x = None
 
+
 Configuration.d.add_name("Dextro")
 Configuration.l.add_name("Levo")
 Configuration.x.add_name("Unknown")
@@ -167,6 +170,7 @@ class Modification(Enum):
     sp = 7
     #: Geminal
     geminal = 8
+
 
 #: alias of `aldi`
 Modification.aldi.add_name("Alditol")
@@ -221,6 +225,7 @@ class RingType(Enum):
 
 
 class Stereocoding(Enum):
+    x = None
     h = 0
     l = 1
     d = 2

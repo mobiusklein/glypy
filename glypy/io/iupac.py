@@ -380,15 +380,6 @@ def aminate_substituent(substituent):
     return aminated
 
 
-monosaccharide_parser = re.compile(r'''(?P<anomer>[abo?])-
-                                       (?P<configuration>[LD?])-
-                                       (?P<modification>[a-z0-9_\-,]*)
-                                       (?P<base_type>[^-]{3}?)
-                                       (?P<ring_type>[xpfo?])
-                                       (?P<substituent>[^-]*?)
-                                       (?P<linkage>-\([0-9?]-[0-9?]\)-?)?$''', re.VERBOSE)
-
-
 class SubstituentDeserializer(object):
     def substituent_from_iupac(self, substituents):
         parts = re.split(r"\(|\)", substituents)
