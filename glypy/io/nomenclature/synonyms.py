@@ -5,7 +5,7 @@ import json
 def omit_slice(seq, i):
     if i == 0:
         return seq[1:]
-    return seq[:i] + seq[i+1:]
+    return seq[:i] + seq[i + 1:]
 
 
 class SynonymIndex(dict):
@@ -22,6 +22,7 @@ class MonosaccharideSynonymIndex(SynonymIndex):
             if isinstance(data_buffer, bytes):
                 data_buffer = data_buffer.decode("utf-8")
         super(MonosaccharideSynonymIndex, self).__init__(json.loads(data_buffer))
+
 
 #: A mapping of monosaccharide names to their synonyms
 monosaccharides = MonosaccharideSynonymIndex()

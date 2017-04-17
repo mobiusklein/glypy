@@ -68,7 +68,7 @@
     1b:b-dglc-HEX-1:5|6:a
     2s:sulfate
     LIN
-    1:1x(-1+-1)2x
+    1:1x(3+1)2x
 
     '''
   GlcNAc:
@@ -107,7 +107,7 @@
     1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d
     2s:amino
     LIN
-    1:1d(5+-1)2n
+    1:1d(5+1)2n
 
     '''
   GalNac:
@@ -126,8 +126,8 @@
     2s:amino
     3s:amino
     LIN
-    1:1d(2+-1)2n
-    2:1d(4+-1)3n
+    1:1d(2+1)2n
+    2:1d(4+1)3n
     '''
   bdMan:
     '''
@@ -242,7 +242,7 @@
     1b:b-dgal-HEX-1:5
     2s:phosphate
     LIN
-    1:1x(6+-1)2x
+    1:1x(6+1)2x
 
     '''
   6S(3S)Gal:
@@ -252,8 +252,8 @@
     2s:sulfate
     3s:sulfate
     LIN
-    1:1x(6+1)2x
-    2:1x(3+1)3x
+    1:1x(3+1)2x
+    2:1x(6+1)3x
 
     '''
   GalNAcS2:
@@ -261,12 +261,12 @@
     RES
     1b:b-dgal-HEX-1:5
     2s:sulfate
-    3s:sulfate
-    4s:n-acetyl
+    3s:n-acetyl
+    4s:sulfate
     LIN
-    1:1x(-1+1)2x
-    2:1x(-1+-1)3x
-    3:1d(-1+1)4n
+    1:1x(-1+-1)2x
+    2:1d(-1+1)3n
+    3:1x(-1+1)4x
 
     '''
   "LinearCode:A[6P]":
@@ -437,11 +437,11 @@
     '''
     RES
     1b:b-dglc-HEX-1:5
-    2s:sulfate
-    3s:n-acetyl
+    2s:n-acetyl
+    3s:sulfate
     LIN
-    1:1x(6+1)2x
-    2:1d(2+1)3n
+    1:1d(2+1)2n
+    2:1x(6+1)3x
 
     '''
   bdGal:
@@ -616,11 +616,11 @@
     '''
     RES
     1b:b-dgal-HEX-1:5
-    2s:sulfate
-    3s:n-acetyl
+    2s:n-acetyl
+    3s:sulfate
     LIN
-    1:1x(6+1)2x
-    2:1d(2+1)3n
+    1:1d(2+1)2n
+    2:1x(6+1)3x
 
     '''
   "Neu5,9Ac2":
@@ -680,11 +680,11 @@
     '''
     RES
     1b:b-dgal-HEX-1:5
-    2s:sulfate
-    3s:n-acetyl
+    2s:n-acetyl
+    3s:sulfate
     LIN
-    1:1x(6+1)2x
-    2:1d(2+1)3n
+    1:1d(2+1)2n
+    2:1x(6+1)3x
 
     '''
   Rhamnose:
@@ -801,7 +801,7 @@
     2s:amino
     3s:amino
     LIN
-    1:1d(2+-1)2n
+    1:1d(2+1)2n
     2:1d(4+1)3n
     '''
   "LinearCode:W":
@@ -850,11 +850,11 @@
     '''
     RES
     1b:b-dglc-HEX-1:5
-    2s:phosphate
-    3s:n-acetyl
+    2s:n-acetyl
+    3s:phosphate
     LIN
-    1:1x(-1+-1)2x
-    2:1d(2+1)3n
+    1:1d(2+1)2n
+    2:1x(6+1)3x
 
     '''
   (6P)Glc:
@@ -863,20 +863,20 @@
     1b:b-dglc-HEX-1:5
     2s:phosphate
     LIN
-    1:1x(-1+-1)2x
+    1:1x(6+1)2x
 
     '''
   4S(6S)GalNAc:
     '''
     RES
     1b:b-dgal-HEX-1:5
-    2s:sulfate
+    2s:n-acetyl
     3s:sulfate
-    4s:n-acetyl
+    4s:sulfate
     LIN
-    1:1x(4+1)2x
-    2:1x(6+1)3x
-    3:1d(2+1)4n
+    1:1d(2+1)2n
+    2:1x(4+1)3x
+    3:1x(6+1)4x
 
     '''
   Dec:

@@ -4,3 +4,4 @@ recursive-include glypy *.h
 recursive-include glypy *.c
 recursive-include glypy/structure/data *.hjson
 recursive-include glypy/io/nomenclature/data *.json
+recursive-include glypy/io/nomenclature/data *.hjson

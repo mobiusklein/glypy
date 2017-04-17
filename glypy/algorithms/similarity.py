@@ -219,7 +219,7 @@ def has_monosaccharide(glycan, monosaccharide, tolerance=0):
 def is_reduced(obj):
     try:
         return obj.reducing_end is not None
-    except:
+    except AttributeError:
         return False
 
 

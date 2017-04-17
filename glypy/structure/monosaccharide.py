@@ -1185,12 +1185,10 @@ class Monosaccharide(SaccharideBase):
             comp += red_end.total_composition()
         return comp
 
-    def children(self):
+    def children(self, links=False):
         '''
         Returns an iterator over the :class:`Monosaccharide` instancess which are considered
         the descendants of `self`
-
-        Alias for `__iter__`
 
         >>> from glypy import glycans
         >>> n_linked_core = glycans["N-Linked Core"]
@@ -1198,6 +1196,12 @@ class Monosaccharide(SaccharideBase):
         >>> ch[0]
         (4, RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n)
         >>>
+
+        Parameters
+        ----------
+        links: bool
+            Whether to return the Link objects, or their children.
+            Defaults to False
 
         Returns
         -------
@@ -1207,13 +1211,20 @@ class Monosaccharide(SaccharideBase):
         child: |Monosaccharide|
             |Monosaccharide| at `position`
         '''
-        result = [(pos, link.child) for pos, link in self.links.items() if not link.is_child(self)]
+        if links:
+            result = [(pos, link) for pos, link in self.links.items() if not link.is_child(self)]
+        else:
+            result = [(pos, link.child) for pos, link in self.links.items() if not link.is_child(self)]
         return result
 
-    def parents(self):
+    def parents(self, links=False):
         '''
         Returns an iterator over the :class:`Monosaccharide` instances which are considered
         the ancestors of `self`.
+
+        links: bool
+            Whether to return the Link objects, or their parents.
+            Defaults to False
 
         Returns
         -------
@@ -1223,7 +1234,10 @@ class Monosaccharide(SaccharideBase):
         parent: |Monosaccharide|
             |Monosaccharide| at `position`
         '''
-        result = [(pos, link.parent) for pos, link in self.links.items() if not link.is_parent(self)]
+        if links:
+            result = [(pos, link) for pos, link in self.links.items() if not link.is_parent(self)]
+        else:
+            result = [(pos, link.parent) for pos, link in self.links.items() if not link.is_parent(self)]
         return result
 
     def substituents(self):

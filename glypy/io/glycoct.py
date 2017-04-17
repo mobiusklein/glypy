@@ -20,7 +20,8 @@ Supports RES, LIN, and un-nested REP sections.
 import re
 import logging
 import warnings
-from collections import defaultdict
+from collections import defaultdict, Counter, deque
+from functools import cmp_to_key
 
 from glypy.utils import opener, StringIO, enum, root as rootp, tree as treep, make_counter, invert_dict
 from glypy.utils.multimap import OrderedMultiMap
@@ -202,7 +203,7 @@ def decorated_value(tree):  # pragma: no cover
     '''
     try:
         return next(iter(tree.root.id))
-    except:
+    except Exception:
         return None
 
 
@@ -331,7 +332,7 @@ class RepeatRecord(object):
         for i in range(2, n + 1):
             graph[i] = glycan_graph.clone(index_method=None)
             graph[i] = decorate_tree(graph[i], i)
-            parent_graph = graph[i-1]
+            parent_graph = graph[i - 1]
             child_graph = graph[i]
             parent_node = parent_graph.get((i - 1, parent_residue_index))
             child_node = child_graph.get((i, child_residue_index))
@@ -402,7 +403,7 @@ class RepeatRecord(object):
 def try_int(v):
     try:
         return int(v)
-    except:
+    except Exception:
         return None
 
 
@@ -782,12 +783,13 @@ invert_anomer_map = invert_dict(anomer_map)
 invert_superclass_map = invert_dict(superclass_map)
 
 
-class GlycoCTWriter(object):
+class GlycoCTWriterBase(object):
     def __init__(self, structure=None, buffer=None, full=True):
         self.nobuffer = False
         if buffer is None:
             buffer = StringIO()
             self.nobuffer = True
+
         self.buffer = buffer
         self.structure = structure
         self.full = full
@@ -908,8 +910,8 @@ class GlycoCTWriter(object):
                 res.append(subst_str)
                 visited_subst[sub.id] = sub_index
             lin.append(
-                self.handle_link(link_obj, self.lin_counter(), monosaccharide_index, visited_subst[sub.id])
-                )
+                self.handle_link(
+                    link_obj, self.lin_counter(), monosaccharide_index, visited_subst[sub.id]))
 
         return [res, lin, monosaccharide_index]
 
@@ -970,6 +972,225 @@ class GlycoCTWriter(object):
         self.structure = structure
         self._reset()
         return self.dump()
+
+
+class OrderingComparisonContext(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.branch_to_terminal_count = self.build_branch_to_terminal_count()
+
+    @property
+    def structure(self):
+        return self.parent.structure
+
+    def get_branch_from_link_label(self, link):
+        return link.label[0]
+
+    def build_branch_to_terminal_count(self):
+        counter = Counter()
+        try:
+            for key in sorted(self.structure.branch_parent_map.keys(), reverse=True):
+                parent = self.structure.branch_parent_map[key]
+                counter[parent] += counter[key] + 1
+        except AttributeError:
+            pass
+        return counter
+
+    def compare_residue_ordering(self, res_a, res_b):
+        n_child_residues_a = monosaccharide.depth(res_a)
+        n_child_residues_b = monosaccharide.depth(res_b)
+        diff_child_res = n_child_residues_a - n_child_residues_b
+
+        if diff_child_res != 0:
+            return diff_child_res
+
+        try:
+            branch_length_a = max((cr for p, cr in res_a.children()), key=monosaccharide.depth)
+        except ValueError:
+            branch_length_a = 0
+        try:
+            branch_length_b = max((cr for p, cr in res_b.children()), key=monosaccharide.depth)
+        except ValueError:
+            branch_length_b = 0
+
+        diff_longest_branch = branch_length_a - branch_length_b
+
+        if diff_longest_branch != 0:
+            return diff_longest_branch
+
+        n_branches_from_a = 0
+        n_branches_from_b = 0
+        for link in res_a.links.values():
+            if link.is_parent(res_a):
+                branch_label = self.get_branch_from_link_label(link)
+                n_branches_from_a = max(n_branches_from_a, self.branch_to_terminal_count[branch_label])
+
+        for link in res_b.links.values():
+            if link.is_parent(res_b):
+                branch_label = self.get_branch_from_link_label(link)
+                n_branches_from_b = max(n_branches_from_b, self.branch_to_terminal_count[branch_label])
+        diff_n_branches_from = n_branches_from_a - n_branches_from_b
+
+        if diff_n_branches_from != 0:
+            return diff_n_branches_from
+
+        subtree_a = GlycoCTWriter(Glycan.subtree_from(self.structure, res_a)).dump()
+        subtree_b = GlycoCTWriter(Glycan.subtree_from(self.structure, res_b)).dump()
+        return subtree_a < subtree_b
+
+    def compare_link_ordering(self, link_a, link_b):
+        # Ignoring # of links for now since it is difficult
+        # to compute
+        parent_pos_a = link_a.parent_position
+        parent_pos_b = link_b.parent_position
+        diff_parent = parent_pos_a - parent_pos_b
+
+        if diff_parent != 0:
+            return diff_parent
+
+        child_pos_a = link_a.child_position
+        child_pos_b = link_b.child_position
+        diff_child = child_pos_a - child_pos_b
+
+        if diff_child != 0:
+            return diff_child
+
+        sigils_a = link_a._glycoct_sigils()
+        sigils_b = link_b._glycoct_sigils()
+
+        if sigils_a[0] != sigils_b[0]:
+            return ord(sigils_a[0]) - ord(sigils_b[0])
+
+        if sigils_a[1] != sigils_b[1]:
+            return ord(sigils_a[1]) - ord(sigils_b[1])
+
+        child_a = link_a.child
+        child_b = link_b.child
+        ordered = self.compare_residue_ordering(child_a, child_b)
+
+        return ordered
+
+    def sort_links(self, links):
+        return sorted(links, key=cmp_to_key(self.compare_link_ordering))
+
+    def sort_residues(self, residues):
+        return sorted(residues, key=cmp_to_key(self.compare_residue_ordering))
+
+
+class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
+    def __init__(self, structure, buffer=None, full=True):
+        self.nobuffer = False
+        if buffer is None:
+            buffer = StringIO()
+            self.nobuffer = True
+
+        self.ordering_context = OrderingComparisonContext(self)
+
+        self.buffer = buffer
+        self.structure = structure
+        self.full = full
+
+        self.link_queue = deque()
+        self.res_counter = make_counter()
+        self.lin_counter = make_counter()
+
+        # Look-ups for mapping RES nodes to objects by section index and id,
+        # respectively
+        self.index_to_residue = {}
+        self.residue_to_index = {}
+
+        # Accumulator for linkage indices and mapping linkage indices to
+        # dependent RES indices
+        self.lin_accumulator = []
+        self.dependencies = defaultdict(dict)
+
+    def handle_monosaccharide(self, monosaccharide):
+        residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
+
+        # This index is reused many times
+        monosaccharide_index = self.res_counter()
+
+        self.index_to_residue[monosaccharide_index] = monosaccharide
+        self.residue_to_index[monosaccharide.id] = monosaccharide_index
+
+        # Format individual fields
+        anomer = invert_anomer_map[monosaccharide.anomer]
+        conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
+                            for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
+        superclass = "-" + invert_superclass_map[monosaccharide.superclass]
+
+        modifications = '|'.join(
+            "{0}:{1}".format(k, v.name) for k, v in monosaccharide.modifications.items())
+
+        modifications = "|" + modifications if modifications != "" else ""
+        ring_start = monosaccharide.ring_start if monosaccharide.ring_start is not None else 'x'
+        ring_end = monosaccharide.ring_end if monosaccharide.ring_end is not None else 'x'
+
+        # The complete monosaccharide residue line
+        residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
+                                              superclass=superclass, modifications=modifications,
+                                              ring_start=ring_start, ring_end=ring_end)
+
+        link_collection = list(monosaccharide.substituent_links.values())
+        if self.full:
+            link_collection.extend([cl for p, cl in monosaccharide.children(links=True)])
+
+        links = self.ordering_context.sort_links(link_collection)
+        self.link_queue.extend(links)
+        return residue_str
+
+    def handle_substituent(self, substituent):
+        substituent_index = self.res_counter()
+
+        self.index_to_residue[substituent_index] = substituent
+        self.residue_to_index[substituent.id] = substituent_index
+
+        subst_str = "%ss:%s" % (substituent_index, substituent.name.replace("_", "-"))
+
+        links = self.ordering_context.sort_links([cl for p, cl in substituent.children(links=True)])
+        self.link_queue.extend(links)
+        return subst_str
+
+    def handle_glycan(self):
+        if self.structure is None:
+            raise ValueError("No structure is ready to be written.")
+
+        self.buffer.write("RES\n")
+
+        visited = set()
+        if self.structure.root.node_type is Monosaccharide.node_type:
+            res_str = self.handle_monosaccharide(self.structure.root)
+            self.buffer.write(res_str + "\n")
+        else:
+            res_str = self.handle_substituent(self.structure.root)
+        links_in_order = []
+        while self.link_queue:
+            link = self.link_queue.popleft()
+            # Explicitly add before skipping to avoid double-writing
+            # residues, but including multiple-link cases
+            links_in_order.append(link)
+            if link.child.id in visited:
+                continue
+            visited.add(link.child.id)
+            if link.child.node_type is Monosaccharide.node_type:
+                line = self.handle_monosaccharide(link.child)
+            else:
+                line = self.handle_substituent(link.child)
+            self.buffer.write(line + "\n")
+
+        self.buffer.write("LIN\n")
+        for link in links_in_order:
+            if not link.is_substituent_link() and not self.full:
+                continue
+            parent_ix = self.residue_to_index[link.parent.id]
+            child_ix = self.residue_to_index[link.child.id]
+            line = self.handle_link(link, self.lin_counter(), parent_ix, child_ix)
+            self.buffer.write(line + "\n")
+
+        return self.buffer
+
+
+GlycoCTWriter = OrderRespectingGlycoCTWriter
 
 
 def dump(structure, buffer=None):

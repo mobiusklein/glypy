@@ -8,6 +8,10 @@ from glypy.io import glycoct
 
 from .common import StringIO, load, pickle
 
+
+Monosaccharide = monosaccharide.Monosaccharide
+
+
 monosaccharide_structures = hjson.load(
     open("./glypy/structure/data/monosaccharides.hjson"))
 
