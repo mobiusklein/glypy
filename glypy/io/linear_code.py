@@ -15,7 +15,7 @@ from glypy.io.nomenclature import identity
 from glypy.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
 from glypy.utils import invert_dict
 
-from glypy.io.file_utils import ParserInterface
+from glypy.io.file_utils import ParserInterface, ParserError
 
 Stem = constants.Stem
 Configuration = constants.Configuration
@@ -158,7 +158,7 @@ def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
     '''
     tolerance = 0
     if identity.is_generic_monosaccharide(monosaccharide):
-        raise ValueError("Linear Code does not support generic monosaccharide %s" % str(monosaccharide))
+        raise LinearCodeError("Linear Code does not support generic monosaccharide %s" % str(monosaccharide))
     while tolerance <= max_tolerance:
         for k, v in monosaccharides_to.items():
             if k not in monosaccharide_reference:
@@ -174,7 +174,7 @@ def monosaccharide_to_linear_code(monosaccharide, max_tolerance=3):
                 return residue_sym
 
         tolerance += 1
-    raise ValueError("Cannot map {} to Linear Code".format(monosaccharide))
+    raise LinearCodeError("Cannot map {} to Linear Code".format(monosaccharide))
 
 
 def priority(sym):
@@ -234,7 +234,7 @@ def glycan_to_linear_code(structure=None, max_tolerance=3):
                 branch = '({branch}{attach_pos})'.format(
                     branch=''.join(glycan_to_linear_code(child, max_tolerance=max_tolerance)),
                     attach_pos=pos
-                    )
+                )
                 outstack.appendleft(branch)
             pos, child, rank = ordered_children[-1]
             stack.append((pos, child))
@@ -262,7 +262,7 @@ def to_linear_code(structure):
         return ''.join(list(glycan_to_linear_code(structure)))
 
 
-class LinearCodeError(Exception):
+class LinearCodeError(ParserError):
     pass
 
 
@@ -282,12 +282,12 @@ def monosaccharide_from_linear_code(residue_str, parent=None):
             subst_object = Substituent(substituents_from[name])
             try:
                 pos = int(pos)
-            except:
+            except (ValueError, TypeError):
                 pos = -1
             base.add_substituent(subst_object, position=pos)
     try:
         outedge = int(outedge)
-    except:
+    except (ValueError, TypeError):
         outedge = -1
 
     if parent is not None:
@@ -368,6 +368,7 @@ def parse_linear_code(text):
     else:
         return res.root
 
+
 #: Common alias for :func:`to_linear_code`
 dumps = to_linear_code
 
@@ -379,6 +380,7 @@ class LinearCodeParser(ParserInterface):
     def process_result(self, line):
         structure = loads(line)
         return structure
+
 
 Monosaccharide.register_serializer('linear_code', dumps)
 Glycan.register_serializer('linear_code', dumps)

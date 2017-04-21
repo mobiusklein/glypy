@@ -9,6 +9,10 @@ class ParserState(Enum):
     sequence = 2
 
 
+class ParserError(ValueError):
+    pass
+
+
 class FormatRegisteringMeta(type):
     def __new__(cls, name, parents, attrs):
         new_type = type.__new__(cls, name, parents, attrs)

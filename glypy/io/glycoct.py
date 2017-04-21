@@ -18,7 +18,6 @@ Supports RES, LIN, and un-nested REP sections.
 '''
 
 import re
-import logging
 import warnings
 from collections import defaultdict, Counter, deque
 from functools import cmp_to_key
@@ -28,15 +27,13 @@ from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
+from .file_utils import ParserError
 from glypy.composition import Composition
 
 try:
     range = xrange
-except:
+except NameError:
     pass
-
-# logger = logging.getLogger("glycoct")
-# logger.disabled = True
 
 
 __id = id
@@ -300,7 +297,7 @@ class RepeatRecord(object):
 
         if self.is_exact() is not StructurePrecisionEnum.unknown:
             if not (self.multitude[0] <= n <= self.multitude[1]):  # pragma: no cover
-                raise ValueError("{} is not within the range of {}".format(n, self.multitude))
+                raise GlycoCTError("{} is not within the range of {}".format(n, self.multitude))
         sub_unit_indices = sorted(map(try_int, self.graph.keys()))
 
         if self.original_graph is None:
@@ -407,7 +404,7 @@ def try_int(v):
         return None
 
 
-class GlycoCTError(Exception):
+class GlycoCTError(ParserError):
     pass
 
 
@@ -917,7 +914,7 @@ class GlycoCTWriterBase(object):
 
     def handle_glycan(self):
         if self.structure is None:
-            raise ValueError("No structure is ready to be written.")
+            raise GlycoCTError("No structure is ready to be written.")
 
         self.buffer.write("RES\n")
 
@@ -1005,11 +1002,11 @@ class OrderingComparisonContext(object):
             return diff_child_res
 
         try:
-            branch_length_a = max((cr for p, cr in res_a.children()), key=monosaccharide.depth)
+            branch_length_a = max((monosaccharide.depth(cr) for p, cr in res_a.children()))
         except ValueError:
             branch_length_a = 0
         try:
-            branch_length_b = max((cr for p, cr in res_b.children()), key=monosaccharide.depth)
+            branch_length_b = max((monosaccharide.depth(cr) for p, cr in res_b.children()))
         except ValueError:
             branch_length_b = 0
 
@@ -1153,7 +1150,7 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
 
     def handle_glycan(self):
         if self.structure is None:
-            raise ValueError("No structure is ready to be written.")
+            raise GlycoCTError("No structure is ready to be written.")
 
         self.buffer.write("RES\n")
 

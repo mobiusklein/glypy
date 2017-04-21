@@ -34,7 +34,8 @@ from glypy.io.iupac import (
     named_structures,
     Stem,
     monosaccharide_reference as _monosaccharide_reference,
-    resolve_special_base_type as _resolve_special_base_type)
+    resolve_special_base_type as _resolve_special_base_type,
+    IUPACError)
 
 from glypy.composition.base import formula
 from glypy.composition.composition_transform import (
@@ -94,7 +95,10 @@ class IUPACLiteMonosaccharideDeserializer(iupac.DerivatizationAwareMonosaccharid
         base_type = match_dict["base_type"]
         modification = match_dict['modification']
 
-        residue = named_structures.monosaccharides[base_type]
+        try:
+            residue = named_structures.monosaccharides[base_type]
+        except KeyError:
+            raise IUPACError("Unknown Residue Base-type %r" % (base_type,))
         base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
 
         self.set_modifications(residue, modification)
@@ -115,13 +119,16 @@ class IUPACLiteMonosaccharideSerializer(iupac.DerivatizationAwareMonosaccharideS
         .. note::
             This function is not suitable for use on whole |Glycan| objects. Instead,
             see :meth:`GlycanComposition.from_glycan` and :meth:`GlycanComposition.serialize`
+
         Parameters
         ----------
         residue: Monosaccharide
             The object to be encoded
+
         Returns
         -------
         str
+
         See Also
         --------
         :func:`from_iupac_lite`

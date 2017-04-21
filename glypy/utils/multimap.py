@@ -171,6 +171,10 @@ class OrderedMultiMap(MultiMap):
         for key in self.key_order:
             yield key, self[key]
 
+    def reorder(self, new_order):
+        assert set(new_order) == set(self.key_order)
+        self.key_order = list(new_order)
+
     def __setitem__(self, key, value):
         if key not in self.key_order:
             self.key_order.append(key)
