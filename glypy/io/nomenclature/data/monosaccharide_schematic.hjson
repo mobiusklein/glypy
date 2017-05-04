@@ -1,0 +1,502 @@
+[
+  {
+    names:
+    [
+      (6S)Glc
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:sulfate LIN 1:1x(6+1)2x
+  }
+  {
+    names:
+    [
+      4S(6S)GalNAc
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:sulfate 4s:n-acetyl LIN 1:1x(4+1)2x 2:1x(6+1)3x 3:1d(2+1)4n
+  }
+  {
+    names:
+    [
+      GalNac
+      LinearCode:AN
+      GalNAc
+      N-Acetylglucosamine
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+  }
+  {
+    names:
+    [
+      Ara
+      Arabinose
+      LinearCode:R
+    ]
+    structure: RES 1b:x-lara-PEN-1:4
+  }
+  {
+    names:
+    [
+      Gul
+      Gulose
+    ]
+    structure: RES 1b:x-dgul-HEX-1:5
+  }
+  {
+    names:
+    [
+      LinearCode:A[3S,6S]
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:sulfate LIN 1:1x(3+1)2x 2:1x(6+1)3x
+  }
+  {
+    names:
+    [
+      Galactose-6-Phosphate
+      LinearCode:A[6P]
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:phosphate LIN 1:1x(6+1)2x
+  }
+  {
+    names:
+    [
+      Oct
+    ]
+    structure: RES 1b:x-dman-OCT-2:6
+  }
+  {
+    names:
+    [
+      Kdo
+      LinearCode:W
+    ]
+    structure: RES 1b:x-dman-OCT-2:6|1:a|2:keto|3:d
+  }
+  {
+    names:
+    [
+      HexNAc
+    ]
+    structure: RES 1b:x-xx-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+  }
+  {
+    names:
+    [
+      Glucose
+      Glc
+      bdGlc
+      LinearCode:G
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5
+  }
+  {
+    names:
+    [
+      Non
+    ]
+    structure: RES 1b:a-dgro-dgal-NON-2:6
+  }
+  {
+    names:
+    [
+      LinearCode:G[6P]
+      Glucose-6-Phosphate
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:phosphate LIN 1:1x(6+1)2x
+  }
+  {
+    names:
+    [
+      (3S)GlcA
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5|6:a 2s:sulfate LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      LinearCode:NN
+      Neu5Ac
+      Sialic Acid
+      NeuAc
+    ]
+    structure: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n
+  }
+  {
+    names:
+    [
+      LinearCode:G[6S]
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:sulfate LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      aMan
+      adMan
+    ]
+    structure: RES 1b:a-dman-HEX-1:5
+  }
+  {
+    names:
+    [
+      GlcA
+      Glucuronic Acid
+      LinearCode:U
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5|6:a
+  }
+  {
+    names:
+    [
+      LinearCode:U[3S]
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5|6:a 2s:sulfate LIN 1:1x(3+1)2x
+  }
+  {
+    names:
+    [
+      LinearCode:N
+    ]
+    structure: RES 1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:amino LIN 1:1x(5+-1)2x
+  }
+  {
+    names:
+    [
+      Rhamnose
+      Rha
+      LinearCode:H
+    ]
+    structure: RES 1b:x-lman-HEX-1:5|6:d
+  }
+  {
+    names:
+    [
+      bdGal
+      Gal
+      Galactose
+      LinearCode:A
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5
+  }
+  {
+    names:
+    [
+      IdoA
+      LinearCode:I
+      Iduronic Acid
+    ]
+    structure: RES 1b:x-lido-HEX-1:5|6:a
+  }
+  {
+    names:
+    [
+      GalP
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:phosphate LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      LinearCode:M
+      bdMan
+      Man
+      Mannose
+    ]
+    structure: RES 1b:b-dman-HEX-1:5
+  }
+  {
+    names:
+    [
+      (6S)GlcNAc
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:sulfate 3s:n-acetyl LIN 1:1x(6+1)2x 2:1d(2+1)3n
+  }
+  {
+    names:
+    [
+      Galacturonic Acid
+      LinearCode:L
+      GalA
+    ]
+    structure: RES 1b:x-dgal-HEX-1:5|6:a
+  }
+  {
+    names:
+    [
+      (3S)Gal
+      LinearCode:AS
+      GalS
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      Tal
+      Talose
+    ]
+    structure: RES 1b:x-dtal-HEX-1:5
+  }
+  {
+    names:
+    [
+      LinearCode:AN[6S]
+      (6S)GalNAc
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:n-acetyl LIN 1:1x(6+1)2x 2:1d(2+1)3n
+  }
+  {
+    names:
+    [
+      Neu
+    ]
+    structure: RES 1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:amino LIN 1:1d(5+1)2n
+  }
+  {
+    names:
+    [
+      Ribose
+      Rib
+      LinearCode:B
+    ]
+    structure: RES 1b:x-drib-PEN-1:4
+  }
+  {
+    names:
+    [
+      LinearCode:X
+      Xylose
+      Xyl
+    ]
+    structure: RES 1b:x-dxyl-PEN-1:5
+  }
+  {
+    names:
+    [
+      Fucose
+      LinearCode:F
+      Fuc
+    ]
+    structure: RES 1b:a-lgal-HEX-1:5|6:d
+  }
+  {
+    names:
+    [
+      (6P)Man
+      LinearCode:M[6P]
+    ]
+    structure: RES 1b:b-dman-HEX-1:5 2s:phosphate LIN 1:1x(6+1)2x
+  }
+  {
+    names:
+    [
+      Hep
+    ]
+    structure: RES 1b:a-lgro-dman-HEP-1:5
+  }
+  {
+    names:
+    [
+      Fru
+      LinearCode:E
+      Fructofuranose
+    ]
+    structure: RES 1b:x-dara-HEX-2:5|2:keto
+  }
+  {
+    names:
+    [
+      Dec
+    ]
+    structure: RES 1b:x-xx-xx-DEC-x:x
+  }
+  {
+    names:
+    [
+      Hex
+    ]
+    structure: RES 1b:x-xx-HEX-1:5
+  }
+  {
+    names:
+    [
+      All
+      Allose
+      LinearCode:O
+    ]
+    structure: RES 1b:x-dall-HEX-1:5
+  }
+  {
+    names:
+    [
+      GlcN
+      2-Amino-2-deoxyglucose
+      LinearCode:G[Q]
+      Glucosamine
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:amino LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      Tri
+    ]
+    structure: RES 1b:x-xx-TRI-x:x
+  }
+  {
+    names:
+    [
+      Ido
+    ]
+    structure: RES 1b:x-lido-HEX-1:5
+  }
+  {
+    names:
+    [
+      LinearCode:GN[6S]
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:sulfate 3s:n-acetyl LIN 1:1x(-1+-1)2x 2:1d(2+1)3n
+  }
+  {
+    names:
+    [
+      Neuraminic acid
+    ]
+    structure: RES 1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:amino LIN 1:1d(5+-1)2n
+  }
+  {
+    names:
+    [
+      Bacillosamine
+    ]
+    structure: RES 1b:a-lglc-HEX-1:5|6:d 2s:amino 3s:amino LIN 1:1d(2+-1)2n 2:1d(4+1)3n
+  }
+  {
+    names:
+    [
+      GalNAcS2
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:sulfate 4s:n-acetyl LIN 1:1x(-1+1)2x 2:1x(-1+-1)3x 3:1d(-1+1)4n
+  }
+  {
+    names:
+    [
+      GalNAcS
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:n-acetyl LIN 1:1x(-1+-1)2x 2:1d(2+1)3n
+  }
+  {
+    names:
+    [
+      LinearCode:GN[6P]
+      (6P)GlcNAc
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:phosphate 3s:n-acetyl LIN 1:1x(-1+-1)2x 2:1d(2+1)3n
+  }
+  {
+    names:
+    [
+      LinearCode:NJ
+      NeuGc
+      Neu5Gc
+    ]
+    structure: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-glycolyl LIN 1:1d(5+2)2n
+  }
+  {
+    names:
+    [
+      NeuAc2
+      Neu5,9Ac2
+    ]
+    structure: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl 3s:n-acetyl LIN 1:1d(5+2)2n 2:1d(9+2)3n
+  }
+  {
+    names:
+    [
+      2-Keto-3-deoxynanonic acid
+      Kdn
+      LinearCode:K
+      KDN
+    ]
+    structure: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+  }
+  {
+    names:
+    [
+      6S(3S)Gal
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:sulfate LIN 1:1x(6+1)2x 2:1x(3+1)3x
+  }
+  {
+    names:
+    [
+      (6P)Glc
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:phosphate LIN 1:1x(-1+-1)2x
+  }
+  {
+    names:
+    [
+      Sug
+    ]
+    structure: RES 1b:x-xx-SUG-0:0
+  }
+  {
+    names:
+    [
+      Tet
+    ]
+    structure: RES 1b:x-xx-TET-x:x
+  }
+  {
+    names:
+    [
+      Altose
+      Alt
+    ]
+    structure: RES 1b:x-dalt-HEX-1:5
+  }
+  {
+    names:
+    [
+      Bac
+    ]
+    structure: RES 1b:a-lglc-HEX-1:5|6:d 2s:amino 3s:amino LIN 1:1d(2+-1)2n 2:1d(4+-1)3n
+  }
+  {
+    names:
+    [
+      GlcNAc
+      GlcNA
+      GlcNac
+      LinearCode:GN
+    ]
+    structure: RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
+  }
+  {
+    names:
+    [
+      LinearCode:AN[4S,6S]
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:sulfate 3s:sulfate 4s:n-acetyl LIN 1:1x(-1+-1)2x 2:1x(-1+-1)3x 3:1d(2+1)4n
+  }
+  {
+    names:
+    [
+      ManAnhydro
+    ]
+    structure: RES 1b:b-dman-HEX-1:5 2s:anhydro LIN 1:1o(2+1)2n
+  }
+  {
+    names:
+    [
+      (6P)Gal
+    ]
+    structure: RES 1b:b-dgal-HEX-1:5 2s:phosphate LIN 1:1x(6+-1)2x
+  }
+  {
+    names:
+    [
+      Pen
+    ]
+    structure: RES 1b:x-xx-PEN-1:4
+  }
+]

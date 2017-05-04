@@ -148,12 +148,13 @@ def form_link(parent, child, parent_position, child_position, parent_loss, child
             "by default.", stacklevel=7)
     if len(parent_position) > 1 or len(child_position) > 1:
         ambilink = AmbiguousLink(parent, child,
-                                 parent_position=parent_position, child_position=child_position,
+                                 parent_position=list(map(int, parent_position)),
+                                 child_position=list(map(int, child_position)),
                                  parent_loss=parent_loss, child_loss=child_loss, id=id)
         ambilink.find_open_position()
     else:
-        Link(parent, child, parent_position=parent_position[0],
-             child_position=child_position[0],
+        Link(parent, child, parent_position=int(parent_position[0]),
+             child_position=int(child_position[0]),
              parent_loss=parent_loss, child_loss=child_loss)
 
 
@@ -1040,7 +1041,11 @@ class OrderingComparisonContext(object):
         # to compute
         parent_pos_a = link_a.parent_position
         parent_pos_b = link_b.parent_position
-        diff_parent = parent_pos_a - parent_pos_b
+        try:
+            diff_parent = parent_pos_a - parent_pos_b
+        except TypeError as e:
+            print(parent_pos_a, parent_pos_b, link_a, link_b)
+            raise e
 
         if diff_parent != 0:
             return diff_parent
