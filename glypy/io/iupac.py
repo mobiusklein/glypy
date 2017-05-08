@@ -121,10 +121,14 @@ class SubstituentSerializer(object):
             except Exception:  # pragma: no cover
                 pass
         elif identity.is_a(residue, monosaccharides["NeuGc"], exact=False, short_circuit=True):
-            # i = substituents.index("n_glycolyl")
-            # substituents.pop(i)
-            # positions.pop(i)
-            pass
+            try:
+                i = substituents.index("n_glycolyl")
+                substituents.pop(i)
+                j = positions.pop(i)
+                substituents.insert(i, "glycolyl")
+                positions.insert(i, j)
+            except Exception:  # pragma: no cover
+                pass
         elif identity.is_a(residue, monosaccharides["Neu"], exact=False, short_circuit=True):
             i = substituents.index("amino")
             substituents.pop(i)
