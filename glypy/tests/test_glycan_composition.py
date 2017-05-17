@@ -205,6 +205,10 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertEqual(comp["Hex"], 3)
         self.assertEqual(comp["Man"], 0)
 
+    def test_parse_derivatized_reduced(self):
+        x = self.GlycanCompositionType.parse('{Fuc^Me:1; Hex^Me:5; HexNAc^Me:4; Neu5NAc^Me:1}$C1H4')
+        self.assertAlmostEqual(x.mass(), 2598.3402, 4)
+
 
 class FrozenGlycanCompositionTests(GlycanCompositionTests):
     GlycanCompositionType = glycan_composition.FrozenGlycanComposition

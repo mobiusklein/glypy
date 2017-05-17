@@ -864,7 +864,7 @@ class GlycanComposition(dict, SaccharideCollection):
         if deriv:
             # strip_derivatization(self)
             # derivatize(self, deriv)
-            self._derivatized(deriv.clone(), make_counter(uid()))
+            self._derivatized(deriv.clone(), make_counter(uid()), include_reducing_end=False)
 
     @classmethod
     def parse(cls, string):
@@ -882,7 +882,7 @@ class GlycanComposition(dict, SaccharideCollection):
         inst._handle_reduction_and_derivatization(reduced)
         return inst
 
-    def _derivatized(self, substituent, id_base):
+    def _derivatized(self, substituent, id_base, include_reducing_end=True):
         n = 2
         for k, v in self.items():
             if k.node_type is Substituent.node_type:
@@ -890,7 +890,7 @@ class GlycanComposition(dict, SaccharideCollection):
         self._composition_offset += (
             substituent.total_composition() -
             substituent.attachment_composition_loss() * 2) * n
-        if self._reducing_end is not None:
+        if self._reducing_end is not None and include_reducing_end:
             _derivatize_reducing_end(self._reducing_end, substituent, id_base)
         self.collapse()
         self._invalidate()
