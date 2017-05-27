@@ -636,6 +636,10 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                 if neg_capacity > 0:
                     raise ValueError("Could not completely remove overload from %s" % (node,))
 
+    def strip_derivatization(self, residue_str):
+        base = residue_str.rsplit("^")[0]
+        return self(base)
+
 
 monosaccharide_from_iupac = MonosaccharideDeserializer()
 
