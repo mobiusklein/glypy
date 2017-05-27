@@ -28,11 +28,11 @@ from glypy.utils import tree, uid
 from glypy.utils.multimap import OrderedMultiMap
 
 from glypy.structure.base import SaccharideCollection, MoleculeBase
+from glypy.structure.constants import (Anomer, Stem, Configuration)
 
 from glypy.io import iupac
 from glypy.io.iupac import (
     named_structures,
-    Stem,
     monosaccharide_reference as _monosaccharide_reference,
     resolve_special_base_type as _resolve_special_base_type,
     IUPACError)
@@ -220,9 +220,9 @@ class MonosaccharideResidue(Monosaccharide):
         strip_derivatization(residue)
         if _resolve_special_base_type(monosaccharide) is None:
             if not configuration:
-                residue.configuration = (None,)
+                residue.configuration = (Configuration.x,)
             if not stem:
-                residue.stem = (None,)
+                residue.stem = (Stem.x,)
         if not ring:
             residue.ring_start = residue.ring_end = None
         if deriv:
@@ -234,7 +234,7 @@ class MonosaccharideResidue(Monosaccharide):
     def __init__(self, *args, **kwargs):
         super(MonosaccharideResidue, self).__init__(*args, **kwargs)
         self.composition -= water_composition
-        self.anomer = None
+        self.anomer = Anomer.x
 
     def clone(self, *args, **kwargs):
         kwargs.setdefault("monosaccharide_type", MonosaccharideResidue)
@@ -381,8 +381,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             self._total_composition = super(FrozenMonosaccharideResidue, self).total_composition()
         return self._total_composition
 
-    # def mass(self, average=False, charge=0, mass_data=None):
-    #     return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
+    def copy_underivatized(self):
+        return self.from_iupac_lite(
+            IUPACLiteMonosaccharideDeserializer.strip_derivatization(str(self)))
 
 
 class SubstituentResidue(Substituent):
