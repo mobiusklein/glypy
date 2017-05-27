@@ -1,7 +1,7 @@
 from six import add_metaclass
 try:
     intern
-except:
+except NameError:
     from sys import intern
 
 debug = False
