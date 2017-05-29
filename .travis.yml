@@ -12,8 +12,8 @@ cache: pip
 # command to install dependencies
 install:
   - pip install -U setuptools
-  - pip install pytest
-  - pip install cython
+  - pip install coverage pytest pytest-cov
+  - pip install Cython --install-option="--no-cython-compile"
   - pip install -e .[plot,glyspace]
   # - pip install -r requirements.txt
 # command to run tests
