@@ -12,8 +12,9 @@ cache: pip
 # command to install dependencies
 install:
   - pip install -U setuptools
+  - pip install pytest
   - pip install cython
   - pip install -e .[plot,glyspace]
   # - pip install -r requirements.txt
 # command to run tests
-script: nosetests
+script: make test

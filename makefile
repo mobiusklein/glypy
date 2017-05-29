@@ -2,10 +2,11 @@ all: develop test docs
 
 
 test:
-	nosetests --with-coverage --with-timer --cover-package=glypy --cover-html --cover-html-dir=test_reports --logging-level=DEBUG -v --with-id glypy/tests/
+	py.test -v  glypy --cov=glypy --cov-report html --cov-report term
 
 retest:
-	nosetests --cover-package=glypy --logging-level=DEBUG -v --with-id --failed glypy/tests/
+	py.test -v glypy --lf
+
 clean:
 	@rm  glypy/*/*.pyd
 	@rm  glypy/*/*.so
@@ -17,4 +18,4 @@ develop:
 	python setup.py develop
 
 serve-docs:
-	python -m webbrowser -n docs\build\html\index.html
+	python -m webbrowser -n docs/build/html/index.html

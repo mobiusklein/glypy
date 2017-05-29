@@ -988,3 +988,11 @@ class FrozenGlycanComposition(GlycanComposition):
 
 class FrozenError(ValueError):
     pass
+
+
+class HashableGlycanComposition(FrozenGlycanComposition):
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return str(self) == str(other)
