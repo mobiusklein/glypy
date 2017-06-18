@@ -1,0 +1,15 @@
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+omit =
+    # omit this single file
+    glypy/io/glycomedb.py
+    glypy/io/glycoct_xml.py
+    glypy/enzyme.py
+    glypy/structure/modification.py
+    glypy/tests/*

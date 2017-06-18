@@ -1,4 +1,3 @@
-
 # pragma: no cover
 import logging
 from operator import itemgetter

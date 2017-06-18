@@ -1,3 +1,4 @@
+# pragma: no cover
 import gzip
 import logging
 import requests
