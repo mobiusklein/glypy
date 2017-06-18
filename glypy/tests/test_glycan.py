@@ -197,9 +197,10 @@ class GlycanTests(unittest.TestCase):
 
     def test_cyclic_clone(self):
         import warnings
-        warnings.simplefilter("default")
-        structure = load("cyclical_glycan")
-        self.assertEqual(structure, structure.clone())
+        warnings.simplefilter("error")
+        with self.assertRaises(UserWarning):
+            structure = load("cyclical_glycan")
+            self.assertEqual(structure, structure.clone())
 
     def test_subtree_from_fragment(self):
         structure = load("branchy_glycan")
