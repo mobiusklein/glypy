@@ -259,20 +259,32 @@ def find_root(tree):
     return root
 
 
-class RepeatRecord(object):
-    def __init__(self, graph_index, repeat_index, internal_linkage=None,
-                 external_linkage=None, multitude=(-1, -1), graph=None,
-                 parser=None):
+class SubgraphRecordBase(object):
+    def __init__(self, graph_index, parser, graph=None):
         if graph is None:
             graph = {}
         self.graph_index = graph_index
+        self.parser = parser
+        self.graph = graph
+
+    def __contains__(self, k):
+        return k in self.graph
+
+    def get_node(self, id, direction=None):
+        id = int(id)
+        return self.graph[id]
+
+
+class RepeatRecord(SubgraphRecordBase):
+    def __init__(self, graph_index, repeat_index, internal_linkage=None,
+                 external_linkage=None, multitude=(-1, -1), graph=None,
+                 parser=None):
+        super(RepeatRecord, self).__init__(graph_index, parser, graph)
         self.repeat_index = repeat_index
         self.internal_linkage = internal_linkage
         self.external_linkage = external_linkage
         self.multitude = multitude
-        self.graph = {}
         self.original_graph = None
-        self.parser = parser
 
     def __contains__(self, k):
         if self.original_graph is not None:
@@ -449,6 +461,7 @@ class GlycoCTReader(object):
         self.structure_class = structure_class
         self._index = 0
         self._source_line = 0
+        self._segment_iterator = None
 
     def _read(self):
         for line in self.handle:
@@ -693,7 +706,12 @@ class GlycoCTReader(object):
         Returns an iterator that yields each complete :class:`Glycan` instance
         from the underlying text stream.
         '''
-        for line in self._read():
+        # Create a reference to the segment iterator
+        # as late as possible, but bind it to the object
+        # state so it can be referenced independent of this
+        # outermost loop
+        self._segment_iterator = self._read()
+        for line in self._segment_iterator:
             if RES == line.strip():
                 if self.state == START or self.state == REPINNER:
                     pass
