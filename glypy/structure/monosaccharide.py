@@ -1087,7 +1087,7 @@ class Monosaccharide(SaccharideBase):
         return self.exact_ordering_equality(other)
 
     def __hash__(self):
-        return hash(id(self))
+        return hash(self.id)
 
     def __ne__(self, other):
         return not (self == other)
