@@ -33,9 +33,6 @@ class Link(object):
 
     '''
 
-    has_ambiguous_linkage = False
-    has_ambiguous_termini = False
-
     def __init__(self, parent, child, parent_position=-1, child_position=-1,
                  parent_loss=None, child_loss=None, id=None, attach=True):
         '''
@@ -89,6 +86,15 @@ class Link(object):
         self._attached = False
         if attach:
             self.apply()
+
+    def has_ambiguous_linkage(self):
+        return False
+
+    def has_ambiguous_termini(self):
+        return False
+
+    def is_ambiguous(self):
+        return self.has_ambiguous_linkage() or self.has_ambiguous_termini()
 
     def apply(self):
         '''
@@ -205,17 +211,36 @@ class Link(object):
                     id=self.id if prop_id else uuid4().int,
                     attach=attach)
 
+    def _get_parent_configuration(self):
+        # Possible problem since Monosaccharide objects do not define __hash__
+        return {self.parent}, {self.parent_position}
+
+    def _get_child_configuration(self):
+        # Possible problem since Monosaccharide objects do not define __hash__
+        return {self.child}, {self.child_position}
+
     def __eq__(self, other):
         '''
         Performs deep equality testing between `self` and `other`
         '''
         if (other is None or not isinstance(other, Link)):
             return False
-        res = self._flat_equality(other)
-        if res:
-            res = (self.parent.id == other.parent.id) and\
-                  (self.parent == other.parent)
-        return res
+        if self.is_ambiguous() or other.is_ambiguous():
+            res = self._get_parent_configuration() == other._get_parent_configuration()
+            if res:
+                res = self._get_child_configuration() == other._get_child_configuration()
+            if res:
+                res = self._flat_equality(other)
+            if res:
+                res = (self.parent.id == other.parent.id) and\
+                      (self.parent == other.parent)
+            return res
+        else:
+            res = self._flat_equality(other)
+            if res:
+                res = (self.parent.id == other.parent.id) and\
+                      (self.parent == other.parent)
+            return res
 
     def _flat_equality(self, other):
         res = True
@@ -346,17 +371,19 @@ class Link(object):
         '''
         parent_loss_str = 'x'
         child_loss_str = 'x'
-        if link.child_loss == Composition(O=1, H=1):
+        water = Composition({"O": 1, "H": 1})
+
+        if link.child_loss == water:
             child_loss_str = "d"
             parent_loss_str = "o"
-        elif link.parent_loss == Composition(O=1, H=1):
+        elif link.parent_loss == water:
             child_loss_str = 'o'
             parent_loss_str = 'd'
 
         if link.child_loss == Composition(
                 H=1) and (link.child.node_type is SubstituentBase.node_type):
             child_loss_str = "n"
-            if link.parent_loss == Composition(O=1, H=1):
+            if link.parent_loss == water:
                 parent_loss_str = "d"
             else:
                 parent_loss_str = "o"
@@ -420,8 +447,6 @@ class LinkMaskContext(object):
 
 
 class AmbiguousLink(Link):
-    has_ambiguous_linkage = True
-
     def __init__(self, parent, child, parent_position=(-1,), child_position=(-1,),
                  parent_loss=None, child_loss=None, id=None, attach=True):
         if not isinstance(parent, (list, tuple)):
@@ -446,18 +471,32 @@ class AmbiguousLink(Link):
             self.child_position_choices[0],
             parent_loss, child_loss, id, attach)
 
-    def iterconfiguration(self):  # pragma: no cover
+    def has_ambiguous_linkage(self):
+        return len(self.parent_position_choices) > 1 or len(self.child_position_choices) > 1
+
+    def has_ambiguous_termini(self):
+        return len(self.parent_choices) > 1 or len(self.child_choices) > 1
+
+    def iterconfiguration(self, attach=False):  # pragma: no cover
+        configurations = self._configuration_crossproduct()
+        for parent_o, child_o, parent_position_o, child_position_o in configurations:
+            if attach:
+                self.reconfigure(parent_o, child_o, parent_position_o, child_position_o)
+            yield parent_o, child_o, parent_position_o, child_position_o
+
+    def _configuration_crossproduct(self):
         configurations = itertools.product(self.parent_choices, self.child_choices,
                                            self.parent_position_choices,
                                            self.child_position_choices)
-        for parent_o, child_o, parent_position_o, child_position_o in configurations:
-            self.break_link(refund=True)
-            self.parent = parent_o
-            self.child = child_o
-            self.parent_position = parent_position_o
-            self.child_position = child_position_o
-            self.apply()
-            yield parent_o, child_o, parent_position_o, child_position_o
+        return configurations
+
+    def reconfigure(self, parent, child, parent_position, child_position):
+        self.break_link(refund=True)
+        self.parent = parent
+        self.child = child
+        self.parent_position = parent_position
+        self.child_position = child_position
+        self.apply()
 
     def clone(self, parent, child, prop_id=True, attach=True):
         if not isinstance(parent, (list, tuple)):
@@ -481,28 +520,6 @@ class AmbiguousLink(Link):
         res = super(AmbiguousLink, self).break_link(refund=refund)
         assert not self.is_attached(deep=True)
         return res
-
-    # def to_glycoct(self, ix, parent_ix, child_ix):  # pragma: no cover
-    #     '''
-    #     Serializes `self` as a Condensed GlycoCT LIN entry. Depends upon
-    #     the textual indices of its parent and child lines.
-
-    #     See also
-    #     --------
-    #     :meth:`glypy.structure.monosaccharide.Monosaccharide.to_glycoct`
-    #     :meth:`glypy.structure.glycan.Glycan.to_glycoct`
-    #     '''
-
-    #     parent_loss_str, child_loss_str = self._glycoct_sigils()
-    #     rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
-    #     return rep.format(
-    #         ix=ix,
-    #         parent_ix=parent_ix,
-    #         parent_loss=parent_loss_str,
-    #         parent_position='|'.join(map(str, self.parent_position_choices)),
-    #         child_ix=child_ix,
-    #         child_loss=child_loss_str,
-    #         child_position='|'.join(map(str, self.child_position_choices)))
 
     def __repr__(self):
         rep = super(AmbiguousLink, self).__repr__()

@@ -507,8 +507,14 @@ class GlycoCTReader(object):
 
     @state.setter
     def state(self, value):
-        # print "Entering State: ", value
         self._state = value
+
+    def get_active_graph(self):
+        if self.in_repeat:
+            graph = self.current_repeat.graph
+        else:
+            graph = self.graph
+        return graph
 
     def deferred_retrieval(self, id, direction=None):
         def retrieval():
@@ -557,10 +563,9 @@ class GlycoCTReader(object):
         residue_dict['anomer'] = anomer_map[residue_dict['anomer']]
         residue_dict['superclass'] = superclass_map[residue_dict['superclass']]
         residue = monosaccharide.Monosaccharide(**residue_dict)
-        if self.in_repeat:
-            graph = self.current_repeat.graph
-        else:
-            graph = self.graph
+
+        graph = self.get_active_graph()
+
         graph[int(ix)] = residue
 
         residue.id = int(ix)
@@ -582,10 +587,7 @@ class GlycoCTReader(object):
         _, ix, subsituent_str = re.split(r"^(\d+)s:", line, maxsplit=1)
         sub = Substituent(subsituent_str.strip())
 
-        if self.in_repeat:
-            graph = self.current_repeat.graph
-        else:
-            graph = self.graph
+        graph = self.get_active_graph()
 
         graph[int(ix)] = sub
 
@@ -649,6 +651,23 @@ class GlycoCTReader(object):
         self.graph[int(graph_index)] = repeat
         self.repeats[int(repeat_index)] = repeat
 
+    def handle_repeat_inner(self, line):
+        if not self.in_repeat:
+            raise GlycoCTError("Encountered %r outside of REP at line %d" % (line, self._source_line))
+        header_dict = rep_header_pattern.search(line).groupdict()
+
+        repeat_index = int(header_dict['repeat_index'])
+        repeat_record = self.repeats[repeat_index]
+
+        self.push_repeat_context(repeat_record)
+
+        linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
+        repeat_record.internal_linkage = linkage
+        repeat_record.external_linkage = linkage
+        repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
+                                                      header_dict['higher_multitude'])))
+        self.state = REPINNER
+
     def postprocess(self):
         '''
         Handle all deferred operations such as binding together and expanding
@@ -697,42 +716,24 @@ class GlycoCTReader(object):
                     raise GlycoCTSectionUnsupported(
                         "Repeat are not allowed (set allow_repeats=True to allow them) at line %d" % self._source_line)
                 self.state = REP
-                # logger.debug("REP")
                 self.in_repeat = True
-
+            # REP definition block
             elif line.strip()[:3] == REP:
-                # logger.debug(line)
                 if not self.in_repeat:
                     raise GlycoCTError("Encountered %r outside of REP at line %d" % (line, self._source_line))
-                header_dict = rep_header_pattern.search(line).groupdict()
-
-                repeat_index = int(header_dict['repeat_index'])
-                repeat_record = self.repeats[repeat_index]
-
-                self.push_repeat_context(repeat_record)
-
-                linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
-                repeat_record.internal_linkage = linkage
-                repeat_record.external_linkage = linkage
-                repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
-                                                              header_dict['higher_multitude'])))
-                self.state = REPINNER
+                self.handle_repeat_inner(line)
             elif ALT == line.strip():
                 raise GlycoCTSectionUnsupported(ALT)
             elif UND == line.strip():
                 raise GlycoCTSectionUnsupported(UND)
 
             elif re.search(r"^(\d+)b", line) and self.state == RES:
-                # logger.debug("handling residue")
                 self.handle_residue_line(line)
             elif re.search(r"^(\d+)s:", line) and self.state == RES:
-                # logger.debug("handling subsituent")
                 self.handle_residue_substituent(line)
             elif re.search(r"^(\d+)r:", line) and self.state == RES:
-                # raise GlycoCTSectionUnsupported(REP)
                 self.handle_repeat_stub(line)
             elif re.search(r"^(\d+):(\d+)", line) and self.state == LIN:
-                # logger.debug("handling linkage")
                 self.handle_linkage(line)
             else:
                 raise GlycoCTError("Unknown format error: %s on line %d" % (line, self._source_line))
@@ -753,7 +754,22 @@ def read(stream, structure_class=Glycan, allow_repeats=True):
     return GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
 
 
-def loads(glycoct_str, structure_class=Glycan, allow_repeats=True):
+def load(stream, structure_class=Glycan, allow_repeats=True, allow_multiple=True):
+    g = GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
+    first = next(g)
+    if not allow_multiple:
+        return first
+    second = None
+    try:
+        second = next(g)
+        collection = [first, second]
+        collection.extend(g)
+        return collection
+    except StopIteration:
+        return first
+
+
+def loads(glycoct_str, structure_class=Glycan, allow_repeats=True, allow_multiple=True):
     '''
     A convenience wrapper for :meth:`GlycoCTReader.loads`
 
@@ -764,10 +780,13 @@ def loads(glycoct_str, structure_class=Glycan, allow_repeats=True):
 
     g = GlycoCTReader.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
     first = next(g)
+    if not allow_multiple:
+        return first
     second = None
     try:
         second = next(g)
-        collection = [first, second] + list(g)
+        collection = [first, second]
+        collection.extend(g)
         return collection
     except StopIteration:
         return first
@@ -848,7 +867,7 @@ class GlycoCTWriterBase(object):
     def handle_link(self, link, ix, parent_ix, child_ix):
         parent_loss_str, child_loss_str = self._glycoct_sigils(link)
 
-        if link.has_ambiguous_linkage:
+        if link.has_ambiguous_linkage():
             rep = "{ix}:{parent_ix}{parent_loss}({parent_position}+{child_position}){child_ix}{child_loss}"
             return rep.format(
                 ix=ix,
