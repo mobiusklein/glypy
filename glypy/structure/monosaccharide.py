@@ -992,12 +992,14 @@ class Monosaccharide(SaccharideBase):
             for a_mod, b_mod in zip(self.modifications.items(), other.modifications.items()):
                 if a_mod != b_mod:  # pragma: no cover
                     return False
-            for a_child, b_child in zip(self.children(), other.children()):
-                if a_child[0] != b_child[0]:
+            for a_child, b_child in zip(self.children(True), other.children(True)):
+                a_parent_pos, a_link = a_child
+                b_parent_pos, b_link = b_child
+                if (a_parent_pos != b_parent_pos) or (a_link.child_position != b_link.child_position):
                     return False
-                if not a_child[1].exact_ordering_equality(b_child[1],
-                                                          substituents=substituents,
-                                                          visited=visited):  # pragma: no cover
+                if not a_link.child.exact_ordering_equality(b_link.child,
+                                                            substituents=substituents,
+                                                            visited=visited):  # pragma: no cover
                     return False
             return True
         return False
@@ -1019,11 +1021,13 @@ class Monosaccharide(SaccharideBase):
             return True
         if self._flat_equality(other) and (not substituents or self._match_substituents(other)):
             taken_b = set()
-            b_children = list(other.children())
-            a_children = list(self.children())
-            for a_pos, a_child in a_children:
+            b_children = list(other.children(links=True))
+            a_children = list(self.children(links=True))
+            for a_pos, a_link in a_children:
+                a_child = a_link.child
                 matched = False
-                for b_pos, b_child in b_children:
+                for b_pos, b_link in b_children:
+                    b_child = b_link.child
                     if (b_pos, b_child.id) in taken_b:
                         continue
                     if a_child.topological_equality(b_child,
