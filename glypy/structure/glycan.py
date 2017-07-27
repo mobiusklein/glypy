@@ -185,9 +185,15 @@ class Glycan(SaccharideCollection):
             index.append(node)
 
         for node in index:
-            if node.id < 0:
-                node.id = i
-                i += 1
+            try:
+                if node.id < 0:
+                    node.id = i
+                    i += 1
+            except TypeError:
+                if isinstance(node.id, tuple):
+                    # this node may be decorated from
+                    # another process
+                    continue
 
         link_index = []
         for pos, link in self.iterlinks(method=method):
