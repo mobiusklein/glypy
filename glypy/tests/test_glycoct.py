@@ -1,7 +1,7 @@
 import unittest
 
 from glypy.io import glycoct
-from .common import load, glycan
+from glypy.tests.common import load, glycan
 
 
 example_multiplicity = '''

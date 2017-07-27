@@ -19,15 +19,22 @@ Supports RES, LIN, and un-nested REP sections.
 
 import re
 import warnings
-from collections import defaultdict, Counter, deque
+from collections import defaultdict, Counter, deque, namedtuple, OrderedDict
 from functools import cmp_to_key
 
-from glypy.utils import opener, StringIO, enum, root as rootp, tree as treep, make_counter, invert_dict
+from glypy.utils import opener, StringIO, root as rootp, tree as treep, make_counter, invert_dict
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, link, glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from .file_utils import ParserError
+from .tree_builder_utils import (
+    decorate_tree,
+    undecorate_tree,
+    find_root,
+    try_int,
+    StructurePrecisionEnum,
+    AbstractGraphEntryEnum)
 from glypy.composition import Composition
 
 try:
@@ -119,172 +126,226 @@ rep_header_pattern = re.compile(
 repeat_line_pattern = re.compile("^(?P<graph_index>\d+)r:r(?P<repeat_index>\d+)")
 
 
-def parse_link(line):
-    link_dict = link_pattern.search(line)
-    if link_dict is not None:
-        link_dict = link_dict.groupdict()
-    else:
-        raise GlycoCTError("Could not interpret link", line)
-    id = link_dict['doc_index']
-    parent_residue_index = int(link_dict['parent_residue_index'])
-    child_residue_index = int(link_dict['child_residue_index'])
-
-    parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
-    parent_attachment_position = list(map(int, link_dict["parent_attachment_position"].split("|")))
-
-    child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
-    child_attachment_position = list(map(int, link_dict["child_attachment_position"].split("|")))
-
-    return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
-            child_residue_index, child_atom_replaced, child_attachment_position)
+class GlycoCTError(ParserError):
+    pass
 
 
-def form_link(parent, child, parent_position, child_position, parent_loss, child_loss, id=None):
-    if parent.node_type is Substituent.node_type and\
-            child.node_type is Monosaccharide.node_type:
-        warnings.warn(
-            "A monosaccharide with a substituent parent has been detected. "
-            "These structures are not fully supported and may not traverse as expected "
-            "by default.", stacklevel=7)
-    if len(parent_position) > 1 or len(child_position) > 1:
-        ambilink = AmbiguousLink(parent, child,
-                                 parent_position=list(map(int, parent_position)),
-                                 child_position=list(map(int, child_position)),
-                                 parent_loss=parent_loss, child_loss=child_loss, id=id)
-        ambilink.find_open_position()
-    else:
-        Link(parent, child, parent_position=int(parent_position[0]),
-             child_position=int(child_position[0]),
-             parent_loss=parent_loss, child_loss=child_loss)
+class GlycoCTSectionUnsupported(GlycoCTError):
+    pass
 
 
-class StructurePrecisionEnum(enum.Enum):
-    unknown = -1
-    ranging = 1
-    exact = 2
-
-
-def decorate_tree(tree, decorate_value):
-    '''
-    Transform each node in the tree's id value
-    into a tuple of `(decorate_value, node.id)`
-    to use common ids across identical graphs but
-    discriminable between attached copies.
-
-    Parameters
-    ----------
-    tree: Glycan
-    decorate_value: int
-
-    Returns
-    -------
-    Glycan
-    '''
-    for node in tuple(tree):
-        node.id = (decorate_value, node.id)
-    return tree
-
-
-def decorated_value(tree):  # pragma: no cover
-    '''
-    Get the decorating value from a tree's root node.id.
-
-    Returns `None` if the tree is undecorated
-
-    Parameters
-    ----------
-    tree: Glycan
-
-    Returns
-    -------
-    int or None
-    '''
-    try:
-        return next(iter(tree.root.id))
-    except Exception:
-        return None
-
-
-def get_decorated(tree, id):  # pragma: no cover
-    '''
-    As :meth:`Glycan.get`, but with awareness of decorated
-    node.id attributes. Will fall back to the normal get method
-    if the tree is undecorated.
-
-    Parameters
-    ----------
-    tree: Glycan
-    id: int
-
-    Returns
-    -------
-    Monosaccharide
-    '''
-    d = decorated_value(tree)
-    if d is None:
-        return tree.get(id)
-    else:
-        return tree.get((d, id))
-
-
-def undecorate_tree(tree):
-    '''
-    Remove decoration from a tree and reindex its nodes.
-
-    Depends upon  :attr:`Glycan.index` to find nodes
-
-    Parameters
-    ----------
-    tree: Glycan
-
-    Returns
-    -------
-    Glycan
-    '''
-    i = 1
-    for node in list(tree):
-        node.id = i
-        i += 1
-    tree.reindex()
-    return tree
-
-
-def find_root(tree):
-    root = rootp(tree)
-    while True:
-        parents = root.parents()
-        if not parents:
-            break
-        root = parents[0][1]
-    return root
-
-
-class SubgraphRecordBase(object):
-    def __init__(self, graph_index, parser, graph=None):
+class GlycoCTGraph(object):
+    def __init__(self, graph=None):
         if graph is None:
-            graph = {}
-        self.graph_index = graph_index
-        self.parser = parser
+            graph = dict()
         self.graph = graph
+
+    def __repr__(self):
+        return "{self.__class__.__name__}({self.graph})".format(self=self)
 
     def __contains__(self, k):
         return k in self.graph
+
+    def __getitem__(self, k):
+        return self.get_node(k)
+
+    def __setitem__(self, k, v):
+        self.put_node(k, v)
+
+    def keys(self):
+        return self.graph.keys()
+
+    def values(self):
+        return self.graph.values()
+
+    def items(self):
+        return self.graph.items()
+
+    def clear(self):
+        self.graph.clear()
+
+    def __iter__(self):
+        return iter(self.graph)
 
     def get_node(self, id, direction=None):
         id = int(id)
         return self.graph[id]
 
+    def put_node(self, id, value):
+        id = int(id)
+        self.graph[id] = value
 
-class RepeatRecord(SubgraphRecordBase):
+    def form_link(self, parent, child, parent_position, child_position, parent_loss,
+                  child_loss, id=None):
+        if parent.node_type is Substituent.node_type and\
+                child.node_type is Monosaccharide.node_type:
+            warnings.warn(
+                "A monosaccharide with a substituent parent has been detected. "
+                "These structures are not fully supported and may not traverse as expected "
+                "by default.", stacklevel=7)
+        if len(parent_position) > 1 or len(child_position) > 1:
+            link_obj = AmbiguousLink(
+                parent, child, parent_position=list(map(int, parent_position)),
+                child_position=list(map(int, child_position)), parent_loss=parent_loss,
+                child_loss=child_loss, id=id)
+            link_obj.find_open_position()
+        else:
+            link_obj = Link(
+                parent, child, parent_position=int(parent_position[0]),
+                child_position=int(child_position[0]), parent_loss=parent_loss,
+                child_loss=child_loss)
+        return link_obj
+
+    def deferred_retrieval(self, id, direction=None):
+        def retrieval():
+            return self.get_node(id, direction)
+        return retrieval
+
+
+class GlycoCTGraphStack(GlycoCTGraph):
+    def __init__(self, stack=None, parent=None):
+        if stack is None:
+            stack = deque([GlycoCTSubgraph(parent=parent)])
+        else:
+            _stack = deque()
+            _parent = parent
+            for level in stack:
+                _stack.append(GlycoCTSubgraph(level, parent=_parent))
+                _parent = _stack[-1]
+            stack = _stack
+        self.stack = stack
+        self.history = list(stack)
+
+    @property
+    def graph(self):
+        return self.stack[-1]
+
+    @property
+    def parent(self):
+        return self.stack[0].parent
+
+    @parent.setter
+    def parent(self, value):
+        self.stack[0].parent = value
+
+    def get_node(self, id, direction=None):
+        for level in reversed(self.history):
+            try:
+                return level.get_node(id, direction)
+            except KeyError:
+                continue
+        raise KeyError(id)
+
+    def push_level(self, subgraph, parent=None):
+        if parent is None:
+            parent = self
+        subgraph.parent = parent
+        self.stack.append(subgraph)
+        self.history.append(subgraph)
+
+    def pop_level(self):
+        return self.stack.pop()
+
+    def clear(self):
+        self.stack = deque([GlycoCTSubgraph(parent=None)])
+        self.history = list(self.stack)
+
+    def find_subgraph_containing(self, id):
+        for level in reversed(self.history):
+            if id in level:
+                return level
+        else:
+            raise KeyError(id)
+
+
+class GlycoCTSubgraph(GlycoCTGraph):
+    def __init__(self, graph=None, parent=None):
+        super(GlycoCTSubgraph, self).__init__(graph)
+        assert not isinstance(parent, dict)
+        self.parent = parent
+
+
+RepeatedMultitude = namedtuple("RepeatedMultitude", "lower upper")
+
+
+class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
     def __init__(self, graph_index, repeat_index, internal_linkage=None,
-                 external_linkage=None, multitude=(-1, -1), graph=None,
-                 parser=None):
-        super(RepeatRecord, self).__init__(graph_index, parser, graph)
+                 external_linkage=None, multitude=None, graph=None,
+                 parent=None):
+        super(RepeatedGlycoCTSubgraph, self).__init__(graph, parent)
+
+        if multitude is None:
+            multitude = RepeatedMultitude(-1, -1)
+        else:
+            multitude = RepeatedMultitude(*multitude)
+
+        self.graph_index = graph_index
         self.repeat_index = repeat_index
         self.internal_linkage = internal_linkage
         self.external_linkage = external_linkage
         self.multitude = multitude
         self.original_graph = None
+        self.repetitions = OrderedDict()
+        self.postponed = deque()
+
+    def __repr__(self):
+        rep = super(RepeatedGlycoCTSubgraph, self).__repr__()
+        rep = "%s, %d)" % (rep[:-1], self.repeat_index)
+        return rep
+
+    @property
+    def terminal_node_index(self):
+        return int(self.external_linkage['parent_residue_index'])
+
+    @property
+    def last_repeat_index(self):
+        sub_unit_indices = sorted(self.repetitions.keys())
+        terminal_unit_ix = sub_unit_indices[-1]
+        return terminal_unit_ix
+
+    @property
+    def terminal_node(self):
+        """Retrieves the terminal residue from the subgraph, where
+        outgoing connections start from
+
+        Connections between repeats of this subgraph will start from
+        this node, as will connections between the final repeat of this
+        subgraph and its parent graph
+
+        Returns
+        -------
+        MoleculeBase
+        """
+        terminal_unit_ix = self.last_repeat_index
+        parent_graph = self.repetitions[terminal_unit_ix]
+        parent = parent_graph.get((terminal_unit_ix, self.terminal_node_index))
+        return parent
+
+    @property
+    def origin_node_index(self):
+        return int(self.external_linkage['child_residue_index'])
+
+    @property
+    def first_repeat_index(self):
+        sub_unit_indices = sorted(self.repetitions.keys())
+        return sub_unit_indices[0]
+
+    @property
+    def origin_node(self):
+        root_unit_ix = self.first_repeat_index
+        child_graph = self.repetitions[root_unit_ix]
+        child = child_graph.get((root_unit_ix, self.origin_node_index))
+        return child
+
+    def postpone(self, f, args):
+        self.postponed.append((f, args))
+
+    def complete_postponed_tasks(self):
+        i = 0
+        while self.postponed:
+            i += 1
+            f, args = self.postponed.popleft()
+            f(*args)
 
     def __contains__(self, k):
         if self.original_graph is not None:
@@ -292,48 +353,70 @@ class RepeatRecord(SubgraphRecordBase):
         else:
             return k in self.graph
 
-    def is_exact(self):
+    @property
+    def structure_precision(self):
         if -1 in self.multitude:
             return StructurePrecisionEnum.unknown
-        elif self.multitude[0] == self.multitude[1]:
+        elif self.multitude.lower == self.multitude.upper:
             return StructurePrecisionEnum.exact
         return StructurePrecisionEnum.ranging
 
-    def expand_inner(self, n=None):
+    def _build_glycan_from_graph(self, graph):
+        sub_unit_indices = sorted(map(try_int, graph.keys()))
+        for key, node in list(graph.items()):
+            if isinstance(node, GlycoCTGraph):
+                node.postprocess()
+                graph[key] = node.origin_node
+                # raise ValueError("Attempting to build a glycan from a nested subgraph")
+        root = find_root(graph[sub_unit_indices[0]])
+        # Need to scan the graph for special groups that need
+        # to be converted/connected to the other members of
+        # this graph
+        glycan_graph = Glycan(root, index_method=None).clone()
+        return glycan_graph
+
+    def _duplicate_graph(self, graph):
+        glycan_graph = self._build_glycan_from_graph(graph)
+        duplicate_graph = {}
+        for k, v in graph.items():
+            if isinstance(v, GlycoCTSubgraph):
+                duplicate_graph[k] = v
+            else:
+                try:
+                    duplicate_graph[k] = glycan_graph.get(v.id)
+                except IndexError:
+                    # if the subgraph intersperses repeats and
+                    # residues, they won't be connected in the
+                    # Glycan object, so we must read them back
+                    # from the original graph
+                    duplicate_graph[k] = graph[k]
+        return duplicate_graph
+
+    def postprocess(self, n=None):
         if n is None:
-            if self.multitude[1] != -1:
-                n = self.multitude[1]
-            elif self.multitude[0] != -1:
-                n = self.multitude[0]
+            if self.multitude.upper != -1:
+                n = self.multitude.upper
+            elif self.multitude.lower != -1:
+                n = self.multitude.lower
             else:
                 n = 1
 
-        if self.is_exact() is not StructurePrecisionEnum.unknown:
-            if not (self.multitude[0] <= n <= self.multitude[1]):  # pragma: no cover
+        if self.structure_precision is not StructurePrecisionEnum.unknown:
+            if not (self.multitude.lower <= n <= self.multitude.upper):  # pragma: no cover
                 raise GlycoCTError("{} is not within the range of {}".format(n, self.multitude))
-        sub_unit_indices = sorted(map(try_int, self.graph.keys()))
+        # sub_unit_indices = sorted(map(try_int, self.graph.keys()))
 
-        if self.original_graph is None:
-            glycan_graph = Glycan(find_root(self.graph[sub_unit_indices[0]]), index_method=None).clone()
-            self.original_graph = {}
-            for k, v in self.graph.items():
-                try:
-                    self.original_graph[k] = glycan_graph.get(v.id)
-                except IndexError:
-                    self.original_graph[k] = self.graph[k]
+        self.original_graph = self._duplicate_graph(self.graph)
+        glycan_graph = self._build_glycan_from_graph(self.graph)
 
-        else:
-            self.graph = {k: v.clone() for k, v in self.graph.items()}
-        glycan_graph = Glycan(self.graph[sub_unit_indices[0]], index_method=None)
-
-        graph = {1: glycan_graph.clone(index_method=None)}
+        graph = OrderedDict({1: glycan_graph.clone(index_method=None)})
         decorate_tree(graph[1], 1)
 
-        parent_residue_index = int(self.internal_linkage["parent_residue_index"])
+        parent_residue_index = self.terminal_node_index
         parent_atom_replaced = link_replacement_composition_map[self.internal_linkage["parent_atom_replaced"]]
         parent_attachment_position = self.internal_linkage["parent_attachment_position"]
 
-        child_residue_index = int(self.internal_linkage["child_residue_index"])
+        child_residue_index = self.origin_node_index
         child_atom_replaced = link_replacement_composition_map[self.internal_linkage["child_atom_replaced"]]
         child_attachment_position = self.internal_linkage["child_attachment_position"]
 
@@ -347,85 +430,94 @@ class RepeatRecord(SubgraphRecordBase):
             parent_node = parent_graph.get((i - 1, parent_residue_index))
             child_node = child_graph.get((i, child_residue_index))
             op_stack.append(
-                (form_link, [parent_node, child_node],
+                (self.form_link, [parent_node, child_node],
                  dict(parent_position=parent_attachment_position,
                       child_position=child_attachment_position,
                       parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)))
+
         for op in op_stack:
             f, args, kwargs = op
             f(*args, **kwargs)
 
-        self.graph = graph
+        self.repetitions = graph
+        self.complete_postponed_tasks()
 
-    def handle_incoming_link(self, parent, parent_position, parent_loss,
+    def handle_incoming_link(self, parent_getter, parent_position, parent_loss,
                              child_position, child_loss, id=None):
-        sub_unit_indices = sorted(self.graph.keys())
-        child_graph = self.graph[sub_unit_indices[0]]
-        parent = parent()
-        child = child_graph.get((1, int(self.external_linkage['child_residue_index'])))
+        child = self.origin_node
+        parent = parent_getter()
         if parent_loss == Composition("H"):
             child_loss = Composition("OH")
 
-        form_link(parent, child, parent_position=parent_position, child_position=child_position,
-                  parent_loss=parent_loss, child_loss=child_loss, id=id)
+        self.form_link(
+            parent, child, parent_position=parent_position, child_position=child_position,
+            parent_loss=parent_loss, child_loss=child_loss, id=id)
 
-    def handle_outgoing_link(self, child, parent_position, parent_loss,
+    def handle_outgoing_link(self, child_getter, parent_position, parent_loss,
                              child_position, child_loss, id=None):
-        sub_unit_indices = sorted(self.graph.keys())
-        parent_graph = self.graph[sub_unit_indices[-1]]
-        child = child()
-        parent = parent_graph.get((len(sub_unit_indices), int(self.external_linkage['parent_residue_index'])))
-        if isinstance(child, RepeatRecord):
+        child = child_getter()
+        parent = self.terminal_node
+        if isinstance(child, RepeatedGlycoCTSubgraph):
             child.handle_incoming_link(
                 lambda: parent, parent_position=parent_position,
                 child_position=child_position, parent_loss=parent_loss, child_loss=child_loss, id=id)
         else:
-            form_link(
+            self.form_link(
                 parent, child, parent_position=parent_position, child_position=child_position,
                 parent_loss=parent_loss, child_loss=child_loss, id=id)
 
+    def handle_abstract_subgraph_link(self, parent_getter, child_getter, parent_position,
+                                      parent_loss, child_position, child_loss, id=None):
+        parent = parent_getter()
+        child = child_getter()
+        self.form_link(
+            parent, child, parent_position=parent_position,
+            child_position=child_position, parent_loss=parent_loss,
+            child_loss=child_loss, id=id)
+
     def get_node(self, id, direction=None):  # pragma: no cover
         id = int(id)
-        if direction is None or direction == "in":
-            sub_unit_indices = sorted(self.graph.keys())
-            child_graph = self.graph[sub_unit_indices[0]]
-            child = child_graph.get((1, id))
+        if direction == AbstractGraphEntryEnum.parent:
+            child_graph = self.repetitions[self.first_repeat_index]
+            child = child_graph.get((self.first_repeat_index, id))
             return child
-        elif direction == "out":
-            sub_unit_indices = sorted(self.graph.keys())
-            parent_graph = self.graph[sub_unit_indices[-1]]
-            parent = parent_graph.get((len(sub_unit_indices), id))
+        elif direction == AbstractGraphEntryEnum.child:
+            parent_graph = self.repetitions[self.last_repeat_index]
+            parent = parent_graph.get((self.last_repeat_index, id))
             return parent
+        elif direction == AbstractGraphEntryEnum.internal or direction is None:
+            return self.graph[id]
         else:
             raise Exception("Unknown direction %s" % direction)
 
     def __root__(self):  # pragma: no cover
-        root_node = find_root(self.graph[1])
+        root_node = find_root(self.repetitions[self.first_repeat_index])
         return root_node
 
     def prepare_glycan(self):
-        glycan = self.graph[1]
+        glycan = self.repetitions[self.first_repeat_index]
         glycan.deindex()
         return glycan
 
 
-# Remark: Should this use a different "NoValue" type when input is not int-able?
-def try_int(v):
-    try:
-        return int(v)
-    except Exception:
-        return None
+UNDProbabilityPair = namedtuple("UNDProbabilityPair", "major minor")
 
 
-class GlycoCTError(ParserError):
-    pass
+class UnderdeterminedRecord(GlycoCTSubgraph):
+    def __init__(self, graph_index, und_index, probability=None, parent_ids=None,
+                 subtree_linkages=None, graph=None, parser=None):
+        super(UnderdeterminedRecord, self).__init__(graph_index, parser, graph)
+        if probability is None:
+            probability = UNDProbabilityPair(100., 100.)
+        if parent_ids is None:
+            parent_ids = []
+        if subtree_linkages is None:
+            subtree_linkages = []
+        self.parent_ids = parent_ids
+        self.subtree_linkages = subtree_linkages
 
 
-class GlycoCTSectionUnsupported(GlycoCTError):
-    pass
-
-
-class GlycoCTReader(object):
+class GlycoCTReader(GlycoCTGraph):
     '''
     Simple State-Machine parser for condensed GlycoCT representations. Yields
     |Glycan| instances.
@@ -437,7 +529,8 @@ class GlycoCTReader(object):
         rep = StringIO(glycoct_str)
         return cls(rep, structure_class=structure_class, allow_repeats=allow_repeats)
 
-    def __init__(self, stream, structure_class=Glycan, allow_repeats=True):
+    def __init__(self, stream, structure_class=Glycan, allow_repeats=True,
+                 completes=True):
         '''
         Creates a parser of condensed GlycoCT.
 
@@ -446,10 +539,14 @@ class GlycoCTReader(object):
         stream: basestring or file-like
             A path to a file or a file-like object to be processed
         '''
+        super(GlycoCTReader, self).__init__()
+
         self._state = None
-        self.graph = {}
-        self.handle = opener(stream, "r")
         self.state = START
+
+        self.completes = completes
+
+        self.handle = opener(stream, "r")
         self.current_repeat = None
         self.in_repeat = False
         self.repeats = {}
@@ -463,9 +560,24 @@ class GlycoCTReader(object):
         self._source_line = 0
         self._segment_iterator = None
 
+        self._output_queue = deque()
+
     def _read(self):
+        # was_last_line_blank = False
         for line in self.handle:
             self._source_line += 1
+            # if line.strip() == "":
+            #     if not was_last_line_blank:
+            #         self._current_segment = line
+            #         yield line
+            #         was_last_line_blank = True
+            # else:
+            #     was_last_line_blank = False
+            #     for segment in re.split(r"\s|;", line):
+            #         if "" == segment.strip():
+            #             continue
+            #         self._current_segment = segment
+            #         yield segment
             for segment in re.split(r"\s|;", line):
                 if "" == segment.strip():
                     continue
@@ -481,6 +593,10 @@ class GlycoCTReader(object):
         self.current_repeat = None
         self.in_repeat = False
         self._index += 1
+
+    def reset(self):
+        if self.completes:
+            self._reset()
 
     def push_repeat_context(self, repeat):
         self.context_stack.append(repeat)
@@ -524,9 +640,9 @@ class GlycoCTReader(object):
 
     def get_active_graph(self):
         if self.in_repeat:
-            graph = self.current_repeat.graph
+            graph = self.current_repeat
         else:
-            graph = self.graph
+            graph = self
         return graph
 
     def deferred_retrieval(self, id, direction=None):
@@ -583,10 +699,7 @@ class GlycoCTReader(object):
 
         residue.id = int(ix)
         if self.root is None:
-            if self.in_repeat:
-                self.root = self.current_repeat
-            else:
-                self.root = residue
+            self.root = residue
 
     def handle_residue_substituent(self, line):
         '''
@@ -604,7 +717,16 @@ class GlycoCTReader(object):
 
         graph[int(ix)] = sub
 
-    def get_node(self, id):
+    def handle_blank(self):
+        self._complete_structure()
+
+    def _complete_structure(self):
+        result = self.postprocess()
+        if result is not None:
+            self._output_queue.append(result)
+        self.reset()
+
+    def get_node(self, id, direction=None):
         if self.in_repeat:
             try:
                 return self.current_repeat.graph[id]
@@ -612,6 +734,48 @@ class GlycoCTReader(object):
                 return self.graph[id]
         else:
             return self.graph[id]
+
+    def enter_res(self):
+        if self.state == START or self.state == REPINNER:
+            pass
+        elif self.state in TERMINAL_STATES:
+            self.in_repeat = False
+            self._complete_structure()
+        else:
+            raise GlycoCTError("Invalid State Transition at line %d" % self._source_line)
+
+        self.state = RES
+
+    def enter_lin(self):
+        if self.state != RES:
+            raise GlycoCTError("LIN before RES at line %d" % self._source_line)
+        self.state = LIN
+
+    def enter_rep(self):
+        if not self.allow_repeats:
+            raise GlycoCTSectionUnsupported(
+                "Repeat are not allowed (set allow_repeats=True to allow them) at line %d" % self._source_line)
+        self.state = REP
+        self.in_repeat = True
+
+    def parse_link(self, line):
+        link_dict = link_pattern.search(line)
+        if link_dict is not None:
+            link_dict = link_dict.groupdict()
+        else:
+            raise GlycoCTError("Could not interpret link", line)
+        id = link_dict['doc_index']
+        parent_residue_index = int(link_dict['parent_residue_index'])
+        child_residue_index = int(link_dict['child_residue_index'])
+
+        parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
+        parent_attachment_position = list(map(int, link_dict["parent_attachment_position"].split("|")))
+
+        child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
+        child_attachment_position = list(map(int, link_dict["child_attachment_position"].split("|")))
+
+        return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
+                child_residue_index, child_atom_replaced, child_attachment_position)
 
     def handle_linkage(self, line):
         '''
@@ -627,46 +791,86 @@ class GlycoCTReader(object):
         a |Link| object.
         '''
         id, parent_residue_index, parent_atom_replaced, parent_attachment_position,\
-            child_residue_index, child_atom_replaced, child_attachment_position = parse_link(line)
+            child_residue_index, child_atom_replaced, child_attachment_position = self.parse_link(line)
 
         parent = self.get_node(parent_residue_index)
         child = self.get_node(child_residue_index)
 
-        if isinstance(parent, RepeatRecord):
-            self.postponed.append((
-                parent.handle_outgoing_link,
+        is_parent_repeat = isinstance(parent, RepeatedGlycoCTSubgraph)
+        is_child_repeat = isinstance(child, RepeatedGlycoCTSubgraph)
+
+        if is_parent_repeat and is_child_repeat:
+            inner = max([parent, child], key=lambda x: x.repeat_index)
+            if child == inner:
+
+                def child_getter():
+                    return child.origin_node
+
+                def parent_getter():
+                    return parent.get_node(
+                        parent.terminal_node_index,
+                        AbstractGraphEntryEnum.internal)
+            else:
+
+                def child_getter():
+                    return child.get_node(
+                        child.origin_node_index,
+                        AbstractGraphEntryEnum.internal)
+
+                def parent_getter():
+                    return parent.terminal_node
+            if parent_atom_replaced == child_atom_replaced == Composition('H'):
+                parent_atom_replaced = Composition('H')
+                child_atom_replaced = Composition('OH')
+            inner.postpone(
+                inner.handle_abstract_subgraph_link,
+                (parent_getter,
+                 child_getter,
+                 parent_attachment_position, parent_atom_replaced,
+                 child_attachment_position, child_atom_replaced, id)
+            )
+        elif is_parent_repeat:
+            parent.postpone(parent.handle_outgoing_link, (
                 self.deferred_retrieval(child_residue_index),
                 parent_attachment_position, parent_atom_replaced,
-                child_attachment_position, child_atom_replaced, id))
-            return
-        if isinstance(child, RepeatRecord):
-            self.postponed.append((
-                child.handle_incoming_link,
+                child_attachment_position, child_atom_replaced, id)
+            )
+        elif is_child_repeat:
+            child.postpone(child.handle_incoming_link, (
                 self.deferred_retrieval(parent_residue_index),
                 parent_attachment_position, parent_atom_replaced,
-                child_attachment_position, child_atom_replaced, id))
-            return
-
-        form_link(
-            parent, child,
-            parent_position=parent_attachment_position, child_position=child_attachment_position,
-            parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)
+                child_attachment_position, child_atom_replaced, id)
+            )
+        else:
+            self.form_link(
+                parent, child,
+                parent_position=parent_attachment_position, child_position=child_attachment_position,
+                parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)
 
     def handle_repeat_stub(self, line):
         if not self.allow_repeats:
             raise GlycoCTSectionUnsupported(
                 "Repeat are not allowed (set allow_repeats=True to allow them)")
+        graph = self.get_active_graph()
         match = repeat_line_pattern.search(line).groupdict()
-        graph_index = (match['graph_index'])
-        repeat_index = (match["repeat_index"])
-        repeat = RepeatRecord(int(graph_index), int(repeat_index), parser=self)
+
+        graph_index = try_int(match['graph_index'])
+        repeat_index = try_int(match["repeat_index"])
+
+        repeat = RepeatedGlycoCTSubgraph(int(graph_index), int(repeat_index), parent=self)
         repeat._index = self._index
-        self.graph[int(graph_index)] = repeat
-        self.repeats[int(repeat_index)] = repeat
+
+        graph[graph_index] = repeat
+        self.repeats[repeat_index] = repeat
+
+        if self.root is None:
+            self.root = repeat
 
     def handle_repeat_inner(self, line):
         if not self.in_repeat:
-            raise GlycoCTError("Encountered %r outside of REP at line %d" % (line, self._source_line))
+            raise GlycoCTError(
+                "Encountered %r outside of REP at line %d" % (
+                    line, self._source_line))
         header_dict = rep_header_pattern.search(line).groupdict()
 
         repeat_index = int(header_dict['repeat_index'])
@@ -677,9 +881,13 @@ class GlycoCTReader(object):
         linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
         repeat_record.internal_linkage = linkage
         repeat_record.external_linkage = linkage
-        repeat_record.multitude = tuple(map(try_int, (header_dict['lower_multitude'],
-                                                      header_dict['higher_multitude'])))
+        repeat_record.multitude = RepeatedMultitude(
+            try_int(header_dict['lower_multitude']),
+            try_int(header_dict['higher_multitude']))
         self.state = REPINNER
+
+    def handle_und(self, line):
+        pass
 
     def postprocess(self):
         '''
@@ -692,53 +900,51 @@ class GlycoCTReader(object):
         -------
         Glycan
         '''
-        for repeat_index, repeater in self.repeats.items():
-            repeater.expand_inner()
+        if self.completes:
+            for repeater in reversed(self.context_stack):
+                repeater.postprocess()
 
-        for postop in self.postponed:
-            # logger.debug("Postprocessing %s", postop)
-            postop[0](*postop[1:])
+            for postop in self.postponed:
+                postop[0](*postop[1:])
 
-        return undecorate_tree(self.structure_class(root=rootp(self.root), index_method=None))
+            if self.root is None:
+                return None
+
+            return undecorate_tree(self.structure_class(root=rootp(self.root), index_method=None))
+        else:
+            return self
 
     def parse(self):
         '''
         Returns an iterator that yields each complete :class:`Glycan` instance
         from the underlying text stream.
         '''
+
         # Create a reference to the segment iterator
         # as late as possible, but bind it to the object
         # state so it can be referenced independent of this
         # outermost loop
         self._segment_iterator = self._read()
-        for line in self._segment_iterator:
-            if RES == line.strip():
-                if self.state == START or self.state == REPINNER:
-                    pass
-                elif self.state in TERMINAL_STATES:
-                    self.in_repeat = False
-                    yield self.postprocess()
-                    self._reset()
-                else:
-                    raise GlycoCTError("Invalid State Transition at line %d" % self._source_line)
 
-                self.state = RES
+        for line in self._segment_iterator:
+            if line.strip() == "":
+                self.handle_blank()
+                while self._output_queue:
+                    yield self._output_queue.popleft()
+
+            elif RES == line.strip():
+                self.enter_res()
+                while self._output_queue:
+                    yield self._output_queue.popleft()
 
             elif LIN == line.strip():
-                if self.state != RES:
-                    raise GlycoCTError("LIN before RES at line %d" % self._source_line)
-                self.state = LIN
+                self.enter_lin()
 
             elif REP == line.strip():
-                if not self.allow_repeats:
-                    raise GlycoCTSectionUnsupported(
-                        "Repeat are not allowed (set allow_repeats=True to allow them) at line %d" % self._source_line)
-                self.state = REP
-                self.in_repeat = True
+                self.enter_rep()
+
             # REP definition block
             elif line.strip()[:3] == REP:
-                if not self.in_repeat:
-                    raise GlycoCTError("Encountered %r outside of REP at line %d" % (line, self._source_line))
                 self.handle_repeat_inner(line)
             elif ALT == line.strip():
                 raise GlycoCTSectionUnsupported(ALT)
@@ -757,9 +963,9 @@ class GlycoCTReader(object):
                 raise GlycoCTError("Unknown format error: %s on line %d" % (line, self._source_line))
 
         if self.root is not None:
-            self.in_repeat = False
-            yield self.postprocess()
-            self._reset()
+            self._complete_structure()
+            while self._output_queue:
+                yield self._output_queue.popleft()
 
 
 GlycoCT = GlycoCTReader
