@@ -10,6 +10,7 @@ omit =
     # omit this single file
     glypy/io/glycomedb.py
     glypy/io/glycoct_xml.py
+    glypy/algorithms/database.py
     glypy/enzyme.py
     glypy/structure/modification.py
     glypy/tests/*

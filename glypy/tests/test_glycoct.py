@@ -189,6 +189,52 @@ LIN
 '''
 
 
+und_case1 = '''
+RES
+1b:a-dman-HEX-1:5
+2r:r1
+3b:a-dgal-HEX-1:5
+LIN
+1:1o(2+1)2n
+2:2n(2+1)3d
+REP
+REP1:4o(2+1)4d=-1--1
+RES
+4b:a-dglc-HEX-1:5
+UND
+UND1:100.0:100.0
+ParentIDs:3|1
+SubtreeLinkageID1:o(2+4)d
+RES
+5b:b-dgro-dgal-NON-0:0|1:a|2:keto|3:d
+6s:n-acetyl
+LIN
+3:5d(5+2)6n
+'''
+
+
+und_case2 = '''
+RES
+1b:a-dman-HEX-1:5
+2r:r1
+3b:a-dgal-HEX-1:5
+LIN
+1:1o(2+1)2n
+2:2n(2+1)3d
+REP
+REP1:4o(2+1)4d=1-5
+RES
+4b:a-dglc-HEX1:5
+UND
+UND1:60.0:80.0
+ParentIDs:4
+SubtreeLinkageID1:o(4+1)n
+RES
+5s:sulfate
+
+'''
+
+
 class GlycoCTParserTests(unittest.TestCase):
     _file_path = "./test_data/glycoct.txt"
 
@@ -225,6 +271,20 @@ class GlycoCTParserTests(unittest.TestCase):
         structure = glycoct.loads(osvaldo_repeat_2)
         self.assertAlmostEqual(structure.mass(), 1872.612751, 3)
         self.assertEqual(len(structure), 12)
+
+    def test_parse_undetermined(self):
+        structure = glycoct.loads(und_case1)
+        for link in structure.link_index:
+            if link.is_ambiguous():
+                self.assertTrue(len(link.child.stem) > 1)
+
+        structure = glycoct.loads(und_case2)
+        sulfate_count = 0
+        for node in structure:
+            for i, subst in node.substituents():
+                if subst.name == 'sulfate':
+                    sulfate_count += 1
+        self.assertEqual(sulfate_count, 5)
 
 
 if __name__ == '__main__':

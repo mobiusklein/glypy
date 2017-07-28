@@ -171,6 +171,8 @@ class Glycan(SaccharideCollection):
         The order of traversal also defines the ordering of the |Monosaccharide|
         in :attr:`index` and |Link| in :attr:`link_index`.
 
+        Prior to constructing a |Glycan| instance, component |Monosaccharide| instances
+        may be labeled, converting their id field into a tuple.
         '''
         self.deindex()
         traversal = self._get_traversal_method(method)

@@ -38,6 +38,8 @@ def decorate_tree(tree, decorate_value):
     '''
     for node in tuple(tree):
         node.id = (decorate_value, node.id)
+        for i, substituent in node.substituents():
+            substituent.id = (decorate_value, substituent.id)
     return tree
 
 
@@ -101,6 +103,9 @@ def undecorate_tree(tree):
     for node in list(tree):
         node.id = i
         i += 1
+        for j, substituent in node.substituents():
+            substituent.id = i
+            i += 1
     tree.reindex()
     return tree
 

@@ -53,6 +53,7 @@ AmbiguousLink = link.AmbiguousLink
 
 START = "!START"
 REPINNER = "!REPINNER"
+UNDINNER = "!UNDINNER"
 RES = "RES"
 LIN = "LIN"
 REP = "REP"
@@ -125,6 +126,18 @@ rep_header_pattern = re.compile(
 
 repeat_line_pattern = re.compile("^(?P<graph_index>\d+)r:r(?P<repeat_index>\d+)")
 
+und_header_pattern = re.compile(r'''UND(?P<und_index>\d+):
+    (?P<major>\d+(\.\d*)?):
+    (?P<minor>\d+(\.\d*)?)
+    ''', re.VERBOSE)
+
+und_link_pattern = re.compile(r'''
+    (?P<parent_atom_replaced>[odhnx])
+    \((?P<parent_attachment_position>-?[0-9\-\|]+)[\+\-]
+        (?P<child_attachment_position>-?[0-9\-\|]+)\)
+    (?P<child_atom_replaced>[odhnx])
+    ''', re.VERBOSE)
+
 
 class GlycoCTError(ParserError):
     pass
@@ -132,6 +145,20 @@ class GlycoCTError(ParserError):
 
 class GlycoCTSectionUnsupported(GlycoCTError):
     pass
+
+
+class DeferredRetrieval(object):
+    def __init__(self, graph, id, direction=None):
+        self.graph = graph
+        self.id = id
+        self.direction = direction
+
+    def __call__(self):
+        return self.graph.get_node(self.id, self.direction)
+
+    def __repr__(self):
+        return "{s.__class__.__name__}({s.graph}, {s.id}, {s.direction})".format(
+            s=self)
 
 
 class GlycoCTGraph(object):
@@ -183,6 +210,7 @@ class GlycoCTGraph(object):
                 "A monosaccharide with a substituent parent has been detected. "
                 "These structures are not fully supported and may not traverse as expected "
                 "by default.", stacklevel=7)
+
         if len(parent_position) > 1 or len(child_position) > 1:
             link_obj = AmbiguousLink(
                 parent, child, parent_position=list(map(int, parent_position)),
@@ -197,9 +225,7 @@ class GlycoCTGraph(object):
         return link_obj
 
     def deferred_retrieval(self, id, direction=None):
-        def retrieval():
-            return self.get_node(id, direction)
-        return retrieval
+        return DeferredRetrieval(self, id, direction)
 
 
 class GlycoCTGraphStack(GlycoCTGraph):
@@ -236,10 +262,17 @@ class GlycoCTGraphStack(GlycoCTGraph):
                 continue
         raise KeyError(id)
 
-    def push_level(self, subgraph, parent=None):
-        if parent is None:
-            parent = self
-        subgraph.parent = parent
+    def deferred_retrieval(self, id, direction=None):
+        return DeferredRetrieval(self, id, direction)
+
+    def add(self, subgraph, parent=None):
+        if subgraph.parent is None:
+            if parent is None:
+                parent = self
+            subgraph.parent = parent
+        self.push_level(subgraph)
+
+    def push_level(self, subgraph):
         self.stack.append(subgraph)
         self.history.append(subgraph)
 
@@ -257,12 +290,18 @@ class GlycoCTGraphStack(GlycoCTGraph):
         else:
             raise KeyError(id)
 
+    def __repr__(self):
+        return "{self.__class__.__name__}({self.history})".format(self=self)
+
 
 class GlycoCTSubgraph(GlycoCTGraph):
     def __init__(self, graph=None, parent=None):
         super(GlycoCTSubgraph, self).__init__(graph)
         assert not isinstance(parent, dict)
         self.parent = parent
+
+    def postprocess(self):
+        pass
 
 
 RepeatedMultitude = namedtuple("RepeatedMultitude", "lower upper")
@@ -367,11 +406,8 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
             if isinstance(node, GlycoCTGraph):
                 node.postprocess()
                 graph[key] = node.origin_node
-                # raise ValueError("Attempting to build a glycan from a nested subgraph")
+
         root = find_root(graph[sub_unit_indices[0]])
-        # Need to scan the graph for special groups that need
-        # to be converted/connected to the other members of
-        # this graph
         glycan_graph = Glycan(root, index_method=None).clone()
         return glycan_graph
 
@@ -404,7 +440,6 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         if self.structure_precision is not StructurePrecisionEnum.unknown:
             if not (self.multitude.lower <= n <= self.multitude.upper):  # pragma: no cover
                 raise GlycoCTError("{} is not within the range of {}".format(n, self.multitude))
-        # sub_unit_indices = sorted(map(try_int, self.graph.keys()))
 
         self.original_graph = self._duplicate_graph(self.graph)
         glycan_graph = self._build_glycan_from_graph(self.graph)
@@ -500,15 +535,15 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         return glycan
 
 
-UNDProbabilityPair = namedtuple("UNDProbabilityPair", "major minor")
+UndeterminedProbability = namedtuple("UndeterminedProbability", "major minor")
 
 
 class UnderdeterminedRecord(GlycoCTSubgraph):
-    def __init__(self, graph_index, und_index, probability=None, parent_ids=None,
-                 subtree_linkages=None, graph=None, parser=None):
-        super(UnderdeterminedRecord, self).__init__(graph_index, parser, graph)
+    def __init__(self, und_index, probability=None, parent_ids=None,
+                 subtree_linkages=None, graph=None, parent=None):
+        super(UnderdeterminedRecord, self).__init__(graph, parent)
         if probability is None:
-            probability = UNDProbabilityPair(100., 100.)
+            probability = UndeterminedProbability(100., 100.)
         if parent_ids is None:
             parent_ids = []
         if subtree_linkages is None:
@@ -516,8 +551,28 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
         self.parent_ids = parent_ids
         self.subtree_linkages = subtree_linkages
 
+    def __root__(self):
+        return self[sorted(self.keys())[0]]
 
-class GlycoCTReader(GlycoCTGraph):
+    def postprocess(self):
+        parents = [
+            self.parent.get_node(parent_id) for parent_id in self.parent_ids]
+        child = [rootp(self)]
+
+        linkage = self.subtree_linkages[0]
+        parent_loss = linkage["parent_atom_replaced"]
+        parent_position = linkage["parent_attachment_position"]
+        child_loss = linkage["child_atom_replaced"]
+        child_position = linkage["child_attachment_position"]
+
+        link_obj = AmbiguousLink(
+            parents, child, parent_position=list(map(int, parent_position)),
+            child_position=list(map(int, child_position)), parent_loss=parent_loss,
+            child_loss=child_loss)
+        link_obj.find_open_position()
+
+
+class GlycoCTReader(GlycoCTGraphStack):
     '''
     Simple State-Machine parser for condensed GlycoCT representations. Yields
     |Glycan| instances.
@@ -529,8 +584,7 @@ class GlycoCTReader(GlycoCTGraph):
         rep = StringIO(glycoct_str)
         return cls(rep, structure_class=structure_class, allow_repeats=allow_repeats)
 
-    def __init__(self, stream, structure_class=Glycan, allow_repeats=True,
-                 completes=True):
+    def __init__(self, stream, structure_class=Glycan, allow_repeats=True, completes=True):
         '''
         Creates a parser of condensed GlycoCT.
 
@@ -547,15 +601,18 @@ class GlycoCTReader(GlycoCTGraph):
         self.completes = completes
 
         self.handle = opener(stream, "r")
-        self.current_repeat = None
         self.in_repeat = False
+        self.in_undetermined = False
         self.repeats = {}
+        self.undetermineds = {}
         self.postponed = []
-        self.context_stack = []
+
         self.root = None
         self._iter = None
+
         self.allow_repeats = allow_repeats
         self.structure_class = structure_class
+
         self._index = 0
         self._source_line = 0
         self._segment_iterator = None
@@ -589,27 +646,13 @@ class GlycoCTReader(GlycoCTGraph):
         self.root = None
         self.postponed = []
         self.repeats.clear()
-        self.context_stack = []
-        self.current_repeat = None
+        self.undetermineds.clear()
         self.in_repeat = False
         self._index += 1
 
     def reset(self):
         if self.completes:
             self._reset()
-
-    def push_repeat_context(self, repeat):
-        self.context_stack.append(repeat)
-        self.current_repeat = self.context_stack[-1]
-
-    def pop_repeat_context(self):
-        popped = self.context_stack.pop(-1)
-        if self.context_stack:
-            self.current_repeat = self.context_stack[-1]
-        else:
-            self.current_repeat = None
-            self.in_repeat = False
-        return popped
 
     def __iter__(self):
         '''
@@ -637,23 +680,6 @@ class GlycoCTReader(GlycoCTGraph):
     @state.setter
     def state(self, value):
         self._state = value
-
-    def get_active_graph(self):
-        if self.in_repeat:
-            graph = self.current_repeat
-        else:
-            graph = self
-        return graph
-
-    def deferred_retrieval(self, id, direction=None):
-        def retrieval():
-            try:
-                return self.graph[id]
-            except KeyError:
-                for repeat_ix, repeater in self.repeats.items():
-                    if id in repeater:
-                        return repeater.get_node(id, direction)
-        return retrieval
 
     def handle_residue_line(self, line):
         '''
@@ -693,9 +719,7 @@ class GlycoCTReader(GlycoCTGraph):
         residue_dict['superclass'] = superclass_map[residue_dict['superclass']]
         residue = monosaccharide.Monosaccharide(**residue_dict)
 
-        graph = self.get_active_graph()
-
-        graph[int(ix)] = residue
+        self[int(ix)] = residue
 
         residue.id = int(ix)
         if self.root is None:
@@ -713,30 +737,13 @@ class GlycoCTReader(GlycoCTGraph):
         _, ix, subsituent_str = re.split(r"^(\d+)s:", line, maxsplit=1)
         sub = Substituent(subsituent_str.strip())
 
-        graph = self.get_active_graph()
-
-        graph[int(ix)] = sub
+        self[int(ix)] = sub
 
     def handle_blank(self):
         self._complete_structure()
 
-    def _complete_structure(self):
-        result = self.postprocess()
-        if result is not None:
-            self._output_queue.append(result)
-        self.reset()
-
-    def get_node(self, id, direction=None):
-        if self.in_repeat:
-            try:
-                return self.current_repeat.graph[id]
-            except KeyError:
-                return self.graph[id]
-        else:
-            return self.graph[id]
-
     def enter_res(self):
-        if self.state == START or self.state == REPINNER:
+        if self.state in (START, REPINNER, UNDINNER):
             pass
         elif self.state in TERMINAL_STATES:
             self.in_repeat = False
@@ -757,6 +764,10 @@ class GlycoCTReader(GlycoCTGraph):
                 "Repeat are not allowed (set allow_repeats=True to allow them) at line %d" % self._source_line)
         self.state = REP
         self.in_repeat = True
+
+    def enter_und(self):
+        self.state = UND
+        self.in_undetermined = True
 
     def parse_link(self, line):
         link_dict = link_pattern.search(line)
@@ -851,7 +862,7 @@ class GlycoCTReader(GlycoCTGraph):
         if not self.allow_repeats:
             raise GlycoCTSectionUnsupported(
                 "Repeat are not allowed (set allow_repeats=True to allow them)")
-        graph = self.get_active_graph()
+
         match = repeat_line_pattern.search(line).groupdict()
 
         graph_index = try_int(match['graph_index'])
@@ -860,7 +871,7 @@ class GlycoCTReader(GlycoCTGraph):
         repeat = RepeatedGlycoCTSubgraph(int(graph_index), int(repeat_index), parent=self)
         repeat._index = self._index
 
-        graph[graph_index] = repeat
+        self[graph_index] = repeat
         self.repeats[repeat_index] = repeat
 
         if self.root is None:
@@ -876,7 +887,7 @@ class GlycoCTReader(GlycoCTGraph):
         repeat_index = int(header_dict['repeat_index'])
         repeat_record = self.repeats[repeat_index]
 
-        self.push_repeat_context(repeat_record)
+        self.push_level(repeat_record)
 
         linkage = internal_link_pattern.search(header_dict['internal_linkage']).groupdict()
         repeat_record.internal_linkage = linkage
@@ -886,8 +897,49 @@ class GlycoCTReader(GlycoCTGraph):
             try_int(header_dict['higher_multitude']))
         self.state = REPINNER
 
-    def handle_und(self, line):
-        pass
+    def handle_und_inner(self, line):
+        if not self.in_undetermined:
+            raise GlycoCTError("Encountered %r outside of UND at line %d" % (
+                line, self._source_line))
+        header_dict = und_header_pattern.search(line).groupdict()
+        parent_line = next(self._segment_iterator)
+        subtree_linkage_line = next(self._segment_iterator)
+
+        ids = list(map(int, parent_line.split(":")[1].split("|")))
+        subtree_linkages = []
+        match = und_link_pattern.search(subtree_linkage_line.split(":")[1])
+        if match is None:
+            raise GlycoCTError("Could not interpret UND SubtreeLinkage %r at line %d" % (
+                subtree_linkage_line, self._source_line))
+        else:
+            link_dict = match.groupdict()
+            link_dict["parent_atom_replaced"] = link_replacement_composition_map[
+                link_dict["parent_atom_replaced"]]
+            link_dict["parent_attachment_position"] = list(
+                map(int, link_dict["parent_attachment_position"].split("|")))
+            link_dict["child_atom_replaced"] = link_replacement_composition_map[
+                link_dict["child_atom_replaced"]]
+            link_dict["child_attachment_position"] = list(
+                map(int, link_dict["child_attachment_position"].split("|")))
+            subtree_linkages.append(link_dict)
+
+        und_index = int(header_dict['und_index'])
+        prob = UndeterminedProbability(float(header_dict['major']), float(header_dict['minor']))
+        record = UnderdeterminedRecord(
+            und_index, prob, parent_ids=ids,
+            subtree_linkages=subtree_linkages, parent=self)
+        self.undetermineds[und_index] = record
+        self.push_level(record)
+        self.state = UNDINNER
+
+    def _complete_structure(self):
+        if self.completes:
+            result = self.postprocess()
+            if result is not None:
+                self._output_queue.append(result)
+            self.reset()
+        else:
+            self._output_queue.append(self)
 
     def postprocess(self):
         '''
@@ -901,8 +953,8 @@ class GlycoCTReader(GlycoCTGraph):
         Glycan
         '''
         if self.completes:
-            for repeater in reversed(self.context_stack):
-                repeater.postprocess()
+            for level in reversed(self.history):
+                level.postprocess()
 
             for postop in self.postponed:
                 postop[0](*postop[1:])
@@ -943,13 +995,16 @@ class GlycoCTReader(GlycoCTGraph):
             elif REP == line.strip():
                 self.enter_rep()
 
+            elif UND == line.strip():
+                self.enter_und()
+
             # REP definition block
             elif line.strip()[:3] == REP:
                 self.handle_repeat_inner(line)
+            elif line.strip()[:3] == UND:
+                self.handle_und_inner(line)
             elif ALT == line.strip():
                 raise GlycoCTSectionUnsupported(ALT)
-            elif UND == line.strip():
-                raise GlycoCTSectionUnsupported(UND)
 
             elif re.search(r"^(\d+)b", line) and self.state == RES:
                 self.handle_residue_line(line)
