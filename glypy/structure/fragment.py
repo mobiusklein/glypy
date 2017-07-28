@@ -140,6 +140,10 @@ class Fragment(object):
                 buff.append(c)
         return ''.join(buff)
 
+    @property
+    def series(self):
+        return self.kind
+
     def __getstate__(self):  # pragma: no cover
         d = {}
         for a in self.__slots__:
