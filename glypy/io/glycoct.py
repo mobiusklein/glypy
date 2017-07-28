@@ -962,7 +962,10 @@ class GlycoCTReader(GlycoCTGraphStack):
             if self.root is None:
                 return None
 
-            return undecorate_tree(self.structure_class(root=rootp(self.root), index_method=None))
+            return undecorate_tree(
+                self.structure_class(
+                    root=rootp(self.root), index_method=None)
+            ).reindex()
         else:
             return self
 
