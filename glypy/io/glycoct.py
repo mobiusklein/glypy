@@ -148,6 +148,19 @@ class GlycoCTSectionUnsupported(GlycoCTError):
 
 
 class DeferredRetrieval(object):
+    """Callback object to invoke a :class:`GlycoCTGraph` instance's
+    :meth:`get_node` method with a set of stored parameters
+    at a later time.
+
+    Attributes
+    ----------
+    direction : AbstractGraphDirectionEnum
+        The direction with which to retieve the node
+    graph : GlycoCTGraph
+        The node graph to call :meth:`GlycoCTGraph.get_node` with
+    id : object
+        The id of the node to retrieve
+    """
     def __init__(self, graph, id, direction=None):
         self.graph = graph
         self.id = id
@@ -162,6 +175,16 @@ class DeferredRetrieval(object):
 
 
 class GlycoCTGraph(object):
+    """A graph to store nodes from parsing GlycoCT
+    text in.
+
+    Implements a Mapping interface
+
+    Attributes
+    ----------
+    graph : dict
+        Mapping from node id to node-like objects
+    """
     def __init__(self, graph=None):
         if graph is None:
             graph = dict()
@@ -510,7 +533,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
             child_position=child_position, parent_loss=parent_loss,
             child_loss=child_loss, id=id)
 
-    def get_node(self, id, direction=None):  # pragma: no cover
+    def get_node(self, id, direction=None):
         id = int(id)
         if direction == AbstractGraphEntryEnum.parent:
             child_graph = self.repetitions[self.first_repeat_index]
