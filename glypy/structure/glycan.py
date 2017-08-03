@@ -668,7 +668,8 @@ class Glycan(SaccharideCollection):
                     link.apply()
 
                 # if configuration is valid, yield it
-                yield tuple(zip(ambiguous_links, configs))
+                if valid:
+                    yield tuple(zip(ambiguous_links, configs))
 
     def label_branches(self):
         '''
