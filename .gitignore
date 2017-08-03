@@ -11,3 +11,9 @@ contrib/
 .ipynb_checkpoints/
 *.pyd
 *__pycache__
+glypy/composition/ccomposition.c
+glypy/composition/ccomposition.html
+htmlcov/
+dist/
+build/
+.cache/
