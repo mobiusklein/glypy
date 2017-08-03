@@ -8,7 +8,12 @@ from collections import deque
 from six import string_types as basestring
 
 from glypy.io.format_constants_map import anomer_map, superclass_map
-from glypy.utils import invert_dict, identity as ident_op, cyclewarning, uid
+from glypy.utils import (
+    invert_dict,
+    identity as ident_op,
+    cyclewarning,
+    uid,
+    make_struct)
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.utils.enum import EnumValue
 from glypy.composition import Composition, calculate_mass
@@ -575,17 +580,7 @@ class Monosaccharide(SaccharideBase):
         :class:`int`:
             The number of bound but unknown locations on the backbone.
         '''
-        slots = [0] * self.superclass.value
-        unknowns = 0
-        for pos, obj in chain(self.modifications.items(),
-                              self.links.items(),
-                              self.substituent_links.items()):
-            if obj == Modification.keto:
-                continue
-            if pos in {-1, 'x'}:  # pragma: no cover
-                unknowns += 1
-            else:
-                slots[pos - 1] += 1
+        slots, unknowns = self._backbone_occupancy_list()
 
         open_slots = []
         can_determine_positions = unknowns > 0 or (self.ring_end in [-1, 'x', None])
@@ -599,6 +594,38 @@ class Monosaccharide(SaccharideBase):
             open_slots.pop()
 
         return open_slots, unknowns
+
+    def _backbone_occupancy_list(self):
+        slots = [0] * self.superclass.value
+        unknowns = 0
+        for pos, obj in chain(self.modifications.items(),
+                              self.links.items(),
+                              self.substituent_links.items()):
+            if obj == Modification.keto:
+                continue
+            if pos in {-1, 'x'}:  # pragma: no cover
+                unknowns += 1
+            else:
+                slots[pos - 1] += 1
+        return slots, unknowns
+
+    def occupied_attachment_sites(self):
+        slots, unknowns = self._backbone_occupancy_list()
+        occupied_sites = []
+        for i, occupied in enumerate(slots, start=1):
+            if occupied:
+                occupied_sites.append(i)
+        if self.ring_end != -1:
+            occupied_sites.append(self.ring_end)
+        for i in range(unknowns):
+            occupied_sites.append(-1)
+        return occupied_sites
+
+    def total_attachement_sites(self):
+        slots = self.superclass.value
+        if self.ring_type != RingType.open:
+            slots -= 1
+        return slots
 
     def is_occupied(self, position):
         '''
@@ -1541,3 +1568,13 @@ class ReducedEnd(object):
     def __setstate__(self, state):
         self.__dict__.update(state)
         self._order = state.get("_order", len(self.links))
+
+MonosaccharideOccupancy = make_struct("MonosaccharideOccupancy", ["id", "open_sites", "unknown_sites", "occupied_sites"])
+
+
+def build_monosaccharide_occupancy(cls, monosaccharide):
+    open_sites, unknown_sites = monosaccharide.open_attachment_sites()
+    occupied_sites = monosaccharide.occupied_attachment_sites()
+    return cls(monosaccharide.id, open_sites, unknown_sites, occupied_sites)
+
+MonosaccharideOccupancy.build = classmethod(build_monosaccharide_occupancy)
