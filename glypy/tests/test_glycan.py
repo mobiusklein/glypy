@@ -89,15 +89,16 @@ class GlycanTests(unittest.TestCase):
 
     def test_traversal_by_name(self):
         structure = load("common_glycan")
-        structure[-
-                  1].add_monosaccharide(named_structures.monosaccharides['NeuGc'])
+        structure[-1].add_monosaccharide(
+            named_structures.monosaccharides['NeuGc'])
         structure.reindex(method='dfs')
         ref = structure.clone()
         self.assertEqual(structure, ref)
         structure.reindex(method='depth_first_traversal')
         self.assertEqual(structure, ref)
         self.assertRaises(
-            AttributeError, lambda: structure.reindex(method='not_real_traversal'))
+            KeyError, lambda: structure.reindex(
+                method='not_real_traversal'))
 
     def test_leaves(self):
         structure = load("common_glycan")

@@ -194,7 +194,7 @@ class MonosaccharideTests(unittest.TestCase):
     def test_low_level_traverse(self):
         branchy = load("branchy_glycan")
         t1 = monosaccharide.traverse(branchy.root)
-        t2 = branchy.dfs()
+        t2 = branchy.iternodes()
         for a, b in zip(list(t1), list(t2)):
             self.assertEqual(a, b)
 
