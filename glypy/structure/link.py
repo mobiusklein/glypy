@@ -525,21 +525,56 @@ class AmbiguousLink(Link):
         rep = super(AmbiguousLink, self).__repr__()
         return "(A)" + rep
 
+    def _find_open_position_single(self, parent, child):
+        open_parent_sites, _ = parent.open_attachment_sites()
+        if -1 in open_parent_sites:
+            open_parent_sites += self.parent_position_choices
+        parent_site_options = list((set(open_parent_sites) | {-1}) & set(self.parent_position_choices))
+        if parent_site_options:
+            parent_site = parent_site_options[0]
+        else:
+            return None
+        open_child_sites, _ = child.open_attachment_sites()
+        if -1 in open_child_sites:
+            open_child_sites += self.child_position_choices
+        child_site_options = list((set(open_child_sites) | {-1}) & set(self.child_position_choices))
+        if child_site_options:
+            child_site = child_site_options[0]
+        else:
+            return None
+        return parent_site, child_site
+
+    def _find_open_position_multiple(self, parent, child):  # pragma: no cover
+        '''Debugging purposes only
+        '''
+        open_parent_sites, _ = parent.open_attachment_sites()
+        if -1 in open_parent_sites:
+            open_parent_sites += self.parent_position_choices
+        parent_site_options = list((set(open_parent_sites) | {-1}) & set(self.parent_position_choices))
+        open_child_sites, _ = child.open_attachment_sites()
+        if -1 in open_child_sites:
+            open_child_sites += self.child_position_choices
+        child_site_options = list((set(open_child_sites) | {-1}) & set(self.child_position_choices))
+        return parent_site_options, child_site_options
+
+    def _find_open_position_combinations(self):
+        for parent, child in itertools.product(self.parent_choices, self.child_choices):
+            positions = self._find_open_position_single(parent, child)
+            if positions is not None:
+                return (parent, positions[0], child, positions[1])
+        else:
+            return None
+
     def find_open_position(self, attach=True):
         if attach:
             self.break_link(refund=True)
-        try:
-            open_parent_sites, _ = self.parent.open_attachment_sites()
-            if -1 in open_parent_sites:
-                open_parent_sites += self.parent_position_choices
-            parent_site = next(iter((set(open_parent_sites) | {-1}) & set(self.parent_position_choices)))
-            open_child_sites, _ = self.child.open_attachment_sites()
-            if -1 in open_child_sites:
-                open_child_sites += self.child_position_choices
-            child_site = next(iter((set(open_child_sites) | {-1}) & set(self.child_position_choices)))
-            self.parent_position = parent_site
-            self.child_position = child_site
-            if attach:
-                self.apply()
-        except StopIteration:  # pragma: no cover
+        configuration = self._find_open_position_combinations()
+        if configuration is None:
             raise ValueError("Could not find a valid configurations on current parent/child pair")
+        parent, parent_position, child, child_position = configuration
+        self.parent = parent
+        self.child = child
+        self.parent_position = parent_position
+        self.child_position = child_position
+        if attach:
+            self.apply()
