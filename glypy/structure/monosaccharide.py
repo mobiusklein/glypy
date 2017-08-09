@@ -516,7 +516,7 @@ class Monosaccharide(SaccharideBase):
         """Expedite adding a reducing end to this monosaccharide. Assumes
         that `value` is a :class:`ReducedEnd` and that this monosaccharide is not
         already reduced.
-        
+
         Parameters
         ----------
         value : ReducedEnd
@@ -1316,7 +1316,6 @@ class Monosaccharide(SaccharideBase):
 
 
 class ReducedEnd(object):
-    node_type = object()
     """Represents the composition shift and conformation change created
     by reducing a |Monosaccharide|.
 
@@ -1331,6 +1330,8 @@ class ReducedEnd(object):
 
     There is also a class attribute, :attr:`name` for comparison with :attr:`~.Modification.aldi`
     """
+
+    node_type = object()
     name = 'aldi'
 
     def __init__(self, composition=None, substituents=None, valence=1, id=None):
@@ -1569,7 +1570,9 @@ class ReducedEnd(object):
         self.__dict__.update(state)
         self._order = state.get("_order", len(self.links))
 
-MonosaccharideOccupancy = make_struct("MonosaccharideOccupancy", ["id", "open_sites", "unknown_sites", "occupied_sites"])
+
+MonosaccharideOccupancy = make_struct(
+    "MonosaccharideOccupancy", ["id", "open_sites", "unknown_sites", "occupied_sites"])
 
 
 def build_monosaccharide_occupancy(cls, monosaccharide):
@@ -1577,4 +1580,6 @@ def build_monosaccharide_occupancy(cls, monosaccharide):
     occupied_sites = monosaccharide.occupied_attachment_sites()
     return cls(monosaccharide.id, open_sites, unknown_sites, occupied_sites)
 
-MonosaccharideOccupancy.build = classmethod(build_monosaccharide_occupancy)
+
+MonosaccharideOccupancy.build = classmethod(
+    build_monosaccharide_occupancy)
