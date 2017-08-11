@@ -42,22 +42,6 @@ MAIN_BRANCH_SYM = '-'
 def fragment_to_substructure(fragment, tree):
     """Extract the substructure of `tree` which is contained in `fragment`
 
-
-    >>> from glypy import glycans as glycan_factory
-    >>> from glypy.structure import glycan
-    >>> n_linked_core = glycan_factory["N-Linked Core"]
-    >>> frag = n_linked_core.fragments().next()
-    >>> frag
-    <Fragment  mass=221.089937203 kind=Y included_nodes=set([1]) link_ids={1: ('', 'Y')} name=Y1 crossring_cleavages={} score=0.0 composition=Composition({'H': 15, 'C': 8, 'O': 6, 'N': 1})>
-    >>> glycan.fragment_to_substructure(frag, n_linked_core)
-    RES
-    1b:b-dglc-HEX-1:5
-    2s:n-acetyl
-    LIN
-    1:1d(2+1)2n
-    <BLANKLINE>
-    >>>
-
     Parameters
     ----------
     fragment: Fragment
@@ -199,6 +183,10 @@ class Glycan(SaccharideCollection):
                 if node.id < 0:
                     node.id = i
                     i += 1
+                    # reindex substituents as well
+                    for j, subst in node.substituents():
+                        subst.id = i
+                        i += 1
             except TypeError:
                 if isinstance(node.id, tuple):
                     # this node may be decorated from
@@ -245,6 +233,9 @@ class Glycan(SaccharideCollection):
             for node in self.index:
                 node.id += base
                 node.id *= -1
+                for j, subst in node.substituents():
+                    subst.id += base
+                    subst.id *= -1
             for link in self.link_index:
                 link.id += base
                 link.id *= -1
