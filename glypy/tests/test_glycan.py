@@ -207,7 +207,7 @@ class GlycanTests(unittest.TestCase):
         structure = load("branchy_glycan")
         fragment = Fragment(mass=1463.5284494, kind="1,5A0,3X", included_nodes=set([2, 3, 4, 5, 6, 7, 8, 9, 10]),
                             link_ids={}, name="0,3Xc4-1,5A4",
-                            crossring_cleavages={2: ('1,5', 'A'), 7: ('0,3', 'X')})
+                            crossring_cleavages={3: ('1,5', 'A'), 10: ('0,3', 'X')})
         subtree = glycan.fragment_to_substructure(fragment, structure)
         self.assertAlmostEqual(subtree.mass(), fragment.mass)
 
