@@ -641,6 +641,15 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
         return self(base)
 
 
+class CondensedMonosaccharideDeserializer(object):
+    pattern = re.compile(r'''(?:
+                         (?P<modification>[a-z0-9_\-,]*)
+                         (?P<base_type>[^-]{3}?)
+                         (?P<substituent>[^-]*?)
+                         (?P<linkage>-\((?P<anomer>[ab?])[0-9?]->?[0-9?]\)-?)?
+                         )$''', re.VERBOSE)
+
+
 monosaccharide_from_iupac = MonosaccharideDeserializer()
 
 
@@ -650,30 +659,33 @@ class GlycanDeserializer(object):
             monosaccharide_deserializer = MonosaccharideDeserializer()
         self.monosaccharide_deserializer = monosaccharide_deserializer
 
+    new_branch_open = re.compile(r"(\]-?)$")
+
     def add_monosaccharide(self, parent_node, child_node, parent_position, child_position):
         # parent_node.add_monosaccharide(
         #     child_node, position=parent_position, child_position=child_position)
         self.monosaccharide_deserializer.add_monosaccharide_bond(
             child_node, parent_node, (child_position, parent_position))
 
-    def glycan_from_iupac(self, text, **kwargs):
+    def glycan_from_iupac(self, text, structure_class=Glycan, **kwargs):
         last_outedge = None
         root = None
         last_residue = None
         branch_stack = []
 
         # Remove the base
-        text = re.sub(r"\(\?->?$", "", text)
+        text = re.sub(r"\((\d*|\?)->?$", "", text)
 
         while len(text) > 0:
-
             # If starting a new branch
-            if text[-1] == ']':
+            match = self.new_branch_open.search(text)
+            if match is not None:
+                step = match.end(1) - match.start(1)
+                text = text[:-step]
                 branch_stack.append((last_residue, root, last_outedge))
                 root = None
                 last_residue = None
                 last_outedge = None
-                text = text[:-1]
             # If ending a branch
             elif text[-1] == '[':
                 try:
@@ -699,7 +711,7 @@ class GlycanDeserializer(object):
                     text = text[:match.start()]
                 else:
                     raise IUPACError("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
-        res = Glycan(root)
+        res = structure_class(root=root)
         self.monosaccharide_deserializer.finalize(res)
         return res
 
@@ -710,7 +722,7 @@ class GlycanDeserializer(object):
 glycan_from_iupac = GlycanDeserializer()
 
 
-def from_iupac(text, **kwargs):
+def from_iupac(text, structure_class=Glycan, **kwargs):
     """Parse the given text into an instance of |Glycan|. If there is only a single monosaccharide
     in the output, just the Monosaccharide instance is returned.
 
@@ -723,7 +735,7 @@ def from_iupac(text, **kwargs):
     |Glycan| or |Monosaccharide|
         If the resulting structure is just a single monosaccharide, the returned value is a Monosaccharide.
     """
-    res = glycan_from_iupac(text, **kwargs)
+    res = glycan_from_iupac(text, structure_class=structure_class, **kwargs)
     if len(res) > 1:
         return res
     else:
