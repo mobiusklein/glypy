@@ -296,7 +296,7 @@ def monosaccharide_from_linear_code(residue_str, parent=None):
     return base, outedge
 
 
-def parse_linear_code(text):
+def parse_linear_code(text, structure_class=Glycan):
     '''
     Parse the character string `text`, extracting GlycoMinds Linear Code-format
     carbohydrate structures, converting them into a |Glycan| object.
@@ -362,7 +362,7 @@ def parse_linear_code(text):
             else:
                 raise LinearCodeError("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
 
-    res = Glycan(root)
+    res = structure_class(root=root)
     if len(res) > 1:
         return res
     else:
