@@ -44,8 +44,8 @@ def fragment_to_substructure(fragment, tree):
 
     Parameters
     ----------
-    fragment: Fragment
-        The :class:`Fragment` to extract substructure for.
+    fragment: GlycanFragment
+        The :class:`GlycanFragment` to extract substructure for.
     tree: Glycan
         The |Glycan| to extract substructure from.
 
@@ -1150,7 +1150,7 @@ class Glycan(SaccharideCollection):
 
         Yields
         ------
-        :class:`Fragment`
+        :class:`GlycanFragment`
 
         See also
         --------

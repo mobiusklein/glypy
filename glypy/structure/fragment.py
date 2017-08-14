@@ -51,7 +51,7 @@ latex_symbol_map = {
 }
 
 
-class Fragment(object):
+class GlycanFragment(object):
     '''
     A simple container for a fragment ion, produced by :meth:`Glycan.fragments`
 
@@ -164,7 +164,7 @@ class Fragment(object):
         return not self == other
 
     def __repr__(self):  # pragma: no cover
-        rep = "<Fragment "
+        rep = "<GlycanFragment "
         for f in self.__slots__:
             rep += " {}={}".format(f, getattr(self, f))
         rep += ">"
@@ -183,7 +183,10 @@ class Fragment(object):
         return len(self.included_nodes)
 
 
-class Subtree(object):
+Fragment = GlycanFragment
+
+
+class GlycanSubstructure(object):
 
     def __init__(self, tree, include_nodes, link_ids,
                  parent_breaks, child_breaks, crossring_cleavages=None):
@@ -201,8 +204,8 @@ class Subtree(object):
     def to_fragments(
             self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True,
             traversal_method='dfs'):
-        """Transform an instance of :class:`Subtree` into every combination of
-        :class:`Fragment` allowed under `kind`.
+        """Transform an instance of :class:`GlycanSubstructure` into every combination of
+        :class:`GlycanFragment` allowed under `kind`.
 
         Parameters
         ----------
@@ -221,7 +224,7 @@ class Subtree(object):
 
         Yields
         -------
-        :class:`Fragment`
+        :class:`GlycanFragment`
         """
         parent_type = set("YZ") & set(kind)
         child_type = set("BC") & set(kind)
@@ -256,7 +259,7 @@ class Subtree(object):
             base_composition = self.tree.total_composition(method=traversal_method)
         # product of splat of empty list is a list of the empty list. So a fragment with
         # no glycosidic cleavages still enters this outer loop, letting only crossring-cleavage
-        # Subtree instances through without issue
+        # GlycanSubstructure instances through without issue
         for shift_set in itertools.product(*frag_types):
             mass_offset = 0.0
             composition_offset = Composition()
@@ -278,13 +281,13 @@ class Subtree(object):
             if include_composition:
                 fragment_composition = base_composition + composition_offset
 
-            yield Fragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
+            yield GlycanFragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
                            mass=base_mass + mass_offset, name=None,
                            crossring_cleavages=self.crossring_cleavages,
                            composition=fragment_composition)
 
     def __repr__(self):  # pragma: no cover
-        rep = ("<Subtree include_nodes={} link_ids={} parent_breaks={}"
+        rep = ("<GlycanSubstructure include_nodes={} link_ids={} parent_breaks={}"
                "child_breaks={} crossring_cleavages={}>\n{}").format(
             self.include_nodes, self.link_ids, self.parent_breaks,
             self.child_breaks, self.crossring_cleavages, self.tree)
@@ -295,3 +298,6 @@ class Subtree(object):
 
     def __tree__(self):  # pragma: no cover
         return self.tree
+
+
+Subtree = GlycanSubstructure
