@@ -14,3 +14,4 @@ omit =
     glypy/enzyme.py
     glypy/structure/modification.py
     glypy/tests/*
+    glypy/utils/compat.py

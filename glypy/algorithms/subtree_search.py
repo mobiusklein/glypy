@@ -333,10 +333,10 @@ def n_saccharide_similarity(self, other, n=2, exact=False):
         comparator = Glycan.topological_equality
 
     self_n_saccharides = list(subtree.tree for subtree in self.substructures(
-        max_cleavages=max(self, key=operator.methodcaller('order')).order())
+        max_cleavages=max(self, key=operator.methodcaller('degree')).degree())
                               if _len(subtree.tree) == n)
     other_n_saccharides = list(subtree.tree for subtree in other.substructures(
-        max_cleavages=max(other, key=operator.methodcaller('order')).order())
+        max_cleavages=max(other, key=operator.methodcaller('degree')).degree())
                                if _len(subtree.include_nodes) == n)
 
     n_sacch_max = max(len(self_n_saccharides), len(other_n_saccharides))

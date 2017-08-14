@@ -153,7 +153,7 @@ class Substituent(SubstituentBase):
     _derivatize: |bool|
         Whether this substituent was added by a derivatization process.
 
-    _order: |int|
+    _degree: |int|
         The number of connections to this molecule. Mutated internally by |Link| objects,
         not for external use. See :meth:`order`.
 
@@ -179,7 +179,7 @@ class Substituent(SubstituentBase):
 
         self.composition = composition
         self.id = id or uid()
-        self._order = self.order()
+        self._degree = self.order()
         try:
             if can_nh_derivatize is is_nh_derivatizable is None:
                 derivatize_pathway = derivatize_info[self.name]
@@ -343,7 +343,7 @@ class Substituent(SubstituentBase):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self._order = state.get("_order", len(self.links))
+        self._degree = state.get("_degree", len(self.links))
         self._derivatize = state.get("_derivatize", False)
 
     def clone(self, prop_id=True):
@@ -380,7 +380,7 @@ class Substituent(SubstituentBase):
             link.clone(substituent, dup)
         return substituent
 
-    def order(self):
+    def degree(self):
         return len(self.links)
 
     def total_composition(self):

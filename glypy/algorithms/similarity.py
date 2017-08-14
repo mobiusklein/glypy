@@ -144,7 +144,7 @@ def optimal_assignment(assignments, score_fn):
     '''
     score_matrix = dict()
     for ids in assignments:
-            score_matrix[ids] = score_fn(*assignments[ids])
+        score_matrix[ids] = score_fn(*assignments[ids])
 
     best_score = -float('inf')
     best_mapping = {}

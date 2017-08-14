@@ -120,8 +120,8 @@ class Link(object):
         else:
             self.parent.links[self.parent_position] = self
         self.child.links[self.child_position] = self
-        self.parent._order += 1
-        self.child._order += 1
+        self.parent._degree += 1
+        self.child._degree += 1
         self._attached = True
 
     def to(self, mol):
@@ -281,8 +281,8 @@ class Link(object):
         self.child.links.pop(self.child_position, self)
         if refund:
             self.refund()
-        self.parent._order -= 1
-        self.child._order -= 1
+        self.parent._degree -= 1
+        self.child._degree -= 1
         self._attached = False
         return (self.parent, self.child)
 
@@ -306,8 +306,8 @@ class Link(object):
 
         if refund:
             self.refund()
-        self.parent._order += 1
-        self.child._order += 1
+        self.parent._degree += 1
+        self.child._degree += 1
         self._attached = True
 
     def refund(self):

@@ -94,7 +94,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
         visited = set()
     yield apply_fn(monosaccharide)
     visited.add(monosaccharide.id)
-    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
+    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].degree(), reverse=True)
     for link_pos, link in outnodes:
         child = link[monosaccharide]
         if child.id in visited:
@@ -126,7 +126,7 @@ def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma:
         visited = set()
     yield apply_fn(monosaccharide)
     visited.add(id(monosaccharide))
-    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].order(), reverse=True)
+    outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].degree(), reverse=True)
     for link_pos, link in outnodes:
         child = link[monosaccharide]
         if id(child) in visited:
@@ -342,7 +342,7 @@ class Monosaccharide(SaccharideBase):
         if composition is None:
             composition = _get_standard_composition(self)
         self.composition = composition
-        self._order = len(self.links) + len(self.substituent_links)
+        self._degree = len(self.links) + len(self.substituent_links)
 
     @property
     def anomer(self):
@@ -546,7 +546,7 @@ class Monosaccharide(SaccharideBase):
         return self._remaining_capacity() >= 0
 
     def _remaining_capacity(self):
-        bonds = self.order(deep=True)
+        bonds = self.degree(deep=True)
         max_size = self.superclass.value - 1
         if self.ring_type == RingType.open:
             max_size += 1
@@ -1136,7 +1136,7 @@ class Monosaccharide(SaccharideBase):
         self.superclass = state['_superclass']
         self.stem = state['_stem']
         self.configuration = state['_configuration']
-        self._order = state.get("_order")
+        self._degree = state.get("_degree")
         self.ring_start = state['ring_start']
         self.ring_end = state['ring_end']
         self.id = state['id']
@@ -1146,8 +1146,8 @@ class Monosaccharide(SaccharideBase):
         self.substituent_links = state['substituent_links']
         self.composition = state["composition"]
         reduced = state.get('_reducing_end', None)
-        if self._order is None:
-            self._order = len(self.links) + len(self.substituent_links)
+        if self._degree is None:
+            self._degree = len(self.links) + len(self.substituent_links)
         # Make sure that if "aldi" is present, to replace it with
         # the default ReducedEnd
         if reduced is None:
@@ -1297,9 +1297,9 @@ class Monosaccharide(SaccharideBase):
             results.append((pos, subst))
         return results
 
-    def order(self, deep=False):
+    def degree(self, deep=False):
         '''
-        Return the "graph theory" order of this molecule
+        Return the "graph theory" degree of this molecule
 
         Returns
         -------
@@ -1307,9 +1307,9 @@ class Monosaccharide(SaccharideBase):
         '''
         if deep:
             res = len(self.links) + len(self.substituent_links)
-            if hasattr(self, "_order"):
-                assert res == self._order
-        return self._order
+            if hasattr(self, "_degree"):
+                assert res == self._degree
+        return self._degree
 
     def __iter__(self):
         return self.children()
@@ -1344,7 +1344,7 @@ class ReducedEnd(object):
         self.links = substituents or OrderedMultiMap()
         self.valence = valence
         self.id = id or uid()
-        self._order = len(self.links)
+        self._degree = len(self.links)
 
     def is_occupied(self, position):
         '''
@@ -1568,7 +1568,7 @@ class ReducedEnd(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self._order = state.get("_order", len(self.links))
+        self._degree = state.get("_degree", len(self.links))
 
 
 MonosaccharideOccupancy = make_struct(
