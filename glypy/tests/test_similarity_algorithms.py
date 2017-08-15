@@ -1,4 +1,5 @@
 import unittest
+import operator
 
 import glypy
 from glypy.composition import composition_transform
@@ -26,6 +27,18 @@ class SimilarityTests(unittest.TestCase):
             (11, 14))
         self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (54, 54))
         self.assertEqual(ref, broad)
+
+    def test_build_index_pairs(self):
+        pairs = {(18, 15): (9, 9), (15, 15): (9, 9), (15, 18): (9, 9), (18, 18): (9, 9)}
+        expected = set([((18, 15), (15, 18)), ((18, 18), (15, 15))])
+        result = similarity.build_unique_index_pairs(pairs)
+        self.assertEqual(set(result), expected)
+
+    def test_optimal_assignment(self):
+        pairs = {(18, 15): (9, 9), (15, 15): (9, 9), (15, 18): (9, 9), (18, 18): (9, 9)}
+        expected = set(((18, 15), (15, 18)))
+        result = similarity.optimal_assignment(pairs, operator.sub)
+        self.assertEqual(set(result), expected)
 
     def test_is_aminated(self):
         broad = load("broad_n_glycan")

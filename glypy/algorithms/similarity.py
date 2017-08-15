@@ -8,12 +8,8 @@ from glypy import Substituent, monosaccharides
 from glypy.structure.constants import Modification, Stem
 
 
-def monosaccharide_similarity(node, target, include_substituents=True,
-                              include_modifications=True, include_children=False,
-                              exact=True, ignore_reduction=False, visited=None,
-                              short_circuit_after=None):
-    '''
-    A heuristic for measuring similarity between monosaccharide instances
+class NodeSimilarityComparator(object):
+    '''A heuristic comparison for measuring similarity between monosaccharides.
 
     Compares:
         1. ring_start and ring_end
@@ -25,12 +21,8 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         7. If `include_substituents`, each substituent
         8. If `include_children`, each child |Monosaccharide|
 
-    Parameters
+    Attributes
     ----------
-    node: Monosaccharide
-        Object to compare with
-    target: Monosaccharide
-        Object to compare against
     include_substituents: bool
         Include substituents in comparison (Defaults |True|)
     include_modifications: bool
@@ -39,43 +31,64 @@ def monosaccharide_similarity(node, target, include_substituents=True,
         Include children in comparison (Defaults |False|)
     exact: bool
         Penalize for having unmatched attachments (Defaults |True|)
-
-    Returns
-    -------
-    res: int
-        Number of actual matching traits
-    qs: int
-        Number of expected matching traits assuming perfect equality
+    short_circuit_after: None or Number
+        Controls whether to quit comparing nodes if the difference
+        becomes too large, useful for speeding up pessimistic
+        comparisons
     '''
+    def __init__(self, include_substituents=True, include_modifications=True,
+                 include_children=False, exact=True, ignore_reduction=False,
+                 short_circuit_after=None, visited=None):
+        if visited is None:
+            visited = set()
+        self.include_substituents = include_substituents
+        self.include_modifications = include_modifications
+        self.include_children = include_children
+        self.exact = exact
+        self.ignore_reduction = ignore_reduction
+        self.visited = visited
+        self.short_circuit_after = short_circuit_after
+    
+    def reset(self):
+        self.visited.clear()
 
-    if visited is None:
-        visited = set()
+    @classmethod
+    def similarity(cls, node, target, include_substituents=True,
+                   include_modifications=True, include_children=False,
+                   exact=True, ignore_reduction=False,
+                   short_circuit_after=None, visited=None):
+        inst = cls(
+            include_substituents=include_substituents,
+            include_modifications=include_modifications,
+            include_children=include_children,
+            exact=exact, ignore_reduction=ignore_reduction,
+            short_circuit_after=short_circuit_after,
+            visited=visited)
+        return inst.compare(node, target)
+    
+    def compare_anomer(self, node, target):
+        test = (node.anomer == target.anomer) or (
+                target.anomer.value is None)
+        reference = 1
+        return int(test), reference
 
-    if (node.id, target.id) in visited:
-        return 0, 0
-
-    visited.add((node.id, target.id))
-
-    res = 0
-    qs = 0
-    try:
-        res += (node.anomer == target.anomer) or (target.anomer.value is None)
-        qs += 1
-    except AttributeError:
-        # Handle Substituents
-        res = int(node.total_composition() == target.total_composition())
-        q = 1
-        return res, q
-
-    res += (node.superclass == target.superclass) or (target.superclass.value is None)
-    qs += 1
-    res += (node.stem == target.stem) or (target.stem[0].value is None)
-    qs += 1
-    res += (node.configuration == target.configuration) or (target.configuration[0].value is None)
-    qs += 1
-    if short_circuit_after is not None and (res - qs) < short_circuit_after:
-        return res, qs
-    if include_modifications:
+    def compare_compositions(self, node, target):
+        test = int(node.total_composition() == target.total_composition())
+        reference = 1
+        return test, reference
+    
+    def compare_ring_structure(self, node, target):
+        test = reference = 0
+        test += (node.superclass == target.superclass) or (target.superclass.value is None)
+        reference += 1
+        test += (node.stem == target.stem) or (target.stem[0].value is None)
+        reference += 1
+        test += (node.configuration == target.configuration) or (target.configuration[0].value is None)
+        reference += 1
+        return test, reference
+    
+    def compare_modifications(self, node, target):
+        test = reference = 0
         node_mods = list(node.modifications.values())
         node_reduced = False
         target_reduced = False
@@ -86,46 +99,90 @@ def monosaccharide_similarity(node, target, include_substituents=True,
             if check:
                 if mod == 'aldi':
                     node_reduced = True
-                res += 1
+                test += 1
                 node_mods.pop(node_mods.index(mod))
-            qs += 1
-        if ignore_reduction:
+            reference += 1
+        if self.ignore_reduction:
             if target_reduced:
-                qs -= 1
+                reference -= 1
             if node_reduced:
-                res -= 1
-        qs += len(node_mods) if exact else 0
-    if short_circuit_after is not None and (res - qs) < short_circuit_after:
-        return res, qs
-    if include_substituents:
+                test -= 1
+        reference += len(node_mods) if self.exact else 0
+        return test, reference
+    
+    def compare_substituents(self, node, target):
+        test = reference = 0
         node_subs = list(node for p, node in node.substituents())
         for pos, sub in target.substituents():
             check = (sub in node_subs)
             if check:
-                res += 1
+                test += 1
                 node_subs.pop(node_subs.index(sub))
-            qs += 1
-        qs += len(node_subs) if exact else 0
-    if short_circuit_after is not None and (res - qs) < short_circuit_after:
-        return res, qs
-    if include_children:
+            reference += 1
+        reference += len(node_subs) if self.exact else 0
+        return test, reference
+    
+    def compare_children(self, node, target):
+        test = reference = 0
         node_children = list(child for p, child in node.children())
         match_index = dict()
         for p, target_child in target.children():
             for node_child in node_children:
-                c_res, c_qs = monosaccharide_similarity(
-                    node_child, target_child, include_substituents=include_substituents,
-                    include_modifications=include_modifications,
-                    include_children=include_children, visited=visited)
+                c_res, c_qs = self.compare(node_child, target_child)
                 match_index[node_child.id, target_child.id] = (c_res, c_qs)
 
         assignments = optimal_assignment(match_index, operator.sub)
         for ix in assignments:
-            a_res, a_qs = match_index[ix]
-            res += a_res
-            qs += a_qs
+            a_test, a_reference = match_index[ix]
+            test += a_test
+            reference += a_reference
+        return test, reference
+    
+    def _check_short_circuit(self, test, reference):
+        return self.short_circuit_after is not None and (test - reference) < self.short_circuit_after
 
-    return res, qs
+    def compare(self, node, target):
+        key = (node.id, target.id)
+        if key in self.visited:
+            return 0, 0
+        self.visited.add(key)
+        test = 0
+        reference = 0
+        try:
+            t, r = self.compare_anomer(node, target)
+            test += t
+            reference += r
+        except AttributeError:
+            # must be handling substituents
+            t, r = self.compare_compositions(node, target)
+            test += t
+            reference += r
+            return test, reference
+        t, r = self.compare_ring_structure(node, target)
+        test += t
+        reference += r
+        if self._check_short_circuit(test, reference):
+            return test, reference
+        if self.include_modifications:
+            t, r = self.compare_modifications(node, target)
+            test += t
+            reference += r
+            if self._check_short_circuit(test, reference):
+                return test, reference
+        if self.include_substituents:
+            t, r = self.compare_substituents(node, target)
+            test += t
+            reference += r
+            if self._check_short_circuit(test, reference):
+                return test, reference
+        if self.include_children:
+            t, r = self.compare_children(node, target)
+            test += t
+            reference += r
+        return test, reference
+
+
+monosaccharide_similarity = NodeSimilarityComparator.similarity
 
 
 def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
@@ -142,16 +199,16 @@ def optimal_assignment(assignments, score_fn):
     Given a set of possibly overlapping matches, brute-force find the
     optimal solution. Evaluate each pairing in `assignments` with `score_fn`
     '''
-    score_matrix = dict()
+    score_map = dict()
     for ids in assignments:
-        score_matrix[ids] = score_fn(*assignments[ids])
+        score_map[ids] = score_fn(*assignments[ids])
 
     best_score = -float('inf')
     best_mapping = {}
     for assignment in build_unique_index_pairs(assignments):
         current_score = 0
         for ix in assignment:
-            current_score += score_matrix[ix]
+            current_score += score_map[ix]
         if current_score > best_score:
             best_score = current_score
             best_mapping = assignment
