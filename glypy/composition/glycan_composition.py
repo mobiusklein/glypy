@@ -23,6 +23,8 @@ True
 
 '''
 import re
+from collections import Mapping
+
 from glypy import Composition, Monosaccharide, Glycan, Substituent, ReducedEnd
 from glypy.utils import tree, uid
 from glypy.utils.multimap import OrderedMultiMap
@@ -84,6 +86,8 @@ class IUPACLiteMonosaccharideDeserializer(iupac.DerivatizationAwareMonosaccharid
                     return result
                 except Exception:
                     raise iupac.IUPACError("Cannot find pattern in {}".format(monosaccharide_str))
+        except TypeError:
+            raise TypeError("Expected string, received {} ({})".format(monosaccharide_str, type(monosaccharide_str)))
         residue = self.build_residue(match_dict)
 
         deriv = match_dict.get("derivatization", '')
@@ -674,7 +678,7 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def update(self, *args, **kwargs):
         if len(args) == 1:
-            if isinstance(args[0], dict):
+            if isinstance(args[0], Mapping):
                 args = list(args)
                 for name, count in args[0].items():
                     if count != 0:
