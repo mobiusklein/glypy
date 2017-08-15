@@ -40,6 +40,29 @@ class SimilarityTests(unittest.TestCase):
         result = similarity.optimal_assignment(pairs, operator.sub)
         self.assertEqual(set(result), expected)
 
+    def test_partial_similarity(self):
+        broad = load("broad_n_glycan")
+        expected = [
+         (1, (54, 54)),
+         (3, (49, 49)),
+         (5, (44, 44)),
+         (6, (27, 27)),
+         (7, (14, 14)),
+         (9, (4, 4)),
+         (10, (5, 5)),
+         (11, (9, 9)),
+         (13, (4, 4)),
+         (14, (22, 22)),
+         (15, (9, 9)),
+         (17, (4, 4)),
+         (18, (9, 9)),
+         (20, (4, 4))
+        ]
+        result = map(lambda x: (
+            x[0].id, similarity.monosaccharide_similarity(
+                x[0], x[1], include_children=1)), zip(broad, broad))
+        self.assertEqual(result, expected)
+
     def test_is_aminated(self):
         broad = load("broad_n_glycan")
         self.assertTrue(similarity.is_aminated(broad.root))
