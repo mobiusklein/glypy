@@ -58,9 +58,9 @@ class SimilarityTests(unittest.TestCase):
          (18, (9, 9)),
          (20, (4, 4))
         ]
-        result = map(lambda x: (
+        result = list(map(lambda x: (
             x[0].id, similarity.monosaccharide_similarity(
-                x[0], x[1], include_children=1)), zip(broad, broad))
+                x[0], x[1], include_children=1)), zip(broad, broad)))
         self.assertEqual(result, expected)
 
     def test_is_aminated(self):
