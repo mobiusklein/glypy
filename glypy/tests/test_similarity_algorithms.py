@@ -17,7 +17,7 @@ class SimilarityTests(unittest.TestCase):
         self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (5, 5))
         self.assertEqual(
             similarity.monosaccharide_similarity(branchy.root, branchy.root, include_children=True),
-            (26, 26))
+            (44, 44))
         self.assertEqual(similarity.monosaccharide_similarity(branchy.root, broad.root), (4, 5))
         self.assertEqual(
             similarity.monosaccharide_similarity(branchy.root, broad.root, include_children=True),
@@ -25,27 +25,29 @@ class SimilarityTests(unittest.TestCase):
         self.assertEqual(
             similarity.monosaccharide_similarity(broad.root, branchy.root, include_children=True),
             (11, 14))
-        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (54, 54))
+        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (63, 63))
         self.assertEqual(ref, broad)
 
     def test_build_index_pairs(self):
+        nsc = similarity.NodeSimilarityComparator()
         pairs = {(18, 15): (9, 9), (15, 15): (9, 9), (15, 18): (9, 9), (18, 18): (9, 9)}
         expected = set([((18, 15), (15, 18)), ((18, 18), (15, 15))])
-        result = similarity.build_unique_index_pairs(pairs)
+        result = nsc.build_unique_index_pairs(pairs)
         self.assertEqual(set(result), expected)
 
     def test_optimal_assignment(self):
+        nsc = similarity.NodeSimilarityComparator()
         pairs = {(18, 15): (9, 9), (15, 15): (9, 9), (15, 18): (9, 9), (18, 18): (9, 9)}
         expected = set(((18, 15), (15, 18)))
-        result = similarity.optimal_assignment(pairs, operator.sub)
+        result = nsc.optimal_assignment(pairs)
         self.assertEqual(set(result), expected)
 
     def test_partial_similarity(self):
         broad = load("broad_n_glycan")
         expected = [
-         (1, (54, 54)),
-         (3, (49, 49)),
-         (5, (44, 44)),
+         (1, (63, 63)),
+         (3, (58, 58)),
+         (5, (53, 53)),
          (6, (27, 27)),
          (7, (14, 14)),
          (9, (4, 4)),

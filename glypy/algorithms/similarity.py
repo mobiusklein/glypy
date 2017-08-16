@@ -122,16 +122,24 @@ class NodeSimilarityComparator(object):
         reference += len(node_subs) if self.exact else 0
         return test, reference
     
-    def compare_children(self, node, target):
-        test = reference = 0
+    def _build_child_pair_score_map(self, node, target):
+        '''Compute all pair-wise similarities between children
+        of ``node`` and ``target``
+        '''
+        # TODO: support exactness penalty here, maybe recursively?
         node_children = list(child for p, child in node.children())
         match_index = dict()
         for p, target_child in target.children():
             for node_child in node_children:
                 c_res, c_qs = self.compare(node_child, target_child)
                 match_index[node_child.id, target_child.id] = (c_res, c_qs)
+        return match_index
 
-        assignments = optimal_assignment(match_index, operator.sub)
+    def compare_children(self, node, target):
+        test = reference = 0
+        match_index = self._build_child_pair_score_map(node, target)
+
+        assignments = self.optimal_assignment(match_index)
         for ix in assignments:
             a_test, a_reference = match_index[ix]
             test += a_test
@@ -181,6 +189,65 @@ class NodeSimilarityComparator(object):
             reference += r
         return test, reference
 
+    def optimal_assignment(self, assignments):
+        '''
+        Given a set of possibly overlapping matches, find the
+        optimal solution.
+        '''
+        diff_map = dict()
+        for ids in assignments:
+            diff_map[ids] = operator.sub(*assignments[ids])
+
+        index_pair_sets = self.build_unique_index_pairs(assignments)
+
+        def ordering_fn(index_pairs):
+            total = 0
+            for ix in index_pairs:
+                total += max(assignments[ix])
+            return total
+
+        ordered_index_pairs_sets = sorted(index_pair_sets, key=ordering_fn, reverse=True)
+
+        best_score = -float('inf')
+        best_mapping = {}
+        # prefer solutions which have a higher maximum value (more points of comparison)
+        for assignment in ordered_index_pairs_sets:
+            current_score = 0
+            for ix in assignment:
+                current_score += diff_map[ix]
+            if current_score > best_score:
+                best_score = current_score
+                best_mapping = assignment
+        return best_mapping
+
+    def build_unique_index_pairs(self, pairs):
+        '''
+        Generate all unique non-overlapping sets of pairs, given in
+        `pairs`
+        '''
+        depth = 0
+        pairings = defaultdict(set)
+        for a, b in pairs:
+            pairings[a].add(b)
+        next_current = [()]
+        options_a = list(pairings)
+        partial_solutions = set()
+        while depth < len(options_a):
+            for current in next_current:
+                if len(current) > 0:
+                    current_a, current_b = map(set, zip(*current))
+                else:
+                    current_b = set()
+                components = set()
+                a = options_a[depth]
+                for b in pairings[a] - current_b:
+                    components.add((current + ((a, b),)))
+                partial_solutions.update(components)
+            depth += 1
+            next_current = partial_solutions
+            partial_solutions = set()
+        return list(next_current)
+
 
 monosaccharide_similarity = NodeSimilarityComparator.similarity
 
@@ -192,56 +259,6 @@ def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
     else:
         obs, expect = monosaccharide_similarity(target, node, *args, **kwargs)
         return (obs - expect) >= -tolerance
-
-
-def optimal_assignment(assignments, score_fn):
-    '''
-    Given a set of possibly overlapping matches, brute-force find the
-    optimal solution. Evaluate each pairing in `assignments` with `score_fn`
-    '''
-    score_map = dict()
-    for ids in assignments:
-        score_map[ids] = score_fn(*assignments[ids])
-
-    best_score = -float('inf')
-    best_mapping = {}
-    for assignment in build_unique_index_pairs(assignments):
-        current_score = 0
-        for ix in assignment:
-            current_score += score_map[ix]
-        if current_score > best_score:
-            best_score = current_score
-            best_mapping = assignment
-    return best_mapping
-
-
-def build_unique_index_pairs(pairs):
-    '''
-    Generate all unique non-overlapping sets of pairs, given in
-    `pairs`
-    '''
-    depth = 0
-    pairings = defaultdict(set)
-    for a, b in pairs:
-        pairings[a].add(b)
-    next_current = [()]
-    options_a = list(pairings)
-    partial_solutions = set()
-    while depth < len(options_a):
-        for current in next_current:
-            if len(current) > 0:
-                current_a, current_b = map(set, zip(*current))
-            else:
-                current_b = set()
-            components = set()
-            a = options_a[depth]
-            for b in pairings[a] - current_b:
-                components.add((current + ((a, b),)))
-            partial_solutions.update(components)
-        depth += 1
-        next_current = partial_solutions
-        partial_solutions = set()
-    return list(next_current)
 
 
 def has_substituent(monosaccharide, substituent):
