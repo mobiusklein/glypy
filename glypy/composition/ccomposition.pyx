@@ -200,22 +200,6 @@ cdef class CComposition(dict):
             prod.setitem(k, v * rep)
 
         return prod
-        # cdef:
-        #     CComposition prod = CComposition()
-        #     int rep, v
-        #     str k
-
-        # if isinstance(other, CComposition):
-        #     self, other = other, self
-        
-        # if not isinstance(other, int):
-        #     raise ChemicalCompositionError(
-        #         'Cannot multiply Composition by non-integer',
-        #         other)
-        # rep = other
-        # for k, v in self.items():
-        #     prod.setitem(k, v * rep)
-        # return prod
 
     def __imul__(self, other):
         cdef:
