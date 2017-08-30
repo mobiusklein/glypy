@@ -89,14 +89,13 @@ class GlycanFragment(object):
         "link_ids",
         "name",
         "crossring_cleavages",
-        "score",
         "composition",
         "attributes"
     ]
 
     def __init__(self, kind, link_ids, included_nodes, mass,
                  name=None, crossring_cleavages=None, composition=None,
-                 score=0.0, attributes=None):
+                 attributes=None):
         if attributes is None:
             attributes = {}
         self.mass = mass
@@ -106,7 +105,6 @@ class GlycanFragment(object):
         self.crossring_cleavages = crossring_cleavages
         self.name = name
         self.composition = composition
-        self.score = score
         self.attributes = attributes
 
     def is_reducing(self):
