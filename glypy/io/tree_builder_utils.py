@@ -1,4 +1,5 @@
 from glypy.utils import enum, root as rootp
+from glypy.structure.base import SaccharideBase
 
 
 class StructurePrecisionEnum(enum.Enum):
@@ -106,12 +107,14 @@ def undecorate_tree(tree):
         for j, substituent in node.substituents():
             substituent.id = i
             i += 1
+
     tree.reindex()
     return tree
 
 
 def find_root(tree):
     root = rootp(tree)
+
     while True:
         parents = root.parents()
         if not parents:

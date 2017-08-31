@@ -22,7 +22,10 @@ import warnings
 from collections import defaultdict, Counter, deque, namedtuple, OrderedDict
 from functools import cmp_to_key
 
-from glypy.utils import opener, StringIO, root as rootp, tree as treep, make_counter, invert_dict
+from glypy.utils import (
+    opener, StringIO, root as rootp, tree as treep,
+    make_counter, invert_dict,
+    RootProtocolNotSupportedError)
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, link, glycan, Modification
 from .format_constants_map import (anomer_map, superclass_map,
@@ -430,7 +433,10 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
                 node.postprocess()
                 graph[key] = node.origin_node
 
-        root = find_root(graph[sub_unit_indices[0]])
+        try:
+            root = find_root(graph[sub_unit_indices[0]])
+        except RootProtocolNotSupportedError:
+            raise GlycoCTError("Could not locate subgraph root")
         glycan_graph = Glycan(root, index_method=None).clone()
         return glycan_graph
 
@@ -580,7 +586,10 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
     def postprocess(self):
         parents = [
             self.parent.get_node(parent_id) for parent_id in self.parent_ids]
-        child = [rootp(self)]
+        try:
+            child = [rootp(self)]
+        except RootProtocolNotSupportedError:
+            raise GlycoCTError("Could not locate subgraph root")
 
         linkage = self.subtree_linkages[0]
         parent_loss = linkage["parent_atom_replaced"]
@@ -995,11 +1004,13 @@ class GlycoCTReader(GlycoCTGraphStack):
 
             if self.root is None:
                 return None
-
-            return undecorate_tree(
-                self.structure_class(
-                    root=rootp(self.root), index_method=None)
-            ).reindex()
+            try:
+                return undecorate_tree(
+                    self.structure_class(
+                        root=rootp(self.root), index_method=None)
+                ).reindex()
+            except RootProtocolNotSupportedError:
+                raise GlycoCTError("Could not locate graph root")
         else:
             return self
 
@@ -1500,6 +1511,7 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
             self.buffer.write(res_str + "\n")
         else:
             res_str = self.handle_substituent(self.structure.root)
+            self.buffer.write(res_str + "\n")
         links_in_order = []
         while self.link_queue:
             link = self.link_queue.popleft()

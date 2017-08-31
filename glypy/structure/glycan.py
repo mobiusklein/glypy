@@ -2,7 +2,7 @@
 Represent a sugar graph with pseudo-directed edges.
 
 '''
-
+import warnings
 import operator
 import logging
 import itertools
@@ -22,6 +22,7 @@ from .monosaccharide import (
     graph_clone,
     toggle as residue_toggle,
     MonosaccharideOccupancy)
+from .substituent import Substituent
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
 
@@ -166,6 +167,8 @@ class Glycan(SaccharideCollection):
         Prior to constructing a |Glycan| instance, component |Monosaccharide| instances
         may be labeled, converting their id field into a tuple.
         '''
+        print("index method", method)
+        print(self.root, self.root.links)
         self.deindex()
         traversal = self._get_traversal_method(method)
         index = []
@@ -184,9 +187,13 @@ class Glycan(SaccharideCollection):
                     node.id = i
                     i += 1
                     # reindex substituents as well
-                    for j, subst in node.substituents():
-                        subst.id = i
-                        i += 1
+                    try:
+                        for j, subst in node.substituents():
+                            subst.id = i
+                            i += 1
+                    except AttributeError:
+                        if node.node_type is Substituent.node_type:
+                            continue
             except TypeError:
                 if isinstance(node.id, tuple):
                     # this node may be decorated from
@@ -228,14 +235,22 @@ class Glycan(SaccharideCollection):
         graph. This function mangles all of the node and link ids so that they are
         distinct from the pre-existing nodes.
         '''
+        if self.root.node_type is Substituent.node_type:
+            print("before", self.root.links)
         if self.index is not None and len(self.index) > 0:
             base = uid()
             for node in self.index:
                 node.id += base
                 node.id *= -1
-                for j, subst in node.substituents():
-                    subst.id += base
-                    subst.id *= -1
+                try:
+                    for j, subst in node.substituents():
+                        subst.id += base
+                        subst.id *= -1
+                except AttributeError:
+                    if node.node_type is Substituent.node_type:
+                        warnings.warn("A substituent has been detected as a parent "
+                                      "node. This glycan may not fragment correctly")
+                        print(node.links, self.index)
             for link in self.link_index:
                 link.id += base
                 link.id *= -1
@@ -295,7 +310,13 @@ class Glycan(SaccharideCollection):
         '''
         An alias for :attr:`Monosaccharide.reducing_end` for :attr:`root`
         '''
-        return self.root.reducing_end
+        try:
+            return self.root.reducing_end
+        except AttributeError:
+            if self.root.node_type is Substituent.node_type:
+                return None
+            else:
+                raise
 
     def set_reducing_end(self, value):
         '''
@@ -318,6 +339,8 @@ class Glycan(SaccharideCollection):
             self.root.anomer = None
 
         '''
+        if self.root.node_type is Substituent.node_type:
+            raise TypeError("Cannot set reducing end on this glycan composition")
         self.root.reducing_end = value
         if self.reducing_end is not None:
             self.root.ring_start = 0

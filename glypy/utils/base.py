@@ -208,6 +208,10 @@ def classproperty(func):
     return ClassPropertyDescriptor(func)
 
 
+class RootProtocolNotSupportedError(TypeError):
+    pass
+
+
 def root(structure):
     """The `root` protocol function.
 
@@ -228,7 +232,12 @@ def root(structure):
         root = structure.__root__()
         return root
     except AttributeError:
-        raise TypeError("{} does not support the `root` protocol".format(structure.__class__.__name__))
+        raise RootProtocolNotSupportedError(
+            "{} does not support the `root` protocol".format(structure.__class__.__name__))
+
+
+class TreeProtocolNotSupportedError(TypeError):
+    pass
 
 
 def tree(structure):
@@ -250,7 +259,8 @@ def tree(structure):
     try:
         tree = structure.__tree__()
     except AttributeError:  # pragma: no cover
-        raise TypeError("{} does not support the `tree` protocol.".format(structure.__class__.__name__))
+        raise TreeProtocolNotSupportedError(
+            "{} does not support the `tree` protocol.".format(structure.__class__.__name__))
     return tree
 
 
