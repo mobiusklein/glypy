@@ -167,8 +167,6 @@ class Glycan(SaccharideCollection):
         Prior to constructing a |Glycan| instance, component |Monosaccharide| instances
         may be labeled, converting their id field into a tuple.
         '''
-        print("index method", method)
-        print(self.root, self.root.links)
         self.deindex()
         traversal = self._get_traversal_method(method)
         index = []
@@ -235,8 +233,6 @@ class Glycan(SaccharideCollection):
         graph. This function mangles all of the node and link ids so that they are
         distinct from the pre-existing nodes.
         '''
-        if self.root.node_type is Substituent.node_type:
-            print("before", self.root.links)
         if self.index is not None and len(self.index) > 0:
             base = uid()
             for node in self.index:
@@ -250,7 +246,6 @@ class Glycan(SaccharideCollection):
                     if node.node_type is Substituent.node_type:
                         warnings.warn("A substituent has been detected as a parent "
                                       "node. This glycan may not fragment correctly")
-                        print(node.links, self.index)
             for link in self.link_index:
                 link.id += base
                 link.id *= -1
