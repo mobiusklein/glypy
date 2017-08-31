@@ -24,7 +24,7 @@ from functools import cmp_to_key
 
 from glypy.utils import opener, StringIO, root as rootp, tree as treep, make_counter, invert_dict
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, link, glycan
+from glypy.structure import monosaccharide, substituent, link, glycan, Modification
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from .file_utils import ParserError
@@ -592,7 +592,18 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
             parents, child, parent_position=list(map(int, parent_position)),
             child_position=list(map(int, child_position)), parent_loss=parent_loss,
             child_loss=child_loss)
-        link_obj.find_open_position()
+        try:
+            link_obj.find_open_position()
+        except ValueError:
+            if link_obj.child_position == 1 and Modification.Acidic in link_obj.child.modifications[1]:
+                link_obj.child_position = 2
+                ix = link_obj.child_position_choices.index(1)
+                link_obj.child_position_choices.pop(ix)
+                link_obj.child_position_choices.insert(ix, 2)
+                link_obj.apply()
+                link_obj.find_open_position()
+            else:
+                raise
 
 
 class GlycoCTReader(GlycoCTGraphStack):
