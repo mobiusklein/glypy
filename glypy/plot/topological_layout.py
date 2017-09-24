@@ -33,7 +33,7 @@ def layout_node(node, cx, cy, parent_position=3, visited=None):
         visited = set()
     node.x, node.y = square_perimeter(cx, cy, parent_position)
     node.mask_special_cases = False
-    for child_node, pos_child in zip(node.children, node.tree.children()):
+    for child_node, pos_child in zip(node.children, sorted(node.tree.children())):
         pos = pos_child[0]
         layout_node(child_node, node.x, node.y, pos)
     return node
@@ -43,71 +43,66 @@ def layout(tree, visited=None):
     if visited is None:
         visited = set()
     layout_node(tree, 0, 0, 0, visited)
-    spread(tree)
+    for i in range(10):
+        delta = spread(tree)
+        if delta == 0:
+            break
     return tree
-
-
-# def make_path(node):
-#     pathing = []
-#     last = [node.x, node.y]
-#     for node in breadth_first_traversal(node):
-#         pathing.append([node.x, node.y])
-#         pathing.append(last)
-#         last = [node.x, node.y]
-#     codes = [mpath.Path.MOVETO] + [mpath.Path.LINETO for i in pathing[1:]]
-#     return mpath.Path(pathing, codes)
-
-
-# def centroid(path):
-#     point = np.zeros_like(path.vertices[0])
-#     c = 0.
-#     for p in path.vertices:
-#         point += p
-#         c += 1
-#     return point / c
 
 
 def spread(tree):
     next_layer = tree.children
     if len(next_layer) == 0:
-        return
+        return 0
+
+    total_shift = 0
+
+    # layout later layers first in a depth-first traversal
     for node in next_layer:
-        spread(node)
+        total_shift += spread(node)
 
     if len(next_layer) < 2:
-        return
+        return total_shift
 
-    last = next_layer[0]
-    shifted = [last]
+    # layout this layer in x-ascending order
+    next_layer = sorted(next_layer, key=lambda x: x.x)
+
+    prior_nodes = [next_layer[0]]
+    shifted = [next_layer[0]]
     for node in next_layer[1:]:
-        lpath = make_path(last)
-        npath = make_path(node)
-        if lpath.intersects_path(npath):
-            lcentroid = centroid(lpath)
-            ncentroid = centroid(npath)
-            lxmin_lymin, lxmax_lymax = lpath.get_extents().get_points()
-            nxmin_nymin, nxmax_nymax = npath.get_extents().get_points()
-            if last.x == tree.x:
-                delta = (nxmax_nymax[0] - ncentroid[0])
-                shift_subtree(node, delta)
-            elif ncentroid[0] > lcentroid[0]:
-                delta = (nxmin_nymin[0] - ncentroid[0]) * 1.1
-                for prev in shifted:
-                    if prev.x == tree.x:
-                        continue
-                    pcentroid = centroid(make_path(prev))
-                    if pcentroid[0] > tree.x:
-                        shift_subtree(prev, delta)
-            elif ncentroid[0] < lcentroid[0]:
-                delta = (lxmax_lymax - lcentroid[0]) * -1.1
-                for prev in shifted:
-                    if prev.x == tree.x:
-                        continue
-                    pcentroid = centroid(make_path(prev))
-                    if pcentroid[0] < tree.x:
-                        shift_subtree(prev, delta)
+        for last in prior_nodes:
+            lpath = make_path(last)
+            npath = make_path(node)
+            delta = 0
+            if lpath.intersects_path(npath):
+                lcentroid = centroid(lpath)
+                ncentroid = centroid(npath)
+                lxmin_lymin, lxmax_lymax = lpath.get_extents().get_points()
+                nxmin_nymin, nxmax_nymax = npath.get_extents().get_points()
+                if last.x == tree.x:
+                    delta = (nxmax_nymax[0] - ncentroid[0]) / 2
+                    shift_subtree(node, delta)
+                elif ncentroid[0] > lcentroid[0]:
+                    delta = (nxmin_nymin[0] - ncentroid[0]) / -2
+                    shift_subtree(node, delta)
+                    for prev in shifted:
+                        if prev.x == tree.x:
+                            continue
+                        pcentroid = centroid(make_path(prev))
+                        if pcentroid[0] > tree.x:
+                            shift_subtree(prev, delta)
+                elif ncentroid[0] < lcentroid[0]:
+                    delta = (lxmax_lymax - lcentroid[0]) / -2
+                    for prev in shifted:
+                        if prev.x == tree.x:
+                            continue
+                        pcentroid = centroid(make_path(prev))
+                        if pcentroid[0] < tree.x:
+                            shift_subtree(prev, delta)
+                total_shift += abs(delta)
         shifted.append(node)
-        last = node
+        prior_nodes.append(node)
+    return total_shift
 
 
 def shift_subtree(tree, dx):

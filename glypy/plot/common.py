@@ -12,7 +12,7 @@ chain_iterable = chain.from_iterable
 def ensure_iterable(obj):
     try:
         return [x for x in obj if x is not None]
-    except:
+    except Exception:
         if obj is None:
             return []
         return [obj]

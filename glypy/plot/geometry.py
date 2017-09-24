@@ -3,6 +3,8 @@ from matplotlib import path as mpath
 from matplotlib import transforms as mtransform
 import numpy as np
 
+from glypy.utils import groupby
+
 
 Affine2D = mtransform.Affine2D
 
@@ -18,7 +20,26 @@ def breadth_first_traversal(tree, visited=None):
                 yield descend
 
 
-def make_path(node):
+def _build_path_with_radial_bounding_box(node, implicit_radius=0.3):
+    pathing = []
+    last = [node.x, node.y]
+    # build perimeter
+    for node in breadth_first_traversal(node):
+        pathing.append([node.x, node.y])
+        pathing.append(last)
+        last = [node.x, node.y]
+    codes = [mpath.Path.MOVETO] + [mpath.Path.LINETO for i in pathing[1:]]
+    path = mpath.Path(pathing, codes)
+    for node in breadth_first_traversal(node):
+        center = (node.x, node.y)
+        path = path.make_compound_path(path, mpath.Path.circle(center, implicit_radius))
+    # for node in breadth_first_traversal(node):
+    #     for part in node.patch_node.shapes():
+    #         path = path.make_compound_path(path, part.get_path())
+    return path
+
+
+def _build_path_with_centroids(node, **kwargs):
     pathing = []
     last = [node.x, node.y]
     for node in breadth_first_traversal(node):
@@ -27,6 +48,17 @@ def make_path(node):
         last = [node.x, node.y]
     codes = [mpath.Path.MOVETO] + [mpath.Path.LINETO for i in pathing[1:]]
     return mpath.Path(pathing, codes)
+
+
+def _build_path_with_circles(node, implicit_radius=0.3):
+    points = []
+    for node in breadth_first_traversal(node):
+        points.append(mpath.Path.circle((node.x, node.y), implicit_radius))
+    return mpath.Path.make_compound_path(*points)
+
+
+def make_path(node):
+    return _build_path_with_circles(node)
 
 
 def centroid(path):

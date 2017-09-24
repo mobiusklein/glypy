@@ -5,8 +5,6 @@ from uuid import uuid4
 from itertools import chain
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-import matplotlib.patches as patches
-from matplotlib.textpath import TextPath
 
 from six import string_types as basestring
 
@@ -55,7 +53,7 @@ def flatten(iterable):
     for item in iterable:
         try:
             acc.extend(flatten(item))
-        except:
+        except Exception:
             acc.append(item)
     return acc
 
@@ -210,9 +208,9 @@ class DrawTreeNode(object):
 
         self.children = [resolve_creation_cycle(c[1], self, depth + 1, i + 1, c[0], visited)
                          for i, c
-                         in enumerate(tree.children())]
+                         in enumerate(sorted(tree.children()))]
 
-        self.patches = []
+        # self.patches = []
         # A node owns all lines originating from it.
         self.lines = []
 
@@ -360,7 +358,8 @@ class DrawTreeNode(object):
                                               **kwargs)
         self.patch_node = patch_node
         residue_elements, substituent_elements, saccharide_label = patch_node
-        self.patches = self.data["patches"][self.tree.id] = [residue_elements]
+        # self.patches = self.data["patches"][self.tree.id] = [residue_elements]
+        self.data["patches"][self.tree.id] = [residue_elements]
         self.substituents_text = self.data["text"]["substituents"][self.id] = [substituent_elements]
         self.saccharide_label = self.data['text']['saccharide_label'][self.id] = [saccharide_label]
         self.data["position"][self.tree.id] = x, y
