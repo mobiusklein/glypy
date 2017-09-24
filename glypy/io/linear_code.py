@@ -362,7 +362,7 @@ def parse_linear_code(text, structure_class=Glycan):
             else:
                 raise LinearCodeError("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
 
-    res = structure_class(root=root)
+    res = structure_class(root=root).reindex()
     if len(res) > 1:
         return res
     else:
