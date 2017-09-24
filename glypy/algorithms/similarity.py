@@ -48,7 +48,7 @@ class NodeSimilarityComparator(object):
         self.ignore_reduction = ignore_reduction
         self.visited = visited
         self.short_circuit_after = short_circuit_after
-    
+
     def reset(self):
         self.visited.clear()
 
@@ -65,10 +65,9 @@ class NodeSimilarityComparator(object):
             short_circuit_after=short_circuit_after,
             visited=visited)
         return inst.compare(node, target)
-    
+
     def compare_anomer(self, node, target):
-        test = (node.anomer == target.anomer) or (
-                target.anomer.value is None)
+        test = (node.anomer == target.anomer) or (target.anomer.value is None)
         reference = 1
         return int(test), reference
 
@@ -76,7 +75,7 @@ class NodeSimilarityComparator(object):
         test = int(node.total_composition() == target.total_composition())
         reference = 1
         return test, reference
-    
+
     def compare_ring_structure(self, node, target):
         test = reference = 0
         test += (node.superclass == target.superclass) or (target.superclass.value is None)
@@ -86,7 +85,7 @@ class NodeSimilarityComparator(object):
         test += (node.configuration == target.configuration) or (target.configuration[0].value is None)
         reference += 1
         return test, reference
-    
+
     def compare_modifications(self, node, target):
         test = reference = 0
         node_mods = list(node.modifications.values())
@@ -109,7 +108,7 @@ class NodeSimilarityComparator(object):
                 test -= 1
         reference += len(node_mods) if self.exact else 0
         return test, reference
-    
+
     def compare_substituents(self, node, target):
         test = reference = 0
         node_subs = list(node for p, node in node.substituents())
@@ -121,7 +120,7 @@ class NodeSimilarityComparator(object):
             reference += 1
         reference += len(node_subs) if self.exact else 0
         return test, reference
-    
+
     def _build_child_pair_score_map(self, node, target):
         '''Compute all pair-wise similarities between children
         of ``node`` and ``target``
@@ -145,7 +144,7 @@ class NodeSimilarityComparator(object):
             test += a_test
             reference += a_reference
         return test, reference
-    
+
     def _check_short_circuit(self, test, reference):
         return self.short_circuit_after is not None and (test - reference) < self.short_circuit_after
 
