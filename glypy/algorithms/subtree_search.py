@@ -1,5 +1,8 @@
 import itertools
 import operator
+
+from collections import deque
+
 from .similarity import monosaccharide_similarity, commutative_similarity
 from glypy.utils import make_struct, root, groupby
 from glypy.structure import Glycan, Monosaccharide
@@ -130,6 +133,77 @@ def subtree_of(subtree, tree, exact=False, tolerance=0):
         if comparator(tree_root, node):
             return node.id
     return None
+
+
+def find_matching_subtree_roots(subtree, tree, exact=False):
+    if exact:
+        comparator = exact_ordering_inclusion
+    else:
+        comparator = topological_inclusion
+    tree_root = root(subtree)
+    matched_nodes = []
+    for node in tree:
+        if comparator(tree_root, node):
+            matched_nodes.append(node)
+    return matched_nodes
+
+
+def walk_with(query, reference, visited=None, comparator=commutative_similarity):
+    if visited is None:
+        visited = set()
+    query_root = root(query)
+    reference_root = root(reference)
+    node_stack = deque([[reference_root, query_root]])
+
+    while len(node_stack) != 0:
+        rnode, qnode = node_stack.pop()
+        key = (rnode.id, qnode.id)
+        if key in visited:
+            continue
+        visited.add(key)
+        yield rnode, qnode
+
+        for p, rlink in rnode.links.items():
+            rparent = rlink.parent
+            qparent = None
+            rchild = rlink.child
+            qchild = None
+            if p != -1:
+                for qlink in qnode.links[p]:
+                    if comparator(qlink.parent, rparent):
+                        qparent = qlink.parent
+                        break
+                if qparent is not None:
+                    key = (rparent.id, qparent.id)
+                    if key not in visited:
+                        node_stack.append((rparent, qparent))
+                for qlink in qnode.links[p]:
+                    if comparator(qlink.child, rchild):
+                        qchild = qlink.child
+                        break
+                if qchild is not None:
+                    key = (rchild.id, qchild.id)
+                    if key not in visited:
+                        node_stack.append((rchild, qchild))
+            else:
+                for qlink in qnode.links.values():
+                    if comparator(qlink.parent, rparent) and comparator(qlink.child, rchild):
+                        if rnode is rparent:
+                            if (rchild.id, qlink.child.id) in visited:
+                                continue
+                        elif rnode is rchild:
+                            if (rparent.id, qlink.parent.id) in visited:
+                                continue
+                        qparent = qlink.parent
+                        qchild = qlink.child
+                        break
+                if qparent is not None:
+                    key = (rparent.id, qparent.id)
+                    if key not in visited:
+                        node_stack.append((rparent, qparent))
+                    key = (rchild.id, qchild.id)
+                    if key not in visited:
+                        node_stack.append((rchild, qchild))
 
 
 #: Results Container for :func:`maximum_common_subgraph`
