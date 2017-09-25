@@ -85,20 +85,9 @@ def spread(tree):
                 elif ncentroid[0] > lcentroid[0]:
                     delta = (nxmin_nymin[0] - ncentroid[0]) / -2
                     shift_subtree(node, delta)
-                    for prev in shifted:
-                        if prev.x == tree.x:
-                            continue
-                        pcentroid = centroid(make_path(prev))
-                        if pcentroid[0] > tree.x:
-                            shift_subtree(prev, delta)
                 elif ncentroid[0] < lcentroid[0]:
                     delta = (lxmax_lymax - lcentroid[0]) / -2
-                    for prev in shifted:
-                        if prev.x == tree.x:
-                            continue
-                        pcentroid = centroid(make_path(prev))
-                        if pcentroid[0] < tree.x:
-                            shift_subtree(prev, delta)
+                    shift_subtree(last, delta)
                 total_shift += abs(delta)
         shifted.append(node)
         prior_nodes.append(node)
