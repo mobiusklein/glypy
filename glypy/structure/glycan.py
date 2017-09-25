@@ -153,9 +153,9 @@ class Glycan(SaccharideCollection):
         self.link_index = []
         self.branch_lengths = {}
         if index_method is not None:
-            self.reindex(index_method)
+            self.reindex(method=index_method)
 
-    def reindex(self, method='dfs'):
+    def reindex(self, hard=False, method='dfs'):
         '''
         Traverse the graph using the function specified by `method`. The order of
         traversal defines the new :attr:`id` value for each |Monosaccharide|
@@ -179,24 +179,39 @@ class Glycan(SaccharideCollection):
             visited.add(addr)
             index.append(node)
 
-        for node in index:
-            try:
-                if node.id < 0:
-                    node.id = i
-                    i += 1
-                    # reindex substituents as well
-                    try:
-                        for j, subst in node.substituents():
-                            subst.id = i
-                            i += 1
-                    except AttributeError:
-                        if node.node_type is Substituent.node_type:
-                            continue
-            except TypeError:
-                if isinstance(node.id, tuple):
-                    # this node may be decorated from
-                    # another process
-                    continue
+        if not hard:
+            # only update the id of nodes that were known in the previous
+            # index, which will have been mangled by deindex() to be negative
+            for node in index:
+                try:
+                    if node.id < 0:
+                        node.id = i
+                        i += 1
+                        # reindex substituents as well
+                        try:
+                            for j, subst in node.substituents():
+                                subst.id = i
+                                i += 1
+                        except AttributeError:
+                            if node.node_type is Substituent.node_type:
+                                continue
+                except TypeError:
+                    if isinstance(node.id, tuple):
+                        # this node may be decorated from
+                        # another process
+                        continue
+        else:
+            for node in index:
+                node.id = i
+                i += 1
+                # reindex substituents as well
+                try:
+                    for j, subst in node.substituents():
+                        subst.id = i
+                        i += 1
+                except AttributeError:
+                    if node.node_type is Substituent.node_type:
+                        continue
 
         link_index = []
         for pos, link in self.iterlinks(method=method):
@@ -257,7 +272,7 @@ class Glycan(SaccharideCollection):
         '''
         self.root = sorted(iter(self), key=operator.attrgetter('id'))[0]
         if index_method is not None:
-            self.reindex(index_method)
+            self.reindex(method=index_method)
         return self
 
     def __getitem__(self, ix):
