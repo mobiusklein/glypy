@@ -235,6 +235,18 @@ def rejecting(*args):
     return checker
 
 
+def reject_on_path(*args):
+    def checker(structure, selected_node):
+        for subtree in args:
+            path = {
+                v.id: k for k, v in subtree_search.walk_with(structure, subtree)
+            }
+            if selected_node.id in path:
+                return False
+        return True
+    return checker
+
+
 class Glycoenzyme(object):
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None,
@@ -254,8 +266,21 @@ class Glycoenzyme(object):
         self.child = child
         self.terminal = terminal
         self.comparator = comparator
-        self.validator = validator
+        self.validators = self._conform_validator(validator)
         self.identifying_information = identifying_information
+
+    def _conform_validator(self, fn):
+        try:
+            iter(fn)
+        except TypeError:
+            fn = (fn,)
+        return fn
+
+    def validate_structure(self, structure):
+        for fn in self.validators:
+            if not fn(structure):
+                return False
+        return True
 
     def _conform_position(self, value):
         if value is None:
@@ -269,28 +294,41 @@ class Glycoenzyme(object):
         raise NotImplementedError()
 
     def traverse(self, structure):
-        if self.validator(structure):
+        if self.validate_structure(structure):
             return list(self._traverse(structure))
+        else:
+            return []
 
 
 class Glycosyltransferase(Glycoenzyme):
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None, comparator=None, validator=None,
-                 parent_node_id=None):
+                 parent_node_id=None, site_validator=None):
         super(Glycosyltransferase, self).__init__(
             parent_position, child_position, parent, child, terminal,
             identifying_information, comparator, validator)
+        if site_validator is None:
+            def site_validator(structure, selected_node):
+                return True
         if parent_node_id is None:
             parent_node_id = proot(self.parent).id
         self.parent_node_id = parent_node_id
+        self.site_validators = self._conform_validator(site_validator)
 
     def _traverse(self, structure):
         for node in subtree_search.find_matching_subtree_roots(self.parent, structure, exact=True):
             node = self._get_paired_node(node)
             for parent_position in self.parent_position:
                 if not node.is_occupied(parent_position) and (
-                   (len(node.children()) == 0 and self.terminal) or (not self.terminal)):
+                   (len(node.children()) == 0 and self.terminal) or (
+                        not self.terminal)) and self.validate_site(structure, node):
                     yield node
+
+    def validate_site(self, structure, node):
+        for fn in self.site_validators:
+            if not fn(structure, node):
+                return False
+        return True
 
     def _get_paired_node(self, node):
         return {k.id: v for k, v in subtree_search.walk_with(node, self.parent)
@@ -349,82 +387,181 @@ class Glycosylase(Glycoenzyme):
                 link.child, index_method='dfs')
 
 
-enzdb = EnzymeDatabase._from_static()
+def make_n_glycan_pathway():
+    enzdb = EnzymeDatabase._from_static()
 
-parent = iupac.loads(
-    "a-D-Manp-(1-3)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntI = Glycosyltransferase(2, 1, parent, child, terminal=1,
-                           identifying_information=enzdb[2, 4, 1, 101], parent_node_id=6)
+    bisecting_glcnac = iupac.loads("b-D-Glcp2NAc-(1-4)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    galactose = iupac.loads("b-D-Galp")
+
+    parent = iupac.loads(
+        "a-D-Manp-(1-3)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntI = Glycosyltransferase(2, 1, parent, child, terminal=1,
+                               identifying_information=enzdb[2, 4, 1, 101], parent_node_id=6)
+
+    parent = iupac.loads(
+        "a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntII = Glycosyltransferase(2, 1, parent, child, terminal=True,
+                                identifying_information=enzdb[2, 4, 1, 143],
+                                parent_node_id=6,
+                                validator=rejecting(bisecting_glcnac, galactose))
+
+    parent = iupac.loads(
+        "beta-D-Glcp2NAc-(1->2)-alpha-D-Manp-(1->3)-"
+        "[alpha-D-Manp-(1->6)]"
+        "-beta-D-Manp-(1->4)-beta-D-Glcp2NAc-(1->4)-beta-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntIII = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=5,
+                                 identifying_information=enzdb[2, 4, 1, 144],
+                                 validator=rejecting(bisecting_glcnac))
+
+    parent = iupac.loads(
+        "b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-3)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntIV = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=6,
+                                identifying_information=enzdb[2, 4, 1, 145],
+                                validator=rejecting(bisecting_glcnac, galactose))
+
+    parent = iupac.loads(
+        "b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-6)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntV = Glycosyltransferase(6, 1, parent, child, terminal=False, parent_node_id=6,
+                               identifying_information=enzdb[2, 4, 1, 155],
+                               validator=rejecting(bisecting_glcnac, galactose))
+
+    parent = iupac.loads(
+        "b-D-Glcp2NAc-(1-6)-[b-D-Glcp2NAc-(1-2)]"
+        "a-D-Manp-(1-6)-[a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntVI = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=6,
+                                identifying_information=enzdb[2, 4, 1, 145],
+                                validator=rejecting(bisecting_glcnac, galactose))
+
+    parent = iupac.loads("b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Galp")
+
+    galt = Glycosyltransferase(4, 1, parent, child, identifying_information=enzdb[
+                               2, 4, 1, 38], parent_node_id=1,
+                               site_validator=reject_on_path(bisecting_glcnac))
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+
+    gntE = Glycosyltransferase(3, 1, parent, child, identifying_information=enzdb[
+                               2, 4, 1, 149], parent_node_id=3)
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("a-D-Neup5Ac")
+
+    siat2_6 = Glycosyltransferase(6, 2, parent, child, identifying_information=enzdb[
+                                  2, 4, 99, 1], parent_node_id=3)
+    siat2_3 = Glycosyltransferase(3, 2, parent, child, identifying_information=enzdb[
+                                  2, 4, 99, 6], parent_node_id=3)
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("a-L-Fuc")
+    fuct3 = Glycosyltransferase(3, 1, parent, child, terminal=False,
+                                parent_node_id=1, identifying_information=enzdb[2, 4, 1, 152])
+
+    parent = iupac.loads(
+        "beta-D-Glcp2NAc-(1->2)-alpha-D-Manp-(1->3)-[beta-D-Glcp2NAc-(1->2)-alpha-D-Manp-(1->6)]"
+        "-beta-D-Manp-(1->4)-beta-D-Glcp2NAc-(1->4)-beta-D-Glcp2NAc")
+    child = iupac.loads("a-L-Fucp")
+    fuct6 = Glycosyltransferase(6, 1, parent, child, terminal=False,
+                                parent_node_id=1, identifying_information=enzdb[2, 4, 1, 68])
+
+    manI = Glycosylase((2,), 1, iupac.loads("a-D-Manp"), iupac.loads("a-D-Manp"),
+                       identifying_information=enzdb["3.2.1.113"])
+    manII = Glycosylase((3, 6), 1, iupac.loads("a-D-Manp"), iupac.loads("a-D-Manp"),
+                        identifying_information=enzdb["3.2.1.114"],
+                        validator=rejecting(bisecting_glcnac))
+    glucosidaseI = Glycosylase(None, None, iupac.loads("alpha-D-Manp"), iupac.loads("?-?-Glcp"),
+                               identifying_information=enzdb["3.2.1.106"])
+
+    glycosylases = {
+        "manI": manI,
+        "manII": manII,
+        "glucosidaseI": glucosidaseI
+    }
+
+    glycosyltransferases = {
+        "gntI": gntI,
+        "gntII": gntII,
+        "gntIII": gntIII,
+        "gntIV": gntIV,
+        "gntV": gntV,
+        "gntVI": gntVI,
+        "galt": galt,
+        "gntE": gntE,
+        "siat2_6": siat2_6,
+        "siat2_3": siat2_3,
+        "fuct3": fuct3,
+        "fuct6": fuct6
+    }
+
+    starting_structure_iupac = (
+        "a-D-Manp-(1-2)-a-D-Manp-(1-6)-[a-D-Manp-(1-2)-a-D-Manp-(1-3)]"
+        "a-D-Manp-(1-6)-[a-D-Glcp-(1-3)-a-D-Manp-(1-2)-a-D-Manp-(1-2)-a-D-Manp-(1-3)]"
+        "b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    starting_structure = iupac.loads(starting_structure_iupac)
+
+    return glycosylases, glycosyltransferases, [starting_structure]
 
 
-parent = iupac.loads(
-    "a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntII = Glycosyltransferase(2, 1, parent, child, terminal=True,
-                            identifying_information=enzdb[2, 4, 1, 143], parent_node_id=6)
+class Glycome(object):
+    def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
+                 limits=None):
+        if limits is None:
+            limits = []
+        self.glycosylases = glycosylases
+        self.glycosyltransferases = glycosyltransferases
+        self.seeds = seeds
 
+        self.track_generations = track_generations
+        self.enzyme_graph = defaultdict(lambda: defaultdict(set))
+        self.history = []
+        self.current_generation = list(seeds)
 
-parent = iupac.loads(
-    "beta-D-Glcp2NAc-(1->2)-alpha-D-Manp-(1->3)-"
-    "[beta-D-Glcp2NAc-(1->2)-alpha-D-Manp-(1->6)]"
-    "-beta-D-Manp-(1->4)-beta-D-Glcp2NAc-(1->4)-beta-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntIII = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=5,
-                             identifying_information=enzdb[2, 4, 1, 144])
+        self.limits = limits
 
-parent = iupac.loads(
-    "b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-3)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntIV = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=6,
-                            identifying_information=enzdb[2, 4, 1, 145])
+    def save_generation(self, generation):
+        if self.track_generations:
+            self.history.append(generation)
 
-parent = iupac.loads(
-    "b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-6)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntV = Glycosyltransferase(6, 1, parent, child, terminal=False, parent_node_id=6,
-                           identifying_information=enzdb[2, 4, 1, 155])
+    def run(self, n=50):
+        for i in range(n):
+            generation = self.step()
+            if not generation:
+                break
+            yield generation
 
+    def within_limits(self, structure):
+        for limiter in self.limits:
+            if not limiter(structure):
+                return False
+        return True
 
-parent = iupac.loads(
-    "b-D-Glcp2NAc-(1-6)-[b-D-Glcp2NAc-(1-2)]"
-    "a-D-Manp-(1-6)-[a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-gntVI = Glycosyltransferase(4, 1, parent, child, terminal=False, parent_node_id=6,
-                            identifying_information=enzdb[2, 4, 1, 145])
-
-parent = iupac.loads("b-D-Glcp2NAc")
-child = iupac.loads("b-D-Galp")
-
-galt = Glycosyltransferase(4, 1, parent, child, identifying_information=enzdb[
-                           2, 4, 1, 38], parent_node_id=1)
-
-parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("b-D-Glcp2NAc")
-
-gntE = Glycosyltransferase(3, 1, parent, child, identifying_information=enzdb[
-                           2, 4, 1, 149], parent_node_id=3)
-
-parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("a-D-Neup5Ac")
-
-siat2_6 = Glycosyltransferase(6, 2, parent, child, identifying_information=enzdb[
-                              2, 4, 99, 1], parent_node_id=3)
-siat2_3 = Glycosyltransferase(3, 2, parent, child, identifying_information=enzdb[
-                              2, 4, 99, 6], parent_node_id=3)
-
-parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
-child = iupac.loads("a-L-Fuc")
-fuct3 = Glycosyltransferase(3, 1, parent, child, terminal=False,
-                            parent_node_id=1, identifying_information=enzdb[2, 4, 1, 152])
-
-
-del parent
-del child
-
-manI = Glycosylase((2,), 1, iupac.loads("a-D-Manp"), iupac.loads("a-D-Manp"),
-                   identifying_information=enzdb["3.2.1.113"])
-manII = Glycosylase((3, 6), 1, iupac.loads("a-D-Manp"), iupac.loads("a-D-Manp"),
-                    identifying_information=enzdb["3.2.1.114"])
-glucosidaseI = Glycosylase(None, None, iupac.loads("alpha-D-Manp"), iupac.loads("?-?-Glcp"),
-                           identifying_information=enzdb["3.2.1.106"])
+    def step(self):
+        next_generation = dict()
+        for species in self.current_generation:
+            for enzkey, enz in self.glycosylases.items():
+                products = [root for root, leaf in enz(species, refund=1) if self.within_limits(root)]
+                if products:
+                    parentkey = str(species)
+                    for product in products:
+                        childkey = str(product)
+                        self.enzyme_graph[parentkey][childkey].add(enzkey)
+                        next_generation[childkey] = product
+            for enzkey, enz in self.glycosyltransferases.items():
+                products = [root for root in enz(species) if self.within_limits(root)]
+                if products:
+                    parentkey = str(species)
+                    for product in products:
+                        childkey = str(product)
+                        self.enzyme_graph[parentkey][childkey].add(enzkey)
+                        next_generation[childkey] = product
+        next_generation = list(next_generation.values())
+        self.save_generation(self.current_generation)
+        self.current_generation = next_generation
+        return next_generation
