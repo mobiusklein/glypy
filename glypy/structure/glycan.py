@@ -894,6 +894,9 @@ class Glycan(SaccharideCollection):
     def __ne__(self, other):
         return not self == other
 
+    def __hash__(self):
+        return hash(self.serialize("glycoct"))
+
     def substructures(self, max_cleavages=1, min_cleavages=1, inplace=False):
         '''
         Generate disjoint subtrees from this glycan by examining by removing one or
