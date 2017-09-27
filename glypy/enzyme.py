@@ -168,6 +168,9 @@ class EnzymeDatabase(object):
             return defaultdict(list)
 
         def postprocess(enzyme_info):
+            enzyme_info['name'] = ' '.join(enzyme_info['name']).strip(".")
+            enzyme_info['alternative_names'] = [
+                n for n in ''.join(enzyme_info['alternative_names']).split(".") if n]
             up = enzyme_info['uniprot']
             up = [p.strip() for ent in up for p in ent.split(";") if p]
             enzyme_info['uniprot'] = up
@@ -177,7 +180,7 @@ class EnzymeDatabase(object):
             enzyme_info['catalytic_activity'] = ' '.join(enzyme_info['catalytic_activity'])
             comments = enzyme_info['comments']
             comments = ' '.join(map(str.strip, map(str.rstrip, comments))).split("-!-")
-            enzyme_info['comments'] = [c.strip('. ') for c in comments if c]
+            enzyme_info['comments'] = ''.join([c for c in comments if c.strip()])
             enzyme_info['ec_number'] = EnzymeCommissionNumber.parse(enzyme_info['id'])
             return enzyme_info
 
@@ -199,13 +202,13 @@ class EnzymeDatabase(object):
             elif sigil == 'ID':
                 current_enzyme['id'] = line
             elif sigil == 'DE':
-                current_enzyme['name'] = (line.strip(". "))
+                current_enzyme['name'].append(line.strip(" "))
             elif sigil == 'AN':
-                current_enzyme['alternative_names'].append(line.strip(". "))
+                current_enzyme['alternative_names'].append(line.strip(" "))
             elif sigil == 'CA':
-                current_enzyme['catalytic_activity'].append(line.strip(". "))
+                current_enzyme['catalytic_activity'].append(line.strip(" "))
             elif sigil == 'CF':
-                current_enzyme['cofactors'].append(line.strip("."))
+                current_enzyme['cofactors'].append(line.strip(" "))
             elif sigil == 'CC':
                 current_enzyme['comments'].append(line)
             elif sigil == 'PR':
