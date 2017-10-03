@@ -13,6 +13,7 @@ from glypy.utils import root as proot, StringIO
 
 import glypy.io
 from glypy.io import iupac
+from glypy.io.glycoct import DistinctGlycanSet
 
 
 class EnzymeCommissionNumber(object):
@@ -263,6 +264,9 @@ class Glycoenzyme(object):
         if isinstance(identifying_information, basestring):
             identifying_information = EnzymeInformation(identifying_information)
 
+        self._parent_position = ()
+        self._child_position = ()
+
         self.parent_position = self._conform_position(parent_position)
         self.child_position = self._conform_position(child_position)
         self.parent = parent
@@ -271,6 +275,22 @@ class Glycoenzyme(object):
         self.comparator = comparator
         self.validators = self._conform_validator(validator)
         self.identifying_information = identifying_information
+
+    @property
+    def parent_position(self):
+        return self._parent_position
+
+    @parent_position.setter
+    def parent_position(self, value):
+        self._parent_position = self._conform_position(value)
+
+    @property
+    def child_position(self):
+        return self._child_position
+
+    @child_position.setter
+    def child_position(self, value):
+        self._child_position = self._conform_position(value)
 
     def _conform_validator(self, fn):
         try:
@@ -303,11 +323,11 @@ class Glycoenzyme(object):
             return []
 
 
-class Glycosyltransferase(Glycoenzyme):
+class Transferase(Glycoenzyme):
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None, comparator=None, validator=None,
                  parent_node_id=None, site_validator=None):
-        super(Glycosyltransferase, self).__init__(
+        super(Transferase, self).__init__(
             parent_position, child_position, parent, child, terminal,
             identifying_information, comparator, validator)
         if site_validator is None:
@@ -337,11 +357,8 @@ class Glycosyltransferase(Glycoenzyme):
         return {k.id: v for k, v in subtree_search.walk_with(node, self.parent)
                 }.get(self.parent_node_id)
 
-    def apply(self, monosaccharide, parent_position=None, child_position=None):
-        new_monosaccharide = self.child.clone()
-        monosaccharide.add_monosaccharide(
-            new_monosaccharide, position=self.parent_position[0],
-            child_position=self.child_position[0])
+    def apply(self, node, parent_position=None, child_position=None):
+        raise NotImplementedError()
 
     def __call__(self, structure, parent_position=None, child_position=None):
         for node in self.traverse(structure):
@@ -352,6 +369,22 @@ class Glycosyltransferase(Glycoenzyme):
             for new_node in new_structure:
                 assert new_node.id < 1000
             yield new_structure
+
+
+class Glycosyltransferase(Transferase):
+    def apply(self, node, parent_position=None, child_position=None):
+        new_monosaccharide = self.child.clone()
+        node.add_monosaccharide(
+            new_monosaccharide, position=self.parent_position[0],
+            child_position=self.child_position[0])
+
+
+class Substituentransferase(Glycosyltransferase):
+    def apply(self, node, parent_position=None, child_position=None):
+        new_substituent = self.child.clone()
+        node.add_substituent(
+            new_substituent, position=self.parent_position[0],
+            child_position=self.child_position[0])
 
 
 class Glycosylase(Glycoenzyme):
@@ -524,7 +557,7 @@ class Glycome(object):
         self.track_generations = track_generations
         self.enzyme_graph = defaultdict(lambda: defaultdict(set))
         self.history = []
-        self.current_generation = list(seeds)
+        self.current_generation = DistinctGlycanSet(seeds)
 
         self.limits = limits
 
@@ -546,7 +579,7 @@ class Glycome(object):
         return True
 
     def step(self):
-        next_generation = dict()
+        next_generation = DistinctGlycanSet()
         for species in self.current_generation:
             for enzkey, enz in self.glycosylases.items():
                 products = [root for root, leaf in enz(species, refund=1) if self.within_limits(root)]
@@ -555,7 +588,7 @@ class Glycome(object):
                     for product in products:
                         childkey = str(product)
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
-                        next_generation[childkey] = product
+                        next_generation.add(product)
             for enzkey, enz in self.glycosyltransferases.items():
                 products = [root for root in enz(species) if self.within_limits(root)]
                 if products:
@@ -563,8 +596,8 @@ class Glycome(object):
                     for product in products:
                         childkey = str(product)
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
-                        next_generation[childkey] = product
-        next_generation = list(next_generation.values())
+                        next_generation.add(product)
+        # next_generation = list(next_generation.values())
         self.save_generation(self.current_generation)
         self.current_generation = next_generation
         return next_generation
