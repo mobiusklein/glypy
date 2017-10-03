@@ -167,18 +167,18 @@ def resolve_acid_shape(monosaccharide):
 
 
 class ResidueColor(Enum):
-    gal = rgb2hex((255/255., 255/255., 0/255.))  # yellow
-    glc = rgb2hex((0/255., 0/255., 255/255.))  # blue
-    man = rgb2hex((0, 200/255., 50/255.))  # green
-    fuc = rgb2hex((255/255., 0/255., 0/255.))  # red
-    xyl = rgb2hex((250/255., 234/255., 213/255.))  # orange
-    neuac = rgb2hex((200/255., 0/255., 200/255.))  # purple
-    neugc = rgb2hex((233/255., 255/255., 255/255.))  # light blue
-    kdn = rgb2hex((0, 200/255., 50/255.))  # green
-    glca = rgb2hex((0/255., 0/255., 255/255.))  # blue
-    idoa = rgb2hex((150/255., 100/255., 50/255.))  # tan
-    gala = rgb2hex((255/255., 255/255., 0/255.))  # yellow
-    mana = rgb2hex((0, 200/255., 50/255.))  # green
+    gal = rgb2hex((255 / 255., 255 / 255., 0 / 255.))  # yellow
+    glc = rgb2hex((0 / 255., 0 / 255., 255 / 255.))  # blue
+    man = rgb2hex((0, 200 / 255., 50 / 255.))  # green
+    fuc = rgb2hex((255 / 255., 0 / 255., 0 / 255.))  # red
+    xyl = rgb2hex((250 / 255., 234 / 255., 213 / 255.))  # orange
+    neuac = rgb2hex((200 / 255., 0 / 255., 200 / 255.))  # purple
+    neugc = rgb2hex((233 / 255., 255 / 255., 255 / 255.))  # light blue
+    kdn = rgb2hex((0, 200 / 255., 50 / 255.))  # green
+    glca = rgb2hex((0 / 255., 0 / 255., 255 / 255.))  # blue
+    idoa = rgb2hex((150 / 255., 100 / 255., 50 / 255.))  # tan
+    gala = rgb2hex((255 / 255., 255 / 255., 0 / 255.))  # yellow
+    mana = rgb2hex((0, 200 / 255., 50 / 255.))  # green
     generic = 'white'
 
 
