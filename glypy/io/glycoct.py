@@ -21,6 +21,7 @@ import re
 import warnings
 from collections import defaultdict, Counter, deque, namedtuple, OrderedDict
 from functools import cmp_to_key
+import zlib
 
 from glypy.utils import (
     opener, StringIO, root as rootp, tree as treep,
@@ -1583,3 +1584,45 @@ def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
 
 Monosaccharide.register_serializer("glycoct", _postprocessed_single_monosaccharide)
 Glycan.register_serializer("glycoct", dumps)
+
+
+class DistinctGlycanSet(object):
+
+    def __init__(self, structures=None):
+        if structures is None:
+            structures = []
+        self.raw_data_buffer = set()
+        for structure in structures:
+            self.add(structure)
+
+    def add(self, structure):
+        key = self._transform_text(
+            self._structure_to_text(structure))
+        if key in self.raw_data_buffer:
+            return key
+        self.raw_data_buffer.add(key)
+        return key
+
+    def _structure_to_text(self, structure):
+        return dumps(structure)
+
+    def _text_to_structure(self, text):
+        return loads(text)
+
+    def _transform_text(self, text):
+        return zlib.compress(text)
+
+    def _untransform_text(self, compressed):
+        return zlib.decompress(compressed)
+
+    def pop(self):
+        text = self._untransform_text(self.raw_data_buffer.pop())
+        return self._text_to_structure(text)
+
+    def __len__(self):
+        return len(self.raw_data_buffer)
+
+    def __iter__(self):
+        for compressed in self.raw_data_buffer:
+            yield self._text_to_structure(
+                self._untransform_text(compressed))
