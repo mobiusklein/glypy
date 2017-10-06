@@ -835,7 +835,7 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def serialize(self):
         form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
-            self.items(), key=lambda x: x[0].mass()) if v > 0)
+            self.items(), key=lambda x: x[0].mass()) if v != 0)
         reduced = self.reducing_end
         if reduced is not None:
             form = "%s$%s" % (form, formula(reduced.total_composition()))
