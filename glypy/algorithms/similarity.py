@@ -111,10 +111,9 @@ class NodeSimilarityComparator(object):
 
     def compare_substituents(self, node, target):
         test = reference = 0
-        node_subs = list(node for p, node in node.substituents())
+        node_subs = [node_sub for p, node_sub in node.substituents()]
         for pos, sub in target.substituents():
-            check = (sub in node_subs)
-            if check:
+            if (sub in node_subs):
                 test += 1
                 node_subs.pop(node_subs.index(sub))
             reference += 1

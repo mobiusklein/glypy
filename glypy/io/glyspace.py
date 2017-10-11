@@ -190,6 +190,12 @@ class BoundURIRef(URIRef):
         result = str(self) == str(other)
         return result
 
+    # def n3(self, namespace_manager=None):
+    #     if namespace_manager:
+    #         return namespace_manager.normalizeUri(self)
+    #     else:
+    #         return "<%s>" % self
+
 
 class ChainFunctionDict(defaultdict):
     '''
