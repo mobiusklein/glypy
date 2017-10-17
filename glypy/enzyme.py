@@ -581,10 +581,12 @@ class Glycome(object):
     def step(self):
         next_generation = DistinctGlycanSet()
         for species in self.current_generation:
+            parentkey = None
             for enzkey, enz in self.glycosylases.items():
                 products = [root for root, leaf in enz(species, refund=1) if self.within_limits(root)]
                 if products:
-                    parentkey = str(species)
+                    if parentkey is None:
+                        parentkey = str(species)
                     for product in products:
                         childkey = str(product)
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
@@ -592,7 +594,8 @@ class Glycome(object):
             for enzkey, enz in self.glycosyltransferases.items():
                 products = [root for root in enz(species) if self.within_limits(root)]
                 if products:
-                    parentkey = str(species)
+                    if parentkey is None:
+                        parentkey = str(species)
                     for product in products:
                         childkey = str(product)
                         self.enzyme_graph[parentkey][childkey].add(enzkey)

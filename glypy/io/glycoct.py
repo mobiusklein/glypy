@@ -28,7 +28,8 @@ from glypy.utils import (
     make_counter, invert_dict,
     RootProtocolNotSupportedError)
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, link, glycan, Modification
+from glypy.structure import monosaccharide, substituent, glycan, Modification
+from glypy.structure.link import Link, AmbiguousLink
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from .file_utils import ParserError
@@ -52,8 +53,6 @@ __id = id
 Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
 Substituent = substituent.Substituent
-Link = link.Link
-AmbiguousLink = link.AmbiguousLink
 
 START = "!START"
 REPINNER = "!REPINNER"
