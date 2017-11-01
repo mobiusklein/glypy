@@ -9,6 +9,9 @@ cdef class CComposition(dict):
     cdef long getitem(self, str elem)
     cdef void setitem(self, str elem, long val)
 
+    @staticmethod
+    cdef CComposition _create(CComposition inst)
+
 
 cdef: 
     str _atom

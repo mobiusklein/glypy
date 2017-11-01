@@ -1,5 +1,4 @@
 # cython: boundscheck=False
-# cython: profile=True
 
 # Credit to Pyteomics - http://pythonhosted.org/pyteomics - for majority of design
 import re
@@ -119,7 +118,7 @@ cdef class CComposition(dict):
             Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             other, self = self, other
-        result = CComposition(self)
+        result = CComposition._create(self)
         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
             elem = <str>pkey
             cnt = result.getitem(elem)
@@ -127,7 +126,6 @@ cdef class CComposition(dict):
             result.setitem(elem, cnt)
 
         return result
-
 
     def __isub__(self, other):
         cdef:
@@ -155,7 +153,7 @@ cdef class CComposition(dict):
             Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             self = CComposition(self)
-        result = CComposition(self)
+        result = CComposition._create(self)
         while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
             elem = <str>pkey
             cnt = result.getitem(elem)
@@ -187,13 +185,15 @@ cdef class CComposition(dict):
         if isinstance(other, CComposition):
             self, other = other, self
         
-        prod = self.clone()
+        # prod = self.clone()
+        # prod = CComposition()
+        prod = CComposition._create(None)
 
         if not isinstance(other, int):
             raise ChemicalCompositionError(
                 'Cannot multiply Composition by non-integer', other)
 
-        rep = other
+        rep = PyInt_AsLong(other)
         while(PyDict_Next(self, &ppos, &pkey, &pvalue)):
             k = <str>pkey
             v = PyInt_AsLong(<object>pvalue)
@@ -264,6 +264,18 @@ cdef class CComposition(dict):
     def __neg__(self):
         return self * -1
 
+    @staticmethod
+    cdef CComposition _create(CComposition inst):
+        cdef:
+            CComposition result
+
+        result = CComposition.__new__(CComposition)
+        if inst is None:
+            return result
+        PyDict_Update(result, inst)
+        return result
+
+
     # Override the default behavior, if a key is not present
     # do not initialize it to 0.
     def __missing__(self, str key):
@@ -279,7 +291,7 @@ cdef class CComposition(dict):
 
     def copy(self):
         cdef CComposition dup
-        dup = CComposition()
+        dup = CComposition._create(None)
         PyDict_Update(dup, self)
         return dup
 
@@ -298,7 +310,7 @@ cdef class CComposition(dict):
         self._mass_args = None
 
     cpdef CComposition clone(self):
-        return CComposition(self)
+        return CComposition._create(self)
 
     def update(self, *args, **kwargs):
         dict.update(self, *args, **kwargs)
