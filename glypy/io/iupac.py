@@ -719,10 +719,33 @@ class GlycanDeserializer(object):
         return self.glycan_from_iupac(text, **kwargs)
 
 
+def set_default_positions(glycan):
+    for node in glycan:
+        candidates = []
+        for pos, link in list(node.substituent_links.items()):
+            if pos == -1:
+                candidates.append(link)
+        for candidate in candidates:
+            substituent = candidate.to(node)
+            position = None
+            if substituent.name == 'n_acetyl':
+                if node.superclass == SuperClass.hex:
+                    position = 2
+                elif node.superclass == SuperClass.non:
+                    position = 5
+            if position is None:
+                continue
+            if not node.is_occupied(position):
+                candidate.break_link(refund=True)
+                candidate.parent_position = position
+                candidate.apply()
+    return glycan
+
+
 glycan_from_iupac = GlycanDeserializer()
 
 
-def from_iupac(text, structure_class=Glycan, **kwargs):
+def from_iupac(text, structure_class=Glycan, resolve_default_positions=True, **kwargs):
     """Parse the given text into an instance of |Glycan|. If there is only a single monosaccharide
     in the output, just the Monosaccharide instance is returned.
 
@@ -736,6 +759,8 @@ def from_iupac(text, structure_class=Glycan, **kwargs):
         If the resulting structure is just a single monosaccharide, the returned value is a Monosaccharide.
     """
     res = glycan_from_iupac(text, structure_class=structure_class, **kwargs)
+    if resolve_default_positions:
+        set_default_positions(res)
     if len(res) > 1:
         return res
     else:
