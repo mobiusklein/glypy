@@ -615,6 +615,12 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
                 raise
 
 
+def _build_graph(glycoct_str):
+    rep = StringIO(glycoct_str)
+    inst = GlycoCTReader(rep, completes=False)
+    return next(inst)
+
+
 class GlycoCTReader(GlycoCTGraphStack):
     '''
     Simple State-Machine parser for condensed GlycoCT representations. Yields
