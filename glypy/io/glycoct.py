@@ -1318,6 +1318,23 @@ class GlycoCTWriterBase(object):
         return self.dump()
 
 
+def all_node_depth(node, visited=None):
+    if visited is None:
+        visited = set()
+    if node.id in visited:  # pragma: no cover
+        return 0
+    visited.add(node.id)
+    depth_count = 1
+    children = list(node.children())
+    try:
+        children += list(node.substituents())
+    except AttributeError:
+        pass
+    if children:
+        depth_count += max(all_node_depth(ch, visited) for p, ch in children)
+    return depth_count
+
+
 class OrderingComparisonContext(object):
     def __init__(self, parent):
         self.parent = parent
@@ -1340,27 +1357,33 @@ class OrderingComparisonContext(object):
             pass
         return counter
 
-    def compare_residue_ordering(self, res_a, res_b):
-        n_child_residues_a = monosaccharide.depth(res_a)
-        n_child_residues_b = monosaccharide.depth(res_b)
+    def _residue_diff(self, res_a, res_b):
+        n_child_residues_a = all_node_depth(res_a)
+        n_child_residues_b = all_node_depth(res_b)
         diff_child_res = n_child_residues_a - n_child_residues_b
 
         if diff_child_res != 0:
-            return diff_child_res
+            if diff_child_res < 0:
+                diff_child_res = -1
+            else:
+                diff_child_res = 1
 
         try:
-            branch_length_a = max((monosaccharide.depth(cr) for p, cr in res_a.children()))
+            branch_length_a = max((all_node_depth(cr) for p, cr in res_a.children()))
         except ValueError:
             branch_length_a = 0
         try:
-            branch_length_b = max((monosaccharide.depth(cr) for p, cr in res_b.children()))
+            branch_length_b = max((all_node_depth(cr) for p, cr in res_b.children()))
         except ValueError:
             branch_length_b = 0
 
         diff_longest_branch = branch_length_a - branch_length_b
 
         if diff_longest_branch != 0:
-            return diff_longest_branch
+            if diff_longest_branch < 0:
+                diff_longest_branch = -1
+            else:
+                diff_longest_branch = 1
 
         n_branches_from_a = 0
         n_branches_from_b = 0
@@ -1376,13 +1399,128 @@ class OrderingComparisonContext(object):
         diff_n_branches_from = n_branches_from_a - n_branches_from_b
 
         if diff_n_branches_from != 0:
-            return diff_n_branches_from
+            if diff_n_branches_from < 0:
+                diff_n_branches_from = -1
+            else:
+                diff_n_branches_from = 1
+
+        if res_a == res_b:
+            subtree_diff = 0
+        else:
+            subtree_a = GlycoCTWriter(Glycan.subtree_from(self.structure, res_a)).dump()
+            subtree_b = GlycoCTWriter(Glycan.subtree_from(self.structure, res_b)).dump()
+            subtree_diff = cmp(subtree_b, subtree_a)
+        return (diff_child_res, diff_longest_branch, diff_n_branches_from, subtree_diff, subtree_a, subtree_b)
+
+    def _compare_residue_ordering(self, res_a, res_b):
+        n_child_residues_a = all_node_depth(res_a)
+        n_child_residues_b = all_node_depth(res_b)
+        diff_child_res = n_child_residues_a - n_child_residues_b
+
+        if diff_child_res != 0:
+            if diff_child_res < 0:
+                return -1
+            else:
+                return 1
+
+        try:
+            branch_length_a = max((all_node_depth(cr) for p, cr in res_a.children()))
+        except ValueError:
+            branch_length_a = 0
+        try:
+            branch_length_b = max((all_node_depth(cr) for p, cr in res_b.children()))
+        except ValueError:
+            branch_length_b = 0
+
+        diff_longest_branch = branch_length_a - branch_length_b
+
+        if diff_longest_branch != 0:
+            if diff_longest_branch < 0:
+                return -1
+            else:
+                return 1
+
+        n_branches_from_a = 0
+        n_branches_from_b = 0
+        for link in res_a.links.values():
+            if link.is_parent(res_a):
+                branch_label = self.get_branch_from_link_label(link)
+                n_branches_from_a = max(n_branches_from_a, self.branch_to_terminal_count[branch_label])
+
+        for link in res_b.links.values():
+            if link.is_parent(res_b):
+                branch_label = self.get_branch_from_link_label(link)
+                n_branches_from_b = max(n_branches_from_b, self.branch_to_terminal_count[branch_label])
+        diff_n_branches_from = n_branches_from_a - n_branches_from_b
+
+        if diff_n_branches_from != 0:
+            if diff_n_branches_from < 0:
+                return -1
+            else:
+                return 1
+
+        if res_a == res_b:
+            return 0
 
         subtree_a = GlycoCTWriter(Glycan.subtree_from(self.structure, res_a)).dump()
         subtree_b = GlycoCTWriter(Glycan.subtree_from(self.structure, res_b)).dump()
-        return subtree_a < subtree_b
+        return cmp(subtree_b, subtree_a)
 
-    def compare_link_ordering(self, link_a, link_b):
+    def compare_residue_ordering(self, res_a, res_b):
+        ordered = self._compare_residue_ordering(res_a, res_b)
+        # print ordered, res_a, res_b
+        return ordered
+
+    def _link_diff(self, link_a, link_b):
+        parent_pos_a = link_a.parent_position
+        parent_pos_b = link_b.parent_position
+        try:
+            diff_parent = parent_pos_a - parent_pos_b
+        except TypeError as e:
+            print(parent_pos_a, parent_pos_b, link_a, link_b)
+            raise e
+
+        if diff_parent != 0:
+            if diff_parent < 0:
+                diff_parent = -1
+            else:
+                diff_parent = 1
+
+        child_pos_a = link_a.child_position
+        child_pos_b = link_b.child_position
+        diff_child = child_pos_a - child_pos_b
+
+        if diff_child != 0:
+            if diff_child < 0:
+                diff_child = -1
+            else:
+                diff_child = 1
+
+        sigils_a = link_a._glycoct_sigils()
+        sigils_b = link_b._glycoct_sigils()
+
+        diff_sig0 = 0
+        if sigils_a[0] != sigils_b[0]:
+            diff_sig0 = ord(sigils_a[0]) - ord(sigils_b[0])
+            if diff_sig0 < 0:
+                diff_sig0 = -1
+            else:
+                diff_sig0 = 1
+
+        diff_sig1 = 0
+        if sigils_a[1] != sigils_b[1]:
+            diff_sig1 = ord(sigils_a[1]) - ord(sigils_b[1])
+            if diff_sig1 < 0:
+                diff_sig1 = -1
+            else:
+                diff_sig1 = 1
+
+        child_a = link_a.child
+        child_b = link_b.child
+        ordered = self.compare_residue_ordering(child_a, child_b)
+        return (diff_parent, diff_child, diff_sig0, diff_sig1, ordered)
+
+    def _compare_link_ordering(self, link_a, link_b):
         # Ignoring # of links for now since it is difficult
         # to compute
         parent_pos_a = link_a.parent_position
@@ -1394,28 +1532,45 @@ class OrderingComparisonContext(object):
             raise e
 
         if diff_parent != 0:
-            return diff_parent
+            if diff_parent < 0:
+                return -1
+            else:
+                return 1
 
         child_pos_a = link_a.child_position
         child_pos_b = link_b.child_position
         diff_child = child_pos_a - child_pos_b
 
         if diff_child != 0:
-            return diff_child
+            if diff_child < 0:
+                return -1
+            else:
+                return 1
 
         sigils_a = link_a._glycoct_sigils()
         sigils_b = link_b._glycoct_sigils()
 
         if sigils_a[0] != sigils_b[0]:
-            return ord(sigils_a[0]) - ord(sigils_b[0])
+            diff_sig0 = ord(sigils_a[0]) - ord(sigils_b[0])
+            if diff_sig0 < 0:
+                return -1
+            else:
+                return 1
 
         if sigils_a[1] != sigils_b[1]:
-            return ord(sigils_a[1]) - ord(sigils_b[1])
+            diff_sig1 = ord(sigils_a[1]) - ord(sigils_b[1])
+            if diff_sig1 < 0:
+                return -1
+            else:
+                return 1
 
         child_a = link_a.child
         child_b = link_b.child
         ordered = self.compare_residue_ordering(child_a, child_b)
+        return ordered
 
+    def compare_link_ordering(self, link_a, link_b):
+        ordered = self._compare_link_ordering(link_a, link_b)
         return ordered
 
     def sort_links(self, links):
@@ -1484,7 +1639,7 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
             link_collection.extend([cl for p, cl in monosaccharide.children(links=True)])
 
         links = self.ordering_context.sort_links(link_collection)
-        self.link_queue.extend(links)
+        self.link_queue.extendleft(links[::-1])
         return residue_str
 
     def handle_substituent(self, substituent):
@@ -1496,7 +1651,7 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
         subst_str = "%ss:%s" % (substituent_index, substituent.name.replace("_", "-"))
 
         links = self.ordering_context.sort_links([cl for p, cl in substituent.children(links=True)])
-        self.link_queue.extend(links)
+        self.link_queue.extendleft(links[::-1])
         return subst_str
 
     def handle_glycan(self):

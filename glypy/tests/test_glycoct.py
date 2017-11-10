@@ -1,7 +1,7 @@
 import unittest
 
 from glypy.io import glycoct
-from glypy.tests.common import load, glycan
+from glypy.tests.common import load, glycan, structures as raw_structures
 
 
 example_multiplicity = '''
@@ -285,6 +285,14 @@ class GlycoCTParserTests(unittest.TestCase):
                 if subst.name == 'sulfate':
                     sulfate_count += 1
         self.assertEqual(sulfate_count, 5)
+
+    def test_ordered_serialization(self):
+        for acc in ['G58143RL', 'G82388RB', 'G28839WC', 'G37369XO', 'G36221RT', 'G27293OK',
+                    'G62831KM', 'G65832JS', 'G07337US', 'G01120GS']:
+            text = raw_structures[acc].strip()
+            structure = glycoct.loads(text)
+            retext = glycoct.dumps(structure).strip()
+            assert text == retext, "Failed to match %s" % acc
 
 
 if __name__ == '__main__':
