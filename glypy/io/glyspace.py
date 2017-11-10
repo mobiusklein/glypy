@@ -7,7 +7,7 @@ from rdflib.namespace import split_uri
 
 from collections import defaultdict
 
-from glypy.io import glycoct
+from glypy.io import glycoct, iupac
 
 # http://glytoucan.org/glyspace/documentation/apidoc.html
 # http://code.glytoucan.org/system/glyspace
@@ -156,7 +156,7 @@ class BoundURIRef(URIRef):
     __call__ = get
 
     def _repr_pretty_(self, p, cycle):
-        return p.pretty(repr(self))
+        return p.pretty(str(self))
 
     def __getattr__(self, name):
         '''
@@ -546,6 +546,9 @@ def has_glycosequence_processor(state, uri):
     if reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_glycoct:
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
+    if "structure_" not in state and reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_iupac_extended:
+        state["structure_"] = [iupac.loads(reference.has_sequence)]
+
     return uri
 
 
