@@ -206,6 +206,12 @@ class Anomer(Enum):
     x = None
 
 
+Anomer.beta.add_name("b")
+Anomer.alpha.add_name("a")
+Anomer.uncyclized.add_name("o")
+Anomer.uncyclized.add_name("open-chain")
+
+
 class RingType(Enum):
     '''
     Corresponds to the type of ring structure of this |Monosaccharide|. Pyranose rings are
@@ -226,6 +232,22 @@ class RingType(Enum):
 
 class Stereocoding(Enum):
     x = None
-    h = 0
-    l = 1
-    d = 2
+    h = 'h'
+    L = '1'
+    D = '2'
+    LD = '3'
+    DL = '4'
+    d = 'd'
+    m = 'm'
+    a = 'a'
+    o = 'o'
+    k = 'k'
+    e = 'e'
+    n = 'n'
+    E = 'E'
+    y = 'y'
+    s = 's'
+    t = 't'
+
+
+Stereocoding.h.add_name('0')
