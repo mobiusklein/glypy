@@ -10,6 +10,7 @@ from six import string_types as basestring
 
 import numpy as np
 from glypy import monosaccharides
+from glypy.structure import constants
 from glypy.utils import root
 from glypy.io.nomenclature import identity
 
@@ -38,7 +39,22 @@ DEFAULT_SYMBOL_SCALE_FACTOR = 0.17
 
 #: :data:`special_cases` contains a list of names for
 #: special case monosaccharides
-special_cases = [monosaccharides["Fuc"], monosaccharides["Xyl"]]
+_special_case_fucose = monosaccharides.Fuc
+_special_case_fucose.configuration = None
+_special_case_fucose.anomer = None
+_special_case_xylose = monosaccharides.Xyl
+_special_case_xylose.configuration = None
+_special_case_xylose.anomer = None
+
+special_cases = [_special_case_fucose, _special_case_xylose]
+
+
+anomer_symbol_map = {
+    constants.Anomer.alpha: r'\alpha',
+    constants.Anomer.beta: r'\beta',
+    constants.Anomer.uncyclized: r'o',
+    constants.Anomer.x: r'?'
+}
 
 
 def sign(x):
@@ -440,10 +456,12 @@ class DrawTreeNode(object):
              self.data['lines'][self.id, child.id]))
 
         position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y, text=str(position_num),
+            ax=ax, x=position_x, y=position_y, text=str(position_num) if position_num != -1 else "?",
             fontsize=fontsize, minimize_overlap=overlapping)
         anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y, r'$\{}$'.format(child.tree.anomer.name), fontsize=fontsize + 2,
+            ax, anomer_x, anomer_y, r'${}$'.format(
+                anomer_symbol_map.get(
+                    child.tree.anomer, child.tree.anomer.name)), fontsize=fontsize + 2,
             minimize_overlap=overlapping)
         self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
