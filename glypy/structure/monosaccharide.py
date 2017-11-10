@@ -1,7 +1,7 @@
 import logging
 try:
     from itertools import chain, izip_longest
-except:
+except ImportError:
     from itertools import chain, zip_longest as izip_longest
 from collections import deque
 
@@ -24,6 +24,7 @@ from .constants import Anomer, Configuration, Stem, SuperClass, Modification, Ri
 from .substituent import Substituent
 from .link import Link
 from .base import SaccharideBase
+from .stereochemistry import stereocode
 
 
 anomer_map = invert_dict(anomer_map)
@@ -381,6 +382,10 @@ class Monosaccharide(SaccharideBase):
     @superclass.setter
     def superclass(self, value):
         self._superclass = SuperClass[value]
+
+    @property
+    def stereocode(self):
+        return stereocode(self)
 
     def __root__(self):
         return self
