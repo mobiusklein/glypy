@@ -169,8 +169,6 @@ def stereocode(monosaccharide):
     except KeyError:
         warnings.warn("Could not locate a stereocode template for %r based upon key %s" % (
             monosaccharide, key))
-        print "Could not locate a stereocode template for %r based upon key %s" % (
-            monosaccharide, key)
         base_code = Stereocode(Stereocoding[None] for i in range(monosaccharide.superclass.value))
     _update_stereocode_extended(base_code, monosaccharide)
     return base_code

@@ -1474,7 +1474,6 @@ class OrderingComparisonContext(object):
 
     def compare_residue_ordering(self, res_a, res_b):
         ordered = self._compare_residue_ordering(res_a, res_b)
-        # print ordered, res_a, res_b
         return ordered
 
     def _link_diff(self, link_a, link_b):
