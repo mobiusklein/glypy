@@ -94,7 +94,6 @@ def _update_stereocode_basic(code, monosaccharide):
         site = monosaccharide[i + 1]
         modifications = site['modifications']
         for mod in modifications:
-            print mod, i
             if mod.name == Modification.d:
                 code[i] = 0
             elif mod.name == Modification.a.name:
