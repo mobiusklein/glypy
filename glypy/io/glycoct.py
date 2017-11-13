@@ -1234,6 +1234,8 @@ class GlycoCTWriterBase(object):
         anomer = invert_anomer_map[monosaccharide.anomer]
         conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
                             for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
+        if None in monosaccharide.configuration or None in monosaccharide.stem:
+            conf_stem = ''
         superclass = "-" + invert_superclass_map[monosaccharide.superclass]
 
         modifications = '|'.join(
@@ -1322,6 +1324,81 @@ class GlycoCTWriterBase(object):
         self.structure = structure
         self._reset()
         return self.dump()
+
+
+class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
+    @property
+    def structure(self):
+        return self._structure
+
+    @structure.setter
+    def structure(self, value):
+        from glypy.composition.glycan_composition import GlycanComposition
+
+        if value is None:
+            self._structure = value
+            return
+        if isinstance(value, (GlycanComposition, dict)):
+            value = GlycanComposition(value)
+        else:
+            try:
+                structure = treep(value)
+            except TypeError:
+                try:
+                    root = rootp(value)
+                    structure = Glycan(root, index_method=None)
+                except TypeError:
+                    raise TypeError("Could not extract or construct a tree structure from %r" % value)
+            value = GlycanComposition.from_glycan(structure)
+        self._structure = value
+
+    def _unspool(self, mapping):
+        for key, count in mapping.items():
+            if count < 1:
+                continue
+            for i in range(count):
+                yield key
+
+    def handle_glycan(self):
+        if self.structure is None:
+            raise GlycoCTError("No structure is ready to be written.")
+
+        self.buffer.write("RES\n")
+
+        for node in self._unspool(self.structure):
+            res, lin, index = self.handle_monosaccharide(node)
+
+            self.lin_accumulator.append((index, lin))
+            self.residue_to_index[node.id] = index
+            self.index_to_residue[index] = node
+
+            if self.full:
+                for pos, lin in node.links.items():
+                    if lin.is_child(node):
+                        continue
+                    self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
+            for line in res:
+                self.buffer.write(line + '\n')
+
+            # If this serialization is not meant to be full
+            # do not visit residues beyond the first.
+            if not self.full:
+                break
+
+        self.buffer.write("LIN\n")
+        for res_ix, links in self.lin_accumulator:
+            for line in links:
+                self.buffer.write(line + '\n')
+            residue = self.index_to_residue[res_ix]
+            if self.full:
+                for pos, lin in residue.links.items():
+                    if lin.is_child(residue):
+                        continue
+                    child_res = lin.child
+                    ix, lin = self.dependencies[child_res.id][residue.id]
+                    self.buffer.write(
+                        self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
+        return self.buffer
 
 
 def all_node_depth(node, visited=None):
