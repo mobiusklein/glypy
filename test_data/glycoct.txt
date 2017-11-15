@@ -7,7 +7,6 @@ RES
 4b:b-dglc-HEX-1:5
 5b:b-dglc-HEX-1:5
 6b:b-dglc-HEX-1:5
-7b:b-dglc-HEX-1:5
 LIN
 1:1o(6+1)2d
 2:2o(3+1)3d

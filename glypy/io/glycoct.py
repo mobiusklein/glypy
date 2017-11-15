@@ -25,7 +25,7 @@ import zlib
 
 from glypy.utils import (
     opener, StringIO, root as rootp, tree as treep,
-    make_counter, invert_dict,
+    make_counter, invert_dict, uid,
     RootProtocolNotSupportedError)
 from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, glycan, Modification
@@ -192,6 +192,7 @@ class GlycoCTGraph(object):
         if graph is None:
             graph = dict()
         self.graph = graph
+        self.id = (self.__class__, uid())
 
     def __repr__(self):
         return "{self.__class__.__name__}({self.graph})".format(self=self)
@@ -204,6 +205,9 @@ class GlycoCTGraph(object):
 
     def __setitem__(self, k, v):
         self.put_node(k, v)
+
+    def __len__(self):
+        return len(self.graph)
 
     def keys(self):
         return self.graph.keys()
@@ -253,6 +257,100 @@ class GlycoCTGraph(object):
     def deferred_retrieval(self, id, direction=None):
         return DeferredRetrieval(self, id, direction)
 
+    def __root__(self):
+        return self.find_root_nodes()[0]
+
+    def find_root_nodes(self):
+        roots = []
+        for index, node in self.items():
+            try:
+                if node.parents():
+                    continue
+            except AttributeError:
+                if not isinstance(node, GlycoCTGraph):
+                    raise
+                else:
+                    if rootp(node).parents():
+                        continue
+            roots.append(node)
+        if not roots:
+            roots.append(sorted(self.items())[0][1])
+        return roots
+
+    def visit(self, node, visited=None):
+        if visited is None:
+            visited = set()
+        if isinstance(node, GlycoCTGraph):
+            return self.visit(rootp(node), visited)
+
+        visited.add(node.id)
+        for position, link in node.links.items():
+            ref = link.to(node)
+            if ref.id in visited:
+                continue
+            else:
+                self.visit(ref, visited)
+        try:
+            for position, link in node.substituent_links.items():
+                ref = link.to(node)
+                if ref.id in visited:
+                    continue
+                else:
+                    self.visit(ref, visited)
+        except AttributeError:
+            pass
+        return visited
+
+    def is_fully_connected(self):
+        roots = self.find_root_nodes()
+        visited = self.visit(roots[0])
+        return len(visited) >= len(self)
+
+
+class NodeCollection(object):
+
+    @classmethod
+    def from_node(cls, root):
+        nodes = []
+        for node in monosaccharide.traverse(root):
+            nodes.append(node)
+            try:
+                for _, subst in node.substituents():
+                    nodes.append(subst)
+            except AttributeError:
+                pass
+        return cls(nodes)
+
+    def __init__(self, nodes):
+        self.nodes = list(nodes)
+        self.root = self.nodes[0]
+
+    def __iter__(self):
+        return monosaccharide.traverse(self.root)
+
+    def deindex(self):
+        base = uid()
+        for i, node in enumerate(self.nodes):
+            node.id += base
+            node.id *= -1
+
+    def reindex(self):
+        for i, node in enumerate(self.nodes):
+            node.id = i + 1
+
+    def clone(self, *args, **kwargs):
+        root = monosaccharide.graph_clone(self.root)
+        return self.from_node(root)
+
+    def get(self, key):
+        for node in self.nodes:
+            if node.id == key:
+                return node
+        raise IndexError(key)
+
+    def __root__(self):
+        return self.root
+
 
 class GlycoCTGraphStack(GlycoCTGraph):
     def __init__(self, stack=None, parent=None):
@@ -267,6 +365,7 @@ class GlycoCTGraphStack(GlycoCTGraph):
             stack = _stack
         self.stack = stack
         self.history = list(stack)
+        self.id = (self.__class__, uid())
 
     @property
     def graph(self):
@@ -318,6 +417,38 @@ class GlycoCTGraphStack(GlycoCTGraph):
 
     def __repr__(self):
         return "{self.__class__.__name__}({self.history})".format(self=self)
+
+    def _count_subgraph_nodes(self):
+        layer_relations = defaultdict(list)
+        root_layer = self.stack[0]
+        for layer in self.stack:
+            if layer.parent is None:
+                continue
+            else:
+                key = layer.parent.id
+            layer_relations[key].append(layer)
+
+        # repeated subgraphs add to the node count on a layer, but
+        # the root layer is also the parent of all other subgraphs
+        # which do not have nodes. This is a hacky solution to
+        # count just those with nodes in the root layer.
+        first_children = layer_relations.pop(root_layer.id, [])
+        adjustment = 0
+        for child in first_children:
+            if isinstance(child, RepeatedGlycoCTSubgraph):
+                adjustment += 1
+        return sum(map(len, layer_relations.values())) + adjustment
+
+    def __len__(self):
+        return sum(map(len, self.stack)) - self._count_subgraph_nodes()
+
+    def find_root_nodes(self):
+        return self.stack[0].find_root_nodes()
+
+    def is_fully_connected(self):
+        roots = self.find_root_nodes()
+        visited = self.visit(roots[0])
+        return len(visited) >= len(self)
 
 
 class GlycoCTSubgraph(GlycoCTGraph):
@@ -399,7 +530,18 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
     def origin_node(self):
         root_unit_ix = self.first_repeat_index
         child_graph = self.repetitions[root_unit_ix]
-        child = child_graph.get((root_unit_ix, self.origin_node_index))
+        try:
+            child = child_graph.get((root_unit_ix, self.origin_node_index))
+        except IndexError:
+            # the root of this subgraph is nested, coming from an expanded
+            # inner subgraph. The index labels recorded in the section header
+            # are not accurate anymore. Attempt to recover by returning the
+            # root node of this subgraph
+            if isinstance(child_graph.root.id[1], tuple):
+                return child_graph.root
+            else:
+                raise
+
         return child
 
     def postpone(self, f, args):
@@ -426,7 +568,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
             return StructurePrecisionEnum.exact
         return StructurePrecisionEnum.ranging
 
-    def _build_glycan_from_graph(self, graph):
+    def _build_minigraph(self, graph):
         sub_unit_indices = sorted(map(try_int, graph.keys()))
         for key, node in list(graph.items()):
             if isinstance(node, GlycoCTGraph):
@@ -437,11 +579,12 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
             root = find_root(graph[sub_unit_indices[0]])
         except RootProtocolNotSupportedError:
             raise GlycoCTError("Could not locate subgraph root")
-        glycan_graph = Glycan(root, index_method=None).clone()
+        # glycan_graph = Glycan(root, index_method=None).clone()
+        glycan_graph = NodeCollection.from_node(root).clone()
         return glycan_graph
 
     def _duplicate_graph(self, graph):
-        glycan_graph = self._build_glycan_from_graph(graph)
+        glycan_graph = self._build_minigraph(graph)
         duplicate_graph = {}
         for k, v in graph.items():
             if isinstance(v, GlycoCTSubgraph):
@@ -471,7 +614,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
                 raise GlycoCTError("{} is not within the range of {}".format(n, self.multitude))
 
         self.original_graph = self._duplicate_graph(self.graph)
-        glycan_graph = self._build_glycan_from_graph(self.graph)
+        glycan_graph = self._build_minigraph(self.graph)
 
         graph = OrderedDict({1: glycan_graph.clone(index_method=None)})
         decorate_tree(graph[1], 1)
@@ -561,7 +704,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
     def prepare_glycan(self):
         glycan = self.repetitions[self.first_repeat_index]
         glycan.deindex()
-        return glycan
+        return Glycan(glycan.root, index_method=None)
 
 
 UndeterminedProbability = namedtuple("UndeterminedProbability", "major minor")
@@ -619,6 +762,28 @@ def _build_graph(glycoct_str):
     rep = StringIO(glycoct_str)
     inst = GlycoCTReader(rep, completes=False)
     return next(inst)
+
+
+def extract_composition(parser):
+    from glypy.structure.glycan_composition import (
+        GlycanComposition, MonosaccharideResidue, SubstituentResidue)
+    store = GlycanComposition()
+    for layer in list(parser.stack)[1:]:
+        node = rootp(layer)
+        for position, link in list(node.links.items()):
+            if link.is_child(node):
+                link.break_link(refund=True)
+
+    for layer in parser.stack:
+        for node in layer.find_root_nodes():
+            if isinstance(node, Monosaccharide):
+                node = MonosaccharideResidue.from_monosaccharide(node)
+            elif isinstance(node, Substituent):
+                node = SubstituentResidue(node.name)
+            else:
+                raise ValueError(node)
+            store[node] += 1
+    return store
 
 
 class GlycoCTReader(GlycoCTGraphStack):
@@ -691,7 +856,7 @@ class GlycoCTReader(GlycoCTGraphStack):
                 yield segment
 
     def _reset(self):
-        self.graph.clear()
+        self.clear()
         self.root = None
         self.postponed = []
         self.repeats.clear()
@@ -917,7 +1082,8 @@ class GlycoCTReader(GlycoCTGraphStack):
         graph_index = try_int(match['graph_index'])
         repeat_index = try_int(match["repeat_index"])
 
-        repeat = RepeatedGlycoCTSubgraph(int(graph_index), int(repeat_index), parent=self)
+        repeat = RepeatedGlycoCTSubgraph(
+            int(graph_index), int(repeat_index), parent=self.graph)
         repeat._index = self._index
 
         self[graph_index] = repeat
@@ -1001,24 +1167,28 @@ class GlycoCTReader(GlycoCTGraphStack):
         -------
         Glycan
         '''
-        if self.completes:
-            for level in reversed(self.history):
-                level.postprocess()
+        for level in reversed(self.history):
+            level.postprocess()
 
-            for postop in self.postponed:
-                postop[0](*postop[1:])
+        for postop in self.postponed:
+            postop[0](*postop[1:])
 
-            if self.root is None:
-                return None
+        if self.root is None:
+            return None
+
+        if self.is_fully_connected():
+        # if True:
             try:
-                return undecorate_tree(
+                inst = undecorate_tree(
                     self.structure_class(
                         root=rootp(self.root), index_method=None)
                 ).reindex()
+                return inst
             except RootProtocolNotSupportedError:
                 raise GlycoCTError("Could not locate graph root")
         else:
-            return self
+            # warnings.warn("The parsed structure was not fully connected. Producing a Composition")
+            return extract_composition(self)
 
     def parse(self):
         '''
@@ -1146,6 +1316,7 @@ class GlycoCTWriterBase(object):
 
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
+        self.und_counter = make_counter()
 
         # Look-ups for mapping RES nodes to objects by section index and id,
         # respectively
@@ -1179,6 +1350,7 @@ class GlycoCTWriterBase(object):
     def _reset(self):
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
+        self.und_counter = make_counter()
 
         self.index_to_residue = {}
         self.residue_to_index = {}
@@ -1327,13 +1499,29 @@ class GlycoCTWriterBase(object):
 
 
 class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
+    def __init__(self, structure=None, buffer=None, full=True, standardize=False):
+        super(GlycanCompositionGlycoCTWriter, self).__init__(structure, buffer, full)
+        self.standardize = standardize
+
     @property
     def structure(self):
         return self._structure
 
+    def _standardize_substituent_linkage(self, link):
+        if self.standardize:
+            from glypy.io.nomenclature import identity
+            from glypy.structure.named_structures import monosaccharides
+            try:
+                if link.child.name == 'n_acetyl':
+                    if identity.is_a(link.parent, monosaccharides.HexNAc):
+                        if link.parent_position == -1:
+                            link.parent_position = 2
+            except AttributeError:
+                pass
+
     @structure.setter
     def structure(self, value):
-        from glypy.composition.glycan_composition import GlycanComposition
+        from glypy.structure.glycan_composition import GlycanComposition
 
         if value is None:
             self._structure = value
@@ -1353,19 +1541,48 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
         self._structure = value
 
     def _unspool(self, mapping):
-        for key, count in mapping.items():
+        sorter = OrderingComparisonContext(self)
+        order = sorter.sort_residues(mapping.keys(), reverse=True)
+        for key in order:
+            count = mapping[key]
             if count < 1:
                 continue
             for i in range(count):
                 yield key
 
+    def _write_und_subgraph(self, substituent):
+        index = self.und_counter()
+        self.buffer.write("UND%d:100.0:100.0\n" % (index,))
+        self.buffer.write(
+            "ParentIDs:%s\n" % ('|'.join(map(str, self.index_to_residue.keys()))))
+        self.buffer.write("SubtreeLinkageID1:o(-1+1)n\nRES\n")
+        sub_index = self.res_counter()
+        subst_str = str(sub_index) + self.handle_substituent(substituent)
+        self.buffer.write("%s\n" % subst_str)
+
+    def handle_link(self, link, ix, parent_ix, child_ix):
+        self._standardize_substituent_linkage(link)
+        return super(GlycanCompositionGlycoCTWriter, self).handle_link(link, ix, parent_ix, child_ix)
+
     def handle_glycan(self):
         if self.structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
+        from glypy.structure.glycan_composition import (
+            SubstituentResidue, MolecularComposition)
+
         self.buffer.write("RES\n")
 
+        disconnected_substituents = []
+        molecules = []
+
         for node in self._unspool(self.structure):
+            if isinstance(node, SubstituentResidue):
+                disconnected_substituents.append(node)
+                continue
+            elif isinstance(node, MolecularComposition):
+                molecules.append(node)
+                continue
             res, lin, index = self.handle_monosaccharide(node)
 
             self.lin_accumulator.append((index, lin))
@@ -1398,6 +1615,14 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
                     ix, lin = self.dependencies[child_res.id][residue.id]
                     self.buffer.write(
                         self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
+        if disconnected_substituents:
+            self.buffer.write("UND\n")
+        for node in disconnected_substituents:
+            self._write_und_subgraph(node)
+
+        if molecules:
+            raise TypeError("Cannot serialize MolecularComposition to GlycoCT")
+
         return self.buffer
 
 
@@ -1655,11 +1880,13 @@ class OrderingComparisonContext(object):
         ordered = self._compare_link_ordering(link_a, link_b)
         return ordered
 
-    def sort_links(self, links):
-        return sorted(links, key=cmp_to_key(self.compare_link_ordering))
+    def sort_links(self, links, reverse=False):
+        return sorted(links, key=cmp_to_key(self.compare_link_ordering),
+                      reverse=reverse)
 
-    def sort_residues(self, residues):
-        return sorted(residues, key=cmp_to_key(self.compare_residue_ordering))
+    def sort_residues(self, residues, reverse=False):
+        return sorted(residues, key=cmp_to_key(self.compare_residue_ordering),
+                      reverse=reverse)
 
 
 class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
@@ -1798,10 +2025,16 @@ def dump(structure, buffer=None):
     file-like or str if ``buffer`` is :const:`None`
 
     '''
+    from glypy import GlycanComposition
+    if isinstance(structure, GlycanComposition):
+        return GlycanCompositionGlycoCTWriter(structure, buffer).dump()
     return GlycoCTWriter(structure, buffer).dump()
 
 
 def dumps(structure, full=True):
+    from glypy import GlycanComposition
+    if isinstance(structure, GlycanComposition):
+        return GlycanCompositionGlycoCTWriter(structure, None, buffer).dump()
     return GlycoCTWriter(structure, None, full=full).dump()
 
 

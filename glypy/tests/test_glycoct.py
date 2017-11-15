@@ -1,5 +1,6 @@
 import unittest
 
+import glypy
 from glypy.io import glycoct
 from glypy.tests.common import load, glycan, structures as raw_structures
 
@@ -285,6 +286,10 @@ class GlycoCTParserTests(unittest.TestCase):
                 if subst.name == 'sulfate':
                     sulfate_count += 1
         self.assertEqual(sulfate_count, 5)
+
+    def test_composition(self):
+        gc = glypy.GlycanComposition.parse("{Hex:5; Hex2NAc:4; Neu5Ac:2; @sulfate: 1}")
+        self.assertEqual(gc, glycoct.loads(glycoct.dumps(gc)))
 
     def test_ordered_serialization(self):
         for acc in ['G58143RL', 'G82388RB', 'G28839WC', 'G37369XO', 'G36221RT', 'G27293OK',

@@ -2,7 +2,7 @@ import unittest
 
 import glypy
 from glypy.composition import composition_transform
-from glypy.composition import glycan_composition
+from glypy.structure import glycan_composition
 from glypy import monosaccharides, Substituent, glycans
 
 water_mass = glypy.Composition("H2O").mass
