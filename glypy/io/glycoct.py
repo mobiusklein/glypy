@@ -2034,7 +2034,7 @@ def dump(structure, buffer=None):
 def dumps(structure, full=True):
     from glypy import GlycanComposition
     if isinstance(structure, GlycanComposition):
-        return GlycanCompositionGlycoCTWriter(structure, None, buffer).dump()
+        return GlycanCompositionGlycoCTWriter(structure, None).dump()
     return GlycoCTWriter(structure, None, full=full).dump()
 
 
