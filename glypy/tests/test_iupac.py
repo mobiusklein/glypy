@@ -4,7 +4,7 @@ import unittest
 import glypy
 from glypy.composition import composition_transform
 from glypy.tests import common
-from glypy.io import iupac
+from glypy.io import iupac, glycoct
 
 monosaccharides = common.monosaccharides
 
@@ -46,30 +46,24 @@ class IUPACTests(unittest.TestCase):
         self.assertEqual(result, reference)
 
     def test_glycan_to_iupac(self):
-        reference = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1\
--3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp\
--(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
+        reference = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
         structure = common.load("complex_glycan")
         self.assertEqual(iupac.to_iupac(structure), reference)
 
     def test_glycan_from_iupac(self):
-        text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1\
--3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp\
--(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
+        text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
         reference = common.load("complex_glycan")
-        self.assertEqual(iupac.from_iupac(text), reference)
+        self.assertEqual(glycoct.canonicalize(iupac.from_iupac(text)), glycoct.canonicalize(reference))
 
     def test_glycan_from_iupac_file_like(self):
         text = '''>test
-        a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1
-        -3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp
+        a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1
+        -3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp
         -(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'''
         reader = iupac.IUPACParser.loads(text, 'fasta')
         structure = next(reader)
 
-        text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1\
--3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5NGc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp\
--(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
+        text = 'a-L-Fucp-(1-6)-[a-D-Neup5Ac-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-6)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-4)][b-D-Galp2NAc-(1-4)-b-D-Glcp2NAc-(1-4)-[a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc-(1-2)]a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)]?-D-Glcp2NAc'
         equiv = next(iupac.IUPACParser.loads(text, 'line'))
         self.assertEqual(equiv, structure)
 

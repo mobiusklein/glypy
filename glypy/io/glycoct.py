@@ -1717,7 +1717,8 @@ class OrderingComparisonContext(object):
         else:
             subtree_a = GlycoCTWriter(Glycan.subtree_from(self.structure, res_a)).dump()
             subtree_b = GlycoCTWriter(Glycan.subtree_from(self.structure, res_b)).dump()
-            subtree_diff = cmp(subtree_b, subtree_a)
+            subtree_diff = (subtree_b > subtree_a) - (subtree_b < subtree_a)
+            # cmp(subtree_b, subtree_a)
         return (diff_child_res, diff_longest_branch, diff_n_branches_from, subtree_diff, subtree_a, subtree_b)
 
     def _compare_residue_ordering(self, res_a, res_b):
@@ -1772,7 +1773,7 @@ class OrderingComparisonContext(object):
 
         subtree_a = GlycoCTWriter(Glycan.subtree_from(self.structure, res_a)).dump()
         subtree_b = GlycoCTWriter(Glycan.subtree_from(self.structure, res_b)).dump()
-        return cmp(subtree_b, subtree_a)
+        return (subtree_b > subtree_a) - (subtree_b < subtree_a)
 
     def compare_residue_ordering(self, res_a, res_b):
         ordered = self._compare_residue_ordering(res_a, res_b)
@@ -2053,6 +2054,10 @@ def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
 
 Monosaccharide.register_serializer("glycoct", _postprocessed_single_monosaccharide)
 Glycan.register_serializer("glycoct", dumps)
+
+
+def canonicalize(structure):
+    return loads(dumps(structure))
 
 
 class DistinctGlycanSet(object):
