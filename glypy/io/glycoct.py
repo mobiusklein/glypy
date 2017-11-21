@@ -277,26 +277,30 @@ class GlycoCTGraph(object):
             roots.append(sorted(self.items())[0][1])
         return roots
 
-    def visit(self, node, visited=None):
+    def visit(self, node, visited=None, fn=None):
         if visited is None:
             visited = set()
         if isinstance(node, GlycoCTGraph):
-            return self.visit(rootp(node), visited)
+            for node in node.find_root_nodes():
+                self.visit(node, visited, fn)
+            return visited
 
         visited.add(node.id)
+        if fn is not None:
+            fn(node, visited)
         for position, link in node.links.items():
             ref = link.to(node)
             if ref.id in visited:
                 continue
             else:
-                self.visit(ref, visited)
+                self.visit(ref, visited, fn)
         try:
             for position, link in node.substituent_links.items():
                 ref = link.to(node)
                 if ref.id in visited:
                     continue
                 else:
-                    self.visit(ref, visited)
+                    self.visit(ref, visited, fn)
         except AttributeError:
             pass
         return visited
@@ -1177,7 +1181,6 @@ class GlycoCTReader(GlycoCTGraphStack):
             return None
 
         if self.is_fully_connected():
-        # if True:
             try:
                 inst = undecorate_tree(
                     self.structure_class(
@@ -1303,6 +1306,49 @@ invert_anomer_map = invert_dict(anomer_map)
 invert_superclass_map = invert_dict(superclass_map)
 
 
+class DictTree(object):
+    def __init__(self, state=START, store=None):
+        if store is None:
+            store = {}
+        self.store = defaultdict(dict, store)
+        self.state = state
+
+    def __getitem__(self, key):
+        for subtree in self.store.values():
+            try:
+                return subtree[key]
+            except KeyError:
+                continue
+        return self.store[key]
+
+    def __setitem__(self, key, value):
+        self.store[self.state][key] = value
+
+    def __len__(self):
+        return sum(map(len, self.store))
+
+    def __iter__(self):
+        return iter(self.store)
+
+    def keys(self):
+        return self.store.keys()
+
+    def items(self):
+        vals = list(self.store.values())
+        acc = vals[0].items()
+        for v in vals[1:]:
+            acc = acc + v.items()
+        return acc
+
+    def __contains__(self, key):
+        return key in self.store
+
+    def get(self, key, subtree=None, default=None):
+        if subtree is None:
+            subtree = self.state
+        return self.store[subtree].get(key, default)
+
+
 class GlycoCTWriterBase(object):
     def __init__(self, structure=None, buffer=None, full=True):
         self.nobuffer = False
@@ -1314,14 +1360,16 @@ class GlycoCTWriterBase(object):
         self.structure = structure
         self.full = full
 
+        self.state = START
+
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
         self.und_counter = make_counter()
 
         # Look-ups for mapping RES nodes to objects by section index and id,
         # respectively
-        self.index_to_residue = {}
-        self.residue_to_index = {}
+        self.index_to_residue = DictTree(self.state)
+        self.residue_to_index = DictTree(self.state)
 
         # Accumulator for linkage indices and mapping linkage indices to
         # dependent RES indices
@@ -1348,12 +1396,13 @@ class GlycoCTWriterBase(object):
         self._structure = structure
 
     def _reset(self):
+        self.state = START
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
         self.und_counter = make_counter()
 
-        self.index_to_residue = {}
-        self.residue_to_index = {}
+        self.index_to_residue = DictTree(self.state)
+        self.residue_to_index = DictTree(self.state)
 
         self.lin_accumulator = []
         self.dependencies = defaultdict(dict)
@@ -1439,14 +1488,15 @@ class GlycoCTWriterBase(object):
 
         return [res, lin, monosaccharide_index]
 
-    def handle_glycan(self):
-        if self.structure is None:
+    def handle_glycan(self, structure):
+        if structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
+        self.lin_accumulator = []
         self.buffer.write("RES\n")
 
         visited = set()
-        for node in (self.structure):
+        for node in (structure):
             if node.id in visited:
                 continue
             visited.add(node.id)
@@ -1484,8 +1534,40 @@ class GlycoCTWriterBase(object):
                         self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
         return self.buffer
 
+    def begin_underdetermined(self):
+        if self.state != UND:
+            self.buffer.write("UND\n")
+            self.state = UND
+            self.index_to_residue.state = UND
+            self.residue_to_index.state = UND
+
+    def _format_subtree_linkage(self, linkage_args):
+        (parent_link_type, parent_position,
+         child_position, child_link_type) = linkage_args
+        return "%s(%d+%d)%s" % (parent_link_type, parent_position,
+                                child_position, child_link_type)
+
+    def _get_viable_und_parents(self):
+        valid_parent_inds = []
+        for index, node in self.index_to_residue[START].items():
+            if node.node_type == Monosaccharide.node_type:
+                valid_parent_inds.append(index)
+        return valid_parent_inds
+
+    def handle_und_header(self, major_probability=100.0, minor_probability=100.0, parent_ids=None,
+                          subtree_linkage_args=None):
+        if parent_ids is None:
+            parent_ids = list(self._get_viable_und_parents())
+
+        index = self.und_counter()
+        self.buffer.write("UND%d:%0.1f:%0.1f\n" % (index, major_probability, minor_probability))
+        self.buffer.write(
+            "ParentIDs:%s\n" % ('|'.join(map(str, parent_ids))))
+        self.buffer.write("SubtreeLinkageID1:%s\n" % (
+            self._format_subtree_linkage(subtree_linkage_args)))
+
     def dump(self):
-        buffer = self.handle_glycan()
+        buffer = self.handle_glycan(self.structure)
         if self.nobuffer:
             value = buffer.getvalue()
             self._reset()
@@ -1496,6 +1578,40 @@ class GlycoCTWriterBase(object):
         self.structure = structure
         self._reset()
         return self.dump()
+
+    def embed(self, writer):
+        writer.res_counter = self.res_counter
+        writer.lin_counter = self.lin_counter
+        writer.und_counter = self.und_counter
+        writer.index_to_residue = self.index_to_residue
+        writer.buffer = self.buffer
+        writer.state = self.state
+        return writer
+
+    def _determine_und_linkage_type_glycan_composition(self, glycan_composition):
+        if len(glycan_composition) == 1:
+            keys = list(glycan_composition)
+            key = keys[0]
+            if key.node_type == Substituent.node_type:
+                return "d", "n"
+            else:
+                return "o", "d"
+        else:
+            return "o", "d"
+
+    def add_glycan_composition(self, glycan_composition):
+        for m in OrderingComparisonContext(self).sort_residues(glycan_composition):
+            for i in range(glycan_composition[m]):
+                self.add_glycan_composition_single({m: 1})
+
+    def add_glycan_composition_single(self, glycan_composition):
+        self.begin_underdetermined()
+        linkage_types = self._determine_und_linkage_type_glycan_composition(glycan_composition)
+        self.handle_und_header(subtree_linkage_args=(linkage_types[0], -1, -1, linkage_types[1]))
+        writer = GlycanCompositionGlycoCTWriter(
+            glycan_composition, self.buffer)
+        self.embed(writer)
+        writer.handle_glycan(glycan_composition)
 
 
 class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
@@ -1551,11 +1667,8 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
                 yield key
 
     def _write_und_subgraph(self, substituent):
-        index = self.und_counter()
-        self.buffer.write("UND%d:100.0:100.0\n" % (index,))
-        self.buffer.write(
-            "ParentIDs:%s\n" % ('|'.join(map(str, self.index_to_residue.keys()))))
-        self.buffer.write("SubtreeLinkageID1:o(-1+1)n\nRES\n")
+        self.handle_und_header(subtree_linkage_args=('o', -1, 1, 'n'))
+        self.buffer.write("RES\n")
         sub_index = self.res_counter()
         subst_str = str(sub_index) + self.handle_substituent(substituent)
         self.buffer.write("%s\n" % subst_str)
@@ -1564,61 +1677,76 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
         self._standardize_substituent_linkage(link)
         return super(GlycanCompositionGlycoCTWriter, self).handle_link(link, ix, parent_ix, child_ix)
 
-    def handle_glycan(self):
-        if self.structure is None:
+    def handle_glycan(self, structure):
+        if structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
         from glypy.structure.glycan_composition import (
             SubstituentResidue, MolecularComposition)
 
-        self.buffer.write("RES\n")
+        self.lin_accumulator = []
 
         disconnected_substituents = []
         molecules = []
 
-        for node in self._unspool(self.structure):
+        nodes = []
+
+        for node in self._unspool(structure):
             if isinstance(node, SubstituentResidue):
                 disconnected_substituents.append(node)
                 continue
             elif isinstance(node, MolecularComposition):
                 molecules.append(node)
                 continue
-            res, lin, index = self.handle_monosaccharide(node)
+            else:
+                nodes.append(node)
 
-            self.lin_accumulator.append((index, lin))
-            self.residue_to_index[node.id] = index
-            self.index_to_residue[index] = node
+        if nodes:
+            self.buffer.write("RES\n")
+            for node in nodes:
+                res, lin, index = self.handle_monosaccharide(node)
 
-            if self.full:
-                for pos, lin in node.links.items():
-                    if lin.is_child(node):
-                        continue
-                    self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
-            for line in res:
-                self.buffer.write(line + '\n')
+                self.lin_accumulator.append((index, lin))
+                self.residue_to_index[node.id] = index
+                self.index_to_residue[index] = node
 
-            # If this serialization is not meant to be full
-            # do not visit residues beyond the first.
-            if not self.full:
-                break
+                if self.full:
+                    for pos, lin in node.links.items():
+                        if lin.is_child(node):
+                            continue
+                        self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
+                for line in res:
+                    self.buffer.write(line + '\n')
 
-        self.buffer.write("LIN\n")
-        for res_ix, links in self.lin_accumulator:
-            for line in links:
-                self.buffer.write(line + '\n')
-            residue = self.index_to_residue[res_ix]
-            if self.full:
-                for pos, lin in residue.links.items():
-                    if lin.is_child(residue):
-                        continue
-                    child_res = lin.child
-                    ix, lin = self.dependencies[child_res.id][residue.id]
-                    self.buffer.write(
-                        self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
-        if disconnected_substituents:
-            self.buffer.write("UND\n")
-        for node in disconnected_substituents:
-            self._write_und_subgraph(node)
+                # If this serialization is not meant to be full
+                # do not visit residues beyond the first.
+                if not self.full:
+                    break
+            # if self.lin_accumulator:
+            if any(linkages for res_ix, linkages in self.lin_accumulator):
+                self.buffer.write("LIN\n")
+                for res_ix, links in self.lin_accumulator:
+                    for line in links:
+                        self.buffer.write(line + '\n')
+                    residue = self.index_to_residue[res_ix]
+                    if self.full:
+                        for pos, lin in residue.links.items():
+                            if lin.is_child(residue):
+                                continue
+                            child_res = lin.child
+                            ix, lin = self.dependencies[child_res.id][residue.id]
+                            self.buffer.write(
+                                self.handle_link(lin, ix, res_ix, self.residue_to_index[child_res.id]) + "\n")
+            if disconnected_substituents:
+                self.begin_underdetermined()
+                for node in disconnected_substituents:
+                    self._write_und_subgraph(node)
+        elif disconnected_substituents:
+            for subst in disconnected_substituents:
+                self.buffer.write("RES\n")
+                sub_index = self.res_counter()
+                subst_str = str(sub_index) + self.handle_substituent(subst)
+                self.buffer.write("%s\n" % subst_str)
 
         if molecules:
             raise TypeError("Cannot serialize MolecularComposition to GlycoCT")
@@ -1892,30 +2020,10 @@ class OrderingComparisonContext(object):
 
 class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
     def __init__(self, structure, buffer=None, full=True):
-        self.nobuffer = False
-        if buffer is None:
-            buffer = StringIO()
-            self.nobuffer = True
+        super(OrderRespectingGlycoCTWriter, self).__init__(structure, buffer, full)
 
         self.ordering_context = OrderingComparisonContext(self)
-
-        self.buffer = buffer
-        self.structure = structure
-        self.full = full
-
         self.link_queue = deque()
-        self.res_counter = make_counter()
-        self.lin_counter = make_counter()
-
-        # Look-ups for mapping RES nodes to objects by section index and id,
-        # respectively
-        self.index_to_residue = {}
-        self.residue_to_index = {}
-
-        # Accumulator for linkage indices and mapping linkage indices to
-        # dependent RES indices
-        self.lin_accumulator = []
-        self.dependencies = defaultdict(dict)
 
     def handle_monosaccharide(self, monosaccharide):
         residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
@@ -1964,18 +2072,18 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
         self.link_queue.extendleft(links[::-1])
         return subst_str
 
-    def handle_glycan(self):
-        if self.structure is None:
+    def handle_glycan(self, structure):
+        if structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
         self.buffer.write("RES\n")
 
         visited = set()
-        if self.structure.root.node_type is Monosaccharide.node_type:
-            res_str = self.handle_monosaccharide(self.structure.root)
+        if structure.root.node_type is Monosaccharide.node_type:
+            res_str = self.handle_monosaccharide(structure.root)
             self.buffer.write(res_str + "\n")
         else:
-            res_str = self.handle_substituent(self.structure.root)
+            res_str = self.handle_substituent(structure.root)
             self.buffer.write(res_str + "\n")
         links_in_order = []
         while self.link_queue:
