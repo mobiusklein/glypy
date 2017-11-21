@@ -136,6 +136,7 @@ def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma:
             yield grandchild
 
 
+"""
 def graph_clone(monosaccharide, visited=None):
     '''
     Low-level depth-first duplication method for unwrapped residue graphs
@@ -185,6 +186,68 @@ def graph_clone(monosaccharide, visited=None):
                 link.clone(clone_terminal, clone)
 
             node_stack_append((clone_terminal, terminal))
+    return clone_root
+
+"""
+
+
+def graph_clone(monosaccharide, visited=None):
+    '''
+    Low-level depth-first duplication method for unwrapped residue graphs
+    which contain monosaccharides with substituent parent nodes.
+
+    Parameters
+    ----------
+    residue: :class:`Monosaccharide`
+        The root of the graph to clone
+    visited: set or None
+        The collection of node ids to ignore, having already visited them. If |None|, it defaults
+        to the empty set.
+
+    Returns
+    -------
+    :class:`Monosaccharide`:
+        The root of a newly duplicated and identical residue graph
+    '''
+    llen = len
+    index = {}
+    visited = set() if visited is None else visited
+    clone_root = monosaccharide.clone(prop_id=True)
+    index[clone_root.id] = clone_root
+    node_stack = deque([(clone_root, monosaccharide)])
+    node_stack_append = node_stack.append
+    node_stack_pop = node_stack.pop
+    while llen(node_stack) > 0:
+        clone, ref = node_stack_pop()
+        if ref.id in visited:
+            continue
+        visited.add(ref.id)
+        links = [link for pos, link in ref.links.items()]
+        for link in links:
+            terminal = link[ref]
+            if terminal.id in visited or terminal.node_type != Monosaccharide.node_type:
+                continue
+            # Handle cycles where the same node is linked many times
+            if terminal.id in index:
+                clone_terminal = index[terminal.id]
+                clone_terminal.maybe_cyclic = True
+                cyclewarning()
+            else:
+                index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
+            if link.is_child(terminal):
+                link.clone(clone, clone_terminal)
+            else:
+                link.clone(clone_terminal, clone)
+            node_stack_append((clone_terminal, terminal))
+            i = 0
+            for p, subst in clone_terminal.substituents():
+                j = 0
+                for sp, child in subst.children():
+                    if child.node_type == Monosaccharide.node_type:
+                        orig = terminal.substituent_links[p][i].child.children()[j][1]
+                        node_stack_append((child, orig))
+                    j += 1
+                i += 1
     return clone_root
 
 
@@ -423,12 +486,12 @@ class Monosaccharide(SaccharideBase):
             ring_end=self.ring_end,
             modifications=modifications,
             anomer=self._anomer,
-            reduced=self._reducing_end.clone() if self._reducing_end is not None else None,
+            reduced=self._reducing_end.clone(prop_id=prop_id) if self._reducing_end is not None else None,
             id=self.id if prop_id else None,
             fast=fast)
         for pos, link in self.substituent_links.items():
             sub = link.to(self)
-            dup = sub.clone()
+            dup = sub.clone(prop_id=prop_id)
             link.clone(monosaccharide, dup)
         return monosaccharide
 
