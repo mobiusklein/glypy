@@ -401,7 +401,7 @@ class Glycosylase(Glycoenzyme):
     def _traverse(self, structure):
         for p, link in structure.iterlinks():
             if link.is_ambiguous():
-                warnings.warn("Glycosidases do not support ambiguous linkages at this time.")
+                warnings.warn("Glycosylase do not support ambiguous linkages at this time.")
             else:
                 if (self.parent is None or self.comparator(link.parent, self.parent)) and\
                    (self.child is None or self.comparator(link.child, self.child)) and\
