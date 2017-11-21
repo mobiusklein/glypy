@@ -376,7 +376,7 @@ class Substituent(SubstituentBase):
             if link.is_child(self):
                 continue
             sub = link.to(self)
-            dup = sub.clone()
+            dup = sub.clone(prop_id=prop_id)
             link.clone(substituent, dup)
         return substituent
 
