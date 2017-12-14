@@ -315,17 +315,17 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     '''
 
     _frozen = False
-    _cache = {}
+    __cache = {}
     _total_composition = None
 
     @classmethod
     def from_monosaccharide(cls, monosaccharide, *args, **kwargs):
         inst = super(FrozenMonosaccharideResidue, cls).from_monosaccharide(monosaccharide, *args, **kwargs)
-        if str(inst) not in inst._cache:
-            inst._cache[str(inst)] = inst
+        if str(inst) not in inst.get_cache():
+            inst.get_cache()[str(inst)] = inst
             inst._frozen = True
         else:
-            inst = inst._cache[str(inst)]
+            inst = inst.get_cache()[str(inst)]
         return inst
 
     def __init__(self, *args, **kwargs):
@@ -335,7 +335,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
 
     def __setattr__(self, key, value):
         if self._frozen and key not in ("_hash", '_total_composition'):
-            self._cache.pop(self._name, None)
+            self.get_cache().pop(self._name, None)
             raise FrozenError("Cannot change a frozen object")
         else:
             object.__setattr__(self, key, value)
@@ -358,7 +358,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return hash(str(self))
 
     def _save_to_cache(self):
-        self._cache[str(self)] = self
+        self.get_cache()[str(self)] = self
 
     def __str__(self):
         try:
@@ -377,9 +377,13 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return super(FrozenMonosaccharideResidue, self).clone(*args, **kwargs)
 
     @classmethod
+    def get_cache(self):
+        return self.__cache
+
+    @classmethod
     def from_iupac_lite(cls, string):
         try:
-            return cls._cache[string]
+            return cls.get_cache()[string]
         except KeyError:
             return from_iupac_lite(string, residue_class=cls)
 
