@@ -1,3 +1,5 @@
+from functools import total_ordering
+
 from six import add_metaclass
 try:
     intern
@@ -7,6 +9,7 @@ except NameError:
 debug = False
 
 
+@total_ordering
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
@@ -60,8 +63,12 @@ class EnumValue(object):
                 pass
         raise KeyError("Could not resolve {} against {}".format(self, mapping))
 
+    def __lt__(self, other):
+        return self.value < other.value
 
-debug = True
+
+debug = False
+QMARK = "?"
 
 
 class EnumMeta(type):
@@ -94,12 +101,12 @@ class EnumMeta(type):
         enum_type = type.__new__(cls, name, parents, attrs)
         mapped = {}
         attr_pairs = list(attrs.items())
-        EunmType = attrs.get("__enum_type__", EnumValue)
+        EnumType = attrs.get("__enum_type__", EnumValue)
         for label, value in attr_pairs:
             if not label.startswith("__") or label == "mro":
                 attrs.pop(label)
                 delattr(enum_type, label)
-                enum_value = EunmType(enum_type, label, value)
+                enum_value = EnumType(enum_type, label, value)
                 if value in mapped:
                     try:
                         mapped[value].add_name(label)
@@ -109,7 +116,13 @@ class EnumMeta(type):
                 else:
                     mapped[value] = enum_value
                     setattr(enum_type, label, enum_value)
-        enum_type['?'] = None
+        enum_type[QMARK] = None
+        for tp in parents:
+            if isinstance(tp, EnumMeta):
+                for label, value in tp:
+                    if label == QMARK:
+                        continue
+                    super(EnumMeta, enum_type).__setattr__(label, value)
         return enum_type
 
     def __iter__(self):
@@ -118,7 +131,8 @@ class EnumMeta(type):
                 yield (attr, val)
 
     def __contains__(self, k):
-        return (k in self.__dict__) or (k in self.__dict__.values())
+        val = (k in self.__dict__) or (k in self.__dict__.values())
+        return val
 
     def __getitem__(self, k):
         return self.translate(k)
@@ -181,7 +195,7 @@ class EnumMeta(type):
             raise KeyError("Could not translate {0} through {1}".format(k, self))
 
     def name(self, v):
-        for k, val in self:
+        for k, val in reversed(list(self)):
             if v == val:
                 return k
 
