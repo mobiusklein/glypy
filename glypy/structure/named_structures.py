@@ -57,7 +57,7 @@ monosaccharides = (MonosaccharideIndex)()
 
 class MonosaccharideResidueIndex(MonosaccharideIndex):
     def __init__(self, stream=None, **kwargs):
-        from glypy.composition.glycan_composition import MonosaccharideResidue
+        from glypy.structure.glycan_composition import MonosaccharideResidue
 
         key_transform = identity
 
