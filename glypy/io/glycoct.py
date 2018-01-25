@@ -2174,8 +2174,12 @@ class DistinctGlycanSet(object):
         if structures is None:
             structures = []
         self.raw_data_buffer = set()
-        for structure in structures:
-            self.add(structure)
+
+        if isinstance(structures, DistinctGlycanSet):
+            self.update(structures)
+        else:
+            for structure in structures:
+                self.add(structure)
 
     def add(self, structure):
         key = self._transform_text(
@@ -2208,3 +2212,38 @@ class DistinctGlycanSet(object):
         for compressed in self.raw_data_buffer:
             yield self._text_to_structure(
                 self._untransform_text(compressed))
+
+    def __contains__(self, structure):
+        text = self._structure_to_text(structure)
+        compressed = self._transform_text(text)
+        return compressed in self.raw_data_buffer
+
+    @classmethod
+    def from_buffer_slice(cls, buffer_slice):
+        inst = cls()
+        inst.raw_data_buffer.update(buffer_slice)
+        return inst
+
+    def update(self, other):
+        if isinstance(other, DistinctGlycanSet):
+            self.raw_data_buffer.update(other.raw_data_buffer)
+        else:
+            for x in other:
+                self.add(x)
+
+    def partition(self, nchunks=2):
+        buffer_sequence = list(self.raw_data_buffer)
+        n = len(buffer_sequence)
+        chunk_size = max(int(n / nchunks), 1)
+        i = 0
+        chunks = []
+        while i < n:
+            chunk = buffer_sequence[i:i + chunk_size]
+            i += chunk_size
+            chunks.append(self.from_buffer_slice(chunk))
+        return chunks
+
+    def remove_all(self, other):
+        if not isinstance(other, DistinctGlycanSet):
+            other = DistinctGlycanSet(other)
+        self.raw_data_buffer -= other.raw_data_buffer
