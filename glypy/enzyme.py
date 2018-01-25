@@ -1,6 +1,7 @@
 import warnings
 import pkg_resources
 import json
+import multiprocessing
 
 from collections import defaultdict
 
@@ -545,6 +546,10 @@ def make_n_glycan_pathway():
     return glycosylases, glycosyltransferases, [starting_structure]
 
 
+def _enzyme_graph_inner():
+    return defaultdict(set)
+
+
 class Glycome(object):
     def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
                  limits=None):
@@ -555,10 +560,9 @@ class Glycome(object):
         self.seeds = seeds
 
         self.track_generations = track_generations
-        self.enzyme_graph = defaultdict(lambda: defaultdict(set))
+        self.enzyme_graph = defaultdict(_enzyme_graph_inner)
         self.history = []
         self.current_generation = DistinctGlycanSet(seeds)
-
         self.limits = limits
 
     def save_generation(self, generation):
@@ -600,7 +604,59 @@ class Glycome(object):
                         childkey = str(product)
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
                         next_generation.add(product)
-        # next_generation = list(next_generation.values())
+        self.save_generation(self.current_generation)
+        self.current_generation = next_generation
+        return next_generation
+
+
+def _MultiprocessingGlycome_worker(seeds_params):
+    seeds, params = seeds_params
+    import dill
+    (glycosylases, glycosyltransferases, _,
+     track_generations, limits) = dill.loads(params)
+    glycome = Glycome(glycosylases, glycosyltransferases, seeds,
+                      track_generations, limits)
+    glycome.step()
+    return glycome.current_generation, glycome.enzyme_graph
+
+
+class _MultiprocessingGlycome(Glycome):
+    def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
+                 limits=None, processes=None):
+        if processes is None:
+            processes = min(multiprocessing.cpu_count(), 4)
+        super(_MultiprocessingGlycome, self).__init__(
+            glycosylases, glycosyltransferases, seeds,
+            track_generations, limits)
+        self.processes = processes
+        self.pool = None
+        self._worker_params = (
+            self.glycosylases, self.glycosyltransferases, tuple(), self.track_generations,
+            self.limits)
+
+    def _create_pool(self):
+        self.pool = multiprocessing.Pool(self.processes)
+
+    def step(self):
+        next_generation = DistinctGlycanSet()
+        chunks = self.current_generation.partition(self.processes * 4)
+        import dill
+        encoded_params = dill.dumps(self._worker_params)
+        work_spec = [(chunk, encoded_params) for chunk in chunks]
+        if self.pool is None:
+            self._create_pool()
+        pool = self.pool
+        i = 0
+        for work in pool.imap_unordered(_MultiprocessingGlycome_worker, work_spec):
+            i += 1
+            current_generation, enzyme_graph = work
+            print("\tTask %d/%d finished (%d items generated)" % (
+                i, len(chunks), len(current_generation)))
+            next_generation.update(current_generation)
+            for parent, children in enzyme_graph.items():
+                for child, enzymes in children.items():
+                    self.enzyme_graph[parent][child].update(enzymes)
+
         self.save_generation(self.current_generation)
         self.current_generation = next_generation
         return next_generation
