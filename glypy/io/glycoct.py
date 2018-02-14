@@ -1774,6 +1774,8 @@ def all_node_depth(node, visited=None):
 class OrderingComparisonContext(object):
     def __init__(self, parent):
         self.parent = parent
+        if isinstance(self.structure, Glycan) and not self.structure.has_index():
+            self.structure.reindex()
         self.branch_to_terminal_count = self.build_branch_to_terminal_count()
 
     @property
