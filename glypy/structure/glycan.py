@@ -155,6 +155,9 @@ class Glycan(SaccharideCollection):
         if index_method is not None:
             self.reindex(method=index_method)
 
+    def has_index(self):
+        return bool(self.index)
+
     def reindex(self, hard=False, method='dfs'):
         '''
         Traverse the graph using the function specified by `method`. The order of
