@@ -275,13 +275,13 @@ class GlycanSubstructure(object):
                 fragment_composition = base_composition + composition_offset
 
             yield GlycanFragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
-                           mass=base_mass + mass_offset, name=None,
-                           crossring_cleavages=self.crossring_cleavages,
-                           composition=fragment_composition)
+                                 mass=base_mass + mass_offset, name=None,
+                                 crossring_cleavages=self.crossring_cleavages,
+                                 composition=fragment_composition)
 
     def __repr__(self):  # pragma: no cover
         rep = ("<GlycanSubstructure include_nodes={} link_ids={} parent_breaks={}"
-               "child_breaks={} crossring_cleavages={}>\n{}").format(
+               " child_breaks={} crossring_cleavages={}>\n{}").format(
             self.include_nodes, self.link_ids, self.parent_breaks,
             self.child_breaks, self.crossring_cleavages, self.tree)
         return rep
