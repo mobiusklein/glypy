@@ -547,7 +547,10 @@ def has_glycosequence_processor(state, uri):
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
     if "structure_" not in state and reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_iupac_extended:
-        state["structure_"] = [iupac.loads(reference.has_sequence)]
+        try:
+            state["structure_"] = [iupac.loads(reference.has_sequence)]
+        except iupac.IUPACError:
+            pass
 
     return uri
 
