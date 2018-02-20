@@ -705,6 +705,26 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         root_node = find_root(self.repetitions[self.first_repeat_index])
         return root_node
 
+    def find_root_nodes(self):
+        if not self.repetitions:
+            return super(RepeatedGlycoCTSubgraph, self).find_root_nodes()
+        roots = []
+        for rep_index, node_set in self.repetitions.items():
+            for node in node_set:
+                try:
+                    if node.parents():
+                        continue
+                except AttributeError:
+                    if not isinstance(node, GlycoCTGraph):
+                        raise
+                    else:
+                        if rootp(node).parents():
+                            continue
+                roots.append(node)
+        if not roots:
+            roots.append(sorted(self.items())[0][1])
+        return roots
+
     def prepare_glycan(self):
         glycan = self.repetitions[self.first_repeat_index]
         glycan.deindex()
@@ -772,6 +792,7 @@ def extract_composition(parser):
     from glypy.structure.glycan_composition import (
         GlycanComposition, MonosaccharideResidue, SubstituentResidue)
     store = GlycanComposition()
+    # remove links between layers in the stack
     for layer in list(parser.stack)[1:]:
         node = rootp(layer)
         for position, link in list(node.links.items()):
@@ -838,21 +859,8 @@ class GlycoCTReader(GlycoCTGraphStack):
         self._output_queue = deque()
 
     def _read(self):
-        # was_last_line_blank = False
         for line in self.handle:
             self._source_line += 1
-            # if line.strip() == "":
-            #     if not was_last_line_blank:
-            #         self._current_segment = line
-            #         yield line
-            #         was_last_line_blank = True
-            # else:
-            #     was_last_line_blank = False
-            #     for segment in re.split(r"\s|;", line):
-            #         if "" == segment.strip():
-            #             continue
-            #         self._current_segment = segment
-            #         yield segment
             for segment in re.split(r"\s|;", line):
                 if "" == segment.strip():
                     continue
