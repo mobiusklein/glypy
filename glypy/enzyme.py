@@ -199,7 +199,7 @@ class EnzymeDatabase(object):
                         if "n" in current_enzyme['id']:
                             pass
                         else:
-                            print e, current_enzyme['name']
+                            print(e, current_enzyme['name'])
                 current_enzyme = new_store()
             elif sigil == 'ID':
                 current_enzyme['id'] = line

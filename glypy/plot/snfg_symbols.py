@@ -40,7 +40,7 @@ def test_color_pallette(ax):
     for i, kv in enumerate(Colors):
         name, color = kv[0], kv[1]
         if name == "?":
-            print kv
+            print(kv)
         draw_square(ax, i, 0, color)
         ax.text(i, -0.5, name, ha='center')
     ax.set_xlim(-1, i + 1)

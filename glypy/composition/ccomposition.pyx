@@ -214,21 +214,21 @@ cdef class CComposition(dict):
             self.setitem(k, v * rep)
         return self
 
-    def __richcmp__(self, other, int code):
+    def __eq__(self, other):
         cdef:
             Py_ssize_t self_size, other_size
             PyObject *pkey
             PyObject *pvalue
             PyObject *pinterm
             long self_value, other_value
+        if not isinstance(other, dict):
+            return False
+        self_size = PyDict_Size(self)
+        other_size = PyDict_Size(other)
 
-        if code == 2:
-            if not isinstance(other, dict):
-                return False
-            self_size = PyDict_Size(self)
-            other_size = PyDict_Size(other)
-            if self_size > other_size:
-                self, other = other, self
+        # if one dict is larger, it may contain more keys which may be zero,
+        # which will be ignored.
+        if other_size > self_size:
             other_size = 0
             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
                 other_value = PyInt_AsLong(<object>pvalue)
@@ -239,14 +239,31 @@ cdef class CComposition(dict):
                     self_value = PyInt_AsLong(<object>pinterm)
                 if self_value != other_value:
                     return False
+        else:
+            self_size = 0
+            while(PyDict_Next(self, &self_size, &pkey, &pvalue)):
+                self_value = PyInt_AsLong(<object>pvalue)
+                pinterm = PyDict_GetItem(other, <object>pkey)
+                if pinterm == NULL:
+                    other_value = 0
+                else:
+                    other_value = PyInt_AsLong(<object>pinterm)
+                if self_value != other_value:
+                    return False
+        return True
+
+    def __ne__(self, other):
+        cdef:
+            Py_ssize_t self_size, other_size
+            PyObject *pkey
+            PyObject *pvalue
+            PyObject *pinterm
+            long self_value, other_value
+        if not isinstance(other, dict):
             return True
-        elif code == 3:
-            if not isinstance(other, dict):
-                return True
-            self_size = PyDict_Size(self)
-            other_size = PyDict_Size(other)
-            if self_size > other_size:
-                self, other = other, self
+        self_size = PyDict_Size(self)
+        other_size = PyDict_Size(other)
+        if other_size > self_size:
             other_size = 0
             while(PyDict_Next(other, &other_size, &pkey, &pvalue)):
                 other_value = PyInt_AsLong(<object>pvalue)
@@ -257,9 +274,18 @@ cdef class CComposition(dict):
                     self_value = PyInt_AsLong(<object>pinterm)
                 if self_value != other_value:
                     return True
-            return False
         else:
-            return NotImplemented
+            self_size = 0
+            while(PyDict_Next(self, &self_size, &pkey, &pvalue)):
+                self_value = PyInt_AsLong(<object>pvalue)
+                pinterm = PyDict_GetItem(other, <object>pkey)
+                if pinterm == NULL:
+                    other_value = 0
+                else:
+                    other_value = PyInt_AsLong(<object>pinterm)
+                if self_value != other_value:
+                    return True
+        return False
 
     def __neg__(self):
         return self * -1
