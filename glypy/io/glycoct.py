@@ -28,7 +28,7 @@ from glypy.utils import (
     make_counter, invert_dict, uid,
     RootProtocolNotSupportedError)
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, glycan, Modification
+from glypy.structure import monosaccharide, substituent, glycan, Modification, constants
 from glypy.structure.link import Link, AmbiguousLink
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
@@ -53,6 +53,10 @@ __id = id
 Glycan = glycan.Glycan
 Monosaccharide = monosaccharide.Monosaccharide
 Substituent = substituent.Substituent
+
+Configuration = constants.Configuration
+Stem = constants.Stem
+
 
 START = "!START"
 REPINNER = "!REPINNER"
@@ -917,37 +921,41 @@ class GlycoCTReader(GlycoCTGraphStack):
         _, ix, residue_str = re.split(r"^(\d+)b", line, maxsplit=1)
         residue_dict = res_pattern.search(residue_str).groupdict()
 
-        mods = residue_dict.pop("modifications")
+        mods = residue_dict["modifications"]
         modifications = OrderedMultiMap()
         if mods is not None:
             for p, mod in modification_pattern.findall(mods):
                 modifications[try_int(p)] = modification_map[mod]
 
-        residue_dict["modifications"] = modifications
         is_reduced = "aldi" in modifications[1]
         if is_reduced:
             modifications.pop(1, "aldi")
-            residue_dict['reduced'] = True
+            is_reduced = monosaccharide.ReducedEnd()
+        else:
+            is_reduced = None
 
-        conf_stem = residue_dict.pop("conf_stem")
+        conf_stem = residue_dict["conf_stem"]
         if conf_stem is not None:
             config, stem = zip(*conf_stem_pattern.findall(conf_stem))
         else:
             config = ('x',)
             stem = ('x',)
-        residue_dict['stem'] = stem
-        residue_dict['configuration'] = config
+        stem_ = tuple(Stem[s] for s in stem)
+        configuration_ = tuple(Configuration[c] for c in config)
 
-        residue_dict["ring_start"], residue_dict["ring_end"] = list(map(
-            try_int, residue_dict.pop("indices").split(":")))
+        ring_start_, ring_end_ = [
+            try_int(i) for i in residue_dict["indices"].split(":")]
 
-        residue_dict['anomer'] = anomer_map[residue_dict['anomer']]
-        residue_dict['superclass'] = superclass_map[residue_dict['superclass']]
-        residue = monosaccharide.Monosaccharide(**residue_dict)
+        anomer_ = anomer_map[residue_dict['anomer']]
+        super_class_ = superclass_map[residue_dict['superclass']]
+        ix = int(ix)
+        residue = monosaccharide.Monosaccharide(
+            fast=True, stem=stem_, modifications=modifications,
+            reduced=is_reduced, configuration=configuration_,
+            ring_start=ring_start_, ring_end=ring_end_, anomer=anomer_,
+            superclass=super_class_, id=ix)
 
-        self[int(ix)] = residue
-
-        residue.id = int(ix)
+        self.put_node(ix, residue)
         if self.root is None:
             self.root = residue
 
@@ -2211,6 +2219,15 @@ class DistinctGlycanSet(object):
     def _untransform_text(self, compressed):
         return zlib.decompress(compressed)
 
+    def encode(self, structure):
+        return self._transform_text(self._structure_to_text(structure))
+
+    def add_encoded(self, encoded):
+        self.raw_data_buffer.add(encoded)
+
+    def has_encoded(self, encoded):
+        return encoded in self.raw_data_buffer
+
     def pop(self):
         text = self._untransform_text(self.raw_data_buffer.pop())
         return self._text_to_structure(text)
@@ -2257,3 +2274,19 @@ class DistinctGlycanSet(object):
         if not isinstance(other, DistinctGlycanSet):
             other = DistinctGlycanSet(other)
         self.raw_data_buffer -= other.raw_data_buffer
+
+    def __sub__(self, other):
+        return self.from_buffer_slice(
+            self.raw_data_buffer - other.raw_data_buffer)
+
+    def __and__(self, other):
+        return self.from_buffer_slice(
+            self.raw_data_buffer & other.raw_data_buffer)
+
+    def __or__(self, other):
+        return self.from_buffer_slice(
+            self.raw_data_buffer | other.raw_data_buffer)
+
+    def __ior__(self, other):
+        self.raw_data_buffer.update(other.raw_data_buffer)
+        return self

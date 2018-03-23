@@ -483,6 +483,12 @@ def make_n_glycan_pathway():
                                site_validator=reject_on_path(bisecting_glcnac))
 
     parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("a-D-Galp")
+
+    agal13galt = Glycosyltransferase(3, 1, parent, child, identifying_information=None,
+                                     parent_node_id=3)
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
     child = iupac.loads("b-D-Glcp2NAc")
 
     gntE = Glycosyltransferase(3, 1, parent, child, identifying_information=enzdb[
@@ -534,7 +540,8 @@ def make_n_glycan_pathway():
         "siat2_6": siat2_6,
         "siat2_3": siat2_3,
         "fuct3": fuct3,
-        "fuct6": fuct6
+        "fuct6": fuct6,
+        "agal13galt": agal13galt
     }
 
     starting_structure_iupac = (
@@ -559,6 +566,7 @@ class Glycome(object):
         self.glycosyltransferases = glycosyltransferases
         self.seeds = seeds
 
+        self.seen = DistinctGlycanSet()
         self.track_generations = track_generations
         self.enzyme_graph = defaultdict(_enzyme_graph_inner)
         self.history = []
@@ -568,6 +576,7 @@ class Glycome(object):
     def save_generation(self, generation):
         if self.track_generations:
             self.history.append(generation)
+        self.seen.update(generation)
 
     def run(self, n=50):
         for i in range(n):
@@ -575,6 +584,9 @@ class Glycome(object):
             if not generation:
                 break
             yield generation
+
+    def clean_next_generation(self, generation):
+        return generation - self.seen
 
     def within_limits(self, structure):
         for limiter in self.limits:
@@ -605,31 +617,47 @@ class Glycome(object):
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
                         next_generation.add(product)
         self.save_generation(self.current_generation)
-        self.current_generation = next_generation
+        self.current_generation = self.clean_next_generation(next_generation)
         return next_generation
 
 
 def _MultiprocessingGlycome_worker(seeds_params):
-    seeds, params = seeds_params
+    seeds, params, seen = seeds_params
     import dill
     (glycosylases, glycosyltransferases, _,
      track_generations, limits) = dill.loads(params)
+    limits.append(lambda x: x not in seen)
     glycome = Glycome(glycosylases, glycosyltransferases, seeds,
                       track_generations, limits)
     glycome.step()
     return glycome.current_generation, glycome.enzyme_graph
 
 
-class _MultiprocessingGlycome(Glycome):
+class GlycanSynthesisWorker(object):
+    def __init__(self, glycome_spec, inqueue, outqueue):
+        import dill
+        (glycosylases, glycosyltransferases, _,
+         track_generations, limits) = dill.loads(glycome_spec)
+        self.glycosylases = glycosylases
+        self.glycosyltransferases = glycosyltransferases
+        self.track_generations = track_generations
+        self.limits = limits
+        self.seen = DistinctGlycanSet()
+        self.glycome = None
+        limits.append(lambda x: x not in seen)
+
+
+class MultiprocessingGlycome(Glycome):
     def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
                  limits=None, processes=None):
         if processes is None:
             processes = min(multiprocessing.cpu_count(), 4)
-        super(_MultiprocessingGlycome, self).__init__(
+        super(MultiprocessingGlycome, self).__init__(
             glycosylases, glycosyltransferases, seeds,
             track_generations, limits)
         self.processes = processes
         self.pool = None
+        self.seen = DistinctGlycanSet()
         self._worker_params = (
             self.glycosylases, self.glycosyltransferases, tuple(), self.track_generations,
             self.limits)
@@ -642,7 +670,7 @@ class _MultiprocessingGlycome(Glycome):
         chunks = self.current_generation.partition(self.processes * 4)
         import dill
         encoded_params = dill.dumps(self._worker_params)
-        work_spec = [(chunk, encoded_params) for chunk in chunks]
+        work_spec = ((chunk, encoded_params, next_generation) for chunk in chunks)
         if self.pool is None:
             self._create_pool()
         pool = self.pool
@@ -658,5 +686,5 @@ class _MultiprocessingGlycome(Glycome):
                     self.enzyme_graph[parent][child].update(enzymes)
 
         self.save_generation(self.current_generation)
-        self.current_generation = next_generation
+        self.current_generation = self.clean_next_generation(next_generation)
         return next_generation

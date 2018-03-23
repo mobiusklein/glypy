@@ -373,7 +373,6 @@ class Monosaccharide(SaccharideBase):
 
         if modifications is None:  # pragma: no cover
             modifications = OrderedMultiMap()
-
         if links is None:
             links = OrderedMultiMap()
 

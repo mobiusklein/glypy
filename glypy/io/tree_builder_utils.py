@@ -108,7 +108,7 @@ def undecorate_tree(tree):
             substituent.id = i
             i += 1
 
-    tree.reindex()
+    # tree.reindex()
     return tree
 
 
