@@ -399,7 +399,9 @@ class SubstituentDeserializer(object):
         for part in parts:
             if part == "":
                 continue
-            split_part = re.split(r"(\d+)?", part)
+            # split_part = re.split(r"(\d+)?", part)
+            split_part = re.split(r"(\d+)", part)
+
             if len(split_part) == 3:
                 _, position, name = split_part
             else:
