@@ -35,6 +35,11 @@ class NodeSimilarityComparator(object):
         Controls whether to quit comparing nodes if the difference
         becomes too large, useful for speeding up pessimistic
         comparisons
+    visited: set
+        Tracks which node pairs have already been compared to break
+        cycles. This carries state across multiple calls to :meth:`compare`
+        and must be reset by calling :meth:`reset` before reusing an
+        instance on new structures.
     '''
     def __init__(self, include_substituents=True, include_modifications=True,
                  include_children=False, exact=True, ignore_reduction=False,
@@ -257,6 +262,12 @@ def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
     else:
         obs, expect = monosaccharide_similarity(target, node, *args, **kwargs)
         return (obs - expect) >= -tolerance
+
+
+def commutative_similarity_score(node, target, *args, **kwargs):
+    a_b, b_b = monosaccharide_similarity(node, target, *args, **kwargs)
+    b_a, a_a = monosaccharide_similarity(target, node, *args, **kwargs)
+    return max(a_b / (1. * b_b), b_a / (1. * a_a))
 
 
 def has_substituent(monosaccharide, substituent):

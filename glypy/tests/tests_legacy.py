@@ -11,7 +11,7 @@ import glypy
 from glypy.structure import constants, substituent, glycan, monosaccharide
 from glypy.structure import link, named_structures, structure_composition
 from glypy.structure import crossring_fragments
-from glypy.io import glycoct, linear_code
+from glypy.io import glycoct
 from glypy.io.nomenclature import identity, synonyms
 from glypy.utils import StringIO, identity as ident_op, multimap, pickle, ET, enum
 from glypy.composition import Composition, composition_transform
@@ -249,7 +249,7 @@ LIN
 '''
 
 
-class NamedStructureTests(unittest.TestCase):
+class TestNamedStructure(unittest.TestCase):
 
     def test_accessors(self):
         self.assertEqual(named_structures.monosaccharides.Fucose,
@@ -269,7 +269,7 @@ class NamedStructureTests(unittest.TestCase):
             named_structures.motifs.motif_category("full").values())
 
 
-class StructureCompositionTests(unittest.TestCase):
+class TestStructureComposition(unittest.TestCase):
 
     def test_missing_composition(self):
         import warnings
@@ -279,7 +279,7 @@ class StructureCompositionTests(unittest.TestCase):
         warnings.filterwarnings('always')
 
 
-class CrossRingTests(unittest.TestCase):
+class TestCrossRing(unittest.TestCase):
 
     def test_unroll_ring(self):
         linear = crossring_fragments.unroll_ring(monosaccharides.GlcNAc)
@@ -348,7 +348,7 @@ class CrossRingTests(unittest.TestCase):
                     self.assertAlmostEqual(v[kind].permethylated_mass, target_d_permethylated[kind].mass(), 3)
 
 
-class SubstituentTests(unittest.TestCase):
+class TestSubstituent(unittest.TestCase):
 
     def test_substituent_substituent(self):
         parent = substituent.Substituent("n-acetyl")
@@ -394,7 +394,7 @@ class SubstituentTests(unittest.TestCase):
         self.assertFalse(x.is_nh_derivatizable)
 
 
-class MultiMapTests(unittest.TestCase):
+class TestMultiMap(unittest.TestCase):
 
     def test_iterators(self):
         from collections import Counter
@@ -423,7 +423,7 @@ class MultiMapTests(unittest.TestCase):
         self.assertFalse(mm.has_value(1))
 
 
-class ConstantTests(unittest.TestCase):
+class TestConstant(unittest.TestCase):
 
     def test_translate(self):
         self.assertTrue(
@@ -483,51 +483,6 @@ class ConstantTests(unittest.TestCase):
         self.assertNotEqual(E1.A, E2.A)
 
 
-class SubtreeSearchTests(unittest.TestCase):
-
-    def test_subtree_inclusion(self):
-        core = glycans['N-Linked Core']
-        tree = glycoct.loads(broad_n_glycan)
-        self.assertTrue(subtree_search.subtree_of(core, tree))
-        self.assertTrue(subtree_search.subtree_of(tree, core) is None)
-
-    def test_maximum_common_subtree(self):
-        core = glycans['N-Linked Core']
-        tree = glycoct.loads(branchy_glycan)
-        res = subtree_search.maximum_common_subgraph(core, tree)
-        self.assertEqual(res.score, 6.0)
-
-    def test_is_n_glycan(self):
-        core = glycans['N-Linked Core']
-        tree = glycoct.loads(broad_n_glycan)
-        result = (subtree_search.subtree_of(core, tree))
-        self.assertTrue(result == 1)
-        tree = glycoct.loads(complex_glycan)
-        result = (subtree_search.subtree_of(core, tree, exact=False))
-        self.assertTrue(result == 1)
-        result = (subtree_search.subtree_of(core, tree, exact=True))
-        self.assertTrue(result == 1)
-        tree = glycoct.loads(branchy_glycan)
-        result = (subtree_search.subtree_of(core, tree, exact=False))
-        self.assertTrue(result is None)
-
-    def test_disaccharide_similarity(self):
-        core = glycans['N-Linked Core']
-        self.assertEqual(subtree_search.n_saccharide_similarity(core, core), 1.0)
-        copy = core.clone()
-        copy.root.add_monosaccharide(monosaccharides.Fucose, 3)
-        self.assertEqual(subtree_search.n_saccharide_similarity(core, copy), 0.7)
-
-    # def test_distinct_fragments(self):
-    #     from glypy.io import glycomedb
-    #     bi = glycomedb.get(8960)
-    #     tet = glycomedb.get(576)
-    #     self.assertAlmostEqual(bi.mass(), tet.mass(), 3)
-    #     bi_dist, tet_dist = subtree_search.distinct_fragments(bi, tet)
-    #     self.assertEqual(len(tet_dist), 0)
-    #     self.assertEqual(len(bi_dist), 4)
-
-
 # class IdentifyTests(unittest.TestCase):
 
 #     def test_is_a_predicate(self):
@@ -568,27 +523,6 @@ class SubtreeSearchTests(unittest.TestCase):
 
 #     def test_grouping_axes(self):
 #         tree = identity.residue_list_to_tree((monosaccharides).values())
-
-
-class LinearCodeTests(unittest.TestCase):
-
-    def test_translate(self):
-        broad = glycoct.loads(broad_n_glycan)
-        dup = linear_code.loads(linear_code.dumps(broad))
-        self.assertEqual(broad, dup)
-
-        # linear code doesn't know about modifications or
-        # ring shape
-        sulfated = glycoct.loads(sulfated_glycan)
-        sulfated.reducing_end = None
-        sulfated.root.ring_start = 1
-        sulfated.root.ring_end = 5
-        dup2 = linear_code.loads(linear_code.dumps(sulfated))
-        self.assertEqual(dup2, sulfated)
-
-        sulfated = glycoct.loads(sulfated_glycan)
-        dup = linear_code.loads(linear_code.dumps(sulfated))
-        self.assertNotEqual(sulfated, dup)
 
 
 if __name__ == '__main__':

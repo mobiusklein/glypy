@@ -364,7 +364,7 @@ class GlycoCTGraphStack(GlycoCTGraph):
     def __init__(self, stack=None, parent=None):
         if stack is None:
             stack = deque([GlycoCTSubgraph(parent=parent)])
-        else:
+        else:  # pragma: no cover
             _stack = deque()
             _parent = parent
             for level in stack:
@@ -398,7 +398,7 @@ class GlycoCTGraphStack(GlycoCTGraph):
     def deferred_retrieval(self, id, direction=None):
         return DeferredRetrieval(self, id, direction)
 
-    def add(self, subgraph, parent=None):
+    def add(self, subgraph, parent=None):  # pragma: no cover
         if subgraph.parent is None:
             if parent is None:
                 parent = self
@@ -585,7 +585,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 
         try:
             root = find_root(graph[sub_unit_indices[0]])
-        except RootProtocolNotSupportedError:
+        except RootProtocolNotSupportedError:  # pragma: no cover
             raise GlycoCTError("Could not locate subgraph root")
         # glycan_graph = Glycan(root, index_method=None).clone()
         glycan_graph = NodeCollection.from_node(root).clone()
@@ -759,7 +759,7 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
             self.parent.get_node(parent_id) for parent_id in self.parent_ids]
         try:
             child = [rootp(self)]
-        except RootProtocolNotSupportedError:
+        except RootProtocolNotSupportedError:  # pragma: no cover
             raise GlycoCTError("Could not locate subgraph root")
 
         linkage = self.subtree_linkages[0]
@@ -774,7 +774,7 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
             child_loss=child_loss)
         try:
             link_obj.find_open_position()
-        except ValueError:
+        except ValueError:  # pragma: no cover
             if link_obj.child_position == 1 and Modification.Acidic in link_obj.child.modifications[1]:
                 link_obj.child_position = 2
                 ix = link_obj.child_position_choices.index(1)
@@ -786,7 +786,7 @@ class UnderdeterminedRecord(GlycoCTSubgraph):
                 raise
 
 
-def _build_graph(glycoct_str):
+def _build_graph(glycoct_str):  # pragma: no cover
     rep = StringIO(glycoct_str)
     inst = GlycoCTReader(rep, completes=False)
     return next(inst)
@@ -1203,7 +1203,7 @@ class GlycoCTReader(GlycoCTGraphStack):
                         root=rootp(self.root), index_method=None)
                 ).reindex()
                 return inst
-            except RootProtocolNotSupportedError:
+            except RootProtocolNotSupportedError:  # pragma: no cover
                 raise GlycoCTError("Could not locate graph root")
         else:
             # warnings.warn("The parsed structure was not fully connected. Producing a Composition")
@@ -1276,7 +1276,7 @@ def read(stream, structure_class=Glycan, allow_repeats=True):
     return GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
 
 
-def load(stream, structure_class=Glycan, allow_repeats=True, allow_multiple=True):
+def load(stream, structure_class=Glycan, allow_repeats=True, allow_multiple=True):  # pragma: no cover
     g = GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
     first = next(g)
     if not allow_multiple:
@@ -1504,7 +1504,7 @@ class GlycoCTWriterBase(object):
 
         return [res, lin, monosaccharide_index]
 
-    def handle_glycan(self, structure):
+    def handle_glycan(self, structure):  # pragma: no cover
         if structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
@@ -1925,7 +1925,7 @@ class OrderingComparisonContext(object):
         ordered = self._compare_residue_ordering(res_a, res_b)
         return ordered
 
-    def _link_diff(self, link_a, link_b):
+    def _link_diff(self, link_a, link_b):  # pragma: no cover
         parent_pos_a = link_a.parent_position
         parent_pos_b = link_b.parent_position
         try:

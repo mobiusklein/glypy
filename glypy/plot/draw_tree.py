@@ -224,7 +224,7 @@ class DrawTreeNode(object):
 
         self.children = [resolve_creation_cycle(c[1], self, depth + 1, i + 1, c[0], visited)
                          for i, c
-                         in enumerate(sorted(tree.children()))]
+                         in enumerate(sorted(tree.children(), key=lambda x: x[0]))]
 
         # self.patches = []
         # A node owns all lines originating from it.

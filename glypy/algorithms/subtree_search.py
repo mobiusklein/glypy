@@ -1,7 +1,7 @@
 import itertools
 import operator
 
-from collections import deque
+from collections import deque, defaultdict
 
 from .similarity import monosaccharide_similarity, commutative_similarity
 from glypy.utils import make_struct, root, groupby
@@ -9,56 +9,106 @@ from glypy.structure import Glycan, Monosaccharide
 from glypy.structure.monosaccharide import depth
 
 
-def topological_inclusion(self, other, substituents=True, tolerance=0, visited=None):
-    '''
-    Performs equality testing between two monosaccharides where
-    the exact ordering of child links does not have match between
-    the input |Monosaccharide|, so long as an ``a`` is included in ``b``
+class TopologicalInclusionMatcher(object):
+    def __init__(self, target, reference, substituents=True, tolerance=0, visited=None):
+        self.target = target
+        self.reference = reference
+        self.substituents = substituents
+        self.tolerance = tolerance
+        self.visited = visited or set()
 
-    Equality testing is done by :func:`similarity.monosaccharide_similarity`.
+    @classmethod
+    def compare(cls, target, reference, substituents=True, tolerance=0, visited=None):
+        inst = cls(
+            target, reference, substituents=substituents,
+            tolerance=tolerance, visited=visited)
+        score = inst.test()
+        return score
 
-    Parameters
-    ----------
-    self: Glycan
-        The |Glycan| to test inclusion of
-    other: Glycan
-        The |Glycan| to test inclusion in
-    substituents: bool
-        Consider substituents when comparing |Monosaccharide| s. Defaults to |True|
-    tolerance: int
-        The amount of error allowed when checking for flat similarity.
+    def test_similarity(self):
+        similar = commutative_similarity(
+            self.target, self.reference, self.tolerance,
+            include_substituents=self.substituents)
+        return similar
 
-    Returns
-    -------
-    bool
+    def test_children(self):
+        match_index = self._build_child_pair_score_map()
+        required_nodes = {node.id for p, node in self.target.children()}
+        optimal_assignment, score = self.optimal_assignment(match_index, required_nodes)
+        return optimal_assignment, score, bool(required_nodes)
 
-    See Also
-    --------
-    :func:`similarity.monosaccharide_similarity`
-    '''
-    if visited is None:
-        visited = set()
-    if (self.id, other.id) in visited:
-        return True
-    visited.add((self.id, other.id))
-    similar = commutative_similarity(self, other, tolerance, include_substituents=substituents)
-    if similar:
-        taken_b = set()
-        for a_pos, a_child in self.children():
-            matched = False
-            for b_pos, b_child in other.children():
-                if (b_pos, b_child.id) in taken_b:
-                    continue
-                if topological_inclusion(a_child, b_child,
-                                         substituents=substituents,
-                                         tolerance=tolerance, visited=visited):
-                    matched = True
-                    taken_b.add((b_pos, b_child.id))
-                    break
-            if not matched and len(list(self.children())) > 0:
-                return False
-        return True
-    return False
+    def test(self):
+        key = (self.target.id, self.reference.id)
+        if key in self.visited:
+            return True
+        self.visited.add(key)
+        similar = self.test_similarity()
+        if similar:
+            child_pairs, score, had_children = self.test_children()
+            if child_pairs:
+                return similar + score
+            elif not had_children:
+                return similar
+            else:
+                return 0
+        return 0
+
+    def _build_child_pair_score_map(self):
+        combinations = dict()
+        for a_pos, a_child in self.target.children():
+            for b_pos, b_child in self.reference.children():
+                inclusion_score = self.compare(
+                    a_child, b_child, substituents=self.substituents,
+                    tolerance=self.tolerance, visited=self.visited)
+                if inclusion_score > 0:
+                    combinations[a_child.id, b_child.id] = inclusion_score
+        return combinations
+
+    def build_unique_index_pairs(self, pairs):
+        '''
+        Generate all unique non-overlapping sets of pairs, given in
+        `pairs`
+        '''
+        depth = 0
+        pairings = defaultdict(set)
+        for a, b in pairs:
+            pairings[a].add(b)
+        next_current = [()]
+        options_a = list(pairings)
+        partial_solutions = set()
+        while depth < len(options_a):
+            for current in next_current:
+                if len(current) > 0:
+                    current_a, current_b = map(set, zip(*current))
+                else:
+                    current_b = set()
+                components = set()
+                a = options_a[depth]
+                for b in pairings[a] - current_b:
+                    components.add((current + ((a, b),)))
+                partial_solutions.update(components)
+            depth += 1
+            next_current = partial_solutions
+            partial_solutions = set()
+        return list(next_current)
+
+    def optimal_assignment(self, assignments, required_nodes=None):
+        index_pair_sets = self.build_unique_index_pairs(assignments)
+        best_score = -float('inf')
+        best_mapping = None
+        for assignment in index_pair_sets:
+            current_score = 0
+            has_nodes = set()
+            for ix in assignment:
+                current_score += assignments[ix]
+                has_nodes.add(ix[0])
+            if current_score > best_score and has_nodes == required_nodes:
+                best_score = current_score
+                best_mapping = assignment
+        return best_mapping, best_score
+
+
+topological_inclusion = TopologicalInclusionMatcher.compare
 
 
 def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visited=None):

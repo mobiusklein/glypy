@@ -15,3 +15,4 @@ omit =
     glypy/structure/modification.py
     glypy/tests/*
     glypy/utils/compat.py
+    glypy/plot/*

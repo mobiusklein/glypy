@@ -81,8 +81,10 @@ class SimilarityTests(unittest.TestCase):
         broad = load("broad_n_glycan")
         broad.reducing_end = True
         self.assertTrue(similarity.is_reduced(broad))
-        r, q = similarity.monosaccharide_similarity(broad.root, broad.root)
-        r2, q2 = similarity.monosaccharide_similarity(broad.root, broad.root, ignore_reduction=True)
+        r, q = similarity.monosaccharide_similarity(
+            broad.root, broad.root)
+        r2, q2 = similarity.monosaccharide_similarity(
+            broad.root, broad.root, ignore_reduction=True)
         self.assertTrue((r - 1) == r2)
 
     def test_has_monosaccharide(self):
@@ -92,13 +94,17 @@ class SimilarityTests(unittest.TestCase):
         self.assertFalse(similarity.has_modification(broad[5], 'd'))
 
     def test_similar_substituents(self):
-        self.assertTrue(similarity.monosaccharide_similarity(glypy.Substituent('n-acetyl'), glypy.Substituent('n-acetyl')) == (1, 1))
+        self.assertTrue(
+            similarity.monosaccharide_similarity(
+                glypy.Substituent('n-acetyl'),
+                glypy.Substituent('n-acetyl')) == (1, 1))
 
     def test_is_derivatized(self):
         broad = load("broad_n_glycan")
         self.assertFalse(similarity.is_derivatized(broad.root))
         composition_transform.derivatize(broad, 'methyl')
         self.assertTrue(similarity.is_derivatized(broad.root))
+
 
 if __name__ == '__main__':
     unittest.main()
