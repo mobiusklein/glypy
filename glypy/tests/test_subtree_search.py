@@ -112,3 +112,8 @@ class SubtreeSearchTests(unittest.TestCase):
         copy = core.clone()
         copy.root.add_monosaccharide(monosaccharides.Fucose, 3)
         self.assertEqual(subtree_search.n_saccharide_similarity(core, copy), 0.7)
+
+    def test_treelet_iterator(self):
+        complex_glycan = load("complex_glycan")
+        treelets = list(subtree_search.treelets(complex_glycan, 3))
+        assert len(treelets) == 15

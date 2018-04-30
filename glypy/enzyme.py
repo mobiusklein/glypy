@@ -644,7 +644,7 @@ class GlycanSynthesisWorker(object):
         self.limits = limits
         self.seen = DistinctGlycanSet()
         self.glycome = None
-        limits.append(lambda x: x not in seen)
+        limits.append(lambda x: x not in self.seen)
 
 
 class MultiprocessingGlycome(Glycome):
@@ -665,6 +665,10 @@ class MultiprocessingGlycome(Glycome):
     def _create_pool(self):
         self.pool = multiprocessing.Pool(self.processes)
 
+    def log(self, i, chunks, current_generation):
+        print("\tTask %d/%d finished (%d items generated)" % (
+            i, len(chunks), len(current_generation)))
+
     def step(self):
         next_generation = DistinctGlycanSet()
         chunks = self.current_generation.partition(self.processes * 4)
@@ -678,8 +682,7 @@ class MultiprocessingGlycome(Glycome):
         for work in pool.imap_unordered(_MultiprocessingGlycome_worker, work_spec):
             i += 1
             current_generation, enzyme_graph = work
-            print("\tTask %d/%d finished (%d items generated)" % (
-                i, len(chunks), len(current_generation)))
+            self.log(i, chunks, current_generation)
             next_generation.update(current_generation)
             for parent, children in enzyme_graph.items():
                 for child, enzymes in children.items():
