@@ -116,4 +116,4 @@ class SubtreeSearchTests(unittest.TestCase):
     def test_treelet_iterator(self):
         complex_glycan = load("complex_glycan")
         treelets = list(subtree_search.treelets(complex_glycan, 3))
-        assert len(treelets) == 15
+        assert len(treelets) == 27

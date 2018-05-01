@@ -579,6 +579,10 @@ class Glycan(SaccharideCollection):
         return itertools.chain.from_iterable(
             traversal(apply_fn=links, visited=visited))
 
+    def canonicalize(self, canonicalizer=None, **kwargs):
+        from glypy.algorithms.canonicalize import canonicalize
+        return canonicalize(self, canonicalizer=canonicalizer, **kwargs)
+
     def leaves(self, bidirectional=False, method='dfs', visited=None):
         '''
         Iterates over all |Monosaccharide| objects in |Glycan|, yielding only those
@@ -902,7 +906,7 @@ class Glycan(SaccharideCollection):
 
     def substructures(self, max_cleavages=1, min_cleavages=1, inplace=False):
         '''
-        Generate disjoint subtrees from this glycan by examining by removing one or
+        Generate disjoint subtrees from this glycan by removing one or
         more monosaccharide-monosaccharide bond.
 
 

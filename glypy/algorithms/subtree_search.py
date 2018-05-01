@@ -4,7 +4,7 @@ import operator
 from collections import deque, defaultdict
 
 from .similarity import monosaccharide_similarity, commutative_similarity
-from glypy.utils import make_struct, root, groupby
+from glypy.utils import make_struct, root, groupby, tree as treep
 from glypy.structure import Glycan
 from glypy.structure.monosaccharide import depth
 
@@ -516,6 +516,65 @@ def distinct_fragments(self, other, fragmentation_parameters=None):
     return self_unique, other_unique
 
 
+class Treelet(object):
+    def __init__(self, subtree, frontier_ids):
+        self.subtree = subtree
+        self.frontier_ids = set(frontier_ids)
+
+    @classmethod
+    def from_monosaccharide(cls, monosaccharide):
+        monosaccharide = root(monosaccharide)
+        subtree = Glycan(monosaccharide.clone(prop_id=True))
+        frontier_ids = set()
+        for pos, child in monosaccharide.children():
+            frontier_ids.add(child.id)
+        return cls(subtree, frontier_ids)
+
+    def __len__(self):
+        return len(self.subtree)
+
+    def __root__(self):
+        return root(self.subtree)
+
+    def __tree__(self):
+        return treep(self.subtree)
+
+    def __eq__(self, other):
+        try:
+            return self.subtree == other.subtree and self.frontier_ids == other.frontier_ids
+        except AttributeError:
+            return treep(self) == treep(other)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __hash__(self):
+        return hash(self.subtree)
+
+    def canonicalize(self):
+        # self.subtree = canonicalize(self.subtree)
+        self.subtree.canonicalize()
+
+    def expand(self, reference, frontier_id):
+        node = reference.get(frontier_id)
+        new_node = node.clone(prop_id=True)
+        tree = self.subtree.clone()
+        for pos, link in node.parents(True):
+            new_parent = tree.get(link.parent.id)
+            link.clone(new_parent, new_node)
+        new_frontier = set(self.frontier_ids)
+        new_frontier.remove(frontier_id)
+        for pos, child in node.children():
+            new_frontier.add(child.id)
+        return self.__class__(tree, new_frontier)
+
+    def expand_all(self, reference):
+        extent = []
+        for node_id in self.frontier_ids:
+            extent.append(self.expand(reference, node_id))
+        return extent
+
+
 class TreeletIterator(object):
     """Iterate over all distinct :math:`k`-treelets of :attr:`tree`, all
     unique sub-trees of :attr:`tree` with :attr:`k` monosaccharides.
@@ -526,11 +585,14 @@ class TreeletIterator(object):
         The number monosaccharides per treelet
     tree : :class:`~.Glycan`
         The glycan to extract reelets from
+    distinct : bool
+        Whether or not to filter out duplicate treelets
     """
 
-    def __init__(self, tree, k):
+    def __init__(self, tree, k, distinct=True):
         self.tree = tree
         self.k = k
+        self.distinct = distinct
         self.node_queue = None
         self.seen = None
         self._init_node_queue()
@@ -542,17 +604,17 @@ class TreeletIterator(object):
 
     def get_next_set(self):
         node = self.node_queue.popleft()
-        node_copy = node.clone(prop_id=True)
-        tree = Glycan(node_copy)
+        tree = Treelet.from_monosaccharide(node)
         for i, child in node.children():
             self.node_queue.append(child)
-        return self._extend_tree(tree, node, 2)
+        return self._extend_tree(tree, 2)
 
     def _make_iterator(self):
         while self.node_queue:
             treelet_set = self.get_next_set()
             for treelet in treelet_set:
-                if treelet in self.seen:
+                treelet.canonicalize()
+                if self.distinct and treelet in self.seen:
                     continue
                 self.seen.add(treelet)
                 yield treelet
@@ -572,23 +634,31 @@ class TreeletIterator(object):
             child_sets.append(child_link)
         return child_sets
 
-    def _extend_tree(self, tree, terminal, n):
-        child_links = self._get_next_nodes(terminal)
-        for child_link in child_links:
-            if self.k == n:
-                tree_copy = tree.clone()
-                new_terminal = tree_copy.get(terminal.id)
-                final_node = child_link.child.clone(prop_id=True)
-                child_link.clone(new_terminal, final_node)
-                yield tree_copy
-            else:
-                tree_copy = tree.clone()
-                new_terminal = tree_copy.get(terminal.id)
-                next_node = child_link.child.clone(prop_id=True)
-                child_link.clone(new_terminal, next_node)
-                for treelet in self._extend_tree(tree_copy, next_node, n + 1):
-                    yield treelet
+    def _extend_tree(self, tree, n):
+        extents = tree.expand_all(self.tree)
+        if self.k == n:
+            for t in extents:
+                yield t
+        else:
+            for subtreelet in extents:
+                for t in self._extend_tree(subtreelet, n + 1):
+                    yield t
 
 
-def treelets(glycan, k):
-    return (TreeletIterator(glycan, k))
+def treelets(glycan, k, distinct=True):
+    for treelet in TreeletIterator(glycan, k, distinct=distinct):
+        yield treep(treelet)
+
+
+class TreeletEnrichmentTest(object):
+    def __init__(self, cond1, cond2, k, distinct=True):
+        self.cond1 = list(cond1)
+        self.cond2 = list(cond2)
+        self.k = k
+        self.distinct = distinct
+        self.total = len(self.cond1) + len(self.cond2)
+        self.cond1_treelets = defaultdict(int)
+        self.cond2_treelets = defaultdict(int)
+
+    def count_treelets(self):
+        pass
