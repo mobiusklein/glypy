@@ -73,14 +73,14 @@ class MaximumCommonSubgraphSolver(object):
     def fit(self):
         for i, a_node in enumerate(self.seq_a):
             for j, b_node in enumerate(self.seq_b):
-                res = self.compare_nodes(a_node, b_node, exact=self.exact)
+                res = self.compare_nodes(a_node, b_node)
                 self.solution_matrix[i][j] = res
         score, ix_a, ix_b = self._find_max_of_matrix(self.solution_matrix)
         node_a = self.seq_a[ix_a]
         node_b = self.seq_b[ix_b]
         self.solution = MaximumCommonSubtreeResults(
             score,
-            self._extract_maximum_common_subgraph(node_a, node_b, exact=self.exact),
+            self._extract_maximum_common_subgraph(node_a, node_b),
             self.solution_matrix)
 
     def _find_max_of_matrix(self, solution_matrix):
@@ -113,7 +113,7 @@ class MaximumCommonSubgraphSolver(object):
                     solutions.append((i, j))
         return solutions
 
-    def _extract_maximum_common_subgraph(self, node_a, node_b, exact=False):
+    def _extract_maximum_common_subgraph(self, node_a, node_b):
         '''
         Given a pair of matched starting nodes from two separate glycan structures,
         traverse them together, copying the best matching branches into a new |Glycan|
@@ -144,12 +144,12 @@ class MaximumCommonSubgraphSolver(object):
                         continue
                     observed, expected = monosaccharide_similarity(
                         a_child, b_child, include_children=True)
-                    if exact and observed == expected:
+                    if self.exact and observed == expected:
                         matched_node = b_child
                         break
                     else:
                         score_pairs[b_child.id] = (expected - observed, b_child)
-                if not exact and len(score_pairs) > 0:
+                if not self.exact and len(score_pairs) > 0:
                     score, contestant = min(score_pairs.values(), key=lambda x: x[0])
                     cont_depth = depth(contestant)
                     for diff, node in score_pairs.values():

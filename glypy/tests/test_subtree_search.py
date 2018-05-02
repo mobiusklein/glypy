@@ -1,9 +1,8 @@
 import unittest
 
-import glypy
 from glypy.io import glycoct
 from glypy.structure.named_structures import glycans, monosaccharides
-from glypy.algorithms import similarity, subtree_search
+from glypy.algorithms import subtree_search
 
 from .common import load
 
@@ -58,17 +57,17 @@ class SubtreeSearchTests(unittest.TestCase):
     def test_topological_inclusion(self):
         branchy = load("branchy_glycan")
         broad = load("broad_n_glycan")
-        match = subtree_search.TopologicalInclusionMatcher.compare(branchy.root, branchy.root)
+        match = subtree_search.topological_inclusion(branchy.root, branchy.root)
         assert match == 10
-        match = subtree_search.TopologicalInclusionMatcher.compare(branchy.root, broad.get(3))
+        match = subtree_search.topological_inclusion(branchy.root, broad.get(3))
         assert match
-        match = subtree_search.TopologicalInclusionMatcher.compare(branchy.root, broad.root)
+        match = subtree_search.topological_inclusion(branchy.root, broad.root)
         assert not match
 
         gly_a = glycoct.loads(bokan_bao_gly_a)
         gly_b = glycoct.loads(bokan_bao_gly_b)
-        assert subtree_search.TopologicalInclusionMatcher.compare(gly_a.root, gly_b.root)
-        assert subtree_search.TopologicalInclusionMatcher.compare(gly_b.root, gly_a.root)
+        assert subtree_search.topological_inclusion(gly_a.root, gly_b.root)
+        assert subtree_search.topological_inclusion(gly_b.root, gly_a.root)
 
     def test_subtree_of(self):
         branchy = load("branchy_glycan")
