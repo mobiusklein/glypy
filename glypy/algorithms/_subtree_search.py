@@ -1,5 +1,6 @@
 import itertools
 import operator
+import math
 
 from collections import deque, defaultdict
 
@@ -261,167 +262,193 @@ MaximumCommonSubtreeResults = make_struct(
     "MaximumCommonSubtreeResults", ("score", "tree", "similarity_matrix"))
 
 
-def compare_nodes(node_a, node_b, include_substituents=True, exact=False, visited=None):
+class MaximumCommonSubgraphSolver(object):
     '''
-    Score the pair of `node_a` and `node_b` and all pairings of their children.
+    Find the maximum common subgraph between :attr:`seq_a` and :attr:`seq_b`.
 
-    Returns
-    -------
-    float:
-        The similarity score between the input nodes
-    '''
-    if visited is None:
-        visited = set()
-    score = 0.
-    if (node_a.id, node_b.id) in visited:  # pragma: no cover
-        return score
-    visited.add((node_a.id, node_b.id))
-
-    observed, expected = monosaccharide_similarity(
-        node_a, node_b, include_substituents=include_substituents, include_children=False)
-    if exact:
-        if observed == expected:
-            score += 1
-    else:
-        score += observed / float(expected)
-    for child_a, child_b in itertools.product((ch_a for p, ch_a in node_a.children()),
-                                              (ch_b for p, ch_b in node_b.children())):
-        score += compare_nodes(child_a, child_b,
-                               include_substituents=include_substituents,
-                               exact=exact, visited=visited)
-    return score
-
-
-def maximum_common_subgraph(seq_a, seq_b, exact=True):
-    '''
-    Find the maximum common subgraph between `seq_a` and `seq_b`.
-
-    Parameters
+    Attributes
     ----------
-    seq_a: Glycan
-    seq_b: Glycan
+    seq_a: :class:`~.Glycan`
+    seq_b: :class:`~.Glycan`
     exact: bool
         Whether to use exact equality or fuzzy equality
 
-
-    Returns
-    -------
-    MaximumCommonSubtreeResults
-
-    Reference
-    ---------
+    References
+    ----------
     [1] K. F. Aoki, A. Yamaguchi, Y. Okuno, T. Akutsu, N. Ueda, M. Kanehisa, and H. Mamitsuka,
     "Efficient tree-matching methods for accurate carbohydrate database queries."
     Genome Inform. Jan. 2003.
     '''
-    solution_matrix = [
-        [0. for i in range(len(seq_b))] for j in range(len(seq_a))]
-    for i, a_node in enumerate(seq_a):
-        for j, b_node in enumerate(seq_b):
-            res = compare_nodes(a_node, b_node, exact=exact)
-            solution_matrix[i][j] = res
-    score, ix_a, ix_b = _find_max_of_matrix(solution_matrix)
-    node_a = seq_a[ix_a]
-    node_b = seq_b[ix_b]
-    return MaximumCommonSubtreeResults(
-        score,
-        _extract_maximum_common_subgraph(node_a, node_b, exact=exact),
-        solution_matrix)
+    def __init__(self, seq_a, seq_b, exact=True):
+        self.seq_a = seq_a
+        self.seq_b = seq_b
+        self.exact = exact
+        self.solution_matrix = [
+            [0. for i in range(len(seq_b))] for j in range(len(seq_a))]
+        self.solution = None
 
+        self.fit()
 
-def _find_max_of_matrix(solution_matrix):
-    '''
-    Given the `solution_matrix`, find the coordinates of the maximum score
+    def compare_nodes(self, node_a, node_b, visited=None):
+        '''
+        Score the pair of `node_a` and `node_b` and all pairings of their children.
 
-    Returns
-    -------
-    float:
-        The maximum similarity score
-    int:
-        The index of the maximum similarity in `seq_a`
-    int:
-        The index of the maximum similarity in `seq_b`
-    '''
-    ix_a = ix_b = score = 0
-    for i in range(len(solution_matrix)):
-        for j in range(len(solution_matrix[0])):
-            if solution_matrix[i][j] > score:
-                score = solution_matrix[i][j]
-                ix_a = i
-                ix_b = j
-    return score, ix_a, ix_b
+        Returns
+        -------
+        float:
+            The similarity score between the input nodes
+        '''
+        if visited is None:
+            visited = set()
+        score = 0.
+        if (node_a.id, node_b.id) in visited:  # pragma: no cover
+            return score
+        visited.add((node_a.id, node_b.id))
 
+        observed, expected = monosaccharide_similarity(
+            node_a, node_b, include_substituents=True, include_children=False)
+        if self.exact:
+            if observed == expected:
+                score += 1
+        else:
+            score += observed / float(expected)
+        for child_a, child_b in itertools.product((ch_a for p, ch_a in node_a.children()),
+                                                  (ch_b for p, ch_b in node_b.children())):
+            score += self.compare_nodes(child_a, child_b, visited=visited)
+        return score
 
-def _coordinates_for(solution_matrix, value):
-    solutions = []
-    for i in range(len(solution_matrix)):
-        for j in range(len(solution_matrix[0])):
-            if solution_matrix[i][j] == value:
-                solutions.append((i, j))
-    return solutions
+    def fit(self):
+        for i, a_node in enumerate(self.seq_a):
+            for j, b_node in enumerate(self.seq_b):
+                res = self.compare_nodes(a_node, b_node, exact=self.exact)
+                self.solution_matrix[i][j] = res
+        score, ix_a, ix_b = self._find_max_of_matrix(self.solution_matrix)
+        node_a = self.seq_a[ix_a]
+        node_b = self.seq_b[ix_b]
+        self.solution = MaximumCommonSubtreeResults(
+            score,
+            self._extract_maximum_common_subgraph(node_a, node_b, exact=self.exact),
+            self.solution_matrix)
 
+    def _find_max_of_matrix(self, solution_matrix):
+        '''
+        Given the `solution_matrix`, find the coordinates of the maximum score
 
-def _extract_maximum_common_subgraph(node_a, node_b, exact=False):
-    '''
-    Given a pair of matched starting nodes from two separate glycan structures,
-    traverse them together, copying the best matching branches into a new |Glycan|
-    object.
+        Returns
+        -------
+        float:
+            The maximum similarity score
+        int:
+            The index of the maximum similarity in `seq_a`
+        int:
+            The index of the maximum similarity in `seq_b`
+        '''
+        ix_a = ix_b = score = 0
+        for i in range(len(solution_matrix)):
+            for j in range(len(solution_matrix[0])):
+                if solution_matrix[i][j] > score:
+                    score = solution_matrix[i][j]
+                    ix_a = i
+                    ix_b = j
+        return score, ix_a, ix_b
 
-    Parameters
-    ----------
-    node_a: Monosaccharide
-    node_b: Monosaccharide
-    exact: bool
-        Whether or not to take exact matches, or just take the best
-        pairing. If `exact` = |True| and there is no exact match, the
-        branch will terminate.
-    '''
-    root_ = node_a.clone()
-    node_stack = [(root_, node_a, node_b)]
-    b_taken = set()
-    index = {node_a.id: root_}
-    while len(node_stack) > 0:
-        mcs_node, node_a, node_b = node_stack.pop()
-        for a_pos, a_child in node_a.children():
-            matched_node = None
-            score_pairs = {}
-            if len(node_b.links) == 0:
-                continue
-            for b_pos, b_child in node_b.children():
-                if b_child.id in b_taken:
+    def _coordinates_for(self, solution_matrix, value):
+        solutions = []
+        for i in range(len(solution_matrix)):
+            for j in range(len(solution_matrix[0])):
+                if solution_matrix[i][j] == value:
+                    solutions.append((i, j))
+        return solutions
+
+    def _extract_maximum_common_subgraph(self, node_a, node_b, exact=False):
+        '''
+        Given a pair of matched starting nodes from two separate glycan structures,
+        traverse them together, copying the best matching branches into a new |Glycan|
+        object.
+
+        Parameters
+        ----------
+        node_a: Monosaccharide
+        node_b: Monosaccharide
+        exact: bool
+            Whether or not to take exact matches, or just take the best
+            pairing. If `exact` = |True| and there is no exact match, the
+            branch will terminate.
+        '''
+        root_ = node_a.clone()
+        node_stack = [(root_, node_a, node_b)]
+        b_taken = set()
+        index = {node_a.id: root_}
+        while len(node_stack) > 0:
+            mcs_node, node_a, node_b = node_stack.pop()
+            for a_pos, a_child in node_a.children():
+                matched_node = None
+                score_pairs = {}
+                if len(node_b.links) == 0:
                     continue
-                observed, expected = monosaccharide_similarity(
-                    a_child, b_child, include_children=True)
-                if exact and observed == expected:
-                    matched_node = b_child
-                    break
+                for b_pos, b_child in node_b.children():
+                    if b_child.id in b_taken:
+                        continue
+                    observed, expected = monosaccharide_similarity(
+                        a_child, b_child, include_children=True)
+                    if exact and observed == expected:
+                        matched_node = b_child
+                        break
+                    else:
+                        score_pairs[b_child.id] = (expected - observed, b_child)
+                if not exact and len(score_pairs) > 0:
+                    score, contestant = min(score_pairs.values(), key=lambda x: x[0])
+                    cont_depth = depth(contestant)
+                    for diff, node in score_pairs.values():
+                        if diff == score:
+                            node_depth = depth(node)
+                            if cont_depth < node_depth:
+                                contestant = node
+                                cont_depth = node_depth
+                    matched_node = contestant
+
+                if matched_node is None:
+                    continue
+
+                b_taken.add(matched_node.id)
+                if a_child.id in index:
+                    terminal = index[a_child.id]
                 else:
-                    score_pairs[b_child.id] = (expected - observed, b_child)
-            if not exact and len(score_pairs) > 0:
-                score, contestant = min(score_pairs.values(), key=lambda x: x[0])
-                cont_depth = depth(contestant)
-                for diff, node in score_pairs.values():
-                    if diff == score:
-                        node_depth = depth(node)
-                        if cont_depth < node_depth:
-                            contestant = node
-                            cont_depth = node_depth
-                matched_node = contestant
+                    terminal = index[a_child.id] = a_child.clone()
+                link = [
+                    link for link in node_a.links[a_pos] if link.is_child(a_child)][0]
+                link.clone(mcs_node, terminal)
+                node_stack.append((terminal, a_child, matched_node))
 
-            if matched_node is None:
-                continue
+        return Glycan(root_)
 
-            b_taken.add(matched_node.id)
-            if a_child.id in index:
-                terminal = index[a_child.id]
-            else:
-                terminal = index[a_child.id] = a_child.clone()
-            link = [
-                link for link in node_a.links[a_pos] if link.is_child(a_child)][0]
-            link.clone(mcs_node, terminal)
-            node_stack.append((terminal, a_child, matched_node))
+    @classmethod
+    def maximum_common_subgraph(cls, seq_a, seq_b, exact=True):
+        '''
+        Find the maximum common subgraph between `seq_a` and `seq_b`.
 
-    return Glycan(root_)
+        Parameters
+        ----------
+        seq_a: :class:`~.Glycan`
+        seq_b: :class:`~.Glycan`
+        exact: bool
+            Whether to use exact equality or fuzzy equality
+
+        Returns
+        -------
+        MaximumCommonSubtreeResults
+
+        References
+        ----------
+        [1] K. F. Aoki, A. Yamaguchi, Y. Okuno, T. Akutsu, N. Ueda, M. Kanehisa, and H. Mamitsuka,
+        "Efficient tree-matching methods for accurate carbohydrate database queries."
+        Genome Inform. Jan. 2003.
+        '''
+        inst = cls(seq_a, seq_b, exact=exact)
+        return inst.solution
+
+
+maximum_common_subgraph = MaximumCommonSubgraphSolver.maximum_common_subgraph
 
 
 def n_saccharide_similarity(self, other, n=2, exact=False):
@@ -443,8 +470,8 @@ def n_saccharide_similarity(self, other, n=2, exact=False):
         How similar these structures are at the n-saccharide level. Ranges between 0 and 1.0 where
         1.0 is exactly the same, while 0.0 means no shared n-saccharides.
 
-    Reference
-    ---------
+    References
+    ----------
     [1] K. F. Aoki, A. Yamaguchi, Y. Okuno, T. Akutsu, N. Ueda, M. Kanehisa, and H. Mamitsuka,
     "Efficient tree-matching methods for accurate carbohydrate database queries."
     Genome Inform. Jan. 2003.
@@ -458,10 +485,11 @@ def n_saccharide_similarity(self, other, n=2, exact=False):
 
     self_n_saccharides = list(subtree.tree for subtree in self.substructures(
         max_cleavages=max(self, key=operator.methodcaller('degree')).degree())
-                              if _len(subtree.tree) == n)
+        if _len(subtree.tree) == n)
+
     other_n_saccharides = list(subtree.tree for subtree in other.substructures(
         max_cleavages=max(other, key=operator.methodcaller('degree')).degree())
-                               if _len(subtree.include_nodes) == n)
+        if _len(subtree.include_nodes) == n)
 
     n_sacch_max = max(len(self_n_saccharides), len(other_n_saccharides))
     matched = 0.
@@ -517,6 +545,18 @@ def distinct_fragments(self, other, fragmentation_parameters=None):
 
 
 class Treelet(object):
+    """Represents a subgraph of a larger :class:`~.Glycan`, with a frontier
+    of node ids which are children of the current subgraph.
+
+    Attributes
+    ----------
+    frontier_ids : set
+        The id values of the nodes from the parent :class:`~.Glycan` which
+        are children of members of :attr:`subtree`
+    subtree : :class:`~.Glycan`
+        The subgraph defining the treelet
+    """
+
     def __init__(self, subtree, frontier_ids):
         self.subtree = subtree
         self.frontier_ids = set(frontier_ids)
@@ -552,7 +592,6 @@ class Treelet(object):
         return hash(self.subtree)
 
     def canonicalize(self):
-        # self.subtree = canonicalize(self.subtree)
         self.subtree.canonicalize()
 
     def expand(self, reference, frontier_id):
@@ -651,6 +690,28 @@ def treelets(glycan, k, distinct=True):
 
 
 class TreeletEnrichmentTest(object):
+    '''A test to calculate the probability that the frequency of each treelet
+    from glycans in :attr:`cond1` is equal to the frequency of that treelet in
+    :attr:`cond2` using the Fisher's Exact Test.
+
+    Attributes
+    ----------
+    cond1: list of :class:`~.Glycan`
+        Glycans from the first condition, the condition to be tested for enrichment
+    cond2: list of :class:`~.Glycan`
+        Glycans from the second condition, the background condition
+    k: int
+        The size of the treelet to use
+    distinct: bool
+        Whether or not to count redundant treelets. Defaults to |True|
+    enrichment_probabilities: dict
+        Holds the enrichment p values for each treelet
+
+    References
+    ----------
+    Pevzner, P., & Shamir, R. (2011). Bioinformatics for Biologists.
+    New York, NY, USA: Cambridge University Press.
+    '''
     def __init__(self, cond1, cond2, k, distinct=True):
         self.cond1 = list(cond1)
         self.cond2 = list(cond2)
@@ -659,6 +720,69 @@ class TreeletEnrichmentTest(object):
         self.total = len(self.cond1) + len(self.cond2)
         self.cond1_treelets = defaultdict(int)
         self.cond2_treelets = defaultdict(int)
+        self.cond1_treelet_to_glycan = defaultdict(set)
+        self.cond2_treelet_to_glycan = defaultdict(set)
+        self.enrichment_probabilities = dict()
+        self.fit()
 
     def count_treelets(self):
-        pass
+        for g1 in self.cond1:
+            for treelet in treelets(g1, self.k, distinct=self.distinct):
+                self.cond1_treelets[treelet] += 1
+                self.cond1_treelet_to_glycan[treelet].add(g1)
+        for g2 in self.cond2:
+            for treelet in treelets(g2, self.k, distinct=self.distinct):
+                self.cond2_treelets[treelet] += 1
+                self.cond2_treelet_to_glycan[treelet].add(g2)
+
+    def fisher_exact_test(self, treelet):
+        M = self.total
+        N = len(self.cond1)
+        n_pos = len(self.cond1_treelet_to_glycan[treelet])
+        n_neg = len(self.cond2_treelet_to_glycan[treelet])
+
+        fac = math.factorial
+        numerator = fac(M) / float(fac(n_pos) * fac(n_neg) * fac(N - n_pos) * fac(M - N - fac(n_neg)))
+        d1 = fac(M) / float(fac(n_pos + n_neg) * fac(M - n_pos - n_neg))
+        d2 = fac(M) / float(fac(M - N) * fac(N) * N)
+        p = numerator / (d1 * d2)
+        return p
+
+    def fit(self):
+        self.count_treelets()
+        for treelet in self.cond1_treelet_to_glycan:
+            self.enrichment_probabilities[treelet] = self.fisher_exact_test(treelet)
+
+    @classmethod
+    def treelet_enrichment(cls, cond1, cond2, k, distinct=True):
+        '''Perform a test for each treelet to determine if it is enriched in *cond1*
+        compared to *cond2*.
+
+        Parameters
+        ----------
+        cond1: list of :class:`~.Glycan`
+            Glycans from the first condition, the condition to be tested for enrichment
+        cond2: list of :class:`~.Glycan`
+            Glycans from the second condition, the background condition
+        k: int
+            The size of the treelet to use
+        distinct: bool
+            Whether or not to count redundant treelets. Defaults to |True|
+
+        Returns
+        -------
+        dict
+            A mapping from treelet to p value from Fisher's Exact Test for
+            that treelet being found with its observed frequency in *cond1*
+            if it is as common in *cond1* as in *cond2*.
+
+        References
+        ----------
+        Pevzner, P., & Shamir, R. (2011). Bioinformatics for Biologists.
+        New York, NY, USA: Cambridge University Press.
+        '''
+        inst = cls(cond1, cond2, k, distinct=distinct)
+        return inst.enrichment_probabilities
+
+
+treelet_enrichment = TreeletEnrichmentTest.treelet_enrichment

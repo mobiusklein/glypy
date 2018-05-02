@@ -43,6 +43,7 @@ class CanonicalizerBase(object):
             node.links = link_map
             for pos, parent in node.parents():
                 nodes.append(parent)
+        self.structure.label_branches()
 
     @classmethod
     def canonicalize(cls, structure, **kwargs):

@@ -4,7 +4,7 @@ Utilities and commonly reused generics
 
 Many helper functions used throughout the rest of the library.
 
-.. currentmodule:: pygl2.utils
+.. currentmodule:: glypy.utils
 
 .. automodule:: glypy.utils.base
     :members:

@@ -580,6 +580,24 @@ class Glycan(SaccharideCollection):
             traversal(apply_fn=links, visited=visited))
 
     def canonicalize(self, canonicalizer=None, **kwargs):
+        """Canonicalize this glycan, sorting the order in which its links from the
+        same monosaccharide are traversed.
+
+        This currently uses the the :title-reference:`GlycoCT` canonicalization
+        algorithm.
+
+        Parameters
+        ----------
+        canonicalizer : subclass of :class:`~.CanonicalizerBase`, optional
+            The canonicalization algorithm to use
+        **kwargs
+            Forwarded to the canonicalizer
+
+        Returns
+        -------
+        :class:`~.Glycan`
+            This glycan, reordered in place.
+        """
         from glypy.algorithms.canonicalize import canonicalize
         return canonicalize(self, canonicalizer=canonicalizer, **kwargs)
 
