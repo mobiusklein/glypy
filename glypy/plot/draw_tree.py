@@ -16,17 +16,18 @@ from glypy.io.nomenclature import identity
 
 from .buchheim import buchheim
 from .topological_layout import layout as topological
-from . import cfg_symbols, iupac_symbols
+from . import cfg_symbols, iupac_symbols, snfg_symbols
 from .geometry import centroid
 from .fragment_annotation import BondCleavageArtist
 
 
-line_to = cfg_symbols.line_to
+line_to = cfg_symbols.CFGNomenclature().line_to
 
 
 nomenclature_map = {
-    "cfg": cfg_symbols,
-    'iupac': iupac_symbols
+    "cfg": cfg_symbols.CFGNomenclature(),
+    'iupac': iupac_symbols.IUPACTextSymbolicNomenclature(),
+    "snfg": snfg_symbols.SNFGNomenclature()
 }
 
 layout_map = {
@@ -280,9 +281,11 @@ class DrawTreeNode(object):
                             child, child.parent_linkage))
             child.fix_special_cases(offset, visited)
 
-    def draw(self, at=(0, 0), ax=None, symbol_nomenclature="cfg", label=True, **kwargs):
+    def draw(self, at=(0, 0), ax=None, symbol_nomenclature="snfg", label=True, **kwargs):
         if isinstance(symbol_nomenclature, basestring):
             symbol_nomenclature = nomenclature_map[symbol_nomenclature]
+        elif symbol_nomenclature is None:
+            symbol_nomenclature = snfg_symbols.SNFGNomenclature()
         if ax is None:  # pragma: no cover
             ax = self.axes
             if ax is None:
@@ -638,7 +641,8 @@ class DrawTreeNode(object):
 
 
 class DrawTree(object):  # pragma: no cover
-    def __init__(self, structure, figure=None, ax=None, layout=buchheim, symbol_nomenclature=cfg_symbols, **kwargs):
+    def __init__(self, structure, figure=None, ax=None, layout=buchheim,
+                 symbol_nomenclature=snfg_symbols.SNFGNomenclature(), **kwargs):
         self.structure = structure
         self.root = DrawTreeNode(root(structure))
         self.figure = figure
@@ -689,7 +693,7 @@ class DrawTree(object):  # pragma: no cover
 
 
 def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
-         symbol_nomenclature='cfg', layout='balanced', **kwargs):
+         symbol_nomenclature='snfg', layout='balanced', **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -719,11 +723,13 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
     transform_scale = kwargs.pop("scale", (1,))
     try:
         transform_scale = tuple(transform_scale)
-    except:
+    except Exception:
         transform_scale = (transform_scale, transform_scale)
 
     if isinstance(symbol_nomenclature, basestring):
         symbol_nomenclature = nomenclature_map.get(symbol_nomenclature)
+    elif symbol_nomenclature is None:
+        symbol_nomenclature = snfg_symbols.SNFGNomenclature()
 
     if isinstance(layout, basestring):
         layout = layout_map.get(layout)

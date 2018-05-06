@@ -1,47 +1,84 @@
-from matplotlib.path import Path
-from matplotlib.textpath import TextPath
-import matplotlib.patches as patches
-from matplotlib.transforms import IdentityTransform
-import matplotlib
-from matplotlib.colors import rgb2hex
-
-from glypy.structure import Modification, Stem, SuperClass
-from glypy.utils import where
+from glypy.structure import Stem, Modification
 from glypy.utils.enum import Enum
-from glypy.io.nomenclature import identity
-from glypy.algorithms import similarity
+from .cfg_symbols import CFGNomenclature
 
 
-from .cfg_symbols import (
-    draw_star, draw_square, draw_circle,
-    draw_diamond, draw_text, draw_bisected_square,
-    draw_vertical_bisected_diamond, draw_horizontal_bisected_diamond,
-    draw_generic)
+class SNFGNomenclature(CFGNomenclature):
+    class ResidueColor(Enum):
+        white = "#ffffff"
+        blue = "#0180ff"
+        green = "#01A650"
+        yellow = "#ffd706"
+        light_blue = "#91cce8"
+        pink = "#fe87c5"
+        purple = "#a21fff"
+        brown = "#8e6319"
+        orange = "#f37922"
+        red = "#fc0200"
+        generic = 'white'
 
+    stem_to_color = {
+        Stem.glc: ResidueColor.blue,
+        Stem.man: ResidueColor.green,
+        Stem.gal: ResidueColor.yellow,
+        Stem.gul: ResidueColor.orange,
+        Stem.alt: ResidueColor.pink,
+        Stem.all: ResidueColor.purple,
+        Stem.tal: ResidueColor.light_blue,
+        Stem.ido: ResidueColor.brown,
+        Stem.xyl: ResidueColor.orange,
+    }
 
-def rgb255(a, b, c):
-    return rgb2hex((a / 255., b / 255., c / 255.))
+    def residue_color(self, monosaccharide):
+        '''
+        Determine which color to use to represent `monosaccharide` under the CFG
+        symbol nomenclature.
 
+        Parameters
+        ----------
+        monosaccharide: |Monosaccharide|
+            The residue to be rendered
 
-class Colors(Enum):
-    white = rgb255(255, 255, 255)
-    blue = rgb255(0, 144, 188)
-    green = rgb255(0, 166, 188)
-    yellow = rgb255(255, 212, 0)
-    light_blue = rgb255(143, 204, 233)
-    pink = rgb255(246, 158, 161)
-    purple = rgb255(165, 67, 153)
-    brown = rgb255(161, 122, 77)
-    orange = rgb255(244, 121, 32)
-    red = rgb255(237, 28, 36)
+        Returns
+        -------
+        ResidueColor.EnumValue
+
+        '''
+        if any(mod == Modification.a for p, mod in monosaccharide.modifications.items()):
+            return self.resolve_acid_color(monosaccharide)
+        if "hex" in [monosaccharide.superclass]:
+            if any(mod == Modification.d for p, mod in monosaccharide.modifications.items()) and\
+                    monosaccharide.stem == (Stem.gal,):
+                return self.ResidueColor.red
+        try:
+            return self.stem_to_color[monosaccharide.stem[0]]
+        except KeyError:
+            return self.ResidueColor.generic
+
+    def resolve_acid_color(self, monosaccharide):
+        '''
+        Resolve the special case in :func:`residue_color` for acidic residues
+        '''
+        if ('gro' in monosaccharide.stem) and ('gal' in monosaccharide.stem):
+            if any(sub.name == 'n_acetyl' for p, sub in monosaccharide.substituents()):
+                return self.ResidueColor.purple
+            elif any(sub.name == 'n_glycolyl' for p, sub in monosaccharide.substituents()):
+                return self.ResidueColor.light_blue
+            elif any(sub.name == 'amino' for p, sub in monosaccharide.substituents()):
+                return self.ResidueColor.brown
+            else:
+                return self.ResidueColor.green
+        else:
+            return self.self.stem_to_color[monosaccharide.stem[0]]
 
 
 def test_color_pallette(ax):
-    for i, kv in enumerate(Colors):
+    d = SNFGNomenclature()
+    for i, kv in enumerate(SNFGNomenclature.ResidueColor):
         name, color = kv[0], kv[1]
         if name == "?":
             print(kv)
-        draw_square(ax, i, 0, color)
+        d.draw_square(ax, i, 0, color)
         ax.text(i, -0.5, name, ha='center')
     ax.set_xlim(-1, i + 1)
     ax.set_ylim(-1, 1)
