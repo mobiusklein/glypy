@@ -69,7 +69,7 @@ class SNFGNomenclature(CFGNomenclature):
             else:
                 return self.ResidueColor.green
         else:
-            return self.self.stem_to_color[monosaccharide.stem[0]]
+            return self.stem_to_color[monosaccharide.stem[0]]
 
 
 def test_color_pallette(ax):
