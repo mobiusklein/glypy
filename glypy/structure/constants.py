@@ -59,8 +59,8 @@ SuperClass.tet.add_name("Tetrose")
 SuperClass.pen.add_name("Pentose")
 #: Hexose alias of `hex`
 SuperClass.hex.add_name("Hexose")
-#: Heparin alias of `hep`
-SuperClass.hep.add_name("Heparin")
+#: Heptose alias of `hep`
+SuperClass.hep.add_name("Heptose")
 #: Octose alias of `oct`
 SuperClass.oct.add_name("Octose")
 #: Nonose alias of `non`

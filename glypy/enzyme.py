@@ -659,8 +659,8 @@ class MultiprocessingGlycome(Glycome):
         self.pool = None
         self.seen = DistinctGlycanSet()
         self._worker_params = (
-            self.glycosylases, self.glycosyltransferases, tuple(), self.track_generations,
-            self.limits)
+            self.glycosylases, self.glycosyltransferases, tuple(),
+            self.track_generations, self.limits)
 
     def _create_pool(self):
         self.pool = multiprocessing.Pool(self.processes)
