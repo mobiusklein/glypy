@@ -1,7 +1,7 @@
 from matplotlib import patches
 from matplotlib import transforms as mtransforms
 from matplotlib.textpath import TextPath
-from glypy.plot.cfg_symbols import line_to
+from glypy.plot.symbolic_nomenclature import line_to
 
 
 def isclose(a, b):
