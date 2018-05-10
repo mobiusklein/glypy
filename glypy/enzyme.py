@@ -521,11 +521,14 @@ def make_n_glycan_pathway():
                         validator=rejecting(bisecting_glcnac))
     glucosidaseI = Glycosylase(None, None, iupac.loads("alpha-D-Manp"), iupac.loads("?-?-Glcp"),
                                identifying_information=enzdb["3.2.1.106"])
+    glucosidaseII = Glycosylase((3,), 1, iupac.loads("alpha-D-Glcp"), iupac.loads("alpha-D-Glcp"),
+                                identifying_information=enzdb['3.2.1.84'])
 
     glycosylases = {
         "manI": manI,
         "manII": manII,
-        "glucosidaseI": glucosidaseI
+        "glucosidaseI": glucosidaseI,
+        "glucosidaseII": glucosidaseII,
     }
 
     glycosyltransferases = {
@@ -546,7 +549,8 @@ def make_n_glycan_pathway():
 
     starting_structure_iupac = (
         "a-D-Manp-(1-2)-a-D-Manp-(1-6)-[a-D-Manp-(1-2)-a-D-Manp-(1-3)]"
-        "a-D-Manp-(1-6)-[a-D-Glcp-(1-3)-a-D-Manp-(1-2)-a-D-Manp-(1-2)-a-D-Manp-(1-3)]"
+        "a-D-Manp-(1-6)-[a-D-Glcp-(1-3)-a-D-Glcp-(1-3)-a-D-Glcp-(1-3)-"
+        "a-D-Manp-(1-2)-a-D-Manp-(1-2)-a-D-Manp-(1-3)]"
         "b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
     starting_structure = iupac.loads(starting_structure_iupac)
 
