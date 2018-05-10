@@ -14,10 +14,10 @@ from glypy.structure import constants
 from glypy.utils import root
 from glypy.io.nomenclature import identity
 
-from .buchheim import buchheim
-from .topological_layout import layout as topological
+from .buchheim import BalancedTreeLayout
+from .topological_layout import TopologicalTreeLayout
 from . import cfg_symbols, iupac_symbols, snfg_symbols
-from .geometry import centroid
+from .geometry import centroid, interpolate
 from .fragment_annotation import BondCleavageArtist
 
 
@@ -31,8 +31,8 @@ nomenclature_map = {
 }
 
 layout_map = {
-    "balanced": buchheim,
-    "topological": topological
+    "balanced": BalancedTreeLayout,
+    "topological": TopologicalTreeLayout
 }
 
 DEFAULT_SYMBOL_SCALE_FACTOR = 0.17
@@ -181,11 +181,7 @@ def get_link_pair(tree, link_id):
     return parent, child
 
 
-def resolve_creation_cycle(node, parent, depth, i, parent_linkage, visited):
-    if node.id in visited:
-        return visited[node.id]
-    else:
-        return DrawTreeNode(node, parent, depth + 1, i + 1, parent_linkage, visited)
+INF = float("inf")
 
 
 class DrawTreeNode(object):
@@ -223,13 +219,17 @@ class DrawTreeNode(object):
             self.data = defaultdict(lambda: defaultdict(dict))
             self.uuid = uuid4().hex
 
-        self.children = [resolve_creation_cycle(c[1], self, depth + 1, i + 1, c[0], visited)
-                         for i, c
-                         in enumerate(sorted(tree.children(), key=lambda x: x[0]))]
+        self.children = [self.resolve_creation_cycle(c[1], depth + 1, i + 1, c[0], visited)
+                         for i, c in enumerate(sorted(tree.children(), key=lambda x: x[0]))]
 
-        # self.patches = []
         # A node owns all lines originating from it.
         self.lines = []
+
+    def resolve_creation_cycle(self, node, depth, i, parent_linkage, visited):
+        if node.id in visited:
+            return visited[node.id]
+        else:
+            return self.__class__(node, self, depth + 1, i + 1, parent_linkage, visited)
 
     def __iter__(self):
         return iter(self.children)
@@ -300,7 +300,6 @@ class DrawTreeNode(object):
             at = (0, 0)
         if self.transform:
             at = self.transform.transform(at)
-        # print self.x + at[0], self.y + at[1], at
         return self.x + at[0], self.y + at[1]
 
     def draw_branches(self, at=(0, 0), ax=None, symbol_nomenclature=None,
@@ -317,7 +316,7 @@ class DrawTreeNode(object):
             an axis is not provided, a new figure will be created and used.
         symbol_nomenclature: |str|
             A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
-            is |None|, `cfg` will be used.
+            is |None|, `snfg` will be used.
         visited: |set|
             A |set| instance containing the node ids already visited while drawing. If the current
             node was already visited, its id will already be present. Used to avoid infinite cycles.
@@ -335,17 +334,12 @@ class DrawTreeNode(object):
             patch = symbol_nomenclature.line_to(
                 ax, x, y, cx, cy,
                 color=kwargs.get('link_color', symbol_nomenclature.default_line_color),
-                zorder=1)
+                zorder=1, lw=0.5)
             self.data['lines'][self.id, child.id] = [patch]
             self.lines.append(patch)
-            # if label:
-            #     self.draw_linkage_annotations(at=at, ax=ax,
-            #                                   symbol_nomenclature=symbol_nomenclature,
-            #                                   child=child, visited=visited, **kwargs)
         return x, y
 
-    def draw_nodes(self, at=(0, 0), ax=None, symbol_nomenclature=None,
-                   label=True, visited=None, **kwargs):
+    def draw_nodes(self, at=(0, 0), ax=None, symbol_nomenclature=None, label=True, visited=None, **kwargs):
         '''
         Draw the symbol representing the individual monosaccharide and its substituents.
 
@@ -365,10 +359,6 @@ class DrawTreeNode(object):
         '''
         if visited is None:
             visited = set()
-        # if ax is None:  # pragma: no cover
-        #     ax = self.axes
-        #     if ax is None:
-        #         fig, ax = plt.subplots()
         if self.id in visited:
             return
         visited.add(self.id)
@@ -377,7 +367,6 @@ class DrawTreeNode(object):
                                               **kwargs)
         self.patch_node = patch_node
         residue_elements, substituent_elements, saccharide_label = patch_node
-        # self.patches = self.data["patches"][self.tree.id] = [residue_elements]
         self.data["patches"][self.tree.id] = [residue_elements]
         self.substituents_text = self.data["text"]["substituents"][self.id] = [substituent_elements]
         self.saccharide_label = self.data['text']['saccharide_label'][self.id] = [saccharide_label]
@@ -389,8 +378,7 @@ class DrawTreeNode(object):
             child.draw_nodes(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                              visited=visited, **kwargs)
 
-    def draw_linkage_annotations(self, at=(0, 0), ax=None,
-                                 symbol_nomenclature=None, child=None, **kwargs):
+    def draw_linkage_annotations(self, at=(0, 0), ax=None, symbol_nomenclature=None, child=None, **kwargs):
         '''
         Draw the parent outlink position and the child anomer symbol
 
@@ -407,7 +395,6 @@ class DrawTreeNode(object):
         child: :class:`DrawTreeNode`
             The child node to draw relative to.
         '''
-        sx, sy = self.coords(at)
         if child is None:
             for child in self:
                 self.draw_linkage_annotations(
@@ -416,22 +403,16 @@ class DrawTreeNode(object):
                 child.draw_linkage_annotations(
                     at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
             return
+        sx, sy = self.coords(at)
         cx, cy = child.coords(at)
 
         fontsize = kwargs.get("fontsize", 6)
 
-        position_x = (sx * 0.5 + cx * 0.5)
-        position_y = (sy * 0.7 + cy * 0.3)
-        # if sx == cx:
-        #     position_y += -0.01
-        if sx > cx:
-            position_x = (sx * 0.7) + (cx * 0.3) - 0.2
-            position_y = (sy * 0.8 + cy * 0.2)
-        elif sx < cx:
-            position_x = (sx * 0.7) + (cx * 0.3) + 0.1
-            position_y = (sy * 0.8 + cy * 0.2)
+        position_x = (sx * 0.65 + cx * 0.35)
+        if abs(sx - cx) < 1e-2:
+            position_y = (sy + cy) / 2
         else:
-            position_x += 0.05
+            position_y = interpolate(sx, sy, cx, cy, position_x)
 
         position_num = -1
         for pos, link in self.tree.links.items():
@@ -439,33 +420,31 @@ class DrawTreeNode(object):
                 position_num = pos
                 break
 
-        anomer_x = ((sx * 0.4 + cx * 0.6))  # + (-sign(sx) if cx <= sx else sign(sx)) * 0.11
-        anomer_y = ((sy * 0.4 + cy * 0.6))
-        if sx > cx:
-            anomer_x = (sx * 0.3) + (cx * 0.7) - 0.2
-        elif sx < cx:
-            anomer_x = (sx * 0.3) + (cx * 0.7) + 0.05
+        anomer_x = (sx * 0.35 + cx * 0.65)
+        if abs(sx - cx) < 1e-2:
+            anomer_y = (sy + cy) / 2
         else:
-            anomer_x += 0.05
-        if sy == cy:
-            _x = (position_x * 0.9) + (anomer_x * 0.1)
-            position_x = anomer_x = _x
-            anomer_y = ((sy * 0.5 + cy * 0.5)) + 0.10
-            position_y = ((sy * 0.5 + cy * 0.5)) - 0.16
+            anomer_y = interpolate(sx, sy, cx, cy, anomer_x)
 
-        overlapping = flatten(
-            (chain.from_iterable(self.data['patches'][self.id]),
-             chain.from_iterable(self.data['patches'][child.id]),
-             self.data['lines'][self.id, child.id]))
+        if abs(anomer_x - position_x) < 1e-2 and abs(anomer_y - position_y) < 1e-2:
+            anomer_x -= 0.07
+            position_x += 0.05
+            anomer_y -= 0.03
+            position_y -= 0.03
+
+        # overlapping = flatten(
+        #     (chain.from_iterable(self.data['patches'][self.id]),
+        #      chain.from_iterable(self.data['patches'][child.id]),
+        #      self.data['lines'][self.id, child.id]))
 
         position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y, text=str(position_num) if position_num != -1 else "?",
-            fontsize=fontsize, minimize_overlap=overlapping)
+            ax=ax, x=position_x, y=position_y,
+            text=str(position_num) if position_num != -1 else "?",
+            fontsize=fontsize, center=False)
         anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y, r'${}$'.format(
-                anomer_symbol_map.get(
-                    child.tree.anomer, child.tree.anomer.name)), fontsize=fontsize + 2,
-            minimize_overlap=overlapping)
+            ax, anomer_x, anomer_y + 0.05,
+            r'${}$'.format(anomer_symbol_map.get(child.tree.anomer, child.tree.anomer.name)),
+            fontsize=fontsize, center=True)
         self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
     # Tree Layout Helpers
@@ -485,11 +464,11 @@ class DrawTreeNode(object):
                     n = node
         return n
 
-    def get_lmost_sibling(self):
+    @property
+    def lmost_sibling(self):
         if not self._lmost_sibling and self.parent and self != self.parent.children[0]:
             self._lmost_sibling = self.parent.children[0]
         return self._lmost_sibling
-    lmost_sibling = property(get_lmost_sibling)
 
     def __str__(self):  # pragma: no cover
         return "%s: id=%s  x=%s mod=%s" % (self.tree, self.id, self.x, self.mod)
@@ -497,8 +476,7 @@ class DrawTreeNode(object):
     def __repr__(self):  # pragma: no cover
         return self.__str__()
 
-    def extrema(self, at=(0, 0), xmin=float('inf'), xmax=-float("inf"),
-                ymin=float('inf'), ymax=-float("inf"), visited=None):
+    def extrema(self, at=(0, 0), xmin=INF, xmax=-INF, ymin=INF, ymax=-INF, visited=None):
         '''
         Finds the most extreme points describing the area this node and its children occupy.
 
@@ -591,9 +569,6 @@ class DrawTreeNode(object):
             text = flatten(groups.values())
             [t.set_transform(transform) for t in text]
 
-        if self.data['orientation'] == 'h':
-            self.update_text_position(-90)
-
     def get_transform(self):
         if "transform" in self.data:
             trans = self.data["transform"]
@@ -629,6 +604,8 @@ class DrawTreeNode(object):
         are inscribed, as any new transform will override the correction.
         '''
         current_transform = self.transform
+        if current_transform is None:
+            current_transform = mtransforms.Affine2D()
         for i, groups in self.data['text'].items():
             for t in flatten(groups.values()):
                 cent = (centroid(t.get_path().transformed(current_transform)))
@@ -641,7 +618,7 @@ class DrawTreeNode(object):
 
 
 class DrawTree(object):  # pragma: no cover
-    def __init__(self, structure, figure=None, ax=None, layout=buchheim,
+    def __init__(self, structure, figure=None, ax=None, layout=BalancedTreeLayout,
                  symbol_nomenclature=snfg_symbols.SNFGNomenclature(), **kwargs):
         self.structure = structure
         self.root = DrawTreeNode(root(structure))
@@ -651,7 +628,7 @@ class DrawTree(object):  # pragma: no cover
         self.symbol_nomenclature = symbol_nomenclature
 
     def layout(self, **kwargs):
-        self.layout_scheme.layout(self.root)
+        self.layout_scheme(self.root).layout()
         self.root.fix_special_cases()
 
     def draw(self, ax=None, center=True, **kwargs):
@@ -736,13 +713,9 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
 
     tree_root = root(tree)
     dtree = DrawTreeNode(tree_root)
-    if layout == topological:
-        for node in breadth_first_traversal(dtree):
-            node.mask_special_cases = False
 
-    layout(dtree)
-    if layout != topological:
-        dtree.fix_special_cases()
+    layout_algorithm = layout(dtree)
+    layout_algorithm.layout()
 
     fig = None
     # Create a figure if no axes are provided
@@ -751,17 +724,25 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
         # at = (0, 0)
         center = True
         ax.axis('off')
+    (layout_transform,
+     substituent_transform,
+     _) = symbol_nomenclature.get_layout_transform(orientation)
+    layout_algorithm.transform(layout_transform)
     dtree.draw(at=at, ax=ax, scale=scale, label=False,
-               symbol_nomenclature=symbol_nomenclature, **kwargs)
+               symbol_nomenclature=symbol_nomenclature,
+               annotation_transform=substituent_transform,
+               **kwargs)
     dtree.axes = ax
     dtree.data['orientation'] = orientation
     dtree.set_transform(mtransforms.Affine2D())
     if label:
         dtree.draw_linkage_annotations(
             at=at, ax=ax, scale=scale,
-            symbol_nomenclature=symbol_nomenclature, **kwargs)
+            symbol_nomenclature=symbol_nomenclature,
+            **kwargs)
     if orientation in {"h", "horizontal"}:
-        dtree.set_transform(mtransforms.Affine2D().rotate_deg(90).scale(*transform_scale))
+        pass
+        # dtree.set_transform(mtransforms.Affine2D().rotate_deg(90).scale(*transform_scale))
         # dtree.update_text_position(-90)
     # If the figure is stand-alone, center it
     if fig is not None or center:

@@ -5,6 +5,7 @@ An implementation of a subset of the following symbolic nomenclature:
 
 import logging
 from collections import Counter
+from functools import partial
 
 import numpy as np
 from matplotlib.path import Path
@@ -12,6 +13,7 @@ from matplotlib.textpath import TextPath
 import matplotlib.patches as patches
 import matplotlib
 from matplotlib.colors import rgb2hex
+from matplotlib.transforms import Affine2D
 
 import glypy
 from glypy.structure import Modification, Stem
@@ -162,7 +164,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
     def draw_circle(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_circle().vertices * scale, Path.unit_circle().codes)
-        trans = matplotlib.transforms.Affine2D().translate(x, y)
+        trans = Affine2D().translate(x, y)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
             t_path, facecolor=color.value, lw=line_weight, zorder=2)
@@ -188,7 +190,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
             Path.CLOSEPOLY,
         ]
         path = Path(square_verts * scale, square_codes)
-        trans = matplotlib.transforms.Affine2D().translate(x, y)
+        trans = Affine2D().translate(x, y)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
             t_path, facecolor=color.value, lw=line_weight, zorder=2)
@@ -198,7 +200,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
     def draw_triangle(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_regular_polygon(3).vertices * scale, Path.unit_regular_polygon(3).codes)
-        trans = matplotlib.transforms.Affine2D().translate(
+        trans = Affine2D().translate(
             x, y).rotate_deg_around(x, y, -90)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
@@ -232,9 +234,9 @@ class CFGNomenclature(SymbolicNomenclatureBase):
                  ]
 
         lower_path = Path(lower_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y))
+            Affine2D().translate(x, y))
         upper_path = Path(upper_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y))
+            Affine2D().translate(x, y))
 
         patch = patches.PathPatch(
             lower_path, facecolor=color.value, lw=line_weight, zorder=2)
@@ -247,13 +249,25 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
     def draw_diamond(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_regular_polygon(4).vertices * scale, Path.unit_regular_polygon(4).codes)
-        trans = matplotlib.transforms.Affine2D().translate(x, y)
+        trans = Affine2D().translate(x, y)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
             t_path, facecolor=color.value, lw=line_weight, zorder=2)
         a = (ax.add_patch(patch),)
         ma = MonosaccharidePatch(saccharide_shape=(a,))
         return ma
+
+    def draw_right_bisected_diamond(self, ax, x, y, color, scale=0.1):
+        return self.draw_horizontal_bisected_diamond(ax, x, y, color, scale, 'left')
+
+    def draw_left_bisected_diamond(self, ax, x, y, color, scale=0.1):
+        return self.draw_horizontal_bisected_diamond(ax, x, y, color, scale, 'right')
+
+    def draw_top_bisected_diamond(self, ax, x, y, color, scale=0.1):
+        return self.draw_vertical_bisected_diamond(ax, x, y, color, scale, 'bottom')
+
+    def draw_bottom_bisected_diamond(self, ax, x, y, color, scale=0.1):
+        return self.draw_vertical_bisected_diamond(ax, x, y, color, scale, 'top')
 
     def draw_vertical_bisected_diamond(self, ax, x, y, color, scale=0.1, side=None):
         lower_verts = (np.array([
@@ -281,9 +295,9 @@ class CFGNomenclature(SymbolicNomenclatureBase):
         ]
 
         lower_path = Path(lower_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, 45))
+            Affine2D().translate(x, y).rotate_deg_around(x, y, 45))
         upper_path = Path(upper_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, 45))
+            Affine2D().translate(x, y).rotate_deg_around(x, y, 45))
 
         if side == 'top':
             top_color = color.value
@@ -332,9 +346,9 @@ class CFGNomenclature(SymbolicNomenclatureBase):
             left_color = 'white'
             right_color = color.value
         left_path = Path(left_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
+            Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
         right_path = Path(right_verts, codes).transformed(
-            matplotlib.transforms.Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
+            Affine2D().translate(x, y).rotate_deg_around(x, y, -45))
 
         patch = patches.PathPatch(
             left_path, facecolor=left_color, lw=line_weight, zorder=2)
@@ -349,7 +363,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
     def draw_star(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_regular_star(5, 0.3).vertices * scale, Path.unit_regular_star(5, 0.3).codes)
-        trans = matplotlib.transforms.Affine2D().translate(x, y)
+        trans = Affine2D().translate(x, y)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
             t_path, facecolor=color.value, lw=line_weight, zorder=2)
@@ -360,7 +374,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
     def draw_generic(self, ax, x, y, name, n_points=6, scale=0.1):
         unit_polygon = Path.unit_regular_polygon(n_points)
         path = Path(unit_polygon.vertices * scale, unit_polygon.codes)
-        trans = matplotlib.transforms.Affine2D().translate(x, y)
+        trans = Affine2D().translate(x, y)
         t_path = path.transformed(trans)
         name = TextPath((x - (0.35 * scale), y), s=name, size=2 * scale * .25)
         patch = patches.PathPatch(
@@ -372,7 +386,9 @@ class CFGNomenclature(SymbolicNomenclatureBase):
         return ma
 
     def get_drawer(self, shape):
-        return getattr(self, 'draw_%s' % (shape.name,), None)
+        shape_name = shape.name
+        drawer = getattr(self, 'draw_%s' % (shape_name,), None)
+        return drawer
 
     def resolve_generic_name(self, monosaccharide):
         try:
@@ -451,7 +467,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
         col = self.residue_color(monosaccharide)
         return shp, col
 
-    def draw(self, monosaccharide, x, y, ax, tree_node=None, scale=0.1, **kwargs):
+    def draw(self, monosaccharide, x, y, ax, tree_node=None, scale=0.1, annotation_transform=None, **kwargs):
         '''
         Renders `monosaccharide` at the given `(x, y)` coordinates on the `matplotlib.Axis`
         `ax` provided. Determines the shape to use by :func:`residue_shape` and color by
@@ -476,14 +492,10 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
         # Render substituents along the bottom of the monosaccharide
         # These layouts should be moved to be defined by the DrawTreeNode
-        subs = []
-        sub_y = y - (0.35 * (len(substituents) - 1))
-        sub_x = x - 0.45
-        for pos, subst_name in substituents:
-            sub_t = self.draw_text(ax, sub_x, sub_y, str(
-                pos) + self.format_text(subst_name), fontsize=6)
-            sub_y += 0.3
-            subs.append(sub_t)
+        if annotation_transform is None:
+            annotation_transform = Affine2D()
+        node_x, node_y = res.centroid()
+        subs = self.draw_substituents(ax, substituents, node_x, node_y, annotation_transform, **kwargs)
         res.add_substituents(subs)
         return res
 

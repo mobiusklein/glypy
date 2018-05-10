@@ -6,6 +6,9 @@ draw_tree.DrawTreeNode
 import weakref
 from itertools import chain
 
+import numpy as np
+from matplotlib.path import Path, get_paths_extents
+
 chain_iterable = chain.from_iterable
 
 
@@ -52,6 +55,25 @@ class GraphicalPatch(object):  # pragma: no cover
             shape.set_gid("%s-%s-%d-shape" % (tree_id, node_id, i))
         for i, text in enumerate(self.text()):
             text.set_gid("%s-%s-%d-text" % (tree_id, node_id, i))
+
+    def centroid(self):
+        point = np.zeros(2)
+        c = 0
+        for shape in flatten(self.shapes()):
+            path_ = shape.get_path()
+            for p in path_.vertices:
+                point += p
+                c += 1
+        return point / c
+
+    def get_paths(self):
+        result = []
+        for shape in flatten(self.shapes()):
+            result.append(shape.get_path())
+        return result
+
+    def get_bbox(self):
+        return get_paths_extents(self.get_paths())
 
 
 class MonosaccharidePatch(GraphicalPatch):

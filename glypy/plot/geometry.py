@@ -9,6 +9,32 @@ from glypy.utils import groupby
 Affine2D = mtransform.Affine2D
 
 
+class TreeLayoutBase(object):
+    def __init__(self, root, **kwargs):
+        self.root = root
+
+    def layout(self, **kwargs):
+        self.before_layout(**kwargs)
+        self.layout_tree(**kwargs)
+        self.after_layout(**kwargs)
+
+    def traverse(self):
+        return self.root.traverse()
+
+    def layout_tree(self, **kwargs):
+        raise NotImplementedError()
+
+    def before_layout(self, **kwargs):
+        pass
+
+    def after_layout(self, **kwargs):
+        self.root.fix_special_cases()
+
+    def transform(self, transform):
+        for node in self.traverse():
+            node.x, node.y = transform.transform([node.x, node.y])
+
+
 def breadth_first_traversal(tree, visited=None):
     if visited is None:
         visited = set()
@@ -57,6 +83,11 @@ def _build_path_with_circles(node, implicit_radius=0.3):
     return mpath.Path.make_compound_path(*points)
 
 
+def interpolate(x0, y0, x1, y1, x):
+    y = y0 + (x - x0) * ((y1 - y0) / (x1 - x0))
+    return y
+
+
 def make_path(node):
     return _build_path_with_circles(node)
 
@@ -68,6 +99,20 @@ def centroid(path):
         point += p
         c += 1
     return point / c
+
+
+def bounding_box(path, padding=0):
+    if not padding:
+        padding = 0
+    xmin = float('inf')
+    xmax = -float('inf')
+    ymin = float('inf')
+    ymax = -float('inf')
+    for p in path.vertices:
+        xmin = min(xmin, p[0])
+        xmax = max(xmax, p[0])
+        ymin = min(ymin, p[1])
+        ymax = max(ymax, p[1])
 
 
 # def shift_path_2d(path, hits):

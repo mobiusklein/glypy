@@ -1,5 +1,13 @@
 # Adapted from https://github.com/llimllib/pymag-trees/blob/master/buchheim.py
 
+from .geometry import TreeLayoutBase
+
+
+class BalancedTreeLayout(TreeLayoutBase):
+
+    def layout_tree(self, **kwargs):
+        buchheim(self.root)
+
 
 def buchheim(tree, visited=None):
     if visited is None:

@@ -1,4 +1,4 @@
-from .geometry import breadth_first_traversal, centroid, make_path
+from .geometry import breadth_first_traversal, centroid, make_path, TreeLayoutBase
 import numpy as np
 
 #: clock-face coordinates assume left-horizontal growth
@@ -12,6 +12,16 @@ index_position_shift = {
     8: (-0, -1)
 }
 index_position_shift = {k: np.array(v[::-1], dtype=np.float64) for k, v in index_position_shift.items()}
+
+
+class TopologicalTreeLayout(TreeLayoutBase):
+
+    def before_layout(self, **kwargs):
+        for node in self.traverse():
+            node.mask_special_cases = False
+
+    def layout_tree(self, **kwargs):
+        layout(self.root)
 
 
 def _test_draw_unit_perimeter(ax):  # pragma: no cover
