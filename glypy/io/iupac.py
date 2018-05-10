@@ -330,8 +330,8 @@ class GlycanSerializer(object):
             link = ""
             if outedge is not None:
                 link = "{oe}{attach}-{outedge_pos}{ce}".format(
-                    outedge_pos=outedge.parent_position,
-                    attach=outedge.child_position,
+                    outedge_pos=outedge.parent_position if outedge.parent_position != -1 else "?",
+                    attach=outedge.child_position if outedge.child_position != -1 else "?",
                     oe=self.open_edge, ce=self.close_edge)
             # Branch linkage does not start with leading dash
             if is_branch and link[-1] == '-':
@@ -438,7 +438,7 @@ substituent_from_iupac = SubstituentDeserializer()
 
 def parse_linkage_position(position_string):
     if position_string == '?':
-        return None
+        return -1
     elif '/' in position_string:
         return list(map(int, position_string.split('/')))[0]
     else:
