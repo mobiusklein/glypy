@@ -201,7 +201,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
     def draw_triangle(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_regular_polygon(3).vertices * scale, Path.unit_regular_polygon(3).codes)
         trans = Affine2D().translate(
-            x, y).rotate_deg_around(x, y, -90)
+            x, y).rotate_deg_around(x, y, 0)
         t_path = path.transformed(trans)
         patch = patches.PathPatch(
             t_path, facecolor=color.value, lw=line_weight, zorder=2)

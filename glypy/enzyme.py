@@ -18,6 +18,7 @@ from glypy.io.glycoct import DistinctGlycanSet
 
 
 class EnzymeCommissionNumber(object):
+
     def __init__(self, category, group, activity, identity):
         self.category = int(category)
         self.group = int(group)
@@ -66,7 +67,8 @@ class EnzymeCommissionNumber(object):
         string = str(string)
         parts = string.split(".")
         if len(parts) != 4:
-            raise ValueError("EC Numbers must have 4 parts (found %d): %r" % (len(parts, string)))
+            raise ValueError(
+                "EC Numbers must have 4 parts (found %d): %r" % (len(parts, string)))
         try:
             parts = tuple(map(int, parts))
         except ValueError:
@@ -75,6 +77,7 @@ class EnzymeCommissionNumber(object):
 
 
 class EnzymeInformation(object):
+
     def __init__(self, name, ec_number=None, alternative_names=None, **kwargs):
         if isinstance(ec_number, basestring):
             ec_number = EnzymeCommissionNumber.parse(ec_number)
@@ -115,7 +118,8 @@ class EnzymeDatabase(object):
     _expasy_url = "ftp://ftp.expasy.org/databases/enzyme/enzyme.dat"
 
     def __init__(self, fp=None, format='json'):
-        self.layered_store = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+        self.layered_store = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(dict)))
         self.direct_store = dict()
 
         if fp is not None:
@@ -155,7 +159,8 @@ class EnzymeDatabase(object):
             self.add(EnzymeInformation(**enz))
 
     def _dump(self, fp):
-        json.dump([e._to_dict() for e in self.direct_store.values()], fp, indent=2, sort_keys=True)
+        json.dump([e._to_dict() for e in self.direct_store.values()],
+                  fp, indent=2, sort_keys=True)
 
     @classmethod
     def _build(cls):
@@ -177,13 +182,18 @@ class EnzymeDatabase(object):
             up = [p.strip() for ent in up for p in ent.split(";") if p]
             enzyme_info['uniprot'] = up
             pro = enzyme_info['prosite']
-            pro = [p.strip() for ent in pro for p in ent.split(";") if p and p != 'PROSITE']
+            pro = [p.strip() for ent in pro for p in ent.split(";")
+                   if p and p != 'PROSITE']
             enzyme_info['prosite'] = pro
-            enzyme_info['catalytic_activity'] = ' '.join(enzyme_info['catalytic_activity'])
+            enzyme_info['catalytic_activity'] = ' '.join(
+                enzyme_info['catalytic_activity'])
             comments = enzyme_info['comments']
-            comments = ' '.join(map(str.strip, map(str.rstrip, comments))).split("-!-")
-            enzyme_info['comments'] = ''.join([c for c in comments if c.strip()])
-            enzyme_info['ec_number'] = EnzymeCommissionNumber.parse(enzyme_info['id'])
+            comments = ' '.join(
+                map(str.strip, map(str.rstrip, comments))).split("-!-")
+            enzyme_info['comments'] = ''.join(
+                [c for c in comments if c.strip()])
+            enzyme_info['ec_number'] = EnzymeCommissionNumber.parse(enzyme_info[
+                                                                    'id'])
             return enzyme_info
 
         current_enzyme = new_store()
@@ -225,7 +235,8 @@ class EnzymeDatabase(object):
 
     @classmethod
     def _from_static(cls):
-        data_buffer = pkg_resources.resource_string(glypy.io.__name__, "data/enzyme.json")
+        data_buffer = pkg_resources.resource_string(
+            glypy.io.__name__, "data/enzyme.json")
         if isinstance(data_buffer, bytes):
             data_buffer = data_buffer.decode("utf-8")
         return cls(StringIO(data_buffer), format='json')
@@ -253,6 +264,7 @@ def reject_on_path(*args):
 
 
 class Glycoenzyme(object):
+
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None,
                  comparator=None,
@@ -263,7 +275,8 @@ class Glycoenzyme(object):
             def validator(structure):
                 return True
         if isinstance(identifying_information, basestring):
-            identifying_information = EnzymeInformation(identifying_information)
+            identifying_information = EnzymeInformation(
+                identifying_information)
 
         self._parent_position = ()
         self._child_position = ()
@@ -325,6 +338,7 @@ class Glycoenzyme(object):
 
 
 class Transferase(Glycoenzyme):
+
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None, comparator=None, validator=None,
                  parent_node_id=None, site_validator=None):
@@ -367,12 +381,12 @@ class Transferase(Glycoenzyme):
             node = new_structure.get(node.id)
             self.apply(node, parent_position, child_position)
             new_structure.reindex(hard=True)
-            for new_node in new_structure:
-                assert new_node.id < 1000
+            new_structure.canonicalize()
             yield new_structure
 
 
 class Glycosyltransferase(Transferase):
+
     def apply(self, node, parent_position=None, child_position=None):
         new_monosaccharide = self.child.clone()
         node.add_monosaccharide(
@@ -381,6 +395,7 @@ class Glycosyltransferase(Transferase):
 
 
 class Substituentransferase(Glycosyltransferase):
+
     def apply(self, node, parent_position=None, child_position=None):
         new_substituent = self.child.clone()
         node.add_substituent(
@@ -402,7 +417,8 @@ class Glycosylase(Glycoenzyme):
     def _traverse(self, structure):
         for p, link in structure.iterlinks():
             if link.is_ambiguous():
-                warnings.warn("Glycosylase do not support ambiguous linkages at this time.")
+                warnings.warn(
+                    "Glycosylase do not support ambiguous linkages at this time.")
             else:
                 if (self.parent is None or self.comparator(link.parent, self.parent)) and\
                    (self.child is None or self.comparator(link.child, self.child)) and\
@@ -419,15 +435,17 @@ class Glycosylase(Glycoenzyme):
             new_structure = structure.clone()
             link = new_structure.get_link(link.id)
             self.apply(link, refund)
-            yield structure.__class__(
+            parent, child = structure.__class__(
                 link.parent, index_method=None).reroot(index_method='dfs'), structure.__class__(
                 link.child, index_method='dfs')
+            yield parent.canonicalize(), child.canonicalize()
 
 
 def make_n_glycan_pathway():
     enzdb = EnzymeDatabase._from_static()
 
-    bisecting_glcnac = iupac.loads("b-D-Glcp2NAc-(1-4)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+    bisecting_glcnac = iupac.loads(
+        "b-D-Glcp2NAc-(1-4)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
     galactose = iupac.loads("b-D-Galp")
 
     parent = iupac.loads(
@@ -503,7 +521,7 @@ def make_n_glycan_pathway():
                                   2, 4, 99, 6], parent_node_id=3)
 
     parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
-    child = iupac.loads("a-L-Fuc")
+    child = iupac.loads("a-L-Fucp")
     fuct3 = Glycosyltransferase(3, 1, parent, child, terminal=False,
                                 parent_node_id=1, identifying_information=enzdb[2, 4, 1, 152])
 
@@ -557,11 +575,121 @@ def make_n_glycan_pathway():
     return glycosylases, glycosyltransferases, [starting_structure]
 
 
+def make_mucin_type_o_glycan_pathway():
+    enzdb = EnzymeDatabase._from_static()
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("b-D-Galp")
+    c1galt1 = Glycosyltransferase(
+        3, 1, parent, child, identifying_information=enzdb[2, 4, 1, 122])
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    b3gnt6 = Glycosyltransferase(3, 1, parent, child, terminal=False,
+                                 identifying_information=enzdb[2, 4, 1, 147])
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gcnt1 = Glycosyltransferase(6, 1, parent, child, terminal=False,
+                                identifying_information=enzdb[2, 4, 1, 102])
+
+    parent = iupac.loads('b-D-Glcp2NAc-(1-6)-a-D-Galp2NAc')
+    child = iupac.loads("b-D-Galp")
+    b4galt5 = Glycosyltransferase(4, 1, parent, child, parent_node_id=3)
+
+    parent = iupac.loads('b-D-Glcp2NAc-(1-3)-a-D-Galp2NAc')
+    child = iupac.loads('b-D-Glcp2NAc')
+    gcnt3 = Glycosyltransferase(6, 1, parent, child, parent_node_id=1, terminal=False,
+                                identifying_information=enzdb[2, 4, 1, 148])
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("a-D-Galp2NAc")
+    core7_galnact = Glycosyltransferase(6, 1, parent, child)
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("a-D-Galp")
+    core8_galt = Glycosyltransferase(3, 1, parent, child)
+
+    parent = iupac.loads("a-D-Galp2NAc")
+    child = iupac.loads("a-D-Neup5Ac")
+    st6gal1 = Glycosyltransferase(6, 2, parent, child, terminal=False,
+                                  identifying_information=enzdb[2, 4, 99, 3])
+
+    parent = iupac.loads("b-D-Galp-(1-3)-a-D-Galp2NAc")
+    child = iupac.loads("a-D-Neup5Ac")
+    st3gal2 = Glycosyltransferase(3, 2, parent, child, parent_node_id=3)
+
+    parent = iupac.loads("b-D-Galp-(1-3)-a-D-Galp2NAc")
+    child = iupac.loads("a-D-Neup5Ac")
+    st6gal2 = Glycosyltransferase(6, 2, parent, child, parent_node_id=3)
+
+    parent = iupac.loads('b-D-Galp-(1-4)-b-D-Glcp2NAc')
+    child = iupac.loads("a-L-Fucp")
+    fuct2 = Glycosyltransferase(2, 1, parent, child, terminal=False, parent_node_id=3,
+                                identifying_information=enzdb['2.4.1.69'])
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("a-L-Fucp")
+    fuct3 = Glycosyltransferase(3, 1, parent, child, terminal=False,
+                                parent_node_id=1, identifying_information=enzdb[2, 4, 1, 152])
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("a-D-Neup5Ac")
+    siat2_6 = Glycosyltransferase(6, 2, parent, child, identifying_information=enzdb[
+                                  2, 4, 99, 1], parent_node_id=3)
+
+    parent = iupac.loads("b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Galp")
+    galt4 = Glycosyltransferase(4, 1, parent, child, identifying_information=enzdb[
+        2, 4, 1, 86])
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntE = Glycosyltransferase(3, 1, parent, child, identifying_information=enzdb[
+        2, 4, 1, 149], parent_node_id=3)
+
+    parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc-(1-3)-b-D-Galp")
+    child = iupac.loads("b-D-Glcp2NAc")
+    gntII = Glycosyltransferase(6, 1, parent, child, terminal=False,
+                                identifying_information=enzdb[2, 4, 1, 150], parent_node_id=1)
+
+    parent = iupac.loads("b-D-Galp-(1-3)-a-D-Galp2NAc")
+    child = iupac.loads("b-D-Glcp2NAc")
+    b3gnt3 = Glycosyltransferase(3, 1, parent, child, identifying_information=enzdb[
+        "2.4.1.102"], parent_node_id=3, terminal=False)
+
+    glycosyltransferases = {
+        "c1galt1": c1galt1,
+        "b3gnt6": b3gnt6,
+        "gcnt1": gcnt1,
+        "b4galt5": b4galt5,
+        "gcnt3": gcnt3,
+        "core7_galnact": core7_galnact,
+        "core8_galt": core8_galt,
+        "st6gal1": st6gal1,
+        "st3gal2": st3gal2,
+        "st6gal2": st6gal2,
+        "fuct2": fuct2,
+        "fuct3": fuct3,
+        "siat2_6": siat2_6,
+        "galt4": galt4,
+        "gntE": gntE,
+        "gntII": gntII,
+        "b3gnt3": b3gnt3
+    }
+
+    glycosylases = {}
+
+    seeds = [glypy.Glycan(iupac.loads("a-D-Galp2NAc"))]
+    return glycosylases, glycosyltransferases, seeds
+
+
 def _enzyme_graph_inner():
     return defaultdict(set)
 
 
 class Glycome(object):
+
     def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
                  limits=None):
         if limits is None:
@@ -603,7 +731,8 @@ class Glycome(object):
         for species in self.current_generation:
             parentkey = None
             for enzkey, enz in self.glycosylases.items():
-                products = [root for root, leaf in enz(species, refund=1) if self.within_limits(root)]
+                products = [root for root, leaf in enz(
+                    species, refund=1) if self.within_limits(root)]
                 if products:
                     if parentkey is None:
                         parentkey = str(species)
@@ -612,7 +741,8 @@ class Glycome(object):
                         self.enzyme_graph[parentkey][childkey].add(enzkey)
                         next_generation.add(product)
             for enzkey, enz in self.glycosyltransferases.items():
-                products = [root for root in enz(species) if self.within_limits(root)]
+                products = [root for root in enz(
+                    species) if self.within_limits(root)]
                 if products:
                     if parentkey is None:
                         parentkey = str(species)
@@ -630,7 +760,7 @@ def _MultiprocessingGlycome_worker(seeds_params):
     import dill
     (glycosylases, glycosyltransferases, _,
      track_generations, limits) = dill.loads(params)
-    limits.append(lambda x: x not in seen)
+    # limits.append(lambda x: x not in seen)
     glycome = Glycome(glycosylases, glycosyltransferases, seeds,
                       track_generations, limits)
     glycome.step()
@@ -638,6 +768,7 @@ def _MultiprocessingGlycome_worker(seeds_params):
 
 
 class GlycanSynthesisWorker(object):
+
     def __init__(self, glycome_spec, inqueue, outqueue):
         import dill
         (glycosylases, glycosyltransferases, _,
@@ -652,6 +783,7 @@ class GlycanSynthesisWorker(object):
 
 
 class MultiprocessingGlycome(Glycome):
+
     def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
                  limits=None, processes=None):
         if processes is None:
@@ -669,16 +801,34 @@ class MultiprocessingGlycome(Glycome):
     def _create_pool(self):
         self.pool = multiprocessing.Pool(self.processes)
 
-    def log(self, i, chunks, current_generation):
-        print("\tTask %d/%d finished (%d items generated)" % (
+    def _log(self, message):
+        print(message)
+
+    def log_generation_chunk(self, i, chunks, current_generation):
+        self._log(".... Task %d/%d finished (%d items generated)" % (
             i, len(chunks), len(current_generation)))
+
+    def _generate_work_loads(self, next_generation, chunks):
+        import dill
+        encoded_params = dill.dumps(self._worker_params)
+
+        for i, chunk in enumerate(chunks):
+            yield (chunk, encoded_params, next_generation)
+
+    def _partition_generation(self, generation, max_chunk_size=2e3):
+        n = len(generation)
+        n_chunks = int(n // max_chunk_size)
+        if n_chunks < self.processes * 4:
+            return generation.partition(self.processes * 4)
+        else:
+            return generation.partition(n_chunks)
 
     def step(self):
         next_generation = DistinctGlycanSet()
-        chunks = self.current_generation.partition(self.processes * 4)
-        import dill
-        encoded_params = dill.dumps(self._worker_params)
-        work_spec = ((chunk, encoded_params, next_generation) for chunk in chunks)
+        self._log(".... Starting Step")
+        chunks = self._partition_generation(self.current_generation)
+        self._log(".... Produced %d chunks" % (len(chunks) + 1,))
+        work_spec = self._generate_work_loads(next_generation, chunks)
         if self.pool is None:
             self._create_pool()
         pool = self.pool
@@ -686,7 +836,7 @@ class MultiprocessingGlycome(Glycome):
         for work in pool.imap_unordered(_MultiprocessingGlycome_worker, work_spec):
             i += 1
             current_generation, enzyme_graph = work
-            self.log(i, chunks, current_generation)
+            self.log_generation_chunk(i, chunks, current_generation)
             next_generation.update(current_generation)
             for parent, children in enzyme_graph.items():
                 for child, enzymes in children.items():
