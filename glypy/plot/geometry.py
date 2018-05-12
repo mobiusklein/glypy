@@ -88,8 +88,8 @@ def interpolate(x0, y0, x1, y1, x):
     return y
 
 
-def make_path(node):
-    return _build_path_with_circles(node)
+def make_path(node, implicit_radius=0.3):
+    return _build_path_with_circles(node, implicit_radius)
 
 
 def centroid(path):

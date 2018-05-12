@@ -21,7 +21,104 @@ class TopologicalTreeLayout(TreeLayoutBase):
             node.mask_special_cases = False
 
     def layout_tree(self, **kwargs):
-        layout(self.root)
+        visited = set()
+        # layout(self.root, visited)
+        iterations = kwargs.get("iterations", 25)
+        self.layout_node(self.root, 0, 0, 0, visited)
+        # layout_node(self.root, 0, 0, 0, visited)
+        for i in range(int(iterations)):
+            delta = self.adjust_subtrees(self.root)
+            print(i, delta)
+            if delta == 0:
+                break
+
+    def position_relative_to_parent(self, cx, cy, index_position, scale=1.0):
+        sx, sy = index_position_shift[index_position]
+        sx *= scale
+        sy *= scale
+        return cx - sx, cy - sy
+
+    def layout_node(self, node, cx, cy, parent_position=3, visited=None):
+        if visited is None:
+            visited = set()
+        node.x, node.y = self.position_relative_to_parent(cx, cy, parent_position)
+        node.mask_special_cases = False
+        # default positions for unknown linkages
+        default_positions = ([3, 5, 4, 6, 2, 8])
+        # when there is only one child node, and that node is unknown,
+        # prefer a straight line instead of a slanted line.
+        if len(node.tree.children()) == 1:
+            default_positions = [4]
+        deferred_children = []
+        for child_node, pos_child in zip(node.children, sorted(node.tree.children())):
+            pos = pos_child[0]
+            if pos != -1 and pos in default_positions:
+                default_positions.remove(pos)
+            else:
+                deferred_children.append(child_node)
+                continue
+            self.layout_node(child_node, node.x, node.y, pos)
+        if len(deferred_children) > len(default_positions):
+            raise ValueError("Out of child positions")
+        for child_node, pos in zip(deferred_children, default_positions):
+            self.layout_node(child_node, node.x, node.y, pos)
+        return node
+
+    def adjust_subtrees(self, tree):
+        next_layer = tree.children
+        if len(next_layer) == 0:
+            return 0
+
+        total_shift = 0
+
+        # layout later layers first in a depth-first traversal
+        for node in next_layer:
+            total_shift += self.adjust_subtrees(node)
+
+        if len(next_layer) < 2:
+            return total_shift
+
+        # Layout this layer in x-ascending order. This geometry will
+        # place the branches in the opposite visual order to what is
+        # expected, so this should be reversed, but it breaks the shift
+        # process below.
+        next_layer = sorted(next_layer, key=lambda x: x.x, reverse=0)
+
+        prior_nodes = [next_layer[0]]
+        shifted = [next_layer[0]]
+        for node in next_layer[1:]:
+            for last in prior_nodes:
+                # This creates a circle around each node and reports on overlaps
+                # of nodes, but doesn't care about edges. The path extraction
+                # function should try to cover edges too.
+                lpath = make_path(last, 0.3)
+                npath = make_path(node, 0.3)
+                delta = 0
+                # if the covering paths intersect
+                if lpath.intersects_path(npath):
+                    lcentroid = centroid(lpath)
+                    ncentroid = centroid(npath)
+                    lxmin_lymin, lxmax_lymax = lpath.get_extents().get_points()
+                    nxmin_nymin, nxmax_nymax = npath.get_extents().get_points()
+                    if last.x == tree.x:
+                        delta = (nxmax_nymax[0] - ncentroid[0]) / 2
+                        self.shift_subtree(node, dx=delta)
+                    elif ncentroid[0] > lcentroid[0]:
+                        delta = (nxmin_nymin[0] - ncentroid[0]) / -2
+                        self.shift_subtree(node, dx=delta)
+                    elif ncentroid[0] < lcentroid[0]:
+                        delta = (lxmax_lymax[0] - lcentroid[0]) / -2
+                        self.shift_subtree(last, dx=delta)
+                    total_shift += abs(delta)
+            shifted.append(node)
+            prior_nodes.append(node)
+        return total_shift
+
+    def shift_subtree(self, tree, dx=0, dy=0):
+        for n in breadth_first_traversal(tree):
+            n.x += dx
+            n.y += dy
+        return tree
 
 
 def _test_draw_unit_perimeter(ax):  # pragma: no cover

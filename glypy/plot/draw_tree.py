@@ -670,7 +670,7 @@ class DrawTree(object):  # pragma: no cover
 
 
 def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
-         symbol_nomenclature='snfg', layout='balanced', **kwargs):
+         symbol_nomenclature='snfg', layout='balanced', layout_args=None, **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -715,7 +715,7 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
     dtree = DrawTreeNode(tree_root)
 
     layout_algorithm = layout(dtree)
-    layout_algorithm.layout()
+    layout_algorithm.layout(**(layout_args or {}))
 
     fig = None
     # Create a figure if no axes are provided
