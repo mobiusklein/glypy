@@ -13,13 +13,15 @@ GlycoCT
 
     .. autofunction:: loads
 
+    .. autoexception:: GlycoCTError
+
     Examples
     --------
 
     .. code-block:: python
 
-        >>>from glypy.io import glycoct
-        >>>glycoct.loads("""RES
+        >>> from glypy.io import glycoct
+        >>> glycoct.loads("""RES
         1b:x-dglc-HEX-1:5
         2s:n-acetyl
         3b:b-dglc-HEX-1:5

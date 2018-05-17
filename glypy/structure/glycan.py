@@ -959,7 +959,7 @@ class Glycan(SaccharideCollection):
 
         The formal grammar for fragment names in Backus-Naur Form:
 
-        .. code::
+        .. code:: xml
 
             <full-name>                ::= <fragment-name>|<fragment-name-list>
             <fragment-name>            ::= <glycosidic-fragment-name>|<crossring-fragment-name>

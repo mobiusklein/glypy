@@ -1,7 +1,11 @@
 import pkg_resources
 import json
 
-from urllib import urlopen
+try:
+    from urllib import urlopen
+except ImportError:
+    from urllib.request import urlopen
+
 from collections import defaultdict
 
 import glypy.io
