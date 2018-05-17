@@ -8,6 +8,8 @@ except ImportError:
 
 from collections import defaultdict
 
+from six import string_types as basestring
+
 import glypy.io
 from glypy.utils import StringIO
 from glypy.utils.lazy import ProxyObject

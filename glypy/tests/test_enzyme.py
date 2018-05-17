@@ -35,7 +35,7 @@ class GlycomeTests(unittest.TestCase):
         seed = list(eg.seeds)[0]
         ref = list(graph.seeds)[0]
         assert seed == ref
-        assert eg.children(seed) == graph.children(seed)
+        assert set(eg.children(seed)) == set(graph.children(seed))
 
 
 if __name__ == '__main__':

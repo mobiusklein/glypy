@@ -1,5 +1,7 @@
 import warnings
 
+from six import string_types as basestring
+
 import glypy
 
 from glypy.io import iupac

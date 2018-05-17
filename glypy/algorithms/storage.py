@@ -68,10 +68,10 @@ class DistinctGlycanSet(MutableSet):
         self.raw_data_buffer.discard(key)
 
     def _structure_to_text(self, structure):
-        return dumps(structure)
+        return dumps(structure).encode('utf-8')
 
     def _text_to_structure(self, text):
-        return loads(text)
+        return loads(text.decode('utf-8'))
 
     def _transform_text(self, text):
         return zlib.compress(text)

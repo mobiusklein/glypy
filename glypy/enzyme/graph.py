@@ -13,12 +13,26 @@ def _enzyme_graph_inner():
 
 
 class EnzymeGraph(object):
-    def __init__(self, graph, seeds=None):
+    def __init__(self, graph=None, seeds=None):
+        if graph is None:
+            graph = defaultdict(_enzyme_graph_inner)
         self.graph = graph
         self.seeds = set()
         if seeds is None:
             seeds = self.parentless()
         self.seeds.update(seeds)
+
+    def __getitem__(self, key):
+        return self.graph[key]
+
+    def __setitem__(self, key, value):
+        self.graph[key] = value
+
+    def add(self, source, sink, enzyme):
+        self[source][sink].add(enzyme)
+
+    def __iter__(self):
+        return iter(self.edges())
 
     def clone(self):
         graph = defaultdict(_enzyme_graph_inner)
