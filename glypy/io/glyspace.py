@@ -406,6 +406,7 @@ class GlySpaceRDFClient(RDFClientBase):
                 ?source glycan:has_taxon ?taxon
                 FILTER REGEX(str(?taxon), "http://www.uniprot.org/taxonomy/<taxonomy-accession>.rdf")
             }
+
         The REGEX filter is used because at current taxonomic information in Glycome-DB
         is encoded as a string instead of a URI.
 

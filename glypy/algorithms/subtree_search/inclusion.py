@@ -14,6 +14,30 @@ class TopologicalInclusionMatcher(object):
 
     @classmethod
     def compare(cls, target, reference, substituents=True, tolerance=0, visited=None):
+        '''
+        A generalization of :meth:`~.topological_equality` which allows for ``target``
+        to be matched to ``reference``, but for ``reference`` to include more. Consequently,
+        this method is not commutative.
+
+        Parameters
+        ----------
+        target: :class:`~.Monosaccharide`
+            The monosaccharide to compare
+        reference: :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+        substituents: :class:`bool`, optional
+            Whether or not to compare with the substituents of each node. Defaults
+            to :const:`True`.
+        tolerance: :class:`float`, optional
+            The maximum difference to permit between nodes for inclusion. Defaults
+            to 0
+
+        Returns
+        -------
+        :class:`float`
+            The inclusion score. Greater than 0 indicates topological inclusion,
+            though larger corresponds to better alignment.
+        '''
         inst = cls(
             target, reference, substituents=substituents,
             tolerance=tolerance, visited=visited)
@@ -106,36 +130,53 @@ class TopologicalInclusionMatcher(object):
 topological_inclusion = TopologicalInclusionMatcher.compare
 
 
-def exact_ordering_inclusion(self, other, substituents=True, tolerance=0, visited=None):
+def exact_ordering_inclusion(target, reference, substituents=True, tolerance=0, visited=None):
     '''
-    A generalization of :meth:`~glypy.structure.monosaccharide.Monosaccharide.exact_ordering_equality` which
-    allows for ``self`` to be matched to ``other``, but for ``other`` to include more. Consequently, this method is
-    not commutative.
+    A generalization of :meth:`~.exact_ordering_equality` which allows for ``target``
+    to be matched to ``reference``, but for ``reference`` to include more. Consequently,
+    this method is not commutative.
+
+    Parameters
+    ----------
+    target: :class:`~.Monosaccharide`
+        The monosaccharide to compare
+    reference: :class:`~.Monosaccharide`
+        The monosaccharide to compare against
+    substituents: :class:`bool`, optional
+        Whether or not to compare with the substituents of each node. Defaults
+        to :const:`True`.
+    tolerance: :class:`float`, optional
+        The maximum difference to permit between nodes for inclusion. Defaults
+        to 0
+
+    Returns
+    -------
+    :class:`bool`
     '''
     if visited is None:
         visited = set()
-    if (self.id, other.id) in visited:
+    if (target.id, reference.id) in visited:
         return True
-    similar = commutative_similarity(self, other, tolerance, include_substituents=substituents)
+    similar = commutative_similarity(target, reference, tolerance, include_substituents=substituents)
     if similar:
         if substituents:
-            other_substituents = dict(other.substituents())
-            for a_pos, a_sub in self.substituents():
-                b_sub = other_substituents.get(a_pos)
+            reference_substituents = dict(reference.substituents())
+            for a_pos, a_sub in target.substituents():
+                b_sub = reference_substituents.get(a_pos)
                 if b_sub is None:  # pragma: no cover
                     return False
                 if a_sub != b_sub:  # pragma: no cover
                     return False
-        other_mods = dict(other.modifications.items())
-        for a_pos, a_mod in self.modifications.items():
-            b_mod = other_mods.get(a_pos)
+        reference_mods = dict(reference.modifications.items())
+        for a_pos, a_mod in target.modifications.items():
+            b_mod = reference_mods.get(a_pos)
             if b_mod is None:  # pragma: no cover
                 return False
             if a_mod != b_mod:  # pragma: no cover
                 return False
-        other_children = dict(other.children())
-        for pos, a_child in self.children():
-            b_child = other_children.get(pos)
+        reference_children = dict(reference.children())
+        for pos, a_child in target.children():
+            b_child = reference_children.get(pos)
             if b_child is None:  # pragma: no cover
                 return False
             if a_child[0] == b_child[0]:
@@ -155,12 +196,12 @@ def subtree_of(subtree, tree, exact=False, tolerance=0):
 
     Parameters
     ----------
-    subtree: Glycan
+    subtree: :class:`~.Glycan`
         The structure to search for. The search attempts to match the complete structure of subtree.
-    tree: Glycan
+    tree: :class:`~.Glycan`
         The sturcture to search in. The search iterates over each residue in `tree` and calls a comparator
         function, comparing the `subtree` to the substructure rooted at that residue.
-    exact: bool
+    exact: :class:`bool`
         If |True|, use :func:`exact_ordering_inclusion` to compare nodes. Otherwise use :func:`topological_inclusion`.
         Defaults to |False|.
 

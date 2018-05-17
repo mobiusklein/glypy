@@ -1,0 +1,41 @@
+.. Common classes that are referenced frequently
+
+.. |Glycan| replace:: :class:`~glypy.structure.glycan.Glycan`
+.. |Monosaccharide| replace:: :class:`~glypy.structure.monosaccharide.Monosaccharide`
+.. |ReducedEnd| replace:: :class:`~glypy.structure.monosaccharide.ReducedEnd`
+
+.. |GlycanComposition| replace:: :class:`~glypy.structure.glycan_composition.GlycanComposition`
+.. |MonosaccharideResidue| replace:: :class:`~glypy.structure.glycan_composition.MonosaccharideResidue`
+
+.. |Link| replace:: :class:`~glypy.structure.link.Link`
+
+.. |Substituent| replace:: :class:`~glypy.structure.substituent.Substituent`
+
+.. |Composition| replace:: :class:`~glypy.composition.composition.Composition`
+
+.. |OrderedMultiMap| replace:: :class:`~glypy.utils.multimap.OrderedMultiMap`
+.. |Enum| replace:: :class:`~glypy.utils.enum.Enum`
+
+.. |SuperClass| replace:: :class:`~glypy.structure.constants.SuperClass`
+.. |Stem| replace:: :class:`~glypy.structure.constants.Stem`
+.. |Modification| replace:: :class:`~glypy.structure.constants.Modification`
+.. |Configuration| replace:: :class:`~glypy.structure.constants.Configuration`
+.. |RingType| replace:: :class:`~glypy.structure.constants.RingType`
+
+.. Common functions that are referenced frequently
+
+.. |calculate_mass| replace:: :func:`~glypy.composition.composition.calculate_mass` 
+
+.. Common constants and Python Literals that are a bother to type.
+.. |int| replace:: :class:`int`
+.. |float| replace:: :class:`float`
+.. |str| replace:: :class:`str`
+.. |list| replace:: :class:`list`
+.. |dict| replace:: :class:`dict`
+
+.. |bool| replace:: :class:`bool`
+
+.. |None| replace:: :const:`None`
+
+.. |True| replace:: :const:`True`
+.. |False| replace:: :const:`False`

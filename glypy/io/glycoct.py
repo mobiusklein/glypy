@@ -1,27 +1,16 @@
 '''
 A GlycoCT (Condensed) parser.
-Supports RES, LIN, and un-nested REP sections.
-
-.. code-block:: python
-
-    >>>from glypy.io import glycoct
-    >>>glycoct.loads("""RES
-    1b:o-dman-HEX-0:0|1:aldi
-    2b:a-lido-HEX-1:5|6:a
-    3s:sulfate
-    LIN
-    1:1o(3+1)2d
-    2:2o(2+1)3n
-    3:2o(4+1)4d
-    """)
-    >>>
 '''
 
 import re
 import warnings
 from collections import defaultdict, Counter, deque, namedtuple, OrderedDict
 from functools import cmp_to_key
-import zlib
+
+try:
+    from collections import Iterator
+except ImportError:
+    from collections.abc import Iterator
 
 from glypy.utils import (
     opener, StringIO, root as rootp, tree as treep,
@@ -131,7 +120,7 @@ rep_header_pattern = re.compile(
     (?P<internal_linkage>.+)
     =(?P<lower_multitude>-?\d+)-(?P<higher_multitude>-?\d+)''', re.VERBOSE)
 
-repeat_line_pattern = re.compile("^(?P<graph_index>\d+)r:r(?P<repeat_index>\d+)")
+repeat_line_pattern = re.compile(r"^(?P<graph_index>\d+)r:r(?P<repeat_index>\d+)")
 
 und_header_pattern = re.compile(r'''UND(?P<und_index>\d+):
     (?P<major>\d+(\.\d*)?):
@@ -151,6 +140,9 @@ class GlycoCTError(ParserError):
 
 
 class GlycoCTSectionUnsupported(GlycoCTError):
+    '''Indicates that the GlycoCT parser has encountered a section that
+    it does not know how to parse.
+    '''
     pass
 
 
@@ -738,10 +730,10 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 UndeterminedProbability = namedtuple("UndeterminedProbability", "major minor")
 
 
-class UnderdeterminedRecord(GlycoCTSubgraph):
+class UndeterminedGlycoCTSubgraph(GlycoCTSubgraph):
     def __init__(self, und_index, probability=None, parent_ids=None,
                  subtree_linkages=None, graph=None, parent=None):
-        super(UnderdeterminedRecord, self).__init__(graph, parent)
+        super(UndeterminedGlycoCTSubgraph, self).__init__(graph, parent)
         if probability is None:
             probability = UndeterminedProbability(100., 100.)
         if parent_ids is None:
@@ -815,11 +807,45 @@ def extract_composition(parser):
     return store
 
 
-class GlycoCTReader(GlycoCTGraphStack):
-    '''
-    Simple State-Machine parser for condensed GlycoCT representations. Yields
-    |Glycan| instances.
-    '''
+class GlycoCTReader(GlycoCTGraphStack, Iterator):
+    """Parse :title-reference:`GlycoCT{condensed}` text data into |Glycan| objects.
+
+    The parser implements the :class:`Iterator` interface, yielding successive glycans
+    from a text stream separated by empty lines.
+
+    The parser can understand fully specified and partially ambiguous structures.
+    When :attr:`allow_repeats` is |True| and a ``REP`` section is encountered, it
+    will be expanded to its minimum multiplicity, or 1 if the minimum is unknown.
+    ``UND`` sections will be connected to the main graph by :class:`~.AmbiguousLink`
+    instead of :class:`~.Link` objects.
+
+    Attributes
+    ----------
+    allow_repeats : :class:`bool`
+        Whether or not to permit ``REP`` sections. Defaults to |True|
+    completes : :class:`bool`
+        Whether or not to translate the built graph into a |Glycan| object. Defaults
+        to |True|
+    handle : file-like
+        The text file being read from
+    in_repeat : :class:`bool`
+        Indicates the parser is currently parsing a ``REP`` section's sub-graph
+    in_undetermined : bool
+        Indicates the parser is currently parsing a ``UND`` section's sub-graph
+    postponed : list
+        Holds all the deferred operations for the top-most graph as :class:`callable`
+        objects
+    root : :class:`Monosaccharide`
+        The root node of the produced graph
+    state : str
+        The current state of the parser's state machine
+    structure_class : type
+        The |Glycan| sub-class to produce
+    repeats : dict
+        Maps RES section index to :class:`RepeatedGlycoCTSubgraph`
+    undetermineds : dict
+        Maps UND section index to :class:`UndeterminedGlycoCTSubgraph`
+    """
 
     @classmethod
     def loads(cls, glycoct_str, structure_class=Glycan, allow_repeats=True):
@@ -828,14 +854,6 @@ class GlycoCTReader(GlycoCTGraphStack):
         return cls(rep, structure_class=structure_class, allow_repeats=allow_repeats)
 
     def __init__(self, stream, structure_class=Glycan, allow_repeats=True, completes=True):
-        '''
-        Creates a parser of condensed GlycoCT.
-
-        Parameters
-        ----------
-        stream: basestring or file-like
-            A path to a file or a file-like object to be processed
-        '''
         super(GlycoCTReader, self).__init__()
 
         self._state = None
@@ -1160,7 +1178,7 @@ class GlycoCTReader(GlycoCTGraphStack):
 
         und_index = int(header_dict['und_index'])
         prob = UndeterminedProbability(float(header_dict['major']), float(header_dict['minor']))
-        record = UnderdeterminedRecord(
+        record = UndeterminedGlycoCTSubgraph(
             und_index, prob, parent_ids=ids,
             subtree_linkages=subtree_linkages, parent=self)
         self.undetermineds[und_index] = record
@@ -1277,6 +1295,21 @@ def read(stream, structure_class=Glycan, allow_repeats=True):
 
 
 def load(stream, structure_class=Glycan, allow_repeats=True, allow_multiple=True):  # pragma: no cover
+    """Read all structures from the provided text stream.
+
+    Parameters
+    ----------
+    stream : file-like
+        The text stream to parse structures from
+    structure_class : type, optional
+        :class:`~.Glycan` subclass to use
+    allow_repeats : bool, optional
+        Whether or not to allow ``REP`` sections
+
+    Returns
+    -------
+    :class:`~.Glycan` or :class:`list` of :class:`~.Glycan`
+    """
     g = GlycoCTReader(stream, structure_class=structure_class, allow_repeats=allow_repeats)
     first = next(g)
     if not allow_multiple:
@@ -1291,16 +1324,24 @@ def load(stream, structure_class=Glycan, allow_repeats=True, allow_multiple=True
         return first
 
 
-def loads(glycoct_str, structure_class=Glycan, allow_repeats=True, allow_multiple=True):
-    '''
-    A convenience wrapper for :meth:`GlycoCTReader.loads`
+def loads(text, structure_class=Glycan, allow_repeats=True, allow_multiple=True):
+    """Read all structures from the provided text string.
 
-    As additional convenience, this function does not return an
-    iterator over glycans, and returns a single instance if only
-    one is present, or a list of instances otherwise.
-    '''
+    Parameters
+    ----------
+    text : str
+        The text to parse structures from
+    structure_class : type, optional
+        :class:`~.Glycan` subclass to use
+    allow_repeats : bool, optional
+        Whether or not to allow ``REP`` sections
 
-    g = GlycoCTReader.loads(glycoct_str, structure_class=structure_class, allow_repeats=allow_repeats)
+    Returns
+    -------
+    :class:`~.Glycan` or :class:`list` of :class:`~.Glycan`
+    """
+
+    g = GlycoCTReader.loads(text, structure_class=structure_class, allow_repeats=allow_repeats)
     first = next(g)
     if not allow_multiple:
         return first
@@ -2135,9 +2176,9 @@ GlycoCTWriter = OrderRespectingGlycoCTWriter
 
 def dump(structure, buffer=None):
     '''
-    Serialize the |Glycan| graph object into condensed GlycoCT, using
+    Serialize the |Glycan| into :title-reference:`GlycoCT{condensed}`, using
     `buffer` to store the result. If `buffer` is |None|, then the
-    function will operate on a newly created :class:`~glypy.utils.StringIO` object.
+    function will operate on a newly created :class:`StringIO` object.
 
     Parameters
     ----------
@@ -2145,12 +2186,11 @@ def dump(structure, buffer=None):
         The structure to serialize
     buffer: file-like or None
         The stream to write the serialized structure to. If |None|, uses an instance
-        of `StringIO`
+        of :class:`StringIO`
 
     Returns
     -------
     file-like or str if ``buffer`` is :const:`None`
-
     '''
     from glypy import GlycanComposition
     if isinstance(structure, GlycanComposition):
@@ -2158,16 +2198,29 @@ def dump(structure, buffer=None):
     return GlycoCTWriter(structure, buffer).dump()
 
 
-def dumps(structure, full=True):
+def dumps(structure):
+    '''
+    Serialize the |Glycan| into :title-reference:`GlycoCT{condensed}`, returning
+    the text as a string.
+
+    Parameters
+    ----------
+    structure: |Glycan|
+        The structure to serialize
+
+    Returns
+    -------
+    str
+    '''
     from glypy import GlycanComposition
     if isinstance(structure, GlycanComposition):
         return GlycanCompositionGlycoCTWriter(structure, None).dump()
-    return GlycoCTWriter(structure, None, full=full).dump()
+    return GlycoCTWriter(structure, None).dump()
 
 
 def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
     if convert:
-        monostring = dumps(monosaccharide, full=False)
+        monostring = GlycoCTWriter(monosaccharide, None, full=False).dump()
     else:
         monostring = monosaccharide
     monostring = monostring.replace("\n", " ")
@@ -2184,109 +2237,3 @@ Glycan.register_serializer("glycoct", dumps)
 
 def canonicalize(structure):
     return loads(dumps(structure))
-
-
-class DistinctGlycanSet(object):
-
-    def __init__(self, structures=None):
-        if structures is None:
-            structures = []
-        self.raw_data_buffer = set()
-
-        if isinstance(structures, DistinctGlycanSet):
-            self.update(structures)
-        else:
-            for structure in structures:
-                self.add(structure)
-
-    def add(self, structure):
-        key = self._transform_text(
-            self._structure_to_text(structure))
-        if key in self.raw_data_buffer:
-            return key
-        self.raw_data_buffer.add(key)
-        return key
-
-    def _structure_to_text(self, structure):
-        return dumps(structure)
-
-    def _text_to_structure(self, text):
-        return loads(text)
-
-    def _transform_text(self, text):
-        return zlib.compress(text)
-
-    def _untransform_text(self, compressed):
-        return zlib.decompress(compressed)
-
-    def encode(self, structure):
-        return self._transform_text(self._structure_to_text(structure))
-
-    def add_encoded(self, encoded):
-        self.raw_data_buffer.add(encoded)
-
-    def has_encoded(self, encoded):
-        return encoded in self.raw_data_buffer
-
-    def pop(self):
-        text = self._untransform_text(self.raw_data_buffer.pop())
-        return self._text_to_structure(text)
-
-    def __len__(self):
-        return len(self.raw_data_buffer)
-
-    def __iter__(self):
-        for compressed in self.raw_data_buffer:
-            yield self._text_to_structure(
-                self._untransform_text(compressed))
-
-    def __contains__(self, structure):
-        text = self._structure_to_text(structure)
-        compressed = self._transform_text(text)
-        return compressed in self.raw_data_buffer
-
-    @classmethod
-    def from_buffer_slice(cls, buffer_slice):
-        inst = cls()
-        inst.raw_data_buffer.update(buffer_slice)
-        return inst
-
-    def update(self, other):
-        if isinstance(other, DistinctGlycanSet):
-            self.raw_data_buffer.update(other.raw_data_buffer)
-        else:
-            for x in other:
-                self.add(x)
-
-    def partition(self, nchunks=2):
-        buffer_sequence = list(self.raw_data_buffer)
-        n = len(buffer_sequence)
-        chunk_size = max(int(n / nchunks), 1)
-        i = 0
-        chunks = []
-        while i < n:
-            chunk = buffer_sequence[i:i + chunk_size]
-            i += chunk_size
-            chunks.append(self.from_buffer_slice(chunk))
-        return chunks
-
-    def remove_all(self, other):
-        if not isinstance(other, DistinctGlycanSet):
-            other = DistinctGlycanSet(other)
-        self.raw_data_buffer -= other.raw_data_buffer
-
-    def __sub__(self, other):
-        return self.from_buffer_slice(
-            self.raw_data_buffer - other.raw_data_buffer)
-
-    def __and__(self, other):
-        return self.from_buffer_slice(
-            self.raw_data_buffer & other.raw_data_buffer)
-
-    def __or__(self, other):
-        return self.from_buffer_slice(
-            self.raw_data_buffer | other.raw_data_buffer)
-
-    def __ior__(self, other):
-        self.raw_data_buffer.update(other.raw_data_buffer)
-        return self

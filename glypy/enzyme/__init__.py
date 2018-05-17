@@ -1,4 +1,5 @@
-from .ec import EnzymeInformation, EnzymeCommissionNumber, EnzymeDatabase
+from .ec import (
+    EnzymeInformation, EnzymeCommissionNumber, EnzymeDatabase, expasy_enzyme_db)
 
 from .graph import (
     EnzymeEdge, EnzymeGraph, GlycanCompositionEnzymeGraph,
@@ -19,5 +20,5 @@ __all__ = [
     "make_n_glycan_pathway", "make_mucin_type_o_glycan_pathway",
     "Glycome", "MultiprocessingGlycome", "EnzymeGraph", "EnzymeEdge",
     "GlycanStructureEnzymeGraph", "GlycanCompositionEnzymeGraph",
-    "_enzyme_graph_inner",
+    "_enzyme_graph_inner", "expasy_enzyme_db",
 ]

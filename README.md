@@ -14,22 +14,26 @@ common core structure.
 
 ## Features
 
-### Read in and write out common glycan structure formats
-1. GlycoCT{condensed} (i/o)
-1. GlycoCT{XML} (i)
-1. GlycoMinds Linear Code (i/o)
-1. IUPAC Three Letter Code (i/o)
+### Read In and Write Out Common Glycan Structure Formats and Sources
+1. GlycoCT{condensed} (I/O)
+2. GlycoCT{XML} (I)
+3. GlycoMinds Linear Code (I/O)
+4. IUPAC Three Letter Code (I/O)
+5. Retreive data from `glySpace` using the web services provided by [GlyTouCan](https://glytoucan.org/), or run `SPARQL` queries directly on their Triplestore.
 
-### Manipulate glycan data structures like trees
-2. Traverse structures with common algorithms like *breadth-first* and *depth-first*, or use node-level information to choose a customized path.
+### Manipulate Glycan Structures
+1. Traverse structures using either canonical or residue-level rule ordering.
 2. Operate on monosaccharide and substituents as nodes and bonds as edges.
-2. Add, remove, and modify these structures to alter glycan properties.
-3. Identify substructures and motifs, classifying glycans.
-4. Score structural similarities with one of several ordering and comparator methods.
-6. Plot tree structures with Matplotlib, rendering against any viable backend using configurable symbol nomenclature, such as Consortium for Functional Glycomics (CFG) or IUPAC text. Specialized SVG labeling for better web-interactivity.
+3. Add, remove, and modify these structures to alter glycan properties.
+4. Identify substructures and motifs, classifying glycans.
+5. Evaluate structural similarities with one of several ordering and comparator methods.
+6. Plot tree structures with MatPlotLib, rendering using a configurable symbol nomenclature, such as SNFG, CFG, or IUPAC. Layout using vector graphics for perfect scaling.
 
-### Example Cases
-3. Calculate the mass of a native or derivatized glycan.
-3. Generate glycosidic and cross ring cleavage fragments for a collection of glycan structures for performing MS/MS database search.
+### Example Use Cases
+1. Calculate the mass of a native or derivatized glycan.
+2. Generate glycosidic and cross ring cleavage fragments for a collection of glycan structures for performing MS/MS database search.
 3. Perform substructure similarity searches with exact ordering or topological comparison and exact or fuzzy per-residue matching to classify a structure as an N-linked glycan.
-3. Annotate MS spectra with glycan structures, labeling which peaks matched a database entry.
+4. Annotate MS spectra with glycan structures, labeling which peaks matched a database entry.
+5. Download all N-Glycans from [GlyTouCan](https://glytoucan.org/)
+6. Find all glycans in a list which contain a particular subtree, or find common subtrees in a database of glycans, performing treelet enrichment analysis.
+7. Synthesize all possible glycans using a set of enzymes starting from a set of seed structures.

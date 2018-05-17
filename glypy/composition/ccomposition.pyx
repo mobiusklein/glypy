@@ -83,8 +83,28 @@ cdef str _make_isotope_string(str element_name, int isotope_num):
 
 
 cdef class CComposition(dict):
+    """A Composition object stores a chemical composition of a
+    substance. Basically it is a dict object, in which keys are the names
+    of chemical elements and values contain integer numbers of
+    corresponding atoms in a substance.
 
-    '''Represent arbitrary elemental compositions'''
+    The main improvement over dict is that Composition objects allow
+    addition and subtraction.
+
+    If ``formula`` is not specified, the constructor will look at the first
+    positional argument and try to build the object from it. Without
+    positional arguments, a Composition will be constructed directly from
+    keyword arguments.
+
+    Parameters
+    ----------
+    formula : str, optional
+        A string with a chemical formula. All elements must be present in
+        `mass_data`.
+    mass_data : dict, optional
+        A dict with the masses of chemical elements (the default
+        value is :py:data:`nist_mass`). It is used for formulae parsing only.
+        """
     def __str__(self):   # pragma: no cover
         return 'Composition({})'.format(dict.__repr__(self))
 
@@ -487,29 +507,6 @@ cdef class CComposition(dict):
             return self.calc_mass()
 
     def __init__(self, args=None, formula=None, dict mass_data=None, **kwargs):
-        """
-        A Composition object stores a chemical composition of a
-        substance. Basically it is a dict object, in which keys are the names
-        of chemical elements and values contain integer numbers of
-        corresponding atoms in a substance.
-
-        The main improvement over dict is that Composition objects allow
-        addition and subtraction.
-
-        If ``formula`` is not specified, the constructor will look at the first
-        positional argument and try to build the object from it. Without
-        positional arguments, a Composition will be constructed directly from
-        keyword arguments.
-
-        Parameters
-        ----------
-        formula : str, optional
-            A string with a chemical formula. All elements must be present in
-            `mass_data`.
-        mass_data : dict, optional
-            A dict with the masses of chemical elements (the default
-            value is :py:data:`nist_mass`). It is used for formulae parsing only.
-        """
         #dict.__init__(self)
         if mass_data is None:
             mass_data = nist_mass

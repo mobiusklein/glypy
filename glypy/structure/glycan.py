@@ -12,8 +12,7 @@ from collections import deque, defaultdict, Callable
 from glypy.utils import (
     identity,
     chrinc,
-    uid,
-    make_struct)
+    uid)
 from glypy.composition import Composition
 
 from .base import SaccharideCollection
@@ -45,14 +44,14 @@ def fragment_to_substructure(fragment, tree):
 
     Parameters
     ----------
-    fragment: GlycanFragment
-        The :class:`GlycanFragment` to extract substructure for.
-    tree: Glycan
+    fragment: :class:`~.GlycanFragment`
+        The :class:`~.GlycanFragment` to extract substructure for.
+    tree: :class:`Glycan`
         The |Glycan| to extract substructure from.
 
     Returns
     -------
-    Glycan:
+    :class:`Glycan`:
         The |Glycan| substructure defined by the nodes contained in `fragment` as
         found in `tree`
     """
@@ -61,6 +60,7 @@ def fragment_to_substructure(fragment, tree):
 
     # All operations will be done on a copy of the tree of interest
     tree = tree.clone()
+
     crossring_targets_nodes = []
     break_targets_nodes = []
     # A point of reference known to be inside the fragment tree
@@ -120,6 +120,8 @@ class Glycan(SaccharideCollection):
         A dictionary mapping branch symbols to their lengths
     '''
 
+    verbose = False
+
     _serializers = {}
 
     @classmethod
@@ -138,13 +140,13 @@ class Glycan(SaccharideCollection):
 
     traversal_methods = {}
 
-    def __init__(self, root=None, index_method='dfs'):
+    def __init__(self, root=None, index_method='dfs', canonicalize=False):
         '''
-        Constructs a new Glycan from the collection of connected |Monosaccharide| objects
-        rooted at `root`.
+        Constructs a new :class:`Glycan` from the collection of connected :class:`~.Monosaccharide`
+        objects rooted at `root`.
 
-        If index_method is not |None|, the graph is indexed by the default search method
-        given by `traversal_methods[index_method]`
+        If :obj:`index_method` is not |None|, the graph is indexed by the default search method
+        given by :obj:`traversal_methods[index_method]`
         '''
         if root is None:
             root = Monosaccharide()
@@ -154,11 +156,13 @@ class Glycan(SaccharideCollection):
         self.branch_lengths = {}
         if index_method is not None:
             self.reindex(method=index_method)
+        if canonicalize:
+            self.canonicalize()
 
     def has_index(self):
         return bool(self.index)
 
-    def reindex(self, hard=False, method='dfs'):
+    def reindex(self, method='dfs'):
         '''
         Traverse the graph using the function specified by `method`. The order of
         traversal defines the new :attr:`id` value for each |Monosaccharide|
@@ -182,40 +186,17 @@ class Glycan(SaccharideCollection):
             visited.add(addr)
             index.append(node)
 
-        if not hard:
-            # only update the id of nodes that were known in the previous
-            # index, which will have been mangled by deindex() to be negative
-            for node in index:
-                try:
-                    if node.id < 0:
-                        node.id = i
-                        i += 1
-                        # reindex substituents as well
-                        try:
-                            for j, subst in node.substituents():
-                                subst.id = i
-                                i += 1
-                        except AttributeError:
-                            if node.node_type is Substituent.node_type:
-                                continue
-                except TypeError:
-                    if isinstance(node.id, tuple):
-                        # this node may be decorated from
-                        # another process
-                        continue
-        else:
-            for node in index:
-                node.id = i
-                i += 1
-                # reindex substituents as well
-                try:
-                    for j, subst in node.substituents():
-                        subst.id = i
-                        i += 1
-                except AttributeError:
-                    if node.node_type is Substituent.node_type:
-                        continue
-
+        for node in index:
+            node.id = i
+            i += 1
+            # reindex substituents as well
+            try:
+                for j, subst in node.substituents():
+                    subst.id = i
+                    i += 1
+            except AttributeError:
+                if node.node_type is Substituent.node_type:
+                    continue
         link_index = []
         for pos, link in self.iterlinks(method=method):
             link_index.append(link)
@@ -229,7 +210,6 @@ class Glycan(SaccharideCollection):
         self.link_index = link_index
 
         self.label_branches()
-
         return self
 
     def _build_link_index(self, method='dfs'):
@@ -276,6 +256,17 @@ class Glycan(SaccharideCollection):
         self.root = sorted(iter(self), key=operator.attrgetter('id'))[0]
         if index_method is not None:
             self.reindex(method=index_method)
+        return self
+
+    def initialize_structure(self, method='dfs'):
+        """Rebuild the structure index from scratch using :meth:`reindex`,
+        then sets the traversal order using :meth:`canonicalize`.
+
+        Use this method when building a :class:`Glycan` instance from a manually
+        created :class:`~.Monosaccharide` graph.
+        """
+        self.canonicalize()
+        self.reindex(index_method=method)
         return self
 
     def __getitem__(self, ix):
@@ -805,7 +796,8 @@ class Glycan(SaccharideCollection):
             count += 1
         return count
 
-    __len__ = order
+    def __len__(self):
+        return self.order()
 
     @classmethod
     def register_serializer(cls, name, method):
@@ -814,7 +806,8 @@ class Glycan(SaccharideCollection):
     def serialize(self, name='glycoct'):
         return self._serializers[name](self)
 
-    __repr__ = serialize
+    def __repr__(self):
+        return self.serialize()
 
     def mass(self, average=False, charge=0, mass_data=None, method='dfs'):
         '''
@@ -862,6 +855,16 @@ class Glycan(SaccharideCollection):
         '''
         Create a copy of `self`, indexed using `index_method`, a *traversal method*  or |None|.
 
+        Parameters
+        ----------
+        index_method: :class:`str`
+            The indexing method to use when constructing the index of the copied
+            structure
+        visited: :class:`set`, optional
+            A set of nodes to omit traversing through during the copying processing
+        cls: :class:`type`
+            A subclass of :class:`Glycan`, defaulting to :attr:`__class__`
+
         Returns
         -------
         :class:`~glypy.structure.glycan.Glycan`
@@ -873,7 +876,7 @@ class Glycan(SaccharideCollection):
 
         return duplicate
 
-    def __eq__(self, other):
+    def exact_ordering_equality(self, other):
         '''
         Two glycans are considered equal if they are identically ordered nodes.
 
@@ -895,8 +898,6 @@ class Glycan(SaccharideCollection):
             return False
         return self.root.exact_ordering_equality(other.root)
 
-    exact_ordering_equality = __eq__
-
     def topological_equality(self, other):
         '''
         Two glycans are considered equal if they are topologically equal.
@@ -915,6 +916,9 @@ class Glycan(SaccharideCollection):
         :meth:`glypy.structure.Monosaccharide.topological_equality`
         '''
         return self.root.topological_equality(other.root)
+
+    def __eq__(self, other):
+        return self.exact_ordering_equality(other)
 
     def __ne__(self, other):
         return not self == other
@@ -954,7 +958,9 @@ class Glycan(SaccharideCollection):
         the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
 
         The formal grammar for fragment names in Backus-Naur Form:
+
         .. code::
+
             <full-name>                ::= <fragment-name>|<fragment-name-list>
             <fragment-name>            ::= <glycosidic-fragment-name>|<crossring-fragment-name>
             <fragment-name-list>       ::= <fragment-name>"-"<fragment-name-list>|<fragment-name>
@@ -1023,7 +1029,7 @@ class Glycan(SaccharideCollection):
         return '-'.join(sorted(name_parts))
 
     def break_links_subtrees(self, n_links):
-        """Iteratively generate all subtrees from glycosidic bond cleavages, creating all
+        r"""Iteratively generate all subtrees from glycosidic bond cleavages, creating all
         :math:`2{L \choose n}` subtrees.
 
         Parameters
@@ -1195,8 +1201,8 @@ class Glycan(SaccharideCollection):
 
         Parameters
         ----------
-        kind: `sequence`
-            Any `iterable` or `sequence` of characters corresponding to A/B/C/X/Y/Z
+        kind: :class:`Iterable`
+            Any :class:`Iterable` of characters corresponding to A/B/C/X/Y/Z
             as published by :title-reference:`Domon and Costello`
         max_cleavages: |int|
             The maximum number of bonds to break per fragment

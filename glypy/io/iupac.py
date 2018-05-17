@@ -779,7 +779,8 @@ class GlycanDeserializer(object):
                     raise IUPACError("Could not identify residue '...{}' at {}".format(text[-30:], len(text)))
         res = structure_class(root=root)
         self.monosaccharide_deserializer.finalize(res)
-        return res.reindex()
+        res.reindex()
+        return res
 
     def __call__(self, text, **kwargs):
         return self.glycan_from_iupac(text, **kwargs)

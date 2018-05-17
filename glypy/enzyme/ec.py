@@ -6,9 +6,26 @@ from collections import defaultdict
 
 import glypy.io
 from glypy.utils import StringIO
+from glypy.utils.lazy import ProxyObject
 
 
 class EnzymeCommissionNumber(object):
+    """Represents an Enzyme Commission (E.C.) number specifying
+    a unique identifier for a particular enzyme
+
+    Attributes
+    ----------
+    activity : int
+        The second-most precise number, describing the method of action
+        from the particular :attr:`group`
+    category : int
+        The broadest number
+    group : int
+        The second broadest number
+    identity : int
+        The most precise number, describes which enzyme with the particular
+        activity designated by :attr:`activity`
+    """
 
     def __init__(self, category, group, activity, identity):
         self.category = int(category)
@@ -68,6 +85,19 @@ class EnzymeCommissionNumber(object):
 
 
 class EnzymeInformation(object):
+    """A collection of descriptive and identifying information about a single enzyme
+
+    Attributes
+    ----------
+    alternative_names : :class:`list`
+        Alternative names for the described enzyme
+    ec_number : :class:`EnzymeCommisionNumber`
+        The unique EC number for the described enzyme
+    extra_information : :class:`dict`
+        Arbitrary key-value information about described enzyme
+    name : :class:`str`
+        A human-readable name for the described enzyme
+    """
 
     def __init__(self, name, ec_number=None, alternative_names=None, **kwargs):
         if isinstance(ec_number, basestring):
@@ -230,3 +260,6 @@ class EnzymeDatabase(object):
         if isinstance(data_buffer, bytes):
             data_buffer = data_buffer.decode("utf-8")
         return cls(StringIO(data_buffer), format='json')
+
+
+expasy_enzyme_db = ProxyObject(EnzymeDatabase._from_static)

@@ -38,6 +38,13 @@ with open("glypy/version.py") as version_file:
     else:
         print("Cannot determine version")
 
+long_description = ''
+try:
+    with open("README.rst") as readme_file:
+        long_description = readme_file.read()
+except Exception:
+    pass
+
 
 class BuildFailed(Exception):
 
@@ -83,7 +90,7 @@ required = ["hjson", "six"]
 
 
 extras = {
-    'plot': ["matplotlib>=1.4.3"],
+    'plot': ["matplotlib>=2.2.0"],
     'glyspace': ['requests', 'rdflib', "SPARQLWrapper"]
 }
 
@@ -106,10 +113,14 @@ def run_setup(include_cext=True):
         zip_safe=False,
         keywords="glycomics glycan carbohydrate glycoinformatics glypy n-linked o-linked glycosaminoglycan",
         description="A Glycoinformatics Toolkit",
+        long_description=long_description,
         ext_modules=extensions if include_cext else None,
         url="https://github.com/mobiusklein/glypy",
         maintainer='Joshua Klein',
-        maintainer_email="jaklein@bu.edu"
+        maintainer_email="jaklein@bu.edu",
+        project_urls={
+
+        }
     )
 
 

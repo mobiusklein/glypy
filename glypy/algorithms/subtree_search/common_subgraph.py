@@ -317,7 +317,8 @@ class Treelet(object):
     @classmethod
     def from_monosaccharide(cls, monosaccharide):
         monosaccharide = root(monosaccharide)
-        subtree = Glycan(monosaccharide.clone(prop_id=True))
+        subtree = Glycan(
+            monosaccharide.clone(prop_id=True), index_method=None)
         frontier_ids = set()
         for pos, child in monosaccharide.children():
             frontier_ids.add(child.id)
@@ -350,7 +351,7 @@ class Treelet(object):
     def expand(self, reference, frontier_id):
         node = reference.get(frontier_id)
         new_node = node.clone(prop_id=True)
-        tree = self.subtree.clone()
+        tree = self.subtree.clone(index_method=None)
         for pos, link in node.parents(True):
             new_parent = tree.get(link.parent.id)
             link.clone(new_parent, new_node)

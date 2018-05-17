@@ -1,3 +1,9 @@
+[run]
+concurrency=multiprocessing
+branch = True
+parallel = True
+
+
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =
@@ -11,7 +17,6 @@ omit =
     glypy/io/glycomedb.py
     glypy/io/glycoct_xml.py
     glypy/algorithms/database.py
-    glypy/enzyme.py
     glypy/structure/modification.py
     glypy/tests/*
     glypy/utils/compat.py
