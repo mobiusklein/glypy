@@ -3,7 +3,6 @@ concurrency=multiprocessing
 branch = True
 parallel = True
 
-
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =
