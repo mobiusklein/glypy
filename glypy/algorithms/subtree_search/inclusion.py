@@ -235,18 +235,39 @@ def find_matching_subtree_roots(subtree, tree, exact=False):
 
 
 def walk_with(query, reference, visited=None, comparator=commutative_similarity):
+    """Walk the `query` along `refernece`, yielding successive matched nodes along
+    a subtree of `reference`.
+
+    Parameters
+    ----------
+    query : :class:`Glycan`
+        The query structure to search with
+    reference : :class:`Glycan`
+        The reference structure to search in
+    visited : :class:`set`, optional
+        The set of node id pairs to ignore
+    comparator : :class:`Callable`, optional
+        The :class:`Callable` object which can compare two :class:`~.Monosaccharide`
+
+    Yields
+    ------
+    (:class:`~.Monosaccharide`, :class:`~.Monosaccharide`)
+        Pairs of matched nodes along a path
+    """
     if visited is None:
         visited = set()
     query_root = root(query)
     reference_root = root(reference)
-    node_stack = deque([[reference_root, query_root]])
-
+    node_stack = deque()
+    if comparator(query_root, reference_root):
+        node_stack.append((reference_root, query_root))
     while len(node_stack) != 0:
         rnode, qnode = node_stack.pop()
         key = (rnode.id, qnode.id)
         if key in visited:
             continue
         visited.add(key)
+        # yield the next step along the matched path
         yield rnode, qnode
 
         for p, rlink in rnode.links.items():
@@ -254,7 +275,11 @@ def walk_with(query, reference, visited=None, comparator=commutative_similarity)
             qparent = None
             rchild = rlink.child
             qchild = None
+            # query link position is known
             if p != -1:
+                # check the parent of the link for matches, potentially flowing
+                # through a cycle if one is present or flowing down the tree if
+                # not starting at the root
                 for qlink in qnode.links[p]:
                     if comparator(qlink.parent, rparent):
                         qparent = qlink.parent
@@ -263,6 +288,7 @@ def walk_with(query, reference, visited=None, comparator=commutative_similarity)
                     key = (rparent.id, qparent.id)
                     if key not in visited:
                         node_stack.append((rparent, qparent))
+                # check the child of the link for matches, proceding down the tree
                 for qlink in qnode.links[p]:
                     if comparator(qlink.child, rchild):
                         qchild = qlink.child
