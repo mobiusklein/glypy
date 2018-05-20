@@ -28,8 +28,8 @@ class EnzymeGraph(object):
     def __setitem__(self, key, value):
         self.graph[key] = value
 
-    def add(self, source, sink, enzyme):
-        self[source][sink].add(enzyme)
+    def add(self, parent, child, enzyme):
+        self[parent][child].add(enzyme)
 
     def __iter__(self):
         return iter(self.edges())
@@ -182,6 +182,20 @@ class EnzymeGraph(object):
 
     def __ne__(self, other):
         return self.graph != other.graph
+
+    def items(self):
+        return self.graph.items()
+
+    def keys(self):
+        return self.graph.keys()
+
+    def values(self):
+        return self.graph.values()
+
+    def merge(self, other):
+        for parent, children in other.items():
+            for child, enzymes in children.items():
+                self[parent][child].update(enzymes)
 
 
 # This may be too memory intensive to use on large graphs because

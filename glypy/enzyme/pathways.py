@@ -152,6 +152,7 @@ class Transferase(Glycoenzyme):
             new_structure = structure.clone()
             node = new_structure.get(node.id)
             self.apply(node, parent_position, child_position)
+            # reset ids, rebuild the index, and standardize traversal order
             new_structure.reindex()
             new_structure.canonicalize()
             yield new_structure
