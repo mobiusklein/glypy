@@ -16,6 +16,10 @@ index_position_shift = {k: np.array(v[::-1], dtype=np.float64) for k, v in index
 
 class TopologicalTreeLayout(TreeLayoutBase):
 
+    def __init__(self, root, **kwargs):
+        super(TopologicalTreeLayout, self).__init__(root, **kwargs)
+        self.linkage_index = dict()
+
     def before_layout(self, **kwargs):
         for node in self.traverse():
             node.mask_special_cases = False
@@ -41,6 +45,9 @@ class TopologicalTreeLayout(TreeLayoutBase):
     def layout_node(self, node, cx, cy, parent_position=3, visited=None):
         if visited is None:
             visited = set()
+        if node.id in visited:
+            return node
+        self.linkage_index[node.id] = parent_position
         node.x, node.y = self.position_relative_to_parent(cx, cy, parent_position)
         node.mask_special_cases = False
         # default positions for unknown linkages
@@ -78,11 +85,7 @@ class TopologicalTreeLayout(TreeLayoutBase):
         if len(next_layer) < 2:
             return total_shift
 
-        # Layout this layer in x-ascending order. This geometry will
-        # place the branches in the opposite visual order to what is
-        # expected, so this should be reversed, but it breaks the shift
-        # process below.
-        next_layer = sorted(next_layer, key=lambda x: x.x, reverse=0)
+        next_layer = sorted(next_layer, key=lambda x: x.x, reverse=False)
 
         prior_nodes = [next_layer[0]]
         shifted = [next_layer[0]]
@@ -100,7 +103,9 @@ class TopologicalTreeLayout(TreeLayoutBase):
                     ncentroid = centroid(npath)
                     lxmin_lymin, lxmax_lymax = lpath.get_extents().get_points()
                     nxmin_nymin, nxmax_nymax = npath.get_extents().get_points()
-                    if last.x == tree.x:
+                    # the node is in a special position which should not be shifted
+                    # according to examples
+                    if last.x == tree.x or self.linkage_index[last.id] == 4:
                         delta = (nxmax_nymax[0] - ncentroid[0]) / 2
                         self.shift_subtree(node, dx=delta)
                     elif ncentroid[0] > lcentroid[0]:

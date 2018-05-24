@@ -432,11 +432,6 @@ class DrawTreeNode(object):
             anomer_y -= 0.03
             position_y -= 0.03
 
-        # overlapping = flatten(
-        #     (chain.from_iterable(self.data['patches'][self.id]),
-        #      chain.from_iterable(self.data['patches'][child.id]),
-        #      self.data['lines'][self.id, child.id]))
-
         position_text = symbol_nomenclature.draw_text(
             ax=ax, x=position_x, y=position_y,
             text=str(position_num) if position_num != -1 else "?",
