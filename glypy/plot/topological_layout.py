@@ -26,13 +26,10 @@ class TopologicalTreeLayout(TreeLayoutBase):
 
     def layout_tree(self, **kwargs):
         visited = set()
-        # layout(self.root, visited)
         iterations = kwargs.get("iterations", 25)
         self.layout_node(self.root, 0, 0, 0, visited)
-        # layout_node(self.root, 0, 0, 0, visited)
         for i in range(int(iterations)):
             delta = self.adjust_subtrees(self.root)
-            print(i, delta)
             if delta == 0:
                 break
 
@@ -59,8 +56,9 @@ class TopologicalTreeLayout(TreeLayoutBase):
         deferred_children = []
         for child_node, pos_child in zip(node.children, sorted(node.tree.children())):
             pos = pos_child[0]
-            if pos != -1 and pos in default_positions:
-                default_positions.remove(pos)
+            if pos != -1:
+                if pos in default_positions:
+                    default_positions.remove(pos)
             else:
                 deferred_children.append(child_node)
                 continue
@@ -105,9 +103,10 @@ class TopologicalTreeLayout(TreeLayoutBase):
                     nxmin_nymin, nxmax_nymax = npath.get_extents().get_points()
                     # the node is in a special position which should not be shifted
                     # according to examples
-                    if last.x == tree.x or self.linkage_index[last.id] == 4:
-                        delta = (nxmax_nymax[0] - ncentroid[0]) / 2
-                        self.shift_subtree(node, dx=delta)
+                    # if last.x == tree.x or self.linkage_index[last.id] == 4:
+                    if self.linkage_index[node.id] == 4:
+                        delta = (nxmax_nymax[0] - ncentroid[0]) / -2
+                        self.shift_subtree(last, dx=delta)
                     elif ncentroid[0] > lcentroid[0]:
                         delta = (nxmin_nymin[0] - ncentroid[0]) / -2
                         self.shift_subtree(node, dx=delta)

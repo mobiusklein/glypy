@@ -161,6 +161,8 @@ class CFGNomenclature(SymbolicNomenclatureBase):
             return self.ResidueShape.right_bisected_diamond
         elif 'ido' in monosaccharide.stem:
             return self.ResidueShape.bottom_bisected_diamond
+        else:
+            return self.ResidueShape.bottom_bisected_diamond
 
     def draw_circle(self, ax, x, y, color, scale=0.1):
         path = Path(Path.unit_circle().vertices * scale, Path.unit_circle().codes)
