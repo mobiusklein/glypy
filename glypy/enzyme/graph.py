@@ -13,7 +13,7 @@ def _enzyme_graph_inner():
 
 
 class EnzymeGraph(object):
-    def __init__(self, graph=None, seeds=None):
+    def __init__(self, graph=None, seeds=None, metadata=None):
         if graph is None:
             graph = defaultdict(_enzyme_graph_inner)
         self.graph = graph
@@ -21,6 +21,7 @@ class EnzymeGraph(object):
         if seeds is None:
             seeds = self.parentless()
         self.seeds.update(seeds)
+        self.metadata = metadata or {}
 
     def __getitem__(self, key):
         return self.graph[key]
@@ -128,18 +129,22 @@ class EnzymeGraph(object):
                 self.graph.pop(node)
         return i
 
+    def _dump_entity(self, entity):
+        return str(entity)
+
     def _dump(self):
         data_structure = {
             "seeds": [str(sd) for sd in self.seeds],
             "enzymes": list(self.enzymes()),
-            "graph": {}
+            "graph": {},
+            "metadata": {}
         }
         outgraph = {}
         for outer_key, outer_value in self.graph.items():
             outgraph_inner = dict()
             for inner_key, inner_value in outer_value.items():
-                outgraph_inner[str(inner_key)] = list(inner_value)
-            outgraph[str(outer_key)] = outgraph_inner
+                outgraph_inner[self._dump_entity(inner_key)] = list(inner_value)
+            outgraph[self._dump_entity(outer_key)] = outgraph_inner
         data_structure['graph'] = outgraph
         return data_structure
 
@@ -164,7 +169,8 @@ class EnzymeGraph(object):
             for inner_key, inner_value in outer_value.items():
                 outgraph_inner[cls._load_entity(inner_key)] = set(inner_value)
             graph[cls._load_entity(outer_key)] = outgraph_inner
-        inst = cls(graph, seeds)
+        metadata = data_structure.get('metadata')
+        inst = cls(graph, seeds, metadata)
         return inst
 
     @classmethod
