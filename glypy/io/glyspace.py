@@ -42,6 +42,16 @@ NSSKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 NSUniprotCore = Namespace("http://purl.uniprot.org/core/")
 NSUniprotEntity = Namespace("http://purl.uniprot.org/uniprot/")
 NSTaxonomy = Namespace("http://purl.uniprot.org/taxonomy/")
+NSGlycoconjugate = Namespace("http://purl.jp/bio/12/glyco/conjugate")
+NSUnicarbKB = Namespace("http://rdf.unicarbkb.org/")
+NSUnicarbKBProtein = Namespace("http://unicarbkb.org/unicarbkbprotein/")
+NSFaldo = Namespace("http://www.biohackathon.org/resource/faldo/")
+NSPato = Namespace("http://purl.obolibrary.org/obo/uo.owl")
+NSUnicorn = Namespace("http://purl.jp/bio/12/glyco/unicorn/")
+NSOwl = Namespace("http://www.w3.org/2002/07/owl#")
+NSSIO = Namespace("http://semanticscience.org/resource/")
+NSFOAF = Namespace("http://xmlns.com/foaf/0.1/")
+
 
 _uniprot_taxon_uri = u"http://www.uniprot.org/taxonomy/{}.rdf"
 
@@ -352,7 +362,7 @@ class UniprotRDFClient(RDFClientBase):
         self.bind("taxonomy", NSTaxonomy)
 
 
-class GlySpaceRDFClient(RDFClientBase):
+class GlyTouCanRDFClient(RDFClientBase):
     '''
     An RDF Client for glySpace. The default namespace is `glycoinfo`, and
     the following namespaces are bound:
@@ -383,7 +393,7 @@ class GlySpaceRDFClient(RDFClientBase):
     _sparql_endpoint_uri = sparql_endpoint
 
     def __init__(self):
-        super(GlySpaceRDFClient, self).__init__(self._sparql_endpoint_uri, NSGlycoinfo)
+        super(GlyTouCanRDFClient, self).__init__(self._sparql_endpoint_uri, NSGlycoinfo)
         self.bind("glytoucan", NSGlyTouCan)
         self.bind("glycomedb", NSGlycomeDB)
         self.bind("glycan", NSGlycan)
@@ -517,7 +527,30 @@ class GlySpaceRDFClient(RDFClientBase):
             return accumulator
 
 
-client = GlySpaceRDFClient()
+class UnicarbKBRDFClient(RDFClientBase):
+    predicate_processor_map = ChainFunctionDict()
+    _predicates_seen = set()
+    _sparql_endpoint_uri = 'http://137.92.56.159:40935/unicarbkb2.0/query'
+
+    def __init__(self):
+        super(UnicarbKBRDFClient, self).__init__(self._sparql_endpoint_uri, NSUnicarbKB)
+        self.bind("glytoucan", NSGlyTouCan)
+        self.bind("glycomedb", NSGlycomeDB)
+        self.bind("glycan", NSGlycan)
+        self.bind("glycoinfo", NSGlycoinfo)
+        self.bind("skos", NSSKOS)
+        self.bind("uniprot", NSUniprotCore)
+        self.bind("gco", NSGlycoconjugate)
+        self.bind('ukp', NSUnicarbKBProtein)
+        self.bind("uk", NSUnicarbKB)
+        self.bind("sio", NSSIO)
+        self.bind("unicorn", NSUnicorn)
+
+
+GlySpaceRDFClient = GlyTouCanRDFClient
+
+
+glytoucan_client = client = GlyTouCanRDFClient()
 
 get = client.get
 query = client.query
@@ -527,7 +560,7 @@ structures_with_motif = client.structures_with_motif
 triples = client.triples
 
 
-@GlySpaceRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
+@GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
 def has_glycosequence_processor(state, uri):
     """Detect and extract GlycoCT sequence data and parse
     into a |Glycan| object.
@@ -544,6 +577,7 @@ def has_glycosequence_processor(state, uri):
     BoundURIRef
     """
     reference = uri()
+    print(state, reference)
     if reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_glycoct:
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
@@ -552,7 +586,6 @@ def has_glycosequence_processor(state, uri):
             state["structure_"] = [iupac.loads(reference.has_sequence)]
         except iupac.IUPACError:
             pass
-
     return uri
 
 
@@ -606,7 +639,7 @@ class ImageResource(dict):
         return "ImageResource(%s)" % ', '.join(map(str, self.keys()))
 
 
-@GlySpaceRDFClient.register_predicate_processor(NSGlycan.has_image)
+@GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_image)
 def has_image_processor(state, uri):
     '''
     Intercept raw URIRefs to image generation services and store them in
