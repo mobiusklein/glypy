@@ -577,7 +577,6 @@ def has_glycosequence_processor(state, uri):
     BoundURIRef
     """
     reference = uri()
-    print(state, reference)
     if reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_glycoct:
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
