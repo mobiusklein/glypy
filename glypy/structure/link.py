@@ -527,21 +527,31 @@ class AmbiguousLink(Link):
 
     def _find_open_position_single(self, parent, child):
         open_parent_sites, _ = parent.open_attachment_sites()
+        parent_has_unknown_position = False
         if -1 in open_parent_sites:
-            open_parent_sites += self.parent_position_choices
+            open_parent_sites += list(set(self.parent_position_choices) - set(parent.occupied_attachment_sites()))
+            parent_has_unknown_position = True
         parent_site_options = list((set(open_parent_sites) | {-1}) & set(self.parent_position_choices))
         if parent_site_options:
             parent_site = parent_site_options[0]
         else:
-            return None
+            if parent_has_unknown_position and open_parent_sites:
+                parent_site = -1
+            else:
+                return None
         open_child_sites, _ = child.open_attachment_sites()
+        child_has_unknown_position = False
         if -1 in open_child_sites:
-            open_child_sites += self.child_position_choices
+            open_child_sites += list(set(self.child_position_choices) - set(child.occupied_attachment_sites()))
+            child_has_unknown_position = True
         child_site_options = list((set(open_child_sites) | {-1}) & set(self.child_position_choices))
         if child_site_options:
             child_site = child_site_options[0]
         else:
-            return None
+            if child_has_unknown_position and open_child_sites:
+                child_site = -1
+            else:
+                return None
         return parent_site, child_site
 
     def _find_open_position_multiple(self, parent, child):  # pragma: no cover
