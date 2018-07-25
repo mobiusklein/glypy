@@ -246,5 +246,70 @@ class GlycanTests(unittest.TestCase):
         self.assertFalse(Ya2.is_non_reducing())
         self.assertFalse(Ya2.is_internal())
 
+    def test_iterconfigurations(self):
+        G81339YK_iupac = (
+            '?-D-GalpNAc-(1->3/4)[?-L-Fucp-(1->3/4)]-beta-D-GlcpNAc-(1->3)[?-D-GalpNAc-(1->3/4)[?-L-Fucp-(1->3/4)]'
+            '-beta-D-GlcpNAc-(1->6)]-?-D-GalpNAc(1->')
+        G81339YK_glycoct = '''RES
+1b:x-dgal-HEX-1:5
+2s:n-acetyl
+3b:b-dglc-HEX-1:5
+4b:x-dgal-HEX-1:5
+5s:n-acetyl
+6b:x-lgal-HEX-1:5|6:d
+7s:n-acetyl
+8b:b-dglc-HEX-1:5
+9b:x-dgal-HEX-1:5
+10s:n-acetyl
+11b:x-lgal-HEX-1:5|6:d
+12s:n-acetyl
+LIN
+1:1d(2+1)2n
+2:1o(3+1)3d
+3:3o(3|4+1)4d
+4:4d(2+1)5n
+5:3o(3|4+1)6d
+6:3d(2+1)7n
+7:1o(6+1)8d
+8:8o(3|4+1)9d
+9:9d(2+1)10n
+10:8o(3|4+1)11d
+11:8d(2+1)12n
+'''
+        from glypy.io import iupac, glycoct
+        structure_iupac = iupac.loads(G81339YK_iupac)
+        structure_glycoct = glycoct.loads(G81339YK_glycoct)
+
+        structure = structure_iupac
+        configurations = []
+        for config_list in structure.iterconfiguration():
+            instance = structure.clone()
+            for link, conf in config_list:
+                link = instance.get_link(link.id)
+                parent = instance.get(conf[0].id)
+                child = instance.get(conf[1].id)
+                link.reconfigure(parent, child, conf[2], conf[3])
+            configurations.append(instance)
+        configurations_iupac = configurations
+        assert len(configurations) == 4
+
+        structure = structure_glycoct
+        configurations = []
+        for config_list in structure.iterconfiguration():
+            instance = structure.clone()
+            for link, conf in config_list:
+                link = instance.get_link(link.id)
+                parent = instance.get(conf[0].id)
+                child = instance.get(conf[1].id)
+                link.reconfigure(parent, child, conf[2], conf[3])
+            configurations.append(instance)
+        configurations_glycoct = configurations
+        assert len(configurations) == 4
+
+        pairs = zip(sorted(configurations_glycoct, key=str), sorted(configurations_iupac, key=str))
+        for a, b in pairs:
+            assert a.canonicalize() == b.canonicalize()
+
+
 if __name__ == '__main__':
     unittest.main()
