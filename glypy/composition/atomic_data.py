@@ -1,4 +1,5 @@
 from collections import namedtuple
+from itertools import starmap
 
 ElementInformation = namedtuple("ElementInformation", ("symbol", "name", "atomic_number", "mass_number", "valence"))
 
@@ -96,5 +97,5 @@ _raw_data = (
 )
 
 element_information = {
-    ad.symbol: ad for ad in map(ElementInformation, _raw_data)
+    ad.symbol: ad for ad in starmap(ElementInformation, _raw_data)
 }
