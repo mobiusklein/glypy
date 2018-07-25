@@ -28,7 +28,9 @@ attachment_composition_info = {
     "methyl": Composition("H"),
     "n_acetyl": Composition("OH"),
     "n_glycolyl": Composition("OH"),
+    "n_sulfate": Composition("OH"),
     "amino": Composition("OH"),
+    "imino": Composition("OH"),
     "anhydro": Composition("H"),
     "dimethylamine": Composition("OH")
 }
