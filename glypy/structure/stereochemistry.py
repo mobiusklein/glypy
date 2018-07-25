@@ -1,3 +1,24 @@
+'''
+Defined by `Extended Stereocode <http://monosaccharidedb.org/notation.action?topic=stereocode#ext_stereocode>`_
+
+Symbol  Description
+h   "head or tail group", CH2OH group at a terminal position
+d   DEOXY core modification at non-terminal position
+m   DEOXY core modification at terminal position ("methyl" group)
+a   ACID core modification
+o   aldehyde group
+k   KETO core modification at non-terminal position
+e   EN + deoxy core modifications
+n   EN core modification without DEOXY core modification
+E   EN core modification with unknown deoxygenation status
+y   YN core modification at non-terminal position
+s   SP2 core modifation
+t   SP core modifiation (always at terminal position)
+1   "L-Configuration" carbon atom
+2   "D-Configuration" carbon atom
+x   unknown configuration (D or L) carbon atom
+'''
+
 import warnings
 from six import string_types as basestring
 
