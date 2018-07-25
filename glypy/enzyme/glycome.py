@@ -86,21 +86,6 @@ def _MultiprocessingGlycome_worker(seeds_params):
     return glycome.current_generation, glycome.enzyme_graph
 
 
-class GlycanSynthesisWorker(object):
-
-    def __init__(self, glycome_spec, inqueue, outqueue):
-        import dill
-        (glycosylases, glycosyltransferases, _,
-         track_generations, limits) = dill.loads(glycome_spec)
-        self.glycosylases = glycosylases
-        self.glycosyltransferases = glycosyltransferases
-        self.track_generations = track_generations
-        self.limits = limits
-        self.seen = DistinctGlycanSet()
-        self.glycome = None
-        limits.append(lambda x: x not in self.seen)
-
-
 class MultiprocessingGlycome(Glycome):
 
     def __init__(self, glycosylases, glycosyltransferases, seeds, track_generations=False,
