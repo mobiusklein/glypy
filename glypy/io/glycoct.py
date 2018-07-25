@@ -2097,6 +2097,8 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
         anomer = invert_anomer_map[monosaccharide.anomer]
         conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
                             for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
+        if None in monosaccharide.configuration or None in monosaccharide.stem:
+            conf_stem = ''
         superclass = "-" + invert_superclass_map[monosaccharide.superclass]
 
         modifications = '|'.join(
@@ -2220,7 +2222,7 @@ def dumps(structure):
 
 def _postprocessed_single_monosaccharide(monosaccharide, convert=True):
     if convert:
-        monostring = GlycoCTWriter(monosaccharide, None, full=False).dump()
+        monostring = GlycoCTWriterBase(monosaccharide, None, full=False).dump()
     else:
         monostring = monosaccharide
     monostring = monostring.replace("\n", " ")
