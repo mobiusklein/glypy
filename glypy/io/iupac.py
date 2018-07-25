@@ -1,10 +1,11 @@
 import re
 import warnings
 
-from collections import deque
+from collections import deque, namedtuple
 from glypy.structure import (
     Monosaccharide, Glycan, Link, AmbiguousLink,
     Substituent, constants, named_structures)
+from glypy.composition import Composition
 from glypy.composition.structure_composition import substituent_compositions
 from glypy.composition.composition_transform import has_derivatization, derivatize
 from glypy.io import format_constants_map
@@ -436,11 +437,14 @@ class SubstituentDeserializer(object):
 substituent_from_iupac = SubstituentDeserializer()
 
 
+LinkageSpecification = namedtuple("LinkageSpecification", ("child_position", "parent_position", "has_ambiguity"))
+
+
 def parse_linkage_position(position_string):
     if position_string == '?':
         return -1
     elif '/' in position_string:
-        return list(map(int, position_string.split('/')))[0]
+        return list(map(int, position_string.split('/')))
     else:
         return int(position_string)
 
@@ -453,8 +457,7 @@ def parse_linkage_structure(linkage_string):
         linkage_string)
     if match is None:
         raise ValueError(linkage_string)
-    # has_ambiguity = "/" in linkage_string
-    has_ambiguity = False
+    has_ambiguity = "/" in linkage_string
     match_groups = match.groupdict()
     child_linkage = match_groups['child_linkage']
     if child_linkage is not None:
@@ -462,7 +465,7 @@ def parse_linkage_structure(linkage_string):
     parent_linkage = match_groups['parent_linkage']
     if parent_linkage is not None:
         parent_linkage = parse_linkage_position(parent_linkage)
-    return child_linkage, parent_linkage, has_ambiguity
+    return LinkageSpecification(child_linkage, parent_linkage, has_ambiguity)
 
 
 class MonosaccharideDeserializer(object):
@@ -596,8 +599,17 @@ class MonosaccharideDeserializer(object):
 
     def add_monosaccharide_bond(self, residue, parent, linkage):
         if parent is not None and linkage != ():
-            parent.add_monosaccharide(
-                residue, position=linkage[1], child_position=linkage[0])
+            if linkage.has_ambiguity:
+                bond = AmbiguousLink(
+                    parent, residue, parent_position=linkage.parent_position,
+                    child_position=linkage.child_position,
+                    parent_loss=Composition("H"), child_loss=Composition("OH"))
+                bond.find_open_position()
+            else:
+                Link(
+                    parent, residue, parent_position=linkage.parent_position,
+                    child_position=linkage.child_position,
+                    parent_loss=Composition("H"), child_loss=Composition("OH"))
 
     def __call__(self, monosaccharide_str, parent=None):
         return self.monosaccharide_from_iupac(monosaccharide_str, parent=parent)
@@ -617,42 +629,19 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                              (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE)
 
     def add_monosaccharide_bond(self, residue, parent, linkage):
-        # if parent is not None and linkage is not None:
-        #     child_linkage, parent_linkage, is_ambiguous = linkage
-        #     try:
-        #         if is_ambiguous:
-        #             AmbiguousLink(parent, residue, parent_linkage, child_linkage)
-        #         else:
-        #             Link(parent, residue, parent_linkage, child_linkage)
-        #     except ValueError:
-        #         if is_ambiguous:
-        #             if isinstance(parent_linkage, list):
-        #                 parent_linkage_q = parent_linkage[0]
-        #             else:
-        #                 parent_linkage_q = parent_linkage
-        #             if isinstance(child_linkage, list):
-        #                 child_linkage_q = child_linkage[0]
-        #             else:
-        #                 child_linkage_q = child_linkage
-        #         else:
-        #             parent_linkage_q = parent_linkage
-        #             child_linkage_q = child_linkage
-
-        #         if not is_ambiguous:
-        #             parent_substituent_links_at_site = parent.substituent_links[parent_linkage_q]
-        #             if (parent_substituent_links_at_site and parent_substituent_links_at_site[0].child._derivatize):
-        #                 parent.drop_substituent(parent_linkage_q, parent_substituent_links_at_site[0].child)
-        #             residue_substituent_links_at_site = residue.substituent_links[child_linkage_q]
-        #             if residue_substituent_links_at_site and residue_substituent_links_at_site[0].child._derivatize:
-        #                 residue.drop_substituent(child_linkage_q, residue_substituent_links_at_site[0].child)
-
-        #         if is_ambiguous:
-        #             AmbiguousLink(parent, residue, parent_linkage, child_linkage)
-        #         else:
-        #             Link(parent, residue, parent_linkage, child_linkage)
         if parent is not None and linkage != ():
             try:
-                parent.add_monosaccharide(residue, position=linkage[1], child_position=linkage[0])
+                if linkage.has_ambiguity:
+                    bond = AmbiguousLink(
+                        parent, residue, parent_position=linkage.parent_position,
+                        child_position=linkage.child_position,
+                        parent_loss=Composition("H"), child_loss=Composition("OH"))
+                    bond.find_open_position()
+                else:
+                    Link(
+                        parent, residue, parent_position=linkage.parent_position,
+                        child_position=linkage.child_position,
+                        parent_loss=Composition("H"), child_loss=Composition("OH"))
             except ValueError:
                 parent_substituent_links_at_site = parent.substituent_links[linkage[1]]
                 if (parent_substituent_links_at_site and parent_substituent_links_at_site[0].child._derivatize):
@@ -661,7 +650,17 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                 if residue_substituent_links_at_site and residue_substituent_links_at_site[0].child._derivatize:
                     residue.drop_substituent(linkage[0], residue_substituent_links_at_site[0].child)
 
-                parent.add_monosaccharide(residue, position=linkage[1], child_position=linkage[0])
+                if linkage.has_ambiguity:
+                    bond = AmbiguousLink(
+                        parent, residue, parent_position=linkage.parent_position,
+                        child_position=linkage.child_position,
+                        parent_loss=Composition("H"), child_loss=Composition("OH"))
+                    bond.find_open_position()
+                else:
+                    Link(
+                        parent, residue, parent_position=linkage.parent_position,
+                        child_position=linkage.child_position,
+                        parent_loss=Composition("H"), child_loss=Composition("OH"))
 
     def apply_derivatization(self, residue, deriv):
         if deriv.startswith("^"):
