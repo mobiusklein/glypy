@@ -1,6 +1,5 @@
 import unittest
 import hjson
-import itertools
 
 from glypy.structure import named_structures, constants, monosaccharide, substituent, glycan
 from glypy.composition import structure_composition, Composition, composition_transform
@@ -41,20 +40,6 @@ class MonosaccharideTests(unittest.TestCase):
         for name, mass in wiki_masses.items():
             structure = named_structures.monosaccharides[name]
             self.assertAlmostEqual(mass, structure.mass(), 2)
-
-    def test_named_structure_glycoct(self):
-        for name, glycoct_str in monosaccharide_structures.items():
-            structure = named_structures.monosaccharides[name]
-            glycoct_str = structure._serializers['glycoct'](glycoct_str, convert=False)
-            test, ref = (structure.serialize('glycoct'), glycoct_str)
-            i = 0
-            for j, k in zip(test, ref):
-                if j != k:
-                    test_loc = test.replace('\n', ' ')[i - 10:i + 10]
-                    ref_loc = ref.replace('\n', ' ')[i - 10:i + 10]
-                    raise AssertionError(
-                        "{j} != {k} at {i} in {name}\n{test_loc}\n{ref_loc}".format(**locals()))
-                i += 1
 
     def test_ring_limit_modification(self):
         structure = named_structures.monosaccharides['Hex']
@@ -243,12 +228,21 @@ class MonosaccharideTests(unittest.TestCase):
         for pos, child in n_core.root.reducing_end.children():
             self.assertNotEqual(type(child), Monosaccharide)
 
-
     def test_total_composition(self):
         hexose = named_structures.monosaccharides.Hex
         self.assertEqual(hexose.total_composition(), {"C": 6, "O": 6, "H": 12})
         hexose.reducing_end = True
         self.assertEqual(hexose.total_composition(), {"C": 6, "O": 6, "H": 14})
+
+    def test_serialize_does_not_mutate(self):
+        ref = self.glycan.clone()
+        ids = [node.id for node in ref]
+        for i, node in enumerate(ref):
+            self.assertEqual(ids[i], node.id)
+            self.assertEqual(node, self.glycan[i])
+            str(node)
+            self.assertEqual(ids[i], node.id)
+            self.assertEqual(node, self.glycan[i])
 
 
 class ReducedEndTests(unittest.TestCase):
