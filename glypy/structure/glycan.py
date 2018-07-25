@@ -641,6 +641,42 @@ class Glycan(SaccharideCollection):
         return ambiguous_links
 
     def iterconfiguration(self):
+        '''Iterate over all valid configurations of ambiguous linkages.
+
+        During calculation, the :class:`~.AmbiguousLink` objects may be mutated, but
+        by the time a new configuration is yielded all changes should be reversed. If an
+        error occurs during configuration adjustment, it may not be possible to restore the
+        object to its original state.
+
+        Yields
+        ------
+        :class:`tuple` of (:class:`~.AmbiguousLink`, :class:`~.Monosaccharide`,
+                           :class:`~.Monosaccharide`, :class:`int`, :class:`int`)
+            The ambiguous link, the parent chosen, the child chosen, the parent linkage site chose, and the child
+            linkage site chosen
+
+        Examples
+        --------
+        >>> from glypy.io import glyspace
+        >>> structure_record = glyspace.get("G81339YK")
+        >>> structure = structure_record.structure_
+        >>> configurations = []
+        >>> for config_list in structure.iterconfiguration():
+        ...     instance = structure.clone()
+        ...     for link, conf in config_list:
+        ...         link = instance.get_link(link.id)
+        ...         parent = instance.get(conf[0].id)
+        ...         child = instance.get(conf[1].id)
+        ...         link.reconfigure(parent, child, conf[2], conf[3])
+        ...     configurations.append(instance)
+        >>> len(configurations)
+        4
+
+        See Also
+        --------
+        :meth:`~.AmbiguousLink.iterconfiguration`, :meth:`~.AmbiguousLink.reconfigure`
+
+        '''
         ambiguous_links = self.ambiguous_links()
 
         combos = itertools.product(*[
