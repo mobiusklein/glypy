@@ -93,6 +93,15 @@ def alin_to_substituent(alin):
     return Substituent(name, composition=composition)
 
 
+def substituent_to_alin(substituent):
+    try:
+        name = substituent.name
+    except AttributeError:
+        name = str(substituent)
+    record = substituent_to_map[name]
+    return record.map_for_bmu
+
+
 _SubstituentTranslation = namedtuple(
     "SubstituentTranslation", ("name", "map_for_bmu", "is_carbon_swap"))
 
@@ -102,6 +111,11 @@ class SubstituentTranslation(_SubstituentTranslation):
     def formula(self):
         graph = parse_alin(self.map_for_bmu)
         return formula(graph.total_composition())
+
+    @property
+    def internal_name(self):
+        subst = Substituent.internalize_name(self.name)
+        return subst
 
 
 _substituent_translation = [
@@ -160,7 +174,7 @@ _substituent_translation = [
 
 
 substituent_to_map = {
-    unit.name: unit for unit in _substituent_translation
+    unit.internal_name: unit for unit in _substituent_translation
 }
 
 

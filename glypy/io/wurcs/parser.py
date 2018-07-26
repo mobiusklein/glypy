@@ -1,89 +1,12 @@
 import re
 import string
-from collections import defaultdict, namedtuple
 
 from glypy.composition import Composition
-from glypy.structure import substituent as _substituent, glycan, link as _link
+from glypy.structure import glycan, link as _link
 from glypy.io.tree_builder_utils import try_int
-from .carbon_descriptors import CarbonDescriptors
-from .substituent_conversion import alin_to_substituent
 
-
-_NodeTypeSpec = namedtuple("NodeTypeSpec", [
-    "carbon_descriptor",
-    "substituents"
-])
-
-
-class NodeTypeSpec(_NodeTypeSpec):
-    @classmethod
-    def parse(cls, text, version_number):
-        if version_number < 2.0:
-            raise TypeError("Cannot parse type version earlier than 2.0")
-        parts = text.split("_")
-        skeleton_anomer = parts[0]
-        substituents = []
-        if len(parts) > 1:
-            ring_specification_or_substituents = parts[1]
-            if re.match(r"[0-9\-1?]+-[0-9\-1?]+", ring_specification_or_substituents):
-                ring_specification = ring_specification_or_substituents
-            else:
-                ring_specification = '?-?'
-                substituents.append(ring_specification_or_substituents)
-        substituents.extend(parts[2:])
-        try:
-            skeleton, anomer = skeleton_anomer.split("-")
-        except Exception:
-            skeleton = skeleton_anomer
-            anomer = (-1, None)
-        ring_start, ring_end = map(try_int, ring_specification.split("-"))
-        anomeric_position, anomer_type = anomer
-        return cls(CarbonDescriptors(skeleton, anomer_type, anomeric_position, ring_start, ring_end),
-                   cls.translate_substituents(substituents))
-
-    @classmethod
-    def translate_substituents(self, substituents):
-        result = []
-        for map_spec in substituents:
-            position = map_spec[0]
-            if position == "?":
-                position = -1
-                i = 1
-            else:
-                i = 0
-                position = ''
-                while map_spec[i].isdigit():
-                    position += map_spec[i]
-                    i += 1
-                position = int(position)
-            map_code = map_spec[1:]
-            record = alin_to_substituent(map_code)
-            result.append((position, record.name))
-        return result
-
-    def to_base_type(self):
-        base = self.carbon_descriptor.to_base_type()
-        child_loss = Composition("H")
-        for position, subst in self.substituents:
-            parent_loss = _substituent.attachment_composition_info[subst]
-            base.add_substituent(subst, position, parent_loss=parent_loss, child_loss=child_loss)
-        return base
-
-
-def base52(x):
-    code = []
-    if x == 0:
-        return string.ascii_letters[0]
-    while x > 0:
-        i = x % 52
-        code.append(i)
-        x //= 52
-    code = code[::-1]
-    n = len(code)
-    if n == 1:
-        return ''.join([string.ascii_letters[c] for j, c in enumerate(code)])
-    else:
-        return ''.join([string.ascii_letters[c - 1 if j != n - 1 else c] for j, c in enumerate(code)])
+from .node_type import NodeTypeSpec
+from .utils import base52
 
 
 class WURCSParser(object):
@@ -134,7 +57,7 @@ class WURCSParser(object):
             section = self.extract_sections()[2]
         for i, index in enumerate(map(int, section.split('-'))):
             alpha = base52(i)
-            mono = self.node_type_map[index].to_base_type()
+            mono = self.node_type_map[index].to_monosaccharide()
             mono.id = i
             self.node_index_to_node[i] = mono
             self.glyph_to_node_index[alpha] = i

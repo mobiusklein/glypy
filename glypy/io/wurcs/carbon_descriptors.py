@@ -22,7 +22,7 @@ anomer_map = {
 
 class CarbonDescriptors(Sequence):
     def __init__(self, descriptors, anomer, anomeric_position, ring_start, ring_end):
-        self.descriptors = list(descriptors)
+        self.descriptors = tuple(descriptors)
         self.anomer = Anomer[anomer]
         self.anomeric_position = self._translate_position(anomeric_position)
         self.ring_start = ring_start if ring_start is not None else -1
@@ -39,6 +39,15 @@ class CarbonDescriptors(Sequence):
 
     def __len__(self):
         return len(self.descriptors)
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        return str(self) != str(other)
+
+    def __hash__(self):
+        return hash(str(self))
 
     @property
     def ring_size(self):
@@ -197,11 +206,11 @@ class CarbonDescriptors(Sequence):
         # carbon descriptors
         parts.append(''.join(map(str, self)))
         if self.anomeric_position != -1 and self.anomer != Anomer.x:
-            parts.append("%s%s" % (self._translate_position(self.anomeric_position),
-            anomer_map[self.anomer]))
+            parts.append("-%s%s" % (self._translate_position(self.anomeric_position),
+                                    anomer_map[self.anomer]))
         if self.ring_start != -1 and self.ring_end != -1:
-            parts.append("%s-%s" % tuple(map(self._translate_position, (self.ring_start, self.ring_end))))
-        return '_'.join(parts)
+            parts.append("_%s-%s" % tuple(map(self._translate_position, (self.ring_start, self.ring_end))))
+        return ''.join(parts)
 
     def __str__(self):
         return self.to_backbone_code()
