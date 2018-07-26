@@ -1,4 +1,3 @@
-from io import StringIO
 from collections import OrderedDict
 
 from .node_type import NodeTypeSpec

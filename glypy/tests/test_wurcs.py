@@ -1,6 +1,5 @@
 import unittest
 
-import glypy
 from glypy.io import glycoct, wurcs
 
 

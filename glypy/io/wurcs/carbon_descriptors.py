@@ -162,7 +162,7 @@ class CarbonDescriptors(Sequence):
         code = [0] * monosaccharide.superclass.value
         stereocode = monosaccharide.stereocode
         # configuration = monosaccharide.configuration[-1]
-        code = map(lambda x: str(x.value), stereocode)
+        code = list(map(lambda x: str(x.value), stereocode))
         code[0] = 'u'
         code[-1] = 'h'
         if monosaccharide.anomer == 'uncyclized':

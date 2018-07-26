@@ -8,3 +8,9 @@ class WURCSParser(ParserInterface):
     def process_result(self, line):
         structure = loads(line)
         return structure
+
+
+__all__ = [
+    "WURCSParser", "loads", "dumps",
+    "NodeTypeSpec"
+]
