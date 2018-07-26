@@ -606,10 +606,7 @@ class MonosaccharideDeserializer(object):
                     parent_loss=Composition("H"), child_loss=Composition("OH"))
                 bond.find_open_position()
             else:
-                Link(
-                    parent, residue, parent_position=linkage.parent_position,
-                    child_position=linkage.child_position,
-                    parent_loss=Composition("H"), child_loss=Composition("OH"))
+                parent.add_monosaccharide(residue, position=linkage[1], child_position=linkage[0])
 
     def __call__(self, monosaccharide_str, parent=None):
         return self.monosaccharide_from_iupac(monosaccharide_str, parent=parent)
@@ -638,10 +635,7 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                         parent_loss=Composition("H"), child_loss=Composition("OH"))
                     bond.find_open_position()
                 else:
-                    Link(
-                        parent, residue, parent_position=linkage.parent_position,
-                        child_position=linkage.child_position,
-                        parent_loss=Composition("H"), child_loss=Composition("OH"))
+                    parent.add_monosaccharide(residue, position=linkage[1], child_position=linkage[0])
             except ValueError:
                 parent_substituent_links_at_site = parent.substituent_links[linkage[1]]
                 if (parent_substituent_links_at_site and parent_substituent_links_at_site[0].child._derivatize):
@@ -657,10 +651,7 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                         parent_loss=Composition("H"), child_loss=Composition("OH"))
                     bond.find_open_position()
                 else:
-                    Link(
-                        parent, residue, parent_position=linkage.parent_position,
-                        child_position=linkage.child_position,
-                        parent_loss=Composition("H"), child_loss=Composition("OH"))
+                    parent.add_monosaccharide(residue, position=linkage[1], child_position=linkage[0])
 
     def apply_derivatization(self, residue, deriv):
         if deriv.startswith("^"):
