@@ -13,7 +13,6 @@ unknown_position_set = {-1}
 
 
 class Link(object):
-
     '''
     Represents the linkage between two molecules, described as an edge in a graph with optional
     directedness semantics.
@@ -42,7 +41,7 @@ class Link(object):
 
         Instantiating the |Link| object will automatically attach it to its endpoints, mutating them
         unless `attach=False`. If not attached on instantiation, the bond can be realized by calling
-        :meth:`Link.apply()` at a later time.
+        :meth:`Link.apply` at a later time.
 
         Parameters
         ----------
@@ -102,6 +101,10 @@ class Link(object):
         :attr:`composition` and insert a reference to :obj:`self` into their :attr:`links` or :attr:`substituent_links`
         as appropriate.
 
+        This performs no position availability validation. If there is a possibility that either the parent or child
+        position may be occupied, they should be tested using :meth:`~.Monosaccharide.is_occupied` prior to calling
+        this method.
+
         Sets :attr:`_attached` to |True|
 
         See also
@@ -109,6 +112,8 @@ class Link(object):
         :meth:`Link.break_link`
         :meth:`Link.reconnect`
         :meth:`Link.refund`
+        :meth:`~.Monosaccharide.is_occupied`
+        :meth:`~.Substituent.is_occupied`
 
         '''
         # assert not self.is_attached(), ("Cannot apply an already attached link")
