@@ -20,7 +20,7 @@ class DerivatizePathway(object):
 
     @classmethod
     def register(cls, name, can_nh_derivatize, is_nh_derivatizable):
-        derivatize_info[name.replace("-", "_")] = DerivatizePathway(can_nh_derivatize, is_nh_derivatizable)
+        derivatize_info[Substituent.internalize_name(name)] = DerivatizePathway(can_nh_derivatize, is_nh_derivatizable)
 
 
 attachment_composition_info = {
@@ -103,7 +103,7 @@ def register(name, composition, can_nh_derivatize=None, is_nh_derivatizable=None
         The shared composition that will be lost from the parent molecule when forming
         a bond with substituents of this type.
     """
-    name = name.replace("-", "_")
+    name = Substituent.internalize_name(name)
     substituent_compositions[name] = composition.clone()
     attachment_composition_info[name] = attachment_composition if attachment_composition is not None\
         else default_attachment_composition
@@ -120,14 +120,14 @@ def unregister(name):
     name : str
         The name to un-register
     """
-    name = name.replace("-", "_")
+    name = Substituent.internalize_name(name)
     substituent_compositions.pop(name)
     attachment_composition_info.pop(name)
     derivatize_info.pop(name)
 
 
 def is_registered(name):
-    name = name.replace("-", "_")
+    name = Substituent.internalize_name(name)
     return name in substituent_compositions
 
 
@@ -197,6 +197,10 @@ class Substituent(SubstituentBase):
         self.attachment_composition = attachment_composition if attachment_composition is not None\
             else attachment_composition_info.get(self.name, default_attachment_composition)
 
+    @staticmethod
+    def internalize_name(name):
+        return name.replace('-', '_')
+
     @property
     def name(self):
         return self._name
@@ -213,7 +217,7 @@ class Substituent(SubstituentBase):
             The name being set
 
         '''
-        self._name = value.replace("-", "_")
+        self._name = self.internalize_name(value)
 
     def __repr__(self):  # pragma: no cover
         return "<Substituent {name}>".format(name=self._name)
