@@ -30,6 +30,8 @@ class NodeTypeSpec(_NodeTypeSpec):
             else:
                 ring_specification = '?-?'
                 substituents.append(ring_specification_or_substituents)
+        else:
+            ring_specification = '?-?'
         substituents.extend(parts[2:])
         try:
             skeleton, anomer = skeleton_anomer.split("-")
@@ -73,7 +75,10 @@ class NodeTypeSpec(_NodeTypeSpec):
         base = self.carbon_descriptor.to_base_type()
         child_loss = Composition("H")
         for position, subst in self.substituents:
-            parent_loss = _substituent.attachment_composition_info[subst]
+            try:
+                parent_loss = _substituent.attachment_composition_info[subst]
+            except KeyError:
+                parent_loss = _substituent.default_attachment_composition
             base.add_substituent(subst, position, parent_loss=parent_loss, child_loss=child_loss)
         return base
 

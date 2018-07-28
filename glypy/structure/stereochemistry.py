@@ -24,7 +24,7 @@ from six import string_types as basestring
 
 from glypy.utils.enum import EnumValue
 
-from .constants import Stereocoding, Modification
+from .constants import Stereocoding, Modification, Anomer, Configuration, Stem
 
 
 def sdecode(code):
@@ -103,10 +103,13 @@ reference_stereomap = {
 reference_stereomap = {k: sdecode(v) for k, v in reference_stereomap.items()}
 
 
-def get_stereocode_key(monosaccharide):
-    key = (monosaccharide.anomer, monosaccharide.configuration[0],
+def get_stereocode_key(monosaccharide, anomer=None, configuration=None):
+    if anomer is None:
+        anomer = monosaccharide.anomer
+    if configuration is None:
+        configuration = monosaccharide.configuration[0]
+    key = (anomer, configuration,
            (monosaccharide.stem, monosaccharide.superclass))
-
     return key
 
 
@@ -123,7 +126,10 @@ def _update_stereocode_basic(code, monosaccharide):
 
 
 def _update_stereocode_extended(code, monosaccharide):
-    ring_range = range(monosaccharide.ring_start, monosaccharide.ring_end + 1)
+    if monosaccharide.ring_start is not None and monosaccharide.ring_end is not None:
+        ring_range = range(monosaccharide.ring_start, monosaccharide.ring_end + 1)
+    else:
+        ring_range = []
     ring_dimensions = range(1, monosaccharide.superclass.value + 1)
     termini = set(ring_dimensions) - set(ring_range)
     terminal = max(termini) - 1
@@ -183,13 +189,44 @@ class Stereocode(object):
         return "Stereocode(%r)" % (self.extended_encoding(),)
 
 
+def _resolve_unknown_anomer(monosaccharide):
+    configuration = monosaccharide.configuration[0]
+    has_known_configuration = (configuration != Configuration.x)
+    if not has_known_configuration:
+        configuration = Configuration.d
+    a_key = get_stereocode_key(monosaccharide, Anomer.a, configuration)
+    b_key = get_stereocode_key(monosaccharide, Anomer.b, configuration)
+    a_code = reference_stereomap[a_key]
+    b_code = reference_stereomap[b_key]
+    fill_value = Stereocoding[None]
+    if monosaccharide.anomer == Anomer.uncyclized:
+        fill_value = Stereocoding.h
+    substituted_code = [ai if ai == bi else fill_value for ai, bi in zip(a_code, b_code)]
+    if not has_known_configuration:
+        translate_unknown_configuration = {
+            Stereocoding.L: Stereocoding.LD,
+            Stereocoding.D: Stereocoding.DL,
+
+        }
+        substituted_code = [
+            translate_unknown_configuration.get(i, i) for i in substituted_code
+        ]
+    return substituted_code
+
+
 def stereocode(monosaccharide):
     key = get_stereocode_key(monosaccharide)
     try:
-        base_code = Stereocode(reference_stereomap[key])
+        if monosaccharide.stem[0] == Stem.x:
+            base_code = Stereocode(Stereocoding[None] for i in range(monosaccharide.superclass.value))
+        else:
+            try:
+                base_code = Stereocode(reference_stereomap[key])
+            except KeyError:
+                base_code = _resolve_unknown_anomer(monosaccharide)
     except KeyError:
         warnings.warn("Could not locate a stereocode template for %r based upon key %s" % (
-            monosaccharide, key))
+            monosaccharide, key), stacklevel=3)
         base_code = Stereocode(Stereocoding[None] for i in range(monosaccharide.superclass.value))
     _update_stereocode_extended(base_code, monosaccharide)
     return base_code

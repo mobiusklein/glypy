@@ -1,4 +1,5 @@
 import string
+from glypy.io.file_utils import ParserError
 
 
 def base52(x):
@@ -15,3 +16,11 @@ def base52(x):
         return ''.join([string.ascii_letters[c] for j, c in enumerate(code)])
     else:
         return ''.join([string.ascii_letters[c - 1 if j != n - 1 else c] for j, c in enumerate(code)])
+
+
+class WURCSError(ParserError):
+    pass
+
+
+class WURCSFeatureNotSupported(WURCSError):
+    pass

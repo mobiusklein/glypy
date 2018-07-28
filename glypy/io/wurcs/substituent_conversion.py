@@ -71,8 +71,8 @@ def parse_alin(code):
 
 
 def alin_to_substituent(alin):
-    if alin.startswith("*"):
-        name_query = alin[1:]
+    if "*" in alin:
+        name_query = alin.replace("*", "")
     else:
         name_query = alin
     try:
@@ -146,7 +146,7 @@ _substituent_translation = [
     SubstituentTranslation('n-sulfate', 'NSO/3=O/3=O', True),
     SubstituentTranslation('n-triflouroacetyl', 'NCCF/4F/4F/3=O', None),
     SubstituentTranslation('nitrate', 'C=O/2=O', None),
-    SubstituentTranslation('phosphate', 'PO/2O/2=O', None),
+    SubstituentTranslation('phosphate', 'OPO/3O/3=O', None),
     SubstituentTranslation('pyruvate', None, None),
     SubstituentTranslation('pyrophosphate', 'P^XOPO/4O/4=O/2O/2=O', None),
     SubstituentTranslation('triphosphate', 'P^XOP^XOPO/6O/6=O/4O/4=O/2O/2=O', None),

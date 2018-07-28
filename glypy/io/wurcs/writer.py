@@ -1,5 +1,9 @@
 from collections import OrderedDict
 
+
+from glypy.structure.glycan import Glycan
+from glypy.structure.glycan_composition import GlycanComposition
+
 from .node_type import NodeTypeSpec
 from .utils import base52
 
@@ -20,7 +24,7 @@ class WURCSWriter(object):
         node_index_to_node_type = OrderedDict()
         index_to_glyph = OrderedDict()
         id_to_index = OrderedDict()
-        for i, node in enumerate(self.glycan, 1):
+        for i, node in enumerate(self._iter_monosaccharides(), 1):
             node_type = NodeTypeSpec.from_monosaccharide(node)
             index_to_glyph[i] = base52(i - 1)
             id_to_index[node.id] = i
@@ -35,10 +39,28 @@ class WURCSWriter(object):
     def format_version(self):
         return "WURCS=%s" % (self.version, )
 
+    def _iter_monosaccharides(self):
+        if isinstance(self.glycan, GlycanComposition):
+            for key, value in self.glycan.items():
+                for i in range(value):
+                    yield key
+        else:
+            for x in self.glycan.iternodes():
+                yield x
+
+    def _iter_links(self):
+        if isinstance(self.glycan, GlycanComposition):
+            pass
+        else:
+            for x in self.glycan.iterlinks():
+                yield x
+
     def format_count_section(self):
-        count_nodes = len(list(self.glycan.iternodes()))
-        count_links = len(list(self.glycan.iterlinks()))
+        count_nodes = len(list(self._iter_monosaccharides()))
+        count_links = len(list(self._iter_links()))
         count_section = "%s,%s,%s" % (len(self.node_type_map), count_nodes, count_links)
+        if isinstance(self.glycan, GlycanComposition):
+            count_section += '+'
         return count_section
 
     def format_node_types(self):
@@ -52,6 +74,8 @@ class WURCSWriter(object):
 
     def format_links(self):
         links = []
+        if isinstance(self.glycan, GlycanComposition):
+            return ""
         for _, link in self.glycan.iterlinks():
             parent_index = self.id_to_index[link.parent.id]
             child_index = self.id_to_index[link.child.id]
@@ -69,8 +93,10 @@ class WURCSWriter(object):
 
     def write(self):
         self.extract_node_types()
-        sections = (self.format_version(), self.format_count_section(), self.format_node_types(),
-                    self.format_node_type_index(), self.format_links())
+        sections = [self.format_version(), self.format_count_section(), self.format_node_types(),
+                    self.format_node_type_index(), ]
+        if not isinstance(self.glycan, GlycanComposition):
+            sections.append(self.format_links())
         return '/'.join(sections)
 
 

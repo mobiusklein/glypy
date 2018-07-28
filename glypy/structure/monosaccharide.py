@@ -346,8 +346,8 @@ class Monosaccharide(SaccharideBase):
     ring_end:  |int|
         The index of the carbon of the carbohydrate backbone that ends a ring. A value of `-1`, `'x'`, or
         |None| corresponds to an unknown ends. A value of `0` refers to a linear chain.
-    reducing_end: :class:`int`
-        The index of the carbon which hosts the reducing end.
+    reducing_end: :class:`ReducedEnd`
+        The reducing end terminal group of the monosaccharide if the monosaccharide is uncyclized
     modifications: |OrderedMultiMap|
         The mapping of sites to |Modification| entries. Directly modifies the instance's :attr:`composition`
     links: |OrderedMultiMap|

@@ -5,9 +5,9 @@ except ImportError:
     from collections.abc import Sequence
 
 from .basetype_conversion import (
-    base_type_to_descriptors, descriptors_to_base_type)
+    descriptors_to_base_type)
 
-from glypy.structure.monosaccharide import Monosaccharide
+from glypy.structure.monosaccharide import Monosaccharide, ReducedEnd
 from glypy.structure.constants import SuperClass, Anomer, Modification, Stem, Configuration
 from glypy import OrderedMultiMap
 
@@ -72,9 +72,17 @@ class CarbonDescriptors(Sequence):
         return out
 
     def to_base_type(self):
+        '''Convert the :class:`CarbonDescriptors` into a
+        :class:`~.Monosaccharide`, not including substituents.
+
+        Returns
+        -------
+        :class:`~.Monosaccharide`
+        '''
         superclass = SuperClass[len(self)]
         carbon_coding = list(map(str, self))
         modifications = OrderedMultiMap()
+        is_reduced = False
         for i, site in enumerate(carbon_coding):
             if site == '1':
                 carbon_coding[i] = '3'
@@ -83,6 +91,11 @@ class CarbonDescriptors(Sequence):
         start = 1
         stems = []
         configurations = []
+        if carbon_coding[0] == carbon_coding[-1] == 'h':
+            self.anomer = Anomer.uncyclized
+            self.ring_start = 0
+            self.ring_end = 0
+            is_reduced = True
         # if the stereosites are all defined
         if 'x' not in carbon_coding:
             # incrementally walk along the carbon sequence
@@ -136,7 +149,7 @@ class CarbonDescriptors(Sequence):
                 raise ValueError("Cannot infer chirality from %r" % (str(self),))
         anomeric_position = None
         for i, site in enumerate(self):
-            if site == 'a':
+            if site in ('a', 'u', 'U'):
                 anomeric_position = i + 1
                 if anomeric_position == 2:
                     modifications[anomeric_position] = Modification.keto
@@ -154,15 +167,29 @@ class CarbonDescriptors(Sequence):
             superclass,
             self.ring_start if self.ring_start != -1 else None,
             self.ring_end if self.ring_end != -1 else None,
-            modifications)
+            modifications, reduced=ReducedEnd() if is_reduced else None)
         return base
 
     @classmethod
     def from_monosaccharide(cls, monosaccharide):
-        code = [0] * monosaccharide.superclass.value
+        '''Create a :class:`CarbonDescriptors` from a given
+        :class:`~.Monosaccharide`.
+
+        Parameters
+        ----------
+        monosaccharide: :class:`~.Monosaccharide`
+            The monosaccharide to describe
+
+        Returns
+        -------
+        :class:`CarbonDescriptors`
+        '''
+        code = ['x'] * monosaccharide.superclass.value
+        # if monosaccharide.ring_start is not None and monosaccharide.ring_end is not None:
+        #     stereocode = monosaccharide.stereocode
+        #     code = list(map(lambda x: str(x.value) if x.value is not None else 'x', stereocode))
         stereocode = monosaccharide.stereocode
-        # configuration = monosaccharide.configuration[-1]
-        code = list(map(lambda x: str(x.value), stereocode))
+        code = list(map(lambda x: str(x.value) if x.value is not None else 'x', stereocode))
         code[0] = 'u'
         code[-1] = 'h'
         if monosaccharide.anomer == 'uncyclized':
@@ -172,6 +199,7 @@ class CarbonDescriptors(Sequence):
         anomeric_position = monosaccharide.ring_start
         anomeric_sites = []
         is_aldose = True
+        # encode the modifications onto the carbon descriptor code
         for position, modification in monosaccharide.modifications.items():
             is_terminal = (position == 1 or position == monosaccharide.superclass.value)
             if modification == Modification.Acidic:
@@ -197,18 +225,31 @@ class CarbonDescriptors(Sequence):
         if is_aldose:
             anomeric_sites.append(1)
         anomeric_position = anomeric_sites[0]
-        if monosaccharide.ring_start not in (-1, 0):
+        # if the anomeric position is fully defined and the monosaccharide is cyclic
+        if monosaccharide.ring_start not in (None, 0):
             code[anomeric_position - 1] = 'a'
+        # if the anomeric position is partially undefined, the carbon code is 'u'
+        elif monosaccharide.ring_start is None:
+            code[anomeric_position - 1] = 'u'
+        if monosaccharide.ring_start is None:
+            anomeric_position = "?"
         return cls(code, anomer, anomeric_position, monosaccharide.ring_start, monosaccharide.ring_end)
 
     def to_backbone_code(self):
+        '''Convert :class:`CarbonDescriptors` into a string representation
+        matching the ``<BackboneCode>`` pattern from WURCS2.0
+
+        Returns
+        -------
+        :class:`str`
+        '''
         parts = []
         # carbon descriptors
         parts.append(''.join(map(str, self)))
-        if self.anomeric_position != -1 and self.anomer != Anomer.x:
+        if not (self.anomeric_position == -1 and self.anomer == Anomer.x):
             parts.append("-%s%s" % (self._translate_position(self.anomeric_position),
                                     anomer_map[self.anomer]))
-        if self.ring_start != -1 and self.ring_end != -1:
+        if (self.ring_start != -1 and self.ring_end != -1) and (self.ring_start != 0 and self.ring_end != 0):
             parts.append("_%s-%s" % tuple(map(self._translate_position, (self.ring_start, self.ring_end))))
         return ''.join(parts)
 

@@ -1,12 +1,11 @@
 import re
-import string
 
 from glypy.composition import Composition
-from glypy.structure import glycan, link as _link
+from glypy.structure import glycan, link as _link, glycan_composition
 from glypy.io.tree_builder_utils import try_int
 
 from .node_type import NodeTypeSpec
-from .utils import base52
+from .utils import base52, WURCSError, WURCSFeatureNotSupported
 
 
 class WURCSParser(object):
@@ -25,9 +24,13 @@ class WURCSParser(object):
         version_section, count_section, rest = self.line.split("/", 2)
         node_type_section, rest = rest.split("]/")
         node_type_section += ']'
-        parts = rest.split("/")
+        parts = rest.split("/", 1)
         node_index_to_type_section = parts[0]
-        node_linkage_section = parts[1]
+        if len(parts) == 2:
+            rest = parts[1]
+        else:
+            rest = ''
+        node_linkage_section = rest
         return (count_section, node_type_section, node_index_to_type_section, node_linkage_section)
 
     def parse_version(self, section=None):
@@ -41,7 +44,7 @@ class WURCSParser(object):
             section = self.line.split("/", 2)[1]
         counts = (
             self.node_type_count, self.node_count,
-            self.edge_count) = map(int, section.split(","))
+            self.edge_count) = map(lambda x: int(x.replace("+", "")), section.split(","))
         return counts
 
     def parse_node_type_section(self, section=None):
@@ -68,10 +71,17 @@ class WURCSParser(object):
     def parse_connectivity_map(self, section=None):
         if section is None:
             section = self.extract_sections()[3]
+        if "{" in section or "}" in section:
+            raise WURCSFeatureNotSupported("Braced Undefined Linkages are not supported")
+
         links = section.split("_")
         for link in links:
             has_ambiguity = "|" in link
-            parent_link_def, child_link_def = link.split("-")
+            has_bridge = "*" in link
+            if has_bridge:
+                raise WURCSFeatureNotSupported("Bridging MAPs are not supported.")
+
+            parent_link_def, child_link_def = link.split("-", 1)
 
             parent_spec = self.parse_connection.findall(parent_link_def)
             child_spec = self.parse_connection.findall(child_link_def)
@@ -117,8 +127,14 @@ class WURCSParser(object):
         self.parse_counts(count_section)
         self.parse_node_type_section(node_type_section)
         self.parse_node_index_to_type_section(node_index_to_type_section)
-        self.parse_connectivity_map(node_linkage_section)
-        return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
+        if node_linkage_section:
+            self.parse_connectivity_map(node_linkage_section)
+            return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
+        else:
+            gc = glycan_composition.GlycanComposition()
+            for node in self.node_index_to_node.values():
+                gc[glycan_composition.MonosaccharideResidue.from_monosaccharide(node)] += 1
+            return gc
 
 
 def loads(text, structure_class=glycan.Glycan):

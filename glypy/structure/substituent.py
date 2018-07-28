@@ -32,7 +32,8 @@ attachment_composition_info = {
     "amino": Composition("OH"),
     "imino": Composition("OH"),
     "anhydro": Composition("H"),
-    "dimethylamine": Composition("OH")
+    "dimethylamine": Composition("OH"),
+    "phosphate": Composition("H")
 }
 default_attachment_composition = Composition("H")
 

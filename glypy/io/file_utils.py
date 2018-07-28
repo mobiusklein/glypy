@@ -92,7 +92,7 @@ class FastaLikeFileParser(TextFileParserBase):
         d = self.processor(''.join(self.sequence_chunks))
         name = self.defline
         root_node = root(d)
-        return NamedGlycan(name=name, root=root_node, index_method=None)
+        return NamedGlycan(name=name, root=root_node, index_method='dfs')
 
 
 @add_metaclass(FormatRegisteringMeta)
