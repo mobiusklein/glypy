@@ -1,4 +1,3 @@
-# from collections import namedtuple
 try:
     from collections import Sequence
 except ImportError:
@@ -48,10 +47,6 @@ class CarbonDescriptors(Sequence):
 
     def __hash__(self):
         return hash(str(self))
-
-    @property
-    def ring_size(self):
-        return len(self.descriptors)
 
     def __getitem__(self, i):
         return self.descriptors[i]

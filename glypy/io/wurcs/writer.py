@@ -1,7 +1,5 @@
 from collections import OrderedDict
 
-
-from glypy.structure.glycan import Glycan
 from glypy.structure.glycan_composition import GlycanComposition
 
 from .node_type import NodeTypeSpec

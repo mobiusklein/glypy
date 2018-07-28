@@ -5,7 +5,7 @@ from glypy.structure import glycan, link as _link, glycan_composition
 from glypy.io.tree_builder_utils import try_int
 
 from .node_type import NodeTypeSpec
-from .utils import base52, WURCSError, WURCSFeatureNotSupported
+from .utils import base52, WURCSFeatureNotSupported
 
 
 class WURCSParser(object):
@@ -19,6 +19,7 @@ class WURCSParser(object):
         self.node_type_map = {}
         self.node_index_to_node = {}
         self.glyph_to_node_index = {}
+        self.has_uncertain_linkages = False
 
     def extract_sections(self):
         version_section, count_section, rest = self.line.split("/", 2)
@@ -42,9 +43,11 @@ class WURCSParser(object):
     def parse_counts(self, section=None):
         if section is None:
             section = self.line.split("/", 2)[1]
+        if "+" in section:
+            self.has_uncertain_linkages = True
         counts = (
             self.node_type_count, self.node_count,
-            self.edge_count) = map(lambda x: int(x.replace("+", "")), section.split(","))
+            self.edge_count) = list(map(lambda x: int(x.replace("+", "")), section.split(",")))
         return counts
 
     def parse_node_type_section(self, section=None):
