@@ -20,7 +20,9 @@ from glypy.composition import Composition, calculate_mass
 from glypy.composition.structure_composition import monosaccharide_composition
 from glypy.composition.structure_composition import modification_compositions
 
-from .constants import Anomer, Configuration, Stem, SuperClass, Modification, RingType
+from .constants import (
+    Anomer, Configuration, Stem, SuperClass, Modification, RingType, UnknownPosition,
+    NoPosition)
 from .substituent import Substituent
 from .link import Link
 from .base import SaccharideBase
@@ -649,15 +651,18 @@ class Monosaccharide(SaccharideBase):
         '''
         slots, unknowns = self._backbone_occupancy_list()
 
+        null_positions = [
+            UnknownPosition, 'x', NoPosition
+        ]
         open_slots = []
-        can_determine_positions = unknowns > 0 or (self.ring_end in [-1, 'x', None])
+        can_determine_positions = unknowns > 0 or (self.ring_end in null_positions)
 
         for i in range(len(slots)):
             if slots[i] <= max_occupancy and (i + 1) != self.ring_end:
                 open_slots.append(
-                    (i + 1) if not can_determine_positions else -1)
+                    (i + 1) if not can_determine_positions else UnknownPosition)
 
-        if self.ring_end in [-1, 'x', None]:
+        if self.ring_end in null_positions:
             open_slots.pop()
 
         return open_slots, unknowns
@@ -665,12 +670,13 @@ class Monosaccharide(SaccharideBase):
     def _backbone_occupancy_list(self):
         slots = [0] * self.superclass.value
         unknowns = 0
+        null_positions = (UnknownPosition, 'x')
         for pos, obj in chain(self.modifications.items(),
                               self.links.items(),
                               self.substituent_links.items()):
             if obj == Modification.keto:
                 continue
-            if pos in {-1, 'x'}:  # pragma: no cover
+            if pos in null_positions:  # pragma: no cover
                 unknowns += 1
             else:
                 slots[pos - 1] += 1
@@ -682,10 +688,10 @@ class Monosaccharide(SaccharideBase):
         for i, occupied in enumerate(slots, start=1):
             if occupied:
                 occupied_sites.append(i)
-        if self.ring_end != -1:
+        if self.ring_end != UnknownPosition:
             occupied_sites.append(self.ring_end)
         for i in range(unknowns):
-            occupied_sites.append(-1)
+            occupied_sites.append(UnknownPosition)
         return occupied_sites
 
     def total_attachement_sites(self):
@@ -716,10 +722,13 @@ class Monosaccharide(SaccharideBase):
 
         '''
 
-        if (position > self.superclass.value) or (position < 1 and position not in {'x', -1, None}):
+        null_positions = (UnknownPosition, NoPosition, 'x')
+
+        if (position > self.superclass.value) or (
+            position < 1 and position not in null_positions):
             raise IndexError("Index out of bounds")
         # The unknown position is always available
-        if position in {-1, 'x'}:  # pragma: no cover
+        if position in (UnknownPosition, 'x'):  # pragma: no cover
             return 0
         n_occupants = len(self.links[position]) +\
             len(self.modifications[position]) +\
@@ -795,7 +804,7 @@ class Monosaccharide(SaccharideBase):
         :class:`Monosaccharide`:
             `self`, for chain calls
         '''
-        if position > self.superclass.value or position < 0 and position not in {'x', -1}:
+        if position > self.superclass.value or position < 0 and position not in (UnknownPosition, 'x'):
             raise IndexError("Index out of bounds")
         try:
             self.modifications.pop(position, modification)
@@ -909,7 +918,7 @@ class Monosaccharide(SaccharideBase):
         :class:`Monosaccharide`:
             `self`, for chain calls
         '''
-        if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
+        if position > self.superclass.value or position < 0 and position not in (UnknownPosition, 'x'):
             raise IndexError("Index out of bounds")
         if isinstance(substituent, basestring):
             substituent = Substituent(substituent)
@@ -1018,7 +1027,7 @@ class Monosaccharide(SaccharideBase):
         :class:`Monosaccharide`:
             `self`, for chain calls
         '''
-        if position > self.superclass.value or position < 0 and position not in {-1, 'x'}:
+        if position > self.superclass.value or position < 0 and position not in (UnknownPosition, 'x'):
             raise IndexError("Index out of bounds")
         link_obj = None
         if len(self.links[position]) > 1:
@@ -1152,7 +1161,7 @@ class Monosaccharide(SaccharideBase):
             cntr += 1
             for b_pos, b_substituent in b_substituents:
                 if b_pos in taken_b:
-                    if b_pos != -1:  # pragma: no cover
+                    if b_pos != UnknownPosition:  # pragma: no cover
                         continue
                     else:  # pragma: no cover
                         if unknown_cntr < b_num_unknown:
@@ -1380,6 +1389,17 @@ class Monosaccharide(SaccharideBase):
 
     def __iter__(self):
         return self.children()
+
+    def has_undefined_linkages(self):
+        for link in self.links.values():
+            if link.parent_position == UnknownPosition or link.child_position == UnknownPosition:
+                return True
+        for link in self.substituent_links.values():
+            if link.parent_position == UnknownPosition or link.child_position == UnknownPosition:
+                return True
+        return False
+
+
 
 
 class ReducedEnd(object):

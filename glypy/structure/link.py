@@ -3,13 +3,15 @@ from uuid import uuid4
 from collections import Iterable
 
 from glypy.composition import Composition
-from glypy.utils import uid, basestring
+from glypy.utils import uid, basestring, make_struct
 from .base import SaccharideBase, SubstituentBase
+from .constants import UnknownPosition
 
 default_parent_loss = Composition(O=1, H=1)
 default_child_loss = Composition(H=1)
 
-unknown_position_set = {-1}
+
+linkage_configuration = make_struct("linkage_configuration", ("parent", "child", "parent_position", "child_position"))
 
 
 class Link(object):
@@ -32,7 +34,7 @@ class Link(object):
 
     '''
 
-    def __init__(self, parent, child, parent_position=-1, child_position=-1,
+    def __init__(self, parent, child, parent_position=UnknownPosition, child_position=UnknownPosition,
                  parent_loss=None, child_loss=None, id=None, attach=True):
         '''
         Defines a bond between `parent` and `child` between the molecule positions specified.
@@ -452,7 +454,7 @@ class LinkMaskContext(object):
 
 
 class AmbiguousLink(Link):
-    def __init__(self, parent, child, parent_position=(-1,), child_position=(-1,),
+    def __init__(self, parent, child, parent_position=(UnknownPosition,), child_position=(UnknownPosition,),
                  parent_loss=None, child_loss=None, id=None, attach=True):
         if not isinstance(parent, (list, tuple)):
             parent = [parent]
@@ -482,12 +484,12 @@ class AmbiguousLink(Link):
     def has_ambiguous_termini(self):
         return len(self.parent_choices) > 1 or len(self.child_choices) > 1
 
-    def iterconfiguration(self, attach=False):  # pragma: no cover
+    def iterconfiguration(self, attach=False):
         configurations = self._configuration_crossproduct()
         for parent_o, child_o, parent_position_o, child_position_o in configurations:
             if attach:
                 self.reconfigure(parent_o, child_o, parent_position_o, child_position_o)
-            yield parent_o, child_o, parent_position_o, child_position_o
+            yield linkage_configuration(parent_o, child_o, parent_position_o, child_position_o)
 
     def _configuration_crossproduct(self):
         configurations = itertools.product(self.parent_choices, self.child_choices,
@@ -533,28 +535,28 @@ class AmbiguousLink(Link):
     def _find_open_position_single(self, parent, child):
         open_parent_sites, _ = parent.open_attachment_sites()
         parent_has_unknown_position = False
-        if -1 in open_parent_sites:
+        if UnknownPosition in open_parent_sites:
             open_parent_sites += list(set(self.parent_position_choices) - set(parent.occupied_attachment_sites()))
             parent_has_unknown_position = True
-        parent_site_options = list((set(open_parent_sites) | {-1}) & set(self.parent_position_choices))
+        parent_site_options = list((set(open_parent_sites) | {UnknownPosition}) & set(self.parent_position_choices))
         if parent_site_options:
             parent_site = parent_site_options[0]
         else:
             if parent_has_unknown_position and open_parent_sites:
-                parent_site = -1
+                parent_site = UnknownPosition
             else:
                 return None
         open_child_sites, _ = child.open_attachment_sites()
         child_has_unknown_position = False
-        if -1 in open_child_sites:
+        if UnknownPosition in open_child_sites:
             open_child_sites += list(set(self.child_position_choices) - set(child.occupied_attachment_sites()))
             child_has_unknown_position = True
-        child_site_options = list((set(open_child_sites) | {-1}) & set(self.child_position_choices))
+        child_site_options = list((set(open_child_sites) | {UnknownPosition}) & set(self.child_position_choices))
         if child_site_options:
             child_site = child_site_options[0]
         else:
             if child_has_unknown_position and open_child_sites:
-                child_site = -1
+                child_site = UnknownPosition
             else:
                 return None
         return parent_site, child_site
@@ -563,13 +565,13 @@ class AmbiguousLink(Link):
         '''Debugging purposes only
         '''
         open_parent_sites, _ = parent.open_attachment_sites()
-        if -1 in open_parent_sites:
+        if UnknownPosition in open_parent_sites:
             open_parent_sites += self.parent_position_choices
-        parent_site_options = list((set(open_parent_sites) | {-1}) & set(self.parent_position_choices))
+        parent_site_options = list((set(open_parent_sites) | {UnknownPosition}) & set(self.parent_position_choices))
         open_child_sites, _ = child.open_attachment_sites()
-        if -1 in open_child_sites:
+        if UnknownPosition in open_child_sites:
             open_child_sites += self.child_position_choices
-        child_site_options = list((set(open_child_sites) | {-1}) & set(self.child_position_choices))
+        child_site_options = list((set(open_child_sites) | {UnknownPosition}) & set(self.child_position_choices))
         return parent_site_options, child_site_options
 
     def _find_open_position_combinations(self):

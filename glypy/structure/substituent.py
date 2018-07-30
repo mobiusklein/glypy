@@ -450,3 +450,9 @@ class Substituent(SubstituentBase):
         if has_substituent_link == 0:
             comp += self.attachment_composition
         return comp
+
+    def has_undefined_linkages(self):
+        for link in self.links.values():
+            if link.parent_position == UnknownPosition or link.child_position == UnknownPosition:
+                return True
+        return False

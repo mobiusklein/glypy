@@ -21,6 +21,7 @@ from .monosaccharide import (
     graph_clone,
     toggle as residue_toggle,
     MonosaccharideOccupancy)
+from .constants import UnknownPosition, NoPosition
 from .substituent import Substituent
 from .crossring_fragments import crossring_fragments, CrossRingPair
 from .fragment import Subtree
@@ -351,8 +352,8 @@ class Glycan(SaccharideCollection):
             self.root.ring_end = 0
             self.root.anomer = "uncyclized"
         else:
-            self.root.ring_start = None
-            self.root.ring_end = None
+            self.root.ring_start = UnknownPosition
+            self.root.ring_end = UnknownPosition
             self.root.anomer = None
 
     @reducing_end.setter
@@ -684,12 +685,13 @@ class Glycan(SaccharideCollection):
 
         for configs in combos:
             n_configs = len(configs)
-            has_ambiguous = []
+            # count the number of ambiguous links with unknown linkages
+            has_unknowns = []
             for i, conf in enumerate(configs):
-                if conf[2] == -1 or conf[3] == -1:
-                    has_ambiguous.append(i)
-            if not has_ambiguous:
-                if len(set([(c[0], c[2]) for c in configs])) < n_configs:
+                if conf.parent_position == UnknownPosition or conf.child_position == UnknownPosition:
+                    has_unknowns.append(i)
+            if not has_unknowns:
+                if len(set([(c.parent, c.parent_position) for c in configs])) < n_configs:
                     continue
                 yield tuple(zip(ambiguous_links, configs))
             else:
@@ -708,7 +710,7 @@ class Glycan(SaccharideCollection):
                 # place all concrete links
                 for parent, child, parent_site, child_site in configs:
                     parent_occupancy = parent_map[parent.id]
-                    if parent_site == -1:
+                    if parent_site == UnknownPosition:
                         continue
                     if parent_site not in parent_occupancy.open_sites:
                         valid = False
@@ -728,7 +730,7 @@ class Glycan(SaccharideCollection):
                     # place all unknown links
                     for parent, child, parent_site, child_site in configs:
                         parent_occupancy = parent_map[parent.id]
-                        if parent_site != -1:
+                        if parent_site != UnknownPosition:
                             continue
                         # can't add more unknown links if the open sites are allocated
                         # for unknown localizations
@@ -746,6 +748,15 @@ class Glycan(SaccharideCollection):
                 # if configuration is valid, yield it
                 if valid:
                     yield tuple(zip(ambiguous_links, configs))
+
+    def has_undefined_linkages(self):
+        ambiguous_links = bool(self.ambiguous_links())
+        if ambiguous_links:
+            return ambiguous_links
+        for node in self:
+            if node.has_undefined_linkages():
+                return True
+        return False
 
     def label_branches(self):
         '''

@@ -12,6 +12,8 @@ Configuration = constants.Configuration
 Stem = constants.Stem
 Anomer = constants.Anomer
 
+UnknownPosition = constants.UnknownPosition
+
 Monosaccharide = monosaccharide.Monosaccharide
 ReducedEnd = monosaccharide.ReducedEnd
 Modification = monosaccharide.Modification
@@ -270,12 +272,13 @@ class CrossRingFragment(Monosaccharide):
         for i in self.contains:
             slots[i] = 0
         unknowns = 0
+        null_positions = (UnknownPosition, 'x')
         for pos, obj in chain(self.modifications.items(),
                               self.links.items(),
                               self.substituent_links.items()):
             if obj == Modification.keto:
                 continue
-            if pos in {-1, 'x'}:
+            if pos in null_positions:
                 unknowns += 1
             else:
                 slots[pos] += 1
