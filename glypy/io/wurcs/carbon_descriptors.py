@@ -78,6 +78,7 @@ class CarbonDescriptors(Sequence):
         carbon_coding = list(map(str, self))
         modifications = OrderedMultiMap()
         is_reduced = False
+        # translate stereocode into generic carbon code
         for i, site in enumerate(carbon_coding):
             if site == '1':
                 carbon_coding[i] = '3'
@@ -180,11 +181,8 @@ class CarbonDescriptors(Sequence):
         :class:`CarbonDescriptors`
         '''
         code = ['x'] * monosaccharide.superclass.value
-        # if monosaccharide.ring_start is not None and monosaccharide.ring_end is not None:
-        #     stereocode = monosaccharide.stereocode
-        #     code = list(map(lambda x: str(x.value) if x.value is not None else 'x', stereocode))
         stereocode = monosaccharide.stereocode
-        code = list(map(lambda x: str(x.value) if x.value is not None else 'x', stereocode))
+        code = [str(x.value) if x.value is not None else 'x' for x in stereocode]
         code[0] = 'u'
         code[-1] = 'h'
         if monosaccharide.anomer == 'uncyclized':
@@ -241,9 +239,11 @@ class CarbonDescriptors(Sequence):
         parts = []
         # carbon descriptors
         parts.append(''.join(map(str, self)))
+        # if the anomer is completely undefined, do not include it
         if not (self.anomeric_position == -1 and self.anomer == Anomer.x):
             parts.append("-%s%s" % (self._translate_position(self.anomeric_position),
                                     anomer_map[self.anomer]))
+        # if the ring is neither undefined nor open, include it
         if (self.ring_start != -1 and self.ring_end != -1) and (self.ring_start != 0 and self.ring_end != 0):
             parts.append("_%s-%s" % tuple(map(self._translate_position, (self.ring_start, self.ring_end))))
         return ''.join(parts)
