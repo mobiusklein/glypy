@@ -1,5 +1,7 @@
 import unittest
 
+import glypy
+from glypy.io import iupac
 from glypy.enzyme import (
     MultiprocessingGlycome, make_n_glycan_pathway, EnzymeGraph)
 
@@ -36,6 +38,15 @@ class GlycomeTests(unittest.TestCase):
         ref = list(graph.seeds)[0]
         assert seed == ref
         assert set(eg.children(seed)) == set(graph.children(seed))
+
+    def test_galt(self):
+        _, glycosyltransferases, _ = make_n_glycan_pathway()
+        galt = glycosyltransferases['galt']
+        target = iupac.loads(
+            "a-D-Manp-(1-6)-[b-D-Glcp2NAc-(1-2)-a-D-Manp-(1-3)]b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc")
+        for instance in galt(target):
+            res = instance.mass() - glypy.monosaccharide_residues.Gal.mass()
+            self.assertAlmostEqual(res, target.mass())
 
 
 if __name__ == '__main__':
