@@ -1341,18 +1341,8 @@ def loads(text, structure_class=Glycan, allow_repeats=True, allow_multiple=True)
     :class:`~.Glycan` or :class:`list` of :class:`~.Glycan`
     """
 
-    g = GlycoCTReader.loads(text, structure_class=structure_class, allow_repeats=allow_repeats)
-    first = next(g)
-    if not allow_multiple:
-        return first
-    second = None
-    try:
-        second = next(g)
-        collection = [first, second]
-        collection.extend(g)
-        return collection
-    except StopIteration:
-        return first
+    text_buffer = StringIO(text)
+    return load(text_buffer, structure_class, allow_repeats, allow_multiple)
 
 
 def detect_glycoct(string):
@@ -1407,18 +1397,47 @@ class DictTree(object):
 
 
 class GlycoCTWriterBase(object):
+    """Summary
+
+    Attributes
+    ----------
+    buffer : TYPE
+        Description
+    dependencies : TYPE
+        Description
+    full : TYPE
+        Description
+    index_to_residue : TYPE
+        Description
+    lin_accumulator : list
+        Description
+    lin_counter : TYPE
+        Description
+    nobuffer : bool
+        Description
+    res_counter : TYPE
+        Description
+    residue_to_index : TYPE
+        Description
+    state : TYPE
+        Description
+    structure : TYPE
+        Description
+    und_counter : TYPE
+        Description
+    """
+
     def __init__(self, structure=None, buffer=None, full=True):
         self.nobuffer = False
         if buffer is None:
-            buffer = StringIO()
             self.nobuffer = True
+            buffer = StringIO()
 
         self.buffer = buffer
         self.structure = structure
         self.full = full
 
         self.state = START
-
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
         self.und_counter = make_counter()
@@ -1458,12 +1477,15 @@ class GlycoCTWriterBase(object):
         self.lin_counter = make_counter()
         self.und_counter = make_counter()
 
+        # Look-ups for mapping RES nodes to objects by section index and id,
+        # respectively
         self.index_to_residue = DictTree(self.state)
         self.residue_to_index = DictTree(self.state)
 
+        # Accumulator for linkage indices and mapping linkage indices to
+        # dependent RES indices
         self.lin_accumulator = []
         self.dependencies = defaultdict(dict)
-
         if self.nobuffer:
             self.buffer = StringIO()
 
@@ -1502,7 +1524,7 @@ class GlycoCTWriterBase(object):
     def handle_substituent(self, substituent):
         return "s:{0}".format(substituent.name.replace("_", "-"))
 
-    def handle_monosaccharide(self, monosaccharide):
+    def _format_monosaccharide(self, monosaccharide):
         residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
 
         # This index is reused many times
@@ -1527,6 +1549,10 @@ class GlycoCTWriterBase(object):
         residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
                                               superclass=superclass, modifications=modifications,
                                               ring_start=ring_start, ring_end=ring_end)
+        return residue_str, monosaccharide_index
+
+    def handle_monosaccharide(self, monosaccharide):
+        residue_str, monosaccharide_index = self._format_monosaccharide(monosaccharide)
         res = [residue_str]
         lin = []
         visited_subst = dict()
@@ -2085,33 +2111,10 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
         self.link_queue = deque()
 
     def handle_monosaccharide(self, monosaccharide):
-        residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
-
-        # This index is reused many times
-        monosaccharide_index = self.res_counter()
+        residue_str, monosaccharide_index = self._format_monosaccharide(monosaccharide)
 
         self.index_to_residue[monosaccharide_index] = monosaccharide
         self.residue_to_index[monosaccharide.id] = monosaccharide_index
-
-        # Format individual fields
-        anomer = invert_anomer_map[monosaccharide.anomer]
-        conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
-                            for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
-        if None in monosaccharide.configuration or None in monosaccharide.stem:
-            conf_stem = ''
-        superclass = "-" + invert_superclass_map[monosaccharide.superclass]
-
-        modifications = '|'.join(
-            "{0}:{1}".format(k, v.name) for k, v in monosaccharide.modifications.items())
-
-        modifications = "|" + modifications if modifications != "" else ""
-        ring_start = monosaccharide.ring_start if monosaccharide.ring_start is not None else 'x'
-        ring_end = monosaccharide.ring_end if monosaccharide.ring_end is not None else 'x'
-
-        # The complete monosaccharide residue line
-        residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
-                                              superclass=superclass, modifications=modifications,
-                                              ring_start=ring_start, ring_end=ring_end)
 
         link_collection = list(monosaccharide.substituent_links.values())
         if self.full:
