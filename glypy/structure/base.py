@@ -13,10 +13,12 @@ class MoleculeBase(object):
         '''
         return self._order
 
+    def has_undefined_linkages(self):
+        return True
+
 
 class SaccharideBase(MoleculeBase):
     node_type = object()
-    pass
 
 
 class SaccharideCollection(SaccharideBase):
