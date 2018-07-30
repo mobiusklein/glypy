@@ -251,3 +251,7 @@ class Stereocoding(Enum):
 
 
 Stereocoding.h.add_name('0')
+
+
+UnknownPosition = -1
+NoPosition = None
