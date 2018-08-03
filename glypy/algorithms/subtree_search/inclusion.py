@@ -1,5 +1,6 @@
 from collections import deque, defaultdict
 
+from glypy.structure import UnknownPosition
 from glypy.algorithms.similarity import commutative_similarity
 from glypy.utils import root
 
@@ -276,7 +277,7 @@ def walk_with(query, reference, visited=None, comparator=commutative_similarity)
             rchild = rlink.child
             qchild = None
             # query link position is known
-            if p != -1:
+            if p != UnknownPosition:
                 # check the parent of the link for matches, potentially flowing
                 # through a cycle if one is present or flowing down the tree if
                 # not starting at the root
