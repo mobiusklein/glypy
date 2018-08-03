@@ -87,10 +87,13 @@ class CarbonDescriptors(Sequence):
         start = 1
         stems = []
         configurations = []
+        anomer = self.anomer
+        ring_start = self.ring_start
+        ring_end = self.ring_end
         if carbon_coding[0] == carbon_coding[-1] == 'h':
-            self.anomer = Anomer.uncyclized
-            self.ring_start = 0
-            self.ring_end = 0
+            anomer = Anomer.uncyclized
+            ring_start = 0
+            ring_end = 0
             is_reduced = True
         # if the stereosites are all defined
         if 'x' not in carbon_coding:
@@ -144,25 +147,30 @@ class CarbonDescriptors(Sequence):
             else:
                 raise ValueError("Cannot infer chirality from %r" % (str(self),))
         anomeric_position = None
+        double_bonds = []
         for i, site in enumerate(self):
             if site in ('a', 'u', 'U'):
                 anomeric_position = i + 1
                 if anomeric_position == 2:
                     modifications[anomeric_position] = Modification.keto
+            if site in 'E':
+                double_bonds.append(i + 1)
             if site in ('d', 'm'):
                 modifications[i + 1] = Modification.Deoxygenated
             if site == 'A':
                 modifications[i + 1] = Modification.Acidic
+        for site in double_bonds[::2]:
+            modifications[i] = Modification.en
         stems = [Stem[x] for x in stems[::-1]]
         configurations = configurations[::-1]
 
         base = Monosaccharide(
-            self.anomer,
+            anomer,
             configurations,
             stems,
             superclass,
-            self.ring_start if self.ring_start != -1 else None,
-            self.ring_end if self.ring_end != -1 else None,
+            ring_start if ring_start != -1 else None,
+            ring_end if ring_end != -1 else None,
             modifications, reduced=ReducedEnd() if is_reduced else None)
         return base
 
@@ -198,7 +206,8 @@ class CarbonDescriptors(Sequence):
             if modification == Modification.Acidic:
                 if not is_terminal:
                     raise ValueError("Cannot add a carboxylic acid group to a non-terminal carbon")
-                is_aldose = False
+                if position == 1:
+                    is_aldose = False
                 code[position - 1] = 'A'
             elif modification == Modification.Deoxygenated:
                 if position == 1:
@@ -211,6 +220,8 @@ class CarbonDescriptors(Sequence):
                 is_aldose = False
                 code[position] = 'o'
                 anomeric_sites.append(position)
+            elif modification == Modification.en:
+                code[position - 1] = 'E'
             elif modification == Modification.Alditol:
                 is_aldose = False
                 if position != 1:

@@ -2,6 +2,8 @@ from glypy.io.file_utils import ParserInterface
 from .parser import loads
 from .node_type import NodeTypeSpec
 from .writer import dumps
+from .utils import WURCSError
+from .carbon_descriptors import CarbonDescriptors
 
 
 class WURCSParser(ParserInterface):
@@ -12,5 +14,6 @@ class WURCSParser(ParserInterface):
 
 __all__ = [
     "WURCSParser", "loads", "dumps",
-    "NodeTypeSpec"
+    "NodeTypeSpec", "CarbonDescriptors",
+    "WURCSError",
 ]
