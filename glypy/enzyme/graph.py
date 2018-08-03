@@ -134,8 +134,8 @@ class EnzymeGraph(object):
 
     def _dump(self):
         data_structure = {
-            "seeds": [str(sd) for sd in self.seeds],
-            "enzymes": list(self.enzymes()),
+            "seeds": sorted([str(sd) for sd in self.seeds]),
+            "enzymes": sorted(self.enzymes()),
             "graph": {},
             "metadata": {}
         }
