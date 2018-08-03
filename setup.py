@@ -105,7 +105,8 @@ def run_setup(include_cext=True):
         include_package_data=True,
         package_data={
             "glypy.structure": ["glypy/structure/data/*"],
-            "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"]
+            "glypy.io": ["glypy/io/data/*"],
+            "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"],
         },
         install_requires=required,
         extras_require=extras,

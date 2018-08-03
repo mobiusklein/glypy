@@ -1,13 +1,14 @@
 import logging
 import re
-
-import requests
-from rdflib import ConjunctiveGraph, Namespace, URIRef, Literal
-from rdflib.namespace import split_uri
+import warnings
 
 from collections import defaultdict
 
-from glypy.io import glycoct, iupac
+import requests
+with warnings.catch_warnings():
+    from rdflib import ConjunctiveGraph, Namespace, URIRef, Literal
+    from rdflib.namespace import split_uri
+    from glypy.io import glycoct, iupac, wurcs, _glycordf
 
 # http://glytoucan.org/glyspace/documentation/apidoc.html
 # http://code.glytoucan.org/system/glyspace
@@ -34,8 +35,8 @@ WHERE {
 ORDER BY ?PrimaryId
 '''
 
+NSGlycan = _glycordf.NSGlycan
 NSGlyTouCan = Namespace("http://www.glytoucan.org/glyco/owl/glytoucan#")
-NSGlycan = Namespace("http://purl.jp/bio/12/glyco/glycan#")
 NSGlycoinfo = Namespace("http://rdf.glycoinfo.org/glycan/")
 NSGlycomeDB = Namespace("http://rdf.glycome-db.org/glycan/")
 NSSKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
@@ -577,10 +578,16 @@ def has_glycosequence_processor(state, uri):
     BoundURIRef
     """
     reference = uri()
-    if reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_glycoct:
+    in_format = str(reference.in_carbohydrate_format).rstrip("/")
+    if in_format == str(NSGlycan.carbohydrate_format_glycoct):
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
-    if "structure_" not in state and reference.in_carbohydrate_format == NSGlycan.carbohydrate_format_iupac_extended:
+    if "structure_" not in state and in_format == str(NSGlycan.carbohydrate_format_wurcs):
+        try:
+            state["structure_"] = [wurcs.loads(reference.has_sequence)]
+        except wurcs.WURCSError:
+            pass
+    if "structure_" not in state and in_format == str(NSGlycan.carbohydrate_format_iupac_extended):
         try:
             state["structure_"] = [iupac.loads(reference.has_sequence)]
         except iupac.IUPACError:
