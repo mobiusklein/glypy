@@ -1,4 +1,8 @@
 import re
+try:
+    from urllib import unquote
+except ImportError:
+    from urllib.parse import unquote
 
 from glypy.composition import Composition
 from glypy.structure import glycan, link as _link, glycan_composition
@@ -10,7 +14,7 @@ from .utils import base52, WURCSFeatureNotSupported
 
 class WURCSParser(object):
     def __init__(self, line, structure_class=glycan.Glycan):
-        self.line = line
+        self.line = unquote(line)
         self.structure_class = structure_class
         self.version = self.parse_version()
         self.node_type_count = None
