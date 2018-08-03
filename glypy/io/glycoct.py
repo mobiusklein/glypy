@@ -73,12 +73,12 @@ alternative_start = "a"
 #: Pattern for parsing the lines of the RES section corresponding
 #: to individual |Monosaccharide| residues
 res_pattern = re.compile(
-    '''
+    r'''
     (?P<anomer>[abxo])?
     (?P<conf_stem>(?:-[dlx][a-z]+)+)?-?
     (?P<superclass>[A-Z]+)-?
     (?P<indices>[0-9x]+:[0-9x]+)
-    (?P<modifications>(\|[0-9x]+:[0-9a-z]+)+)?
+    (?P<modifications>(\|[0-9x,]+:[0-9a-z]+)+)?
     ''', re.VERBOSE)
 
 #: Pattern for parsing the potentially repeated |Configuration| and |Stem|
@@ -87,7 +87,7 @@ conf_stem_pattern = re.compile(r'(?P<config>[dlx])(?P<stem>[a-z]+)')
 
 #: Pattern for parsing modifications found on monosaccharide residue
 #: lines in the RES section
-modification_pattern = re.compile(r"\|?(\d+):([^\|;\n]+)")
+modification_pattern = re.compile(r"\|?([0-9,x]+):([^\|;\n]+)")
 
 
 #: Pattern for parsing |Link| lines found in the LIN section
@@ -943,7 +943,11 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         modifications = OrderedMultiMap()
         if mods is not None:
             for p, mod in modification_pattern.findall(mods):
-                modifications[try_int(p)] = modification_map[mod]
+                positions = p.split(",")
+                if len(positions) > 1:
+                    warnings.warn("Multi-site Modifications are not fully supported")
+                for p in positions:
+                    modifications[try_int(p)] = modification_map[mod]
 
         is_reduced = "aldi" in modifications[1]
         if is_reduced:
@@ -1401,30 +1405,38 @@ class GlycoCTWriterBase(object):
 
     Attributes
     ----------
-    buffer : TYPE
-        Description
-    dependencies : TYPE
-        Description
-    full : TYPE
-        Description
-    index_to_residue : TYPE
-        Description
+    buffer : file-like
+        The buffer to write structures to. If :attr:`nobuffer` is |True|,
+        this will be a :class:`~.StringIO` object which will be returned
+        on each write.
+    dependencies : :class:`defaultdict` of :class:`dict`
+        Track the relationships between child nodes and their parents.
+        Used during linkage writing
+    full : :class:`bool`
+        Whether or not to traverse :class:`~.Monosaccharide`-:class:`~.Monosaccharide`
+        linkages.
+    index_to_residue : :class:`DictTree`
+        A state-specific mapping from index to :attr:`~.Monosaccharide.id`.
     lin_accumulator : list
-        Description
-    lin_counter : TYPE
-        Description
+        Accumulator list of :class:`~.Link` objects.
+    lin_counter : function
+        A stateful counter which when called returns the next
+        integer in a sequence used to index entries in the `LIN` section
     nobuffer : bool
-        Description
-    res_counter : TYPE
-        Description
-    residue_to_index : TYPE
-        Description
-    state : TYPE
-        Description
-    structure : TYPE
-        Description
-    und_counter : TYPE
-        Description
+        Whether or not the writer was initialized with a write-able buffer
+    res_counter : function
+        A stateful counter which when called returns the next
+        integer in a sequence used to index entries in the `RES` section
+    residue_to_index : :class:`DictTree`
+        A state-specific mapping from :attr:`~.Monosaccharide.id` to index.
+    state : str
+        The current state of the writer
+    structure : :class:`~.SaccharideCollection`
+        The structure currently being written. May be a :class:`~.Monosaccharide`,
+        :class:`~.Glycan`, :class:`~.GlycanComposition`.
+    und_counter : function
+        A stateful counter which when called returns the next
+        integer in a sequence used to index `UND` sections.
     """
 
     def __init__(self, structure=None, buffer=None, full=True):
@@ -1438,15 +1450,22 @@ class GlycoCTWriterBase(object):
         self.full = full
 
         self.state = START
+        self._initialize_counters()
+        self._initialize_index_tree()
+        self._initialize_link_trackers()
+
+    def _initialize_counters(self):
         self.res_counter = make_counter()
         self.lin_counter = make_counter()
         self.und_counter = make_counter()
 
+    def _initialize_index_tree(self):
         # Look-ups for mapping RES nodes to objects by section index and id,
         # respectively
         self.index_to_residue = DictTree(self.state)
         self.residue_to_index = DictTree(self.state)
 
+    def _initialize_link_trackers(self):
         # Accumulator for linkage indices and mapping linkage indices to
         # dependent RES indices
         self.lin_accumulator = []
@@ -1473,19 +1492,9 @@ class GlycoCTWriterBase(object):
 
     def _reset(self):
         self.state = START
-        self.res_counter = make_counter()
-        self.lin_counter = make_counter()
-        self.und_counter = make_counter()
-
-        # Look-ups for mapping RES nodes to objects by section index and id,
-        # respectively
-        self.index_to_residue = DictTree(self.state)
-        self.residue_to_index = DictTree(self.state)
-
-        # Accumulator for linkage indices and mapping linkage indices to
-        # dependent RES indices
-        self.lin_accumulator = []
-        self.dependencies = defaultdict(dict)
+        self._initialize_counters()
+        self._initialize_index_tree()
+        self._initialize_link_trackers()
         if self.nobuffer:
             self.buffer = StringIO()
 

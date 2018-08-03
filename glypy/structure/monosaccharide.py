@@ -56,6 +56,7 @@ def _get_standard_composition(monosaccharide):
     '''
     base = monosaccharide_composition[monosaccharide.superclass.name]
     modifications = list(monosaccharide.modifications.items())
+    double_bond_count = 0
     for mod_pos, mod_val in modifications:
         # Don't set the reducing end here
         if isinstance(mod_val, ReducedEnd):
@@ -65,11 +66,15 @@ def _get_standard_composition(monosaccharide):
         elif mod_val is Modification.aldi:  # pragma: no cover
             monosaccharide.reducing_end = True
             continue
+        if mod_val == Modification.en:
+            double_bond_count += 1
+            if double_bond_count % 2 == 0:
+                continue
         # Using global constant modification
         try:
             base += modification_compositions[mod_val](mod_pos)
         # Using object-oriented modification
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             base += mod_val.composition
     return base
 
@@ -1398,8 +1403,6 @@ class Monosaccharide(SaccharideBase):
             if link.parent_position == UnknownPosition or link.child_position == UnknownPosition:
                 return True
         return False
-
-
 
 
 class ReducedEnd(object):
