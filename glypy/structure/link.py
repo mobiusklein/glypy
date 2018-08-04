@@ -34,6 +34,12 @@ class Link(object):
 
     '''
 
+    __slots__ = (
+        "parent", "child", "parent_position", "child_position",
+        "parent_loss", "child_loss", "id",
+        "label", "_attached"
+    )
+
     def __init__(self, parent, child, parent_position=UnknownPosition, child_position=UnknownPosition,
                  parent_loss=None, child_loss=None, id=None, attach=True):
         '''
@@ -418,6 +424,30 @@ class Link(object):
             rep += "[ ]"
         return rep
 
+    def __getstate__(self):
+        state = {}
+        state["parent"] = self.parent
+        state["child"] = self.child
+        state["parent_position"] = self.parent_position
+        state["child_position"] = self.child_position
+        state["parent_loss"] = self.parent_loss
+        state["child_loss"] = self.child_loss
+        state["id"] = self.id
+        state["label"] = self.label
+        state["_attached"] = self._attached
+        return state
+
+    def __setstate__(self, state):
+        self.parent = state["parent"]
+        self.child = state["child"]
+        self.parent_position = state["parent_position"]
+        self.child_position = state["child_position"]
+        self.parent_loss = state["parent_loss"]
+        self.child_loss = state["child_loss"]
+        self.id = state["id"]
+        self.label = state["label"]
+        self._attached = state["_attached"]
+
 
 class LinkMaskContext(object):
     '''
@@ -454,6 +484,12 @@ class LinkMaskContext(object):
 
 
 class AmbiguousLink(Link):
+
+    __slots__ = (
+        "parent_choices", "parent_position_choices",
+        "child_choices", "child_position_choices"
+    )
+
     def __init__(self, parent, child, parent_position=(UnknownPosition,), child_position=(UnknownPosition,),
                  parent_loss=None, child_loss=None, id=None, attach=True):
         if not isinstance(parent, (list, tuple)):
@@ -477,6 +513,20 @@ class AmbiguousLink(Link):
             self.parent_position_choices[0],
             self.child_position_choices[0],
             parent_loss, child_loss, id, attach)
+
+    def __getstate__(self):
+        state = super(AmbiguousLink, self).__getstate__()
+        state['parent_choices'] = self.parent_choices
+        state['parent_position_choices'] = self.parent_position_choices
+        state['child_choices'] = self.child_choices
+        state['child_position_choices'] = self.child_position_choices
+
+    def __setstate__(self, state):
+        super(AmbiguousLink, self).__setstate__(state)
+        self.parent_choices = state['parent_choices']
+        self.parent_position_choices = state['parent_position_choices']
+        self.child_choices = state['child_choices']
+        self.child_position_choices = state['child_position_choices']
 
     def has_ambiguous_linkage(self):
         return len(self.parent_position_choices) > 1 or len(self.child_position_choices) > 1

@@ -1,6 +1,8 @@
 from glypy.composition.structure_composition import substituent_compositions
+
 from .base import SubstituentBase
 from .link import Link
+from .constants import UnknownPosition
 
 from glypy.utils import uid
 from glypy.composition import Composition, calculate_mass
@@ -161,9 +163,15 @@ class Substituent(SubstituentBase):
         not for external use. See :meth:`order`.
 
     '''
-
     register = staticmethod(register)
     unregister = staticmethod(unregister)
+
+    __slots__ = (
+        "_name", "links", "composition", "id",
+        "can_nh_derivatize", "is_nh_derivatizable",
+        "_derivatize", "attachment_composition",
+        "_degree"
+    )
 
     def __init__(self, name, links=None, composition=None, id=None,
                  can_nh_derivatize=None, is_nh_derivatizable=None, derivatize=False,
@@ -346,12 +354,29 @@ class Substituent(SubstituentBase):
         return mass
 
     def __getstate__(self):
-        return self.__dict__
+        state = {
+            "_name": self._name,
+            "links": self.links,
+            "composition": self.composition,
+            "id": self.id,
+            "can_nh_derivatize": self.can_nh_derivatize,
+            "is_nh_derivatizable": self.is_nh_derivatizable,
+            "_derivatize": self._derivatize,
+            "attachment_composition": self.attachment_composition,
+            "_degree": self._degree
+        }
+        return state
 
     def __setstate__(self, state):
-        self.__dict__.update(state)
+        self._name = state['_name']
+        self.links = state['links']
+        self.composition = state['composition']
+        self.id = state['id']
+        self.can_nh_derivatize = state['can_nh_derivatize']
+        self.is_nh_derivatizable = state['is_nh_derivatizable']
+        self._derivatize = state['_derivatize']
+        self.attachment_composition = state['attachment_composition']
         self._degree = state.get("_degree", len(self.links))
-        self._derivatize = state.get("_derivatize", False)
 
     def clone(self, prop_id=True):
         '''

@@ -237,7 +237,7 @@ def graph_clone(monosaccharide, visited=None):
             # Handle cycles where the same node is linked many times
             if terminal.id in index:
                 clone_terminal = index[terminal.id]
-                clone_terminal.maybe_cyclic = True
+                # clone_terminal.maybe_cyclic = True
                 cyclewarning()
             else:
                 index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
@@ -373,6 +373,14 @@ class Monosaccharide(SaccharideBase):
     '''
     _serializers = {}
 
+    __slots__ = (
+        "id", "_anomer", "_configuration", "_stem", "_superclass",
+        "ring_start", "ring_end", "links", "substituent_links",
+        "modifications", "composition",
+        "_reducing_end", "_degree",
+        "_checked_for_reduction"
+    )
+
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=None, ring_end=None,
                  modifications=None, links=None, substituent_links=None,
@@ -481,7 +489,7 @@ class Monosaccharide(SaccharideBase):
                     continue
                 try:
                     modifications[site] = mod
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     modifications[site] = mod.clone()
 
         monosaccharide = monosaccharide_type(
@@ -729,8 +737,7 @@ class Monosaccharide(SaccharideBase):
 
         null_positions = (UnknownPosition, NoPosition, 'x')
 
-        if (position > self.superclass.value) or (
-            position < 1 and position not in null_positions):
+        if (position > self.superclass.value) or (position < 1 and position not in null_positions):
             raise IndexError("Index out of bounds")
         # The unknown position is always available
         if position in (UnknownPosition, 'x'):  # pragma: no cover
@@ -780,7 +787,7 @@ class Monosaccharide(SaccharideBase):
                 self.composition += modification_compositions[modification](position)
                 self.modifications[position] = Modification[modification]
             # OO Modification
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.composition += modification.composition
                 self.modifications[position] = modification
         return self
@@ -823,7 +830,7 @@ class Monosaccharide(SaccharideBase):
                 self.composition = self.composition - \
                     modification_compositions[modification](position)
             # OO Modification
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.composition = self.composition - modification.composition
         return self
 
@@ -1205,7 +1212,21 @@ class Monosaccharide(SaccharideBase):
     __repr__ = serialize
 
     def __getstate__(self):
-        return self.__dict__
+        state = dict()
+        state['_anomer'] = self._anomer
+        state['_superclass'] = self._superclass
+        state['_stem'] = self._stem
+        state['_configuration'] = self._configuration
+        state['_degree'] = self._degree
+        state['ring_start'] = self.ring_start
+        state['ring_end'] = self.ring_end
+        state['id'] = self.id
+        state['modifications'] = self.modifications
+        state['links'] = self.links
+        state['substituent_links'] = self.substituent_links
+        state['composition'] = self.composition
+        state['_reducing_end'] = self._reducing_end
+        return state
 
     def __setstate__(self, state):
         '''
