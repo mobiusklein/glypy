@@ -1,9 +1,5 @@
 import logging
 import json
-try:
-    from itertools import izip_longest
-except:
-    from itertools import zip_longest as izip_longest
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -17,6 +13,8 @@ def _str_dump_multimap(mm):  # pragma: no cover
 
 
 class MultiMap(object):
+    __slots__ = ['contents', ]
+
     '''Implements a simple MultiMap data structure on top of a dictionary of lists'''
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
@@ -128,12 +126,24 @@ class MultiMap(object):
                 return True
         return False
 
+    def __reduce__(self):
+        return self.__class__, (), self.__getstate__()
+
+    def __getstate__(self):
+        return self.contents
+
+    def __setstate__(self, state):
+        self.contents = state
+
 
 class OrderedMultiMap(MultiMap):
     '''
     Implements a simple MultiMap data structure on top of a dictionary of lists
     that remembers the order keys were first inserted in.
     '''
+
+    __slots__ = ['key_order', ]
+
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
         self.key_order = []
@@ -182,3 +192,9 @@ class OrderedMultiMap(MultiMap):
 
     def __repr__(self):  # pragma: no cover
         return ''.join((repr(self.key_order), '\n', _str_dump_multimap(self)))
+
+    def __getstate__(self):
+        return self.contents, self.key_order
+
+    def __setstate__(self, state):
+        self.contents, self.key_order = state
