@@ -13,6 +13,9 @@ debug = False
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
+
+    __slots__ = ('group', 'name', 'value', 'names')
+
     def __init__(self, group, name, value, other_names=None):
         self.name = intern(name)
         self.value = value
