@@ -43,6 +43,7 @@ NSSKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 NSUniprotCore = Namespace("http://purl.uniprot.org/core/")
 NSUniprotEntity = Namespace("http://purl.uniprot.org/uniprot/")
 NSTaxonomy = Namespace("http://purl.uniprot.org/taxonomy/")
+NSDCTerms = Namespace("http://purl.org/dc/terms/")
 NSGlycoconjugate = Namespace("http://purl.jp/bio/12/glyco/conjugate")
 NSUnicarbKB = Namespace("http://rdf.unicarbkb.org/")
 NSUnicarbKBProtein = Namespace("http://unicarbkb.org/unicarbkbprotein/")
@@ -400,6 +401,7 @@ class GlyTouCanRDFClient(RDFClientBase):
         self.bind("glycan", NSGlycan)
         self.bind("glycoinfo", NSGlycoinfo)
         self.bind("skos", NSSKOS)
+        self.bind("dcterms", NSDCTerms)
 
     def from_taxon(self, taxon, limit=None):
         r"""Fetch all accession numbers for all structures
@@ -434,18 +436,16 @@ class GlyTouCanRDFClient(RDFClientBase):
         list of BoundURIRef
         """
         sparql = r'''
-        SELECT DISTINCT ?saccharide WHERE {
-            ?saccharide a glycan:saccharide .
-            ?saccharide skos:exactMatch ?gdb .
-            ?gdb glycan:has_reference ?ref .
-            ?ref glycan:is_from_source ?source .
-            ?source glycan:has_taxon ?taxon
-            FILTER REGEX(str(?taxon),
-                "http://www.uniprot.org/taxonomy/%s.rdf")
+        SELECT DISTINCT ?accession ?taxon_id
+        WHERE{
+            ?saccharide  glytoucan:has_primary_id ?accession .
+            ?saccharide glycan:is_from_source ?source.
+            ?source a glycan:Source .
+            VALUES ?taxon_id {"%s"}
+            ?source dcterms:identifier ?taxon_id
         }
         '''
-
-        query_string = sparql % str(taxon)
+        query_string = sparql % (str(taxon), )
         if limit is not None:
             query_string += " limit %d" % limit
         results = self.query(query_string)

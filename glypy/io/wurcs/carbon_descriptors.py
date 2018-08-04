@@ -1,3 +1,6 @@
+# Much code here is derived from https://github.com/glycoinfo/glycocttowurcs
+# though the representation of glycans in Eurocarbdb.MolecularFramework
+# may not map 1:1.
 try:
     from collections import Sequence
 except ImportError:

@@ -8,7 +8,7 @@ from glypy.structure.glycan import Glycan
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
 from .tree_builder_utils import try_int
-
+from .file_utils import ParserError
 
 basetype_unpacker = itemgetter("id", "anomer", "superclass", "ringStart", "ringEnd")
 
@@ -20,7 +20,7 @@ ALT = "ALT"
 UND = "UND"
 
 
-class GlycoCTXMLError(Exception):
+class GlycoCTXMLError(ParserError):
     pass
 
 
