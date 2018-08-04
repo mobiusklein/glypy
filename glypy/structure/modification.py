@@ -46,8 +46,8 @@ class Modification(ModificationBase):
     def to_glycoct(self):
         return glycoct_map.get(self.name, self.name)
 
-    def clone(self):
-        return self.__class__(self.name, self.position, self.composition, id=self.id)
+    def clone(self, prop_id=True):
+        return self.__class__(self.name, self.position, self.composition, id=self.id if prop_id else None)
 
     def __reduce__(self):
         return self.__class__, (self.name, self.position, self.composition, self.id)
@@ -64,11 +64,15 @@ class MultiSiteModification(Modification):
             name, positions[0], composition=composition, id=id)
         self.positions = tuple(positions)
 
-    def clone(self):
-        return self.__class__(self.name, self.positions, self.composition, id=self.id)
+    def clone(self, prop_id=True):
+        return self.__class__(self.name, self.positions, self.composition, id=self.id if prop_id else None)
 
     def __reduce__(self):
         return self.__class__, (self.name, self.positions, self.composition, self.id)
 
     def site_count(self):
         return len(self.positions)
+
+    def __repr__(self):  # pragma: no cover
+        return "<MultiSiteModification {name}@{positions}>".format(
+            name=self.name, positions=self.positions)
