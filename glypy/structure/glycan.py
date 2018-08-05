@@ -267,7 +267,7 @@ class Glycan(SaccharideCollection):
         created :class:`~.Monosaccharide` graph.
         """
         self.canonicalize()
-        self.reindex(index_method=method)
+        self.reindex(method=method)
         return self
 
     def __getitem__(self, ix):
@@ -830,7 +830,7 @@ class Glycan(SaccharideCollection):
                 count += 2 if count == 0 else 1
         return count
 
-    def order(self):
+    def order(self, deep=False):
         '''
         The number of nodes in the graph. :meth:`__len__` is an alias of this
 
@@ -1323,10 +1323,10 @@ class NamedGlycan(Glycan):
         self.name = name
         super(NamedGlycan, self).__init__(*args, **kwargs)
 
-    def clone(self, index_method='dfs', cls=None):
+    def clone(self, index_method='dfs', visited=None, cls=None):
         if cls is None:
             cls = NamedGlycan
-        inst = super(NamedGlycan, self).clone(index_method=index_method, cls=cls)
+        inst = super(NamedGlycan, self).clone(index_method=index_method, visited=visited, cls=cls)
         inst.name = self.name
         return inst
 
