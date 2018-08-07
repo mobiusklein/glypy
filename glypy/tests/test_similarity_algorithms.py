@@ -14,18 +14,18 @@ class SimilarityTests(unittest.TestCase):
         branchy = load("branchy_glycan")
         broad = load("broad_n_glycan")
         ref = broad.clone()
-        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (5, 5))
+        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, branchy.root), (7, 7))
         self.assertEqual(
             similarity.monosaccharide_similarity(branchy.root, branchy.root, include_children=True),
-            (44, 44))
-        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, broad.root), (4, 5))
+            (64, 64))
+        self.assertEqual(similarity.monosaccharide_similarity(branchy.root, broad.root), (4, 7))
         self.assertEqual(
             similarity.monosaccharide_similarity(branchy.root, broad.root, include_children=True),
-            (7, 10))
+            (9, 14))
         self.assertEqual(
             similarity.monosaccharide_similarity(broad.root, branchy.root, include_children=True),
-            (11, 14))
-        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (63, 63))
+            (17, 20))
+        self.assertEqual(similarity.monosaccharide_similarity(broad.root, broad.root, include_children=True), (91, 91))
         self.assertEqual(ref, broad)
 
     def test_build_index_pairs(self):
@@ -45,20 +45,20 @@ class SimilarityTests(unittest.TestCase):
     def test_partial_similarity(self):
         broad = load("broad_n_glycan")
         expected = [
-         (1, (63, 63)),
-         (3, (58, 58)),
-         (5, (53, 53)),
-         (6, (27, 27)),
-         (7, (14, 14)),
-         (9, (4, 4)),
-         (10, (5, 5)),
-         (11, (9, 9)),
-         (13, (4, 4)),
-         (14, (22, 22)),
-         (15, (9, 9)),
-         (17, (4, 4)),
-         (18, (9, 9)),
-         (20, (4, 4))
+            (1, (91, 91)),
+            (3, (84, 84)),
+            (5, (77, 77)),
+            (6, (39, 39)),
+            (7, (20, 20)),
+            (9, (6, 6)),
+            (10, (7, 7)),
+            (11, (13, 13)),
+            (13, (6, 6)),
+            (14, (32, 32)),
+            (15, (13, 13)),
+            (17, (6, 6)),
+            (18, (13, 13)),
+            (20, (6, 6))
         ]
         result = list(map(lambda x: (
             x[0].id, similarity.monosaccharide_similarity(

@@ -5,7 +5,7 @@ import functools
 from six import string_types as basestring
 
 from glypy import Substituent, monosaccharides
-from glypy.structure.constants import Modification, Stem
+from glypy.structure.constants import Modification, Stem, UnknownPosition
 
 
 class NodeSimilarityComparator(object):
@@ -43,13 +43,14 @@ class NodeSimilarityComparator(object):
     '''
     def __init__(self, include_substituents=True, include_modifications=True,
                  include_children=False, exact=True, ignore_reduction=False,
-                 short_circuit_after=None, visited=None):
+                 ignore_ring=False, short_circuit_after=None, visited=None):
         if visited is None:
             visited = set()
         self.include_substituents = include_substituents
         self.include_modifications = include_modifications
         self.include_children = include_children
         self.exact = exact
+        self.ignore_ring = ignore_ring
         self.ignore_reduction = ignore_reduction
         self.visited = visited
         self.short_circuit_after = short_circuit_after
@@ -60,13 +61,14 @@ class NodeSimilarityComparator(object):
     @classmethod
     def similarity(cls, node, target, include_substituents=True,
                    include_modifications=True, include_children=False,
-                   exact=True, ignore_reduction=False,
+                   exact=True, ignore_reduction=False, ignore_ring=False,
                    short_circuit_after=None, visited=None):
         inst = cls(
             include_substituents=include_substituents,
             include_modifications=include_modifications,
             include_children=include_children,
             exact=exact, ignore_reduction=ignore_reduction,
+            ignore_ring=ignore_ring,
             short_circuit_after=short_circuit_after,
             visited=visited)
         return inst.compare(node, target)
@@ -89,6 +91,14 @@ class NodeSimilarityComparator(object):
         reference += 1
         test += (node.configuration == target.configuration) or (target.configuration[0].value is None)
         reference += 1
+        if not self.ignore_ring:
+            test += (node.ring_start == target.ring_start) or (target.ring_start == UnknownPosition)
+            reference += 1
+            test += (node.ring_end == target.ring_end) or (target.ring_end == UnknownPosition)
+            reference += 1
+        else:
+            test += 2
+            reference += 2
         return test, reference
 
     def compare_modifications(self, node, target):

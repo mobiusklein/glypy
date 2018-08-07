@@ -44,10 +44,13 @@ def get_preferred_name(name, selector=min, key=len):
     return preferred_name
 
 
-def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True, exact=True, short_circuit=False):
+def is_a(node, target, tolerance=0, include_modifications=True, include_substituents=True, exact=True,
+         short_circuit=False, ignore_ring=True, **kwargs):
     '''
     Perform a semi-fuzzy match between `node` and `target` where node is the unqualified
-    residue queried and target is the known residue to be matched against
+    residue queried and target is the known residue to be matched against.
+
+    Forwards all unmatched arguments to :func:`~.monosaccharide_similarity`
 
     Parameters
     ----------
@@ -64,7 +67,6 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
         Whether or not to include substituents in comparison. Defaults to |True|
     exact: bool
         Whether or not to penalize for unmatched attachments. Defaults to |True|
-
     Returns
     -------
     bool
@@ -86,17 +88,20 @@ def is_a(node, target, tolerance=0, include_modifications=True, include_substitu
             return False
         res, qs = monosaccharide_similarity(node, target, include_modifications=include_modifications,
                                             include_substituents=include_substituents,
-                                            include_children=False, exact=exact,
-                                            short_circuit_after=tolerance if short_circuit else None)
+                                            include_children=False, exact=exact, ignore_ring=ignore_ring,
+                                            short_circuit_after=tolerance if short_circuit else None, **kwargs)
     threshold = (qs - res) <= tolerance
     return threshold
 
 
-def identify(node, blacklist=None, tolerance=0, include_modifications=True, include_substituents=True):
+def identify(node, blacklist=None, tolerance=0, include_modifications=True, include_substituents=True,
+             ignore_ring=True, **kwargs):
     '''
     Attempt to find a common usage name for the given |Monosaccharide|, `node`. The name is determined by
     performing an incremental comparison of the traits of `node` with each named residue in the database
     accessed at :obj:`glypy.monosaccharides`.
+
+    Forwards all unmatched arguments to :func:`~.monosaccharide_similarity`
 
     Parameters
     ----------
@@ -131,7 +136,8 @@ def identify(node, blacklist=None, tolerance=0, include_modifications=True, incl
     for name, structure in monosaccharides_ordered:
         if name in blacklist:
             continue
-        if is_a(node, structure, tolerance, include_modifications, include_substituents):
+        if is_a(node, structure, tolerance, include_modifications, include_substituents, ignore_ring=ignore_ring,
+                **kwargs):
             return get_preferred_name(name)
     raise IdentifyException("Could not identify {}".format(node))
 
@@ -170,7 +176,7 @@ def naive_name_monosaccharide(monosaccharide):
         try:
             if monosaccharide.superclass.value > 6:
                 return identify(c, tolerance=0)
-        except:
+        except Exception:
             pass
         c.anomer = None
         return identify(c)
