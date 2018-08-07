@@ -1,5 +1,5 @@
-from glypy.utils import enum, root as rootp
-from glypy.structure.base import SaccharideBase
+from glypy.utils import enum, root as rootp, uid
+from glypy.structure import monosaccharide
 
 
 class StructurePrecisionEnum(enum.Enum):
@@ -121,3 +121,48 @@ def find_root(tree):
             break
         root = parents[0][1]
     return root
+
+
+class NodeCollection(object):
+
+    @classmethod
+    def from_node(cls, root):
+        nodes = []
+        for node in monosaccharide.traverse(root):
+            nodes.append(node)
+            try:
+                for _, subst in node.substituents():
+                    nodes.append(subst)
+            except AttributeError:
+                pass
+        return cls(nodes)
+
+    def __init__(self, nodes):
+        self.nodes = list(nodes)
+        self.root = self.nodes[0]
+
+    def __iter__(self):
+        return monosaccharide.traverse(self.root)
+
+    def deindex(self):
+        base = uid()
+        for i, node in enumerate(self.nodes):
+            node.id += base
+            node.id *= -1
+
+    def reindex(self):
+        for i, node in enumerate(self.nodes):
+            node.id = i + 1
+
+    def clone(self, *args, **kwargs):
+        root = monosaccharide.graph_clone(self.root)
+        return self.from_node(root)
+
+    def get(self, key):
+        for node in self.nodes:
+            if node.id == key:
+                return node
+        raise IndexError(key)
+
+    def __root__(self):
+        return self.root
