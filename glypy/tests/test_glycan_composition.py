@@ -16,7 +16,7 @@ FrozenMonosaccharideResidue = glycan_composition.FrozenMonosaccharideResidue
 
 class IUPACLiteTests(unittest.TestCase):
     def test_parse_identity(self):
-        items = ["Glc2NAc", "Neu5Ac", "Fuc", "6-dHex"]
+        items = ["Glc2NAc", "Neu5Ac", "Fuc", "6-d-Hex"]
         for item in items:
             term = glycan_composition.from_iupac_lite(item)
             deparse = glycan_composition.to_iupac_lite(term)

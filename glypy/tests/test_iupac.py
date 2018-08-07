@@ -39,6 +39,11 @@ class IUPACTests(unittest.TestCase):
             self.assertEqual(mono.ring_start, start)
             self.assertEqual(mono.ring_end, stop)
 
+    def test_alternate_superclass(self):
+        text = "a-D-2-deoxy-araHex"
+        mono = iupac.from_iupac(text)
+        self.assertEqual(mono.stem[0], 'ara')
+
     def test_monosaccharide_from_iupac(self):
         text = "a-L-Fucp"
         reference = monosaccharides.Fucose

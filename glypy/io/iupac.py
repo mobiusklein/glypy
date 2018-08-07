@@ -4,7 +4,7 @@ import warnings
 from collections import deque, namedtuple
 from glypy.structure import (
     Monosaccharide, Glycan, Link, AmbiguousLink,
-    Substituent, constants, named_structures)
+    Substituent, constants, named_structures, UnknownPosition)
 from glypy.composition import Composition
 from glypy.composition.structure_composition import substituent_compositions
 from glypy.composition.composition_transform import has_derivatization, derivatize
@@ -62,6 +62,10 @@ substituents_map_to["fluoro"] = "F"
 substituents_map_to["amino"] = "N"
 
 substituents_map_from = invert_dict(substituents_map_to)
+
+_modification_map_to = {
+    'deoxy': 'd',
+}
 
 
 class SubstituentSerializer(object):
@@ -173,7 +177,10 @@ class ModificationSerializer(object):
                 buff.append(template.format(position=pos, name=mod.name))
             else:
                 buff.append(mod.name)
-        return ','.join(buff)
+        out = ','.join(buff)
+        if out:
+            out += '-'
+        return out
 
     def __call__(self, modifications, base_type):
         return self.extract_modifications(modifications, base_type)
@@ -183,6 +190,15 @@ extract_modifications = ModificationSerializer()
 
 
 class ModificationDeserializer(object):
+    def __init__(self, modification_map=None):
+        if modification_map is None:
+            modification_map = _modification_map_to.copy()
+        else:
+            t = _modification_map_to.copy()
+            t.update(modification_map)
+            modification_map = t
+        self.modification_map = modification_map
+
     def parse_modifications(self, modification_string):
         buff = modification_string.split(",")
         pairs = []
@@ -195,7 +211,8 @@ class ModificationDeserializer(object):
                 pos = -1
                 mod = token
             try:
-                pairs.append((int(pos), Modification[mod]))
+                mod_t = self.modification_map.get(mod, mod)
+                pairs.append((int(pos), Modification[mod_t]))
             except KeyError:
                 raise IUPACError("Could not determine modification from %s" % modification_string)
         return pairs
@@ -470,13 +487,13 @@ def parse_linkage_structure(linkage_string):
 
 class MonosaccharideDeserializer(object):
     pattern = re.compile(r'''(?:(?P<anomer>[abo?]|alpha|beta)-)?
-                         (?P<configuration>[LD?])-
-                         (?P<modification>[a-z0-9_\-,]*)
-                         (?P<base_type>[^-]{3}?)
-                         (?P<ring_type>[xpfo?])?
-                         (?P<substituent>[^-]*?)
-                         (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?
-                         $''', re.VERBOSE)
+                             (?P<configuration>[LD?])-
+                             (?P<modification>[a-z0-9_\-,]*?)
+                             (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
+                             (?P<ring_type>[xpfo?])?
+                             (?P<substituent>[^-]*?)
+                             (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?
+                             $''', re.VERBOSE)
 
     def __init__(self, modification_parser=None, substituent_parser=None):
         if modification_parser is None:
@@ -497,14 +514,16 @@ class MonosaccharideDeserializer(object):
         return match_dict
 
     def ring_bounds(self, residue, ring_type):
-        if ring_type == 'p':
+        if residue.ring_start == UnknownPosition:
+            residue.ring_end = UnknownPosition
+        elif ring_type == 'p':
             residue.ring_end = residue.ring_start + 4
         elif ring_type == 'f':
             residue.ring_end = residue.ring_start + 3
         elif ring_type == 'o':
             residue.ring_end = residue.ring_start = 0
         else:
-            residue.ring_end = residue.ring_start = None
+            residue.ring_end = residue.ring_start = UnknownPosition
 
     def build_residue(self, match_dict):
         try:
@@ -515,14 +534,26 @@ class MonosaccharideDeserializer(object):
         configuration = match_dict["configuration"].lower()
         ring_type = match_dict['ring_type']
 
-        modification = match_dict['modification']
+        modification = (match_dict['modification'] or '').rstrip("-")
 
         linkage = match_dict.get("linkage")
+        original_base_type = base_type
+        # alternate carbon backbone size encoded as stem{3}Superclass{3}
+        # instead of Stem{3}
+        if len(base_type) == 6:
+            superclass_type = base_type[3:].lower()
+            base_type = base_type[:3].title()
+        else:
+            superclass_type = None
         try:
             residue = named_structures.monosaccharides[base_type]
         except KeyError:
-            raise IUPACError("Unknown Residue Base-type %r" % (base_type,))
+            raise IUPACError("Unknown Residue Base-type %r" % (original_base_type,))
         base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
+        if superclass_type is not None:
+            residue.superclass = superclass_type
+            residue.ring_start = UnknownPosition
+            residue.ring_end = UnknownPosition
 
         if len(residue.configuration) == 1:
             residue.configuration = (configuration,)
@@ -692,9 +723,9 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
                 if neg_capacity > 0:
                     raise ValueError("Could not completely remove overload from %s" % (node,))
 
-    def strip_derivatization(self, residue_str):
+    def strip_derivatization(self, residue_str, **kwargs):
         base = residue_str.rsplit("^")[0]
-        return self(base)
+        return self(base, **kwargs)
 
 
 class CondensedMonosaccharideDeserializer(object):

@@ -52,7 +52,7 @@ from six import string_types as basestring
 
 monosaccharide_parser_lite = re.compile(
     r'''^(?P<modification>[a-z0-9_\-,]*)
-        (?P<base_type>[A-Z][a-z]+)
+        (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
         (?P<substituent>[^-]*?)
         (?P<derivatization>\^[^\s-]*?)?$''', re.VERBOSE)
 
@@ -100,7 +100,7 @@ class IUPACLiteMonosaccharideDeserializer(iupac.DerivatizationAwareMonosaccharid
 
     def build_residue(self, match_dict):
         base_type = match_dict["base_type"]
-        modification = match_dict['modification']
+        modification = (match_dict['modification'] or '').rstrip("-")
 
         try:
             residue = named_structures.monosaccharides[base_type]
@@ -393,8 +393,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         return self._total_composition
 
     def copy_underivatized(self):
-        return self.from_iupac_lite(
-            IUPACLiteMonosaccharideDeserializer.strip_derivatization(str(self)))
+        return from_iupac_lite.strip_derivatization(str(self), residue_class=self.__class__)
 
 
 class SubstituentResidue(Substituent):
