@@ -10,7 +10,7 @@ from .basetype_conversion import (
     descriptors_to_base_type)
 
 from glypy.structure.monosaccharide import Monosaccharide, ReducedEnd
-from glypy.structure.constants import SuperClass, Anomer, Modification, Stem, Configuration
+from glypy.structure.constants import SuperClass, Anomer, Modification, Stem, Configuration, UnknownPosition
 from glypy import OrderedMultiMap
 
 
@@ -27,8 +27,8 @@ class CarbonDescriptors(Sequence):
         self.descriptors = tuple(descriptors)
         self.anomer = Anomer[anomer]
         self.anomeric_position = self._translate_position(anomeric_position)
-        self.ring_start = ring_start if ring_start is not None else -1
-        self.ring_end = ring_end if ring_end is not None else -1
+        self.ring_start = ring_start if ring_start is not None else UnknownPosition
+        self.ring_end = ring_end if ring_end is not None else UnknownPosition
 
     def _translate_position(self, position):
         if position == '?':
@@ -172,8 +172,8 @@ class CarbonDescriptors(Sequence):
             configurations,
             stems,
             superclass,
-            ring_start if ring_start != -1 else None,
-            ring_end if ring_end != -1 else None,
+            ring_start,
+            ring_end,
             modifications, reduced=ReducedEnd() if is_reduced else None)
         return base
 
@@ -233,12 +233,12 @@ class CarbonDescriptors(Sequence):
             anomeric_sites.append(1)
         anomeric_position = anomeric_sites[0]
         # if the anomeric position is fully defined and the monosaccharide is cyclic
-        if monosaccharide.ring_start not in (None, 0):
+        if monosaccharide.ring_start not in (UnknownPosition, 0):
             code[anomeric_position - 1] = 'a'
         # if the anomeric position is partially undefined, the carbon code is 'u'
-        elif monosaccharide.ring_start is None:
+        elif monosaccharide.ring_start == UnknownPosition:
             code[anomeric_position - 1] = 'u'
-        if monosaccharide.ring_start is None:
+        if monosaccharide.ring_start == UnknownPosition:
             anomeric_position = "?"
         return cls(code, anomer, anomeric_position, monosaccharide.ring_start, monosaccharide.ring_end)
 

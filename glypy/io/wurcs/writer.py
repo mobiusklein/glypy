@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from glypy.structure.glycan_composition import GlycanComposition
+from glypy.utils import tree
 
 from .node_type import NodeTypeSpec
 from .utils import base52
@@ -99,4 +100,6 @@ class WURCSWriter(object):
 
 
 def dumps(glycan):
+    if not isinstance(glycan, GlycanComposition):
+        glycan = tree(glycan)
     return WURCSWriter(glycan).write()
