@@ -41,7 +41,7 @@ default_attachment_composition = Composition("H")
 
 
 derivatize_info = {
-    "acetyl": DerivatizePathway(True, False),
+    "acetyl": DerivatizePathway(False, False),
     "amino": DerivatizePathway(True, False),
     "anhydro": DerivatizePathway(True, False),
     "bromo": DerivatizePathway(True, False),
