@@ -24,7 +24,7 @@ from six import string_types as basestring
 
 from glypy.utils.enum import EnumValue
 
-from .constants import Stereocoding, Modification, Anomer, Configuration, Stem
+from .constants import Stereocoding, Modification, Anomer, Configuration, Stem, UnknownPosition, NoPosition
 
 
 def sdecode(code):
@@ -98,6 +98,8 @@ reference_stereomap = {
     ('beta', 'l', (('tal',), 'hex')): '222210',
     ('alpha', 'l', (('ara',), 'hex')): '102110',
     ('beta', 'd', (('ara',), 'hex')): '011220',
+    ('beta', 'd', (('man',), 'oct')): '01011220',
+    ('alpha', 'd', (('man',), 'oct')): '02011220',
 }
 
 reference_stereomap = {k: sdecode(v) for k, v in reference_stereomap.items()}
@@ -126,7 +128,8 @@ def _update_stereocode_basic(code, monosaccharide):
 
 
 def _update_stereocode_extended(code, monosaccharide):
-    if monosaccharide.ring_start is not None and monosaccharide.ring_end is not None:
+    null_position = (UnknownPosition, NoPosition)
+    if monosaccharide.ring_start not in null_position and monosaccharide.ring_end not in null_position:
         ring_range = range(monosaccharide.ring_start, monosaccharide.ring_end + 1)
     else:
         ring_range = []
