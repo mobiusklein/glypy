@@ -339,8 +339,8 @@ class Glycan(SaccharideCollection):
 
         .. code-block:: python
 
-            self.root.ring_start = None
-            self.root.ring_end = None
+            self.root.ring_start = UnknownPosition
+            self.root.ring_end = UnknownPosition
             self.root.anomer = None
 
         '''
