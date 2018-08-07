@@ -163,9 +163,9 @@ class EnzymeGraph(object):
     @classmethod
     def _load(cls, data_structure):
         seeds = {cls._load_entity(sd) for sd in data_structure["seeds"]}
-        graph = dict()
+        graph = defaultdict(_enzyme_graph_inner)
         for outer_key, outer_value in data_structure["graph"].items():
-            outgraph_inner = dict()
+            outgraph_inner = _enzyme_graph_inner()
             for inner_key, inner_value in outer_value.items():
                 outgraph_inner[cls._load_entity(inner_key)] = set(inner_value)
             graph[cls._load_entity(outer_key)] = outgraph_inner
@@ -202,6 +202,54 @@ class EnzymeGraph(object):
         for parent, children in other.items():
             for child, enzymes in children.items():
                 self[parent][child].update(enzymes)
+
+    def _dijkstra_distances_and_paths(self, source, sink):
+        distances = dict()
+        previous = dict()
+        unvisited = set()
+        for node in self.nodes():
+            distances[node] = float('inf')
+            previous[node] = None
+            unvisited.add(node)
+
+        distances[source] = 0
+        unvisited_finite_distance = dict()
+        visit_queue = deque([source])
+        while sink in unvisited:
+            try:
+                current_node = visit_queue.popleft()
+            except IndexError:
+                if unvisited_finite_distance:
+                    current_node, _ = min(unvisited_finite_distance.items(), key=lambda x: x[1])
+                    unvisited_finite_distance.pop(current_node)
+                else:
+                    current_node, _ = min(distances.items(), key=lambda x: x[1])
+            try:
+                unvisited.remove(current_node)
+            except KeyError:
+                continue
+            for child in self.children(current_node):
+                # all edges are of length 1
+                alternate_distance = distances[current_node] + 1
+                if alternate_distance < distances[child]:
+                    distances[child] = alternate_distance
+                    previous[child] = (current_node, self[current_node][child])
+                if child in unvisited:
+                    unvisited_finite_distance[child] = alternate_distance
+
+        return distances, previous
+
+    def path_between(self, source, sink):
+        distances, previous = self._dijkstra_distances_and_paths(source, sink)
+        parent, enz = previous[sink]
+        path = []
+        path.append(EnzymeEdge(parent, sink, enz))
+        child = parent
+        while source != child:
+            parent, enz = previous[child]
+            path.append(EnzymeEdge(parent, child, enz))
+            child = parent
+        return path[::-1]
 
 
 # This may be too memory intensive to use on large graphs because

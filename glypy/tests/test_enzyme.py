@@ -19,6 +19,14 @@ class GlycomeTests(unittest.TestCase):
             glycosylases, glycosyltransferases, seeds)
         return glycome
 
+    def test_path_between(self):
+        with open("test_data/enzyme_graph.json", 'rt') as fh:
+            graph = EnzymeGraph.load(fh)
+        p = list(graph.seeds)[0]
+        c = sorted(graph)[-1].child
+        path = graph.path_between(p, c)
+        assert len(path) == 13
+
     def test_synthesize_glycome(self):
         glycome = self._make_glycome()
         for i, gen in enumerate(glycome.run()):
