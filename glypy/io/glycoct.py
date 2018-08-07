@@ -17,7 +17,7 @@ from glypy.utils import (
     make_counter, invert_dict, uid,
     RootProtocolNotSupportedError)
 from glypy.utils.multimap import OrderedMultiMap
-from glypy.structure import monosaccharide, substituent, glycan, Modification, constants
+from glypy.structure import monosaccharide, substituent, glycan, Modification, constants, UnknownPosition, NoPosition
 from glypy.structure.link import Link, AmbiguousLink
 from .format_constants_map import (anomer_map, superclass_map,
                                    link_replacement_composition_map, modification_map)
@@ -28,7 +28,7 @@ from .tree_builder_utils import (
     find_root,
     try_int,
     StructurePrecisionEnum,
-    AbstractGraphEntryEnum)
+    AbstractGraphEntryEnum, NodeCollection)
 from glypy.composition import Composition
 
 try:
@@ -305,51 +305,6 @@ class GlycoCTGraph(object):
         roots = self.find_root_nodes()
         visited = self.visit(roots[0])
         return len(visited) >= len(self)
-
-
-class NodeCollection(object):
-
-    @classmethod
-    def from_node(cls, root):
-        nodes = []
-        for node in monosaccharide.traverse(root):
-            nodes.append(node)
-            try:
-                for _, subst in node.substituents():
-                    nodes.append(subst)
-            except AttributeError:
-                pass
-        return cls(nodes)
-
-    def __init__(self, nodes):
-        self.nodes = list(nodes)
-        self.root = self.nodes[0]
-
-    def __iter__(self):
-        return monosaccharide.traverse(self.root)
-
-    def deindex(self):
-        base = uid()
-        for i, node in enumerate(self.nodes):
-            node.id += base
-            node.id *= -1
-
-    def reindex(self):
-        for i, node in enumerate(self.nodes):
-            node.id = i + 1
-
-    def clone(self, *args, **kwargs):
-        root = monosaccharide.graph_clone(self.root)
-        return self.from_node(root)
-
-    def get(self, key):
-        for node in self.nodes:
-            if node.id == key:
-                return node
-        raise IndexError(key)
-
-    def __root__(self):
-        return self.root
 
 
 class GlycoCTGraphStack(GlycoCTGraph):
@@ -966,7 +921,7 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         configuration_ = tuple(Configuration[c] for c in config)
 
         ring_start_, ring_end_ = [
-            try_int(i) for i in residue_dict["indices"].split(":")]
+            (try_int(i) if i != 'x' else UnknownPosition) for i in residue_dict["indices"].split(":")]
 
         anomer_ = anomer_map[residue_dict['anomer']]
         super_class_ = superclass_map[residue_dict['superclass']]
@@ -1549,10 +1504,10 @@ class GlycoCTWriterBase(object):
 
         modifications = '|'.join(
             "{0}:{1}".format(k, v.name) for k, v in monosaccharide.modifications.items())
-
+        null_positions = (UnknownPosition, NoPosition)
         modifications = "|" + modifications if modifications != "" else ""
-        ring_start = monosaccharide.ring_start if monosaccharide.ring_start is not None else 'x'
-        ring_end = monosaccharide.ring_end if monosaccharide.ring_end is not None else 'x'
+        ring_start = monosaccharide.ring_start if monosaccharide.ring_start not in null_positions else 'x'
+        ring_end = monosaccharide.ring_end if monosaccharide.ring_end not in null_positions else 'x'
 
         # The complete monosaccharide residue line
         residue_str = residue_template.format(ix=monosaccharide_index, anomer=anomer, conf_stem=conf_stem,
