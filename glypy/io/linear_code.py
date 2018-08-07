@@ -273,9 +273,9 @@ def monosaccharide_from_linear_code(residue_str, parent=None):
     a |Monosaccharide| object. If `parent` is not |None|, connect the
     resulting |Monosaccharide| to `parent` at `outedge`.
     '''
-    base_type, substituents, anomer, outedge = re.search(r"([A-Z]+)(\[.*?\])?(.)(.)?", residue_str).groups()
+    base_type, substituents, anomer, outedge = re.search(r"([A-Z]+)(\[.*?\])?([abo\?]?)(.)?", residue_str).groups()
     base = named_structures.monosaccharides[monosaccharides_from[base_type]]
-    base.anomer = anomer_map_from[anomer]
+    base.anomer = anomer_map_from.get(anomer, None)
     if substituents is not None:
         for subst_str in substituents[1:-1].split(','):
             pos, name = re.search(r'(\d*)(.+)', subst_str).groups()
@@ -342,7 +342,8 @@ def parse_linear_code(text, structure_class=Glycan):
         elif text[-1] == '(':
             try:
                 branch_parent, old_root, old_last_outedge = branch_stack.pop()
-                branch_parent.add_monosaccharide(root, position=last_outedge, child_position=1)
+                branch_parent.add_monosaccharide(root, position=last_outedge,
+                                                 child_position=min(root.open_attachment_sites()[0]))
                 root = old_root
                 last_residue = branch_parent
                 last_outedge = old_last_outedge

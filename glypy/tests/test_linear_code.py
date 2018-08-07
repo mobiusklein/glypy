@@ -24,6 +24,11 @@ class LinearCodeTests(unittest.TestCase):
         dup = linear_code.loads(linear_code.dumps(sulfated))
         self.assertNotEqual(sulfated, dup)
 
+    def test_example(self):
+        seq = 'NNa3Ab3(NNa6)AN'
+        structure = linear_code.loads(seq)
+        self.assertEqual(len(structure), 4)
+
 
 if __name__ == '__main__':
     unittest.main()
