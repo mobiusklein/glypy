@@ -614,6 +614,14 @@ class ImageResource(dict):
         dict.__init__(self)
         self._uriref_list = []
 
+    def _materialize(self):
+        for uriref in self._uriref_list:
+            reference = uriref()
+            image_format = reference.format.split("/")[1]
+            symbol_format = split_uri(reference.has_symbol_format)[1].replace("symbol_format_", "")
+            url = uriref.toPython()
+            self[symbol_format, image_format] = url
+
     def register_uri(self, uriref):
         self._uriref_list.append(uriref)
         reference = uriref()
@@ -645,7 +653,7 @@ class ImageResource(dict):
         return "ImageResource(%s)" % ', '.join(map(str, self.keys()))
 
 
-@GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_image)
+# @GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_image)
 def has_image_processor(state, uri):
     '''
     Intercept raw URIRefs to image generation services and store them in
