@@ -382,7 +382,7 @@ class Monosaccharide(SaccharideBase):
     )
 
     def __init__(self, anomer=None, configuration=None, stem=None,
-                 superclass=None, ring_start=None, ring_end=None,
+                 superclass=None, ring_start=UnknownPosition, ring_end=UnknownPosition,
                  modifications=None, links=None, substituent_links=None,
                  composition=None, reduced=None, id=None, fast=False):
 
@@ -519,7 +519,9 @@ class Monosaccharide(SaccharideBase):
         EnumValue:
             The appropriate value of :class:`.RingType`
         """
-
+        null_positions = (UnknownPosition, NoPosition)
+        if self.ring_start in null_positions or self.ring_end in null_positions:
+            return RingType.x
         try:
             diff = self.ring_end - self.ring_start
             if diff == 4:
