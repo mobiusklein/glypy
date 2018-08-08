@@ -189,7 +189,7 @@ def exact_ordering_inclusion(target, reference, substituents=True, tolerance=0, 
         return True
 
 
-def subtree_of(subtree, tree, exact=False, tolerance=0):
+def subtree_of(subtree, tree, exact=False, include_substituents=True, tolerance=0):
     '''
     Test to see if `subtree` is included in `tree` anywhere. Returns the
     node id number of the first occurence of `subtree` included in `tree` or |None|
@@ -217,12 +217,12 @@ def subtree_of(subtree, tree, exact=False, tolerance=0):
         comparator = topological_inclusion
     tree_root = root(subtree)
     for node in tree:
-        if comparator(tree_root, node):
+        if comparator(tree_root, node, substituents=include_substituents, tolerance=tolerance):
             return node.id
     return None
 
 
-def find_matching_subtree_roots(subtree, tree, exact=False):
+def find_matching_subtree_roots(subtree, tree, exact=False, include_substituents=True, tolerance=0):
     if exact:
         comparator = exact_ordering_inclusion
     else:
@@ -230,12 +230,12 @@ def find_matching_subtree_roots(subtree, tree, exact=False):
     tree_root = root(subtree)
     matched_nodes = []
     for node in tree:
-        if comparator(tree_root, node):
+        if comparator(tree_root, node, substituents=include_substituents, tolerance=tolerance):
             matched_nodes.append(node)
     return matched_nodes
 
 
-def walk_with(query, reference, visited=None, comparator=commutative_similarity):
+def walk_with(query, reference, visited=None, comparator=commutative_similarity, include_substituents=True):
     """Walk the `query` along `refernece`, yielding successive matched nodes along
     a subtree of `reference`.
 
@@ -260,7 +260,7 @@ def walk_with(query, reference, visited=None, comparator=commutative_similarity)
     query_root = root(query)
     reference_root = root(reference)
     node_stack = deque()
-    if comparator(query_root, reference_root):
+    if comparator(query_root, reference_root, include_substituents=include_substituents):
         node_stack.append((reference_root, query_root))
     while len(node_stack) != 0:
         rnode, qnode = node_stack.pop()
