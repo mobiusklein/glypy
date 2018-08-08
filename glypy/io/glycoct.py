@@ -1498,7 +1498,7 @@ class GlycoCTWriterBase(object):
         anomer = invert_anomer_map[monosaccharide.anomer]
         conf_stem = ''.join("-{0}{1}".format(c.name, s.name)
                             for c, s in zip(monosaccharide.configuration, monosaccharide.stem))
-        if None in monosaccharide.configuration or None in monosaccharide.stem:
+        if None in monosaccharide.configuration and None in monosaccharide.stem:
             conf_stem = ''
         superclass = "-" + invert_superclass_map[monosaccharide.superclass]
 
