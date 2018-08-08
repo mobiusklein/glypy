@@ -156,7 +156,7 @@ class CarbonDescriptors(Sequence):
                 anomeric_position = i + 1
                 if anomeric_position == 2:
                     modifications[anomeric_position] = Modification.keto
-            if site in 'E':
+            if site in ('E', 'F'):
                 double_bonds.append(i + 1)
             if site in ('d', 'm'):
                 modifications[i + 1] = Modification.Deoxygenated
