@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from glypy.structure import Glycan, Monosaccharide
 from glypy.structure.glycan_composition import GlycanComposition
 from glypy.utils import tree
 
@@ -101,5 +102,16 @@ class WURCSWriter(object):
 
 def dumps(glycan):
     if not isinstance(glycan, GlycanComposition):
-        glycan = tree(glycan)
+        try:
+            glycan = tree(glycan)
+        except TypeError:
+            if isinstance(glycan, Monosaccharide):
+                nts = NodeTypeSpec.from_monosaccharide(glycan)
+                return nts.to_res()
+            else:
+                raise
     return WURCSWriter(glycan).write()
+
+
+Glycan.register_serializer('wurcs', dumps)
+Monosaccharide.register_serializer('wurcs', dumps)
