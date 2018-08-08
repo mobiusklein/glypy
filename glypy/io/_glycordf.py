@@ -26,5 +26,6 @@ NSGlycan = PopulatedNamespace(NSGlycan, _entities)
 
 
 __all__ = [
-    "NSGlycan"
+    "NSGlycan",
+    "glycordf",
 ]

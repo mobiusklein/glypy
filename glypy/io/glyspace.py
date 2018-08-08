@@ -54,6 +54,7 @@ NSOwl = Namespace("http://www.w3.org/2002/07/owl#")
 NSSIO = Namespace("http://semanticscience.org/resource/")
 NSFOAF = Namespace("http://xmlns.com/foaf/0.1/")
 
+GlycoRDF = _glycordf.glycordf
 
 _uniprot_taxon_uri = u"http://www.uniprot.org/taxonomy/{}.rdf"
 
