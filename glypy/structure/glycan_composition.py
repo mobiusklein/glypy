@@ -179,12 +179,12 @@ def drop_positions(residue):
     if _resolve_special_base_type(residue) is None:
         modifications = OrderedMultiMap()
         for k, v in residue.modifications.items():
-            modifications[-1] = v
+            modifications[UnknownPosition] = v
         residue.modifications = modifications
 
         for p, link in list(residue.substituent_links.items()):
             link.break_link(refund=True)
-            link.parent_position = -1
+            link.parent_position = UnknownPosition
             link.apply()
 
 
