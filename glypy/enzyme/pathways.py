@@ -113,7 +113,7 @@ class Transferase(Glycoenzyme):
 
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
                  identifying_information=None, comparator=None, validator=None,
-                 parent_node_id=None, site_validator=None):
+                 parent_node_id=None, site_validator=None, exact=True):
         super(Transferase, self).__init__(
             parent_position, child_position, parent, child, terminal,
             identifying_information, comparator, validator)
@@ -124,6 +124,7 @@ class Transferase(Glycoenzyme):
             parent_node_id = proot(self.parent).id
         self.parent_node_id = parent_node_id
         self.site_validators = self._conform_validator(site_validator)
+        self.exact = exact
 
     def _traverse(self, structure):
         for node in subtree_search.find_matching_subtree_roots(self.parent, structure, exact=True):
@@ -293,6 +294,10 @@ def make_n_glycan_pathway():
     siat2_3 = Glycosyltransferase(3, 2, parent, child, identifying_information=enzdb[
                                   2, 4, 99, 6], parent_node_id=3)
 
+    parent = iupac.loads("b-D-Glcp2NAc")
+    child = iupac.loads("b-D-Galp2NAc")
+    b4galnact = Glycosyltransferase(4, 1, parent, child, parent_node_id=1, identifying_information=None)
+
     parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
     child = iupac.loads("a-L-Fucp")
     fuct3 = Glycosyltransferase(3, 1, parent, child, terminal=False,
@@ -335,7 +340,9 @@ def make_n_glycan_pathway():
         "siat2_3": siat2_3,
         "fuct3": fuct3,
         "fuct6": fuct6,
-        "agal13galt": agal13galt
+        "agal13galt": agal13galt,
+        # pending literature search: https://www.ncbi.nlm.nih.gov/pubmed/7881179
+        # "b4galnact": b4galnact,
     }
 
     starting_structure_iupac = (
