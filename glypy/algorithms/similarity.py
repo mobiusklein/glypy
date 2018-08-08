@@ -332,11 +332,11 @@ monosaccharide_similarity = NodeSimilarityComparator.similarity
 
 def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
     obs, expect = monosaccharide_similarity(node, target, *args, **kwargs)
-    if (obs - expect) >= -tolerance:
+    if (expect - obs) <= tolerance:
         return True
     else:
         obs, expect = monosaccharide_similarity(target, node, *args, **kwargs)
-        return (obs - expect) >= -tolerance
+        return (expect - obs) <= tolerance
 
 
 def commutative_similarity_score(node, target, *args, **kwargs):
