@@ -5,7 +5,7 @@
   Non: RES 1b:a-dgro-dgal-NON-2:6
   GlcNAc: RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
   Gal: RES 1b:b-dgal-HEX-1:5
-  Neu5Gc: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-glycolyl LIN 1:1d(5+2)2n
+  Neu5Gc: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-glycolyl LIN 1:1d(5+1)2n
   ManAnhydro: RES 1b:b-dman-HEX-1:5 2s:anhydro LIN 1:1o(2+1)2n
   Tri: RES 1b:x-TRI-x:x
   "Neuraminic acid": RES 1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:amino LIN 1:1d(5+1)2n
@@ -37,9 +37,7 @@
   "Iduronic Acid": RES 1b:x-lido-HEX-1:5|6:a
   Xyl: RES 1b:x-dxyl-PEN-1:5
   GalA: RES 1b:x-dgal-HEX-1:5|6:a
-  "LinearCode:NN": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n
   Hep: RES 1b:a-lgro-dman-HEP-1:5
-  "LinearCode:NJ": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-glycolyl LIN 1:1d(5+2)2n
   Hex: RES 1b:x-HEX-1:5
   bdGal: RES 1b:b-dgal-HEX-1:5
   GlcN: RES 1b:b-dglc-HEX-1:5 2s:amino LIN 1:1x(-1+-1)2x
@@ -47,7 +45,6 @@
   2-Amino-2-deoxyglucose: RES 1b:b-dglc-HEX-1:5 2s:amino LIN 1:1x(-1+-1)2x
   GlcA: RES 1b:b-dglc-HEX-1:5|6:a
   Glucose: RES 1b:b-dglc-HEX-1:5
-  "LinearCode:G[Q]": RES 1b:b-dglc-HEX-1:5 2s:amino LIN 1:1x(-1+-1)2x
   KDN: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
   Allose: RES 1b:x-dall-HEX-1:5
   Ribose: RES 1b:x-drib-PEN-1:4
@@ -59,37 +56,21 @@
   Kdn: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
   Kdo: RES 1b:x-dman-OCT-2:6|1:a|2:keto|3:d
   "Glucuronic Acid": RES 1b:b-dglc-HEX-1:5|6:a
-  "LinearCode:AN": RES 1b:b-dgal-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
   Tet: RES 1b:x-TET-x:x
   Neu5Ac: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n
-  "Neu5,9Ac2": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl 3s:n-acetyl LIN 1:1d(5+2)2n 2:1d(9+2)3n
+  "Neu5,9Ac2": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl 3s:n-acetyl LIN 1:1d(5+1)2n 2:1d(9+1)3n
   "2-Keto-3-deoxynanonic acid": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
   "Sialic Acid": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n
   IdoA: RES 1b:x-lido-HEX-1:5|6:a
   GalNAc: RES 1b:b-dgal-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
   Rha: RES 1b:x-lman-HEX-1:5|6:d
   Rhamnose: RES 1b:x-lman-HEX-1:5|6:d
+  Qui: RES 1b:x-dglc-HEX-1:5|6:d
+  Quinovose: RES 1b:x-dglc-HEX-1:5|6:d
   Man: RES 1b:b-dman-HEX-1:5
-  "LinearCode:B": RES 1b:x-drib-PEN-1:4
   Galactose: RES 1b:b-dgal-HEX-1:5
-  "LinearCode:A": RES 1b:b-dgal-HEX-1:5
-  "LinearCode:F": RES 1b:a-lgal-HEX-1:5|6:d
-  "LinearCode:G": RES 1b:b-dglc-HEX-1:5
-  "LinearCode:E": RES 1b:x-dara-HEX-2:5|2:keto
-  "LinearCode:K": RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
-  "LinearCode:H": RES 1b:x-lman-HEX-1:5|6:d
-  "LinearCode:I": RES 1b:x-lido-HEX-1:5|6:a
-  "LinearCode:N": RES 1b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:amino LIN 1:1x(5+-1)2x
-  "LinearCode:O": RES 1b:x-dall-HEX-1:5
-  "LinearCode:L": RES 1b:x-dgal-HEX-1:5|6:a
-  "LinearCode:M": RES 1b:b-dman-HEX-1:5
-  "LinearCode:R": RES 1b:x-lara-PEN-1:4
   Ido: RES 1b:x-lido-HEX-1:5
   Bacillosamine: RES 1b:a-lglc-HEX-1:5|6:d 2s:amino 3s:amino LIN 1:1d(2+1)2n 2:1d(4+1)3n
-  "LinearCode:W": RES 1b:x-dman-OCT-2:6|1:a|2:keto|3:d
-  "LinearCode:U": RES 1b:b-dglc-HEX-1:5|6:a
-  "LinearCode:GN": RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
-  "LinearCode:X": RES 1b:x-dxyl-PEN-1:5
   All: RES 1b:x-dall-HEX-1:5
   aMan: RES 1b:a-dman-HEX-1:5
   Alt: RES 1b:x-dalt-HEX-1:5

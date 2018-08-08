@@ -1,128 +1,83 @@
 [
   [
-    "LinearCode:AN[6S]", 
-    "(6S)GalNAc"
-  ], 
-  [
-    "(6S)Glc"
-  ], 
-  [
     "GalNac", 
-    "LinearCode:AN", 
     "GalNAc", 
     "N-Acetylglucosamine"
   ], 
   [
     "Ara", 
-    "Arabinose", 
-    "LinearCode:R"
+    "Arabinose"
   ], 
   [
     "Gul", 
     "Gulose"
   ], 
   [
-    "LinearCode:A[3S,6S]", 
-    "6S(3S)Gal"
-  ], 
-  [
-    "Galactose-6-Phosphate", 
-    "(6P)Gal", 
-    "LinearCode:A[6P]"
-  ], 
-  [
-    "Oct"
-  ], 
-  [
-    "Kdo", 
-    "LinearCode:W"
-  ], 
-  [
-    "HexNAc"
-  ], 
-  [
-    "Glucose", 
-    "Glc", 
-    "bdGlc", 
-    "LinearCode:G"
-  ], 
-  [
-    "Non"
-  ], 
-  [
-    "LinearCode:G[6P]", 
-    "(6P)Glc", 
-    "Glucose-6-Phosphate"
-  ], 
-  [
-    "LinearCode:NN", 
     "Neu5Ac", 
     "Sialic Acid", 
     "NeuAc"
   ], 
   [
-    "(6S)GlcNAc"
+    "Kdo"
   ], 
   [
-    "LinearCode:G[6S]"
+    "Glucose", 
+    "bdGlc", 
+    "Glc"
   ], 
   [
-    "aMan", 
-    "adMan"
+    "Non"
   ], 
   [
-    "GlcA", 
+    "Tet"
+  ], 
+  [
+    "Oct"
+  ], 
+  [
+    "Fucose", 
+    "Fuc"
+  ], 
+  [
+    "NeuGc", 
+    "Neu5Gc"
+  ], 
+  [
+    "Tri"
+  ], 
+  [
     "Glucuronic Acid", 
-    "LinearCode:U"
-  ], 
-  [
-    "GalNAcS2"
-  ], 
-  [
-    "(3S)GlcA", 
-    "LinearCode:U[3S]"
-  ], 
-  [
-    "LinearCode:N"
+    "GlcA"
   ], 
   [
     "bdGal", 
     "Gal", 
-    "Galactose", 
-    "LinearCode:A"
+    "Galactose"
   ], 
   [
     "IdoA", 
-    "LinearCode:I", 
     "Iduronic Acid"
   ], 
   [
-    "GalP"
-  ], 
-  [
-    "LinearCode:M", 
     "bdMan", 
     "Man", 
     "Mannose"
   ], 
   [
     "Rhamnose", 
-    "Rha", 
-    "LinearCode:H"
+    "Rha"
   ], 
   [
     "Galacturonic Acid", 
-    "LinearCode:L", 
     "GalA"
-  ], 
-  [
-    "(3S)Gal", 
-    "LinearCode:AS", 
-    "GalS"
   ], 
   [
     "Tal", 
     "Talose"
+  ], 
+  [
+    "Quinovose", 
+    "Qui"
   ], 
   [
     "Neuraminic acid", 
@@ -130,89 +85,54 @@
   ], 
   [
     "Ribose", 
-    "Rib", 
-    "LinearCode:B"
+    "Rib"
   ], 
   [
-    "LinearCode:X", 
     "Xylose", 
     "Xyl"
-  ], 
-  [
-    "Fucose", 
-    "LinearCode:F", 
-    "Fuc"
-  ], 
-  [
-    "(6P)Man", 
-    "LinearCode:M[6P]"
-  ], 
-  [
-    "Hep"
-  ], 
-  [
-    "Fru", 
-    "LinearCode:E", 
-    "Fructofuranose"
   ], 
   [
     "Dec"
   ], 
   [
-    "Hex"
-  ], 
-  [
-    "All", 
-    "Allose", 
-    "LinearCode:O"
+    "Fru", 
+    "Fructofuranose"
   ], 
   [
     "GlcN", 
     "2-Amino-2-deoxyglucose", 
-    "LinearCode:G[Q]", 
     "Glucosamine"
   ], 
   [
-    "Tri"
-  ], 
-  [
     "Ido"
-  ], 
-  [
-    "LinearCode:GN[6S]"
-  ], 
-  [
-    "(6P)GlcNAc"
-  ], 
-  [
-    "GalNAcS"
-  ], 
-  [
-    "LinearCode:GN[6P]"
-  ], 
-  [
-    "LinearCode:NJ", 
-    "NeuGc", 
-    "Neu5Gc"
   ], 
   [
     "NeuAc2", 
     "Neu5,9Ac2"
   ], 
   [
-    "2-Keto-3-deoxynanonic acid", 
-    "Kdn", 
-    "LinearCode:K", 
-    "KDN"
+    "HexNAc"
   ], 
   [
-    "4S(6S)GalNAc"
+    "Pen"
   ], 
   [
     "Sug"
   ], 
   [
-    "Tet"
+    "adMan", 
+    "aMan"
+  ], 
+  [
+    "2-Keto-3-deoxynanonic acid", 
+    "Kdn", 
+    "KDN"
+  ], 
+  [
+    "Hep"
+  ], 
+  [
+    "Hex"
   ], 
   [
     "Altose", 
@@ -221,20 +141,17 @@
   [
     "GlcNAc", 
     "GlcNA", 
-    "GlcNac", 
-    "LinearCode:GN"
+    "GlcNac"
   ], 
   [
-    "LinearCode:AN[4S,6S]"
+    "Allose", 
+    "All"
   ], 
   [
     "ManAnhydro"
   ], 
   [
-    "Bac", 
-    "Bacillosamine"
-  ], 
-  [
-    "Pen"
+    "Bacillosamine", 
+    "Bac"
   ]
 ]
