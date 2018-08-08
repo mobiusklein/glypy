@@ -33,7 +33,7 @@ from glypy.structure.base import SaccharideCollection, MoleculeBase
 from glypy.structure.glycan import Glycan
 from glypy.structure.monosaccharide import Monosaccharide, ReducedEnd
 from glypy.structure.substituent import Substituent
-from glypy.structure.constants import (Anomer, Stem, Configuration)
+from glypy.structure.constants import (Anomer, Stem, Configuration, UnknownPosition)
 
 from glypy.io import iupac
 from glypy.io.iupac import (
@@ -231,7 +231,7 @@ class MonosaccharideResidue(Monosaccharide):
             if not stem:
                 residue.stem = (Stem.x,)
         if not ring:
-            residue.ring_start = residue.ring_end = None
+            residue.ring_start = residue.ring_end = UnknownPosition
         if deriv:
             derivatize(residue, deriv)
         if residue.mass() != premass and not deriv:
