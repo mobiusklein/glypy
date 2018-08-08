@@ -415,6 +415,13 @@ class TestMultiMap(unittest.TestCase):
         self.assertNotEqual(omm, mm)
         self.assertFalse('c' in mm)
 
+    def test_clone(self):
+        omm = multimap.OrderedMultiMap(a=1, b=3)
+        alt = omm.clone()
+        self.assertEqual(omm, alt)
+        omm['a'] = 2
+        self.assertNotEqual(omm, alt)
+
     def test_has_value(self):
         mm = multimap.MultiMap(a=1, b=3)
         self.assertTrue(mm.has_value(1))

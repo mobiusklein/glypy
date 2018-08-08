@@ -135,6 +135,15 @@ class MultiMap(object):
     def __setstate__(self, state):
         self.contents = state
 
+    def copy(self):
+        new = self.__class__()
+        for k, v in self.items():
+            new[k].extend(v)
+        return new
+
+    def clone(self):
+        return self.copy()
+
 
 class OrderedMultiMap(MultiMap):
     '''
