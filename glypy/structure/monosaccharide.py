@@ -143,61 +143,6 @@ def _traverse_debug(monosaccharide, visited=None, apply_fn=ident_op):  # pragma:
             yield grandchild
 
 
-"""
-def graph_clone(monosaccharide, visited=None):
-    '''
-    Low-level depth-first duplication method for unwrapped residue graphs
-
-    Parameters
-    ----------
-    residue: :class:`Monosaccharide`
-        The root of the graph to clone
-    visited: set or None
-        The collection of node ids to ignore, having already visited them. If |None|, it defaults
-        to the empty set.
-
-    Returns
-    -------
-    :class:`Monosaccharide`:
-        The root of a newly duplicated and identical residue graph
-    '''
-    llen = len
-    index = {}
-    visited = set() if visited is None else visited
-    clone_root = monosaccharide.clone(prop_id=True)
-    index[clone_root.id] = clone_root
-    node_stack = deque([(clone_root, monosaccharide)])
-    node_stack_append = node_stack.append
-    node_stack_pop = node_stack.pop
-    while llen(node_stack) > 0:
-        clone, ref = node_stack_pop()
-        if ref.id in visited:
-            continue
-        visited.add(ref.id)
-        links = [link for pos, link in ref.links.items()]
-        for link in links:
-            terminal = link[ref]
-
-            if terminal.id in visited:
-                continue
-            # Handle cycles where the same node is linked many times
-            if terminal.id in index:
-                clone_terminal = index[terminal.id]
-                clone_terminal.maybe_cyclic = True
-                cyclewarning()
-            else:
-                index[terminal.id] = clone_terminal = terminal.clone(prop_id=True)
-            if link.is_child(terminal):
-                link.clone(clone, clone_terminal)
-            else:
-                link.clone(clone_terminal, clone)
-
-            node_stack_append((clone_terminal, terminal))
-    return clone_root
-
-"""
-
-
 def graph_clone(monosaccharide, visited=None):
     '''
     Low-level depth-first duplication method for unwrapped residue graphs
@@ -1696,3 +1641,47 @@ def build_monosaccharide_occupancy(cls, monosaccharide):
 
 MonosaccharideOccupancy.build = classmethod(
     build_monosaccharide_occupancy)
+
+
+class AnnotatedMonosaccharide(Monosaccharide):
+    __slots__ = ('annotations', )
+
+    def __init__(self, anomer=None, configuration=None, stem=None,
+                 superclass=None, ring_start=UnknownPosition, ring_end=UnknownPosition,
+                 modifications=None, links=None, substituent_links=None,
+                 composition=None, reduced=None, id=None, fast=False, annotations=None):
+        super(AnnotatedMonosaccharide, self).__init__(
+            anomer, configuration, stem, superclass, ring_start, ring_end,
+            modifications, links, substituent_links, composition, reduced,
+            id, fast)
+        if annotations is None:
+            annotations = {}
+        self.annotations = annotations
+
+    def __getstate__(self):
+        state = super(AnnotatedMonosaccharide, self).__getstate__()
+        state['annotations'] = self.annotations
+        return state
+
+    def __setstate__(self, state):
+        super(AnnotatedMonosaccharide, self).__setstate__(state)
+        self.annotations = state.get("annotations", {})
+
+    def clone(self, prop_id=False, fast=True, monosaccharide_type=None):
+        '''
+        Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
+        with the same data. All mutable data structures are duplicated and distinct from the original.
+
+        Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
+        graph.
+
+        Returns
+        -------
+        Monosaccharide
+
+        '''
+        if monosaccharide_type is None:
+            monosaccharide_type = self.__class__
+        monosaccharide = super(AnnotatedMonosaccharide, self).clone(prop_id, fast, monosaccharide_type)
+        monosaccharide.annotations = self.annotations.copy()
+        return monosaccharide
