@@ -39,6 +39,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
     class ResidueColor(Enum):
         gal = rgb2hex((255 / 255., 255 / 255., 0 / 255.))  # yellow
+        lyx = rgb2hex((255 / 255., 255 / 255., 0 / 255.))  # yellow
         glc = rgb2hex((0 / 255., 0 / 255., 255 / 255.))  # blue
         man = rgb2hex((0, 200 / 255., 50 / 255.))  # green
         fuc = rgb2hex((255 / 255., 0 / 255., 0 / 255.))  # red
@@ -138,7 +139,7 @@ class CFGNomenclature(SymbolicNomenclatureBase):
 
             return self.ResidueShape.circle
         elif "pen" in [monosaccharide.superclass]:
-            if 'xyl' in monosaccharide.stem:
+            if 'xyl' in monosaccharide.stem or 'lyx' in monosaccharide.stem:
                 return self.ResidueShape.star
         return self.ResidueShape.generic
 

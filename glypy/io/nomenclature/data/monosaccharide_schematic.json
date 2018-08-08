@@ -57,6 +57,13 @@
   }, 
   {
     "names": [
+      "Ery", 
+      "Erythrose"
+    ], 
+    "structure": "RES 1b:x-dery-TET-1:4"
+  }, 
+  {
+    "names": [
       "Oct"
     ], 
     "structure": "RES 1b:x-dman-OCT-2:6"
@@ -87,6 +94,13 @@
       "GlcA"
     ], 
     "structure": "RES 1b:b-dglc-HEX-1:5|6:a"
+  }, 
+  {
+    "names": [
+      "Tyvelose", 
+      "Tyv"
+    ], 
+    "structure": "RES 1b:x-dara-HEX-1:5|3:d|6:d"
   }, 
   {
     "names": [
@@ -162,9 +176,10 @@
   }, 
   {
     "names": [
-      "Dec"
+      "Allose", 
+      "All"
     ], 
-    "structure": "RES 1b:x-DEC-x:x"
+    "structure": "RES 1b:x-dall-HEX-1:5"
   }, 
   {
     "names": [
@@ -180,6 +195,13 @@
       "Glucosamine"
     ], 
     "structure": "RES 1b:b-dglc-HEX-1:5 2s:amino LIN 1:1x(-1+-1)2x"
+  }, 
+  {
+    "names": [
+      "Oli", 
+      "Olivose"
+    ], 
+    "structure": "RES 1b:x-dara-HEX-1:5|2:d|6:d"
   }, 
   {
     "names": [
@@ -221,17 +243,24 @@
   }, 
   {
     "names": [
+      "Dec"
+    ], 
+    "structure": "RES 1b:x-DEC-x:x"
+  }, 
+  {
+    "names": [
       "2-Keto-3-deoxynanonic acid", 
-      "Kdn", 
-      "KDN"
+      "KDN", 
+      "Kdn"
     ], 
     "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d"
   }, 
   {
     "names": [
-      "Hep"
+      "Lyx", 
+      "Lyxose"
     ], 
-    "structure": "RES 1b:a-lgro-dman-HEP-1:5"
+    "structure": "RES 1b:x-dlyx-PEN-1:5"
   }, 
   {
     "names": [
@@ -256,10 +285,9 @@
   }, 
   {
     "names": [
-      "Allose", 
-      "All"
+      "Hep"
     ], 
-    "structure": "RES 1b:x-dall-HEX-1:5"
+    "structure": "RES 1b:a-lgro-dman-HEP-1:5"
   }, 
   {
     "names": [
@@ -273,5 +301,12 @@
       "Bac"
     ], 
     "structure": "RES 1b:a-lglc-HEX-1:5|6:d 2s:amino 3s:amino LIN 1:1d(2+1)2n 2:1d(4+1)3n"
+  }, 
+  {
+    "names": [
+      "Threose", 
+      "Thr"
+    ], 
+    "structure": "RES 1b:x-dthr-TET-1:4"
   }
 ]

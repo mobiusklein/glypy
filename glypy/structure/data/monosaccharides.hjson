@@ -74,4 +74,14 @@
   All: RES 1b:x-dall-HEX-1:5
   aMan: RES 1b:a-dman-HEX-1:5
   Alt: RES 1b:x-dalt-HEX-1:5
+  Lyx: RES 1b:x-dlyx-PEN-1:5
+  Lyxose: RES 1b:x-dlyx-PEN-1:5
+  Ery: RES 1b:x-dery-TET-1:4
+  Erythrose: RES 1b:x-dery-TET-1:4
+  Thr: RES 1b:x-dthr-TET-1:4
+  Threose: RES 1b:x-dthr-TET-1:4
+  Oli: RES 1b:x-dara-HEX-1:5|2:d|6:d
+  Olivose: RES 1b:x-dara-HEX-1:5|2:d|6:d
+  Tyv: RES 1b:x-dara-HEX-1:5|3:d|6:d
+  Tyvelose: RES 1b:x-dara-HEX-1:5|3:d|6:d
 }
