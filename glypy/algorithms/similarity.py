@@ -31,6 +31,17 @@ class NodeSimilarityComparator(object):
         Include children in comparison (Defaults |False|)
     exact: bool
         Penalize for having unmatched attachments (Defaults |True|)
+    ignore_reduction: bool
+        Whether or not to include differences in reduction state as a
+        mismatch
+    ignore_ring: bool
+        Whether or not to include differences in ring coordinates as
+        a mismatch
+    treat_null_as_wild: bool
+        Whether or not to treat traits with a value of :const:`None` or
+        :const:`~.UnknownPosition` as always matching when the null
+        value is on the *target* residue (the residue that traits are being
+        matched to).
     short_circuit_after: None or Number
         Controls whether to quit comparing nodes if the difference
         becomes too large, useful for speeding up pessimistic
@@ -43,7 +54,9 @@ class NodeSimilarityComparator(object):
     '''
     def __init__(self, include_substituents=True, include_modifications=True,
                  include_children=False, exact=True, ignore_reduction=False,
-                 ignore_ring=False, short_circuit_after=None, visited=None):
+                 ignore_ring=False, treat_null_as_wild=True,
+                 match_attachement_positions=False, short_circuit_after=None,
+                 visited=None):
         if visited is None:
             visited = set()
         self.include_substituents = include_substituents
@@ -52,6 +65,8 @@ class NodeSimilarityComparator(object):
         self.exact = exact
         self.ignore_ring = ignore_ring
         self.ignore_reduction = ignore_reduction
+        self.treat_null_as_wild = treat_null_as_wild
+        self.match_attachement_positions = match_attachement_positions
         self.visited = visited
         self.short_circuit_after = short_circuit_after
 
@@ -62,19 +77,21 @@ class NodeSimilarityComparator(object):
     def similarity(cls, node, target, include_substituents=True,
                    include_modifications=True, include_children=False,
                    exact=True, ignore_reduction=False, ignore_ring=False,
+                   treat_null_as_wild=True, match_attachement_positions=False,
                    short_circuit_after=None, visited=None):
         inst = cls(
             include_substituents=include_substituents,
             include_modifications=include_modifications,
             include_children=include_children,
             exact=exact, ignore_reduction=ignore_reduction,
-            ignore_ring=ignore_ring,
+            ignore_ring=ignore_ring, treat_null_as_wild=treat_null_as_wild,
+            match_attachement_positions=match_attachement_positions,
             short_circuit_after=short_circuit_after,
             visited=visited)
         return inst.compare(node, target)
 
     def compare_anomer(self, node, target):
-        test = (node.anomer == target.anomer) or (target.anomer.value is None)
+        test = (node.anomer == target.anomer) or ((target.anomer.value is None) and self.treat_null_as_wild)
         reference = 1
         return int(test), reference
 
@@ -85,16 +102,20 @@ class NodeSimilarityComparator(object):
 
     def compare_ring_structure(self, node, target):
         test = reference = 0
-        test += (node.superclass == target.superclass) or (target.superclass.value is None)
+        test += (node.superclass == target.superclass) or ((target.superclass.value is None) and
+                                                           self.treat_null_as_wild)
         reference += 1
-        test += (node.stem == target.stem) or (target.stem[0].value is None)
+        test += (node.stem == target.stem) or ((target.stem[0].value is None) and self.treat_null_as_wild)
         reference += 1
-        test += (node.configuration == target.configuration) or (target.configuration[0].value is None)
+        test += (node.configuration == target.configuration) or ((target.configuration[0].value is None) and
+                                                                 self.treat_null_as_wild)
         reference += 1
         if not self.ignore_ring:
-            test += (node.ring_start == target.ring_start) or (target.ring_start == UnknownPosition)
+            test += (node.ring_start == target.ring_start) or ((target.ring_start == UnknownPosition) and
+                                                               self.treat_null_as_wild)
             reference += 1
-            test += (node.ring_end == target.ring_end) or (target.ring_end == UnknownPosition)
+            test += (node.ring_end == target.ring_end) or ((target.ring_end == UnknownPosition) and
+                                                           self.treat_null_as_wild)
             reference += 1
         else:
             test += 2
@@ -103,36 +124,68 @@ class NodeSimilarityComparator(object):
 
     def compare_modifications(self, node, target):
         test = reference = 0
-        node_mods = list(node.modifications.values())
         node_reduced = False
         target_reduced = False
-        for mod in target.modifications.values():
-            if mod == 'aldi':
-                target_reduced = True
-            check = (mod in node_mods)
-            if check:
+        n_mods = 0
+        if self.match_attachement_positions:
+            node_mods = list(node.modifications.values())
+            n_mods = len(node_mods)
+            for mod in target.modifications.values():
                 if mod == 'aldi':
-                    node_reduced = True
-                test += 1
-                node_mods.pop(node_mods.index(mod))
-            reference += 1
+                    target_reduced = True
+                check = (mod in node_mods)
+                if check:
+                    if mod == 'aldi':
+                        node_reduced = True
+                    test += 1
+                    node_mods.pop(node_mods.index(mod))
+                    n_mods -= 1
+                reference += 1
+        else:
+            node_mods = node.modifications
+            n_mods = len(node_mods)
+            for pos, mod in target.modifications.items():
+                if mod == 'aldi':
+                    target_reduced = True
+                check = (mod in node_mods[pos])
+                if check:
+                    if mod == 'aldi':
+                        node_reduced = True
+                    test += 1
+                    n_mods -= 1
+                reference += 1
+
         if self.ignore_reduction:
             if target_reduced:
                 reference -= 1
             if node_reduced:
                 test -= 1
-        reference += len(node_mods) if self.exact else 0
+        reference += n_mods if self.exact else 0
         return test, reference
 
     def compare_substituents(self, node, target):
         test = reference = 0
-        node_subs = [node_sub for p, node_sub in node.substituents()]
-        for pos, sub in target.substituents():
-            if (sub in node_subs):
-                test += 1
-                node_subs.pop(node_subs.index(sub))
-            reference += 1
-        reference += len(node_subs) if self.exact else 0
+        if self.match_attachement_positions:
+            node_subs = defaultdict(list)
+            n_subs = 0
+            for p, sub in node.substituents():
+                n_subs += 1
+                node_subs[p].append(sub)
+            for pos, sub in target.substituents():
+                if (sub in node_subs[pos]):
+                    test += 1
+                    n_subs -= 1
+                reference += 1
+        else:
+            node_subs = [node_sub for p, node_sub in node.substituents()]
+            n_subs = len(node_subs)
+            for pos, sub in target.substituents():
+                if (sub in node_subs):
+                    test += 1
+                    node_subs.pop(node_subs.index(sub))
+                    n_subs -= 1
+                reference += 1
+        reference += n_subs if self.exact else 0
         return test, reference
 
     def _build_child_pair_score_map(self, node, target):
@@ -150,13 +203,25 @@ class NodeSimilarityComparator(object):
 
     def compare_children(self, node, target):
         test = reference = 0
-        match_index = self._build_child_pair_score_map(node, target)
-
-        assignments = self.optimal_assignment(match_index)
-        for ix in assignments:
-            a_test, a_reference = match_index[ix]
-            test += a_test
-            reference += a_reference
+        if self.match_attachement_positions:
+            node_children = defaultdict(list)
+            for pos, child in node.children():
+                node_children[pos].append(child)
+            target_children = defaultdict(list)
+            for pos, child in target.children():
+                target_children[pos].append(child)
+            for pos, children in target_children.items():
+                for t_child, n_child in zip(children, node_children[pos]):
+                    test_child, reference_child = self.compare(t_child, n_child)
+                    test += test_child
+                    reference += reference_child
+        else:
+            match_index = self._build_child_pair_score_map(node, target)
+            assignments = self.optimal_assignment(match_index)
+            for ix in assignments:
+                a_test, a_reference = match_index[ix]
+                test += a_test
+                reference += a_reference
         return test, reference
 
     def _check_short_circuit(self, test, reference):
