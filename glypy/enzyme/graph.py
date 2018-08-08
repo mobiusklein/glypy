@@ -1,5 +1,9 @@
 import json
 from collections import namedtuple, defaultdict, deque
+try:
+    from collections import Mapping
+except ImportError:
+    from collections.abc import Mapping
 
 from glypy.io import glycoct
 from glypy.structure.glycan_composition import HashableGlycanComposition
@@ -12,7 +16,7 @@ def _enzyme_graph_inner():
     return defaultdict(set)
 
 
-class EnzymeGraph(object):
+class EnzymeGraph(Mapping):
     def __init__(self, graph=None, seeds=None, metadata=None):
         if graph is None:
             graph = defaultdict(_enzyme_graph_inner)
@@ -34,6 +38,9 @@ class EnzymeGraph(object):
 
     def __iter__(self):
         return iter(self.edges())
+
+    def __len__(self):
+        return self.edge_count()
 
     def clone(self):
         graph = defaultdict(_enzyme_graph_inner)
@@ -240,7 +247,7 @@ class EnzymeGraph(object):
         return distances, previous
 
     def path_between(self, source, sink):
-        distances, previous = self._dijkstra_distances_and_paths(source, sink)
+        _, previous = self._dijkstra_distances_and_paths(source, sink)
         parent, enz = previous[sink]
         path = []
         path.append(EnzymeEdge(parent, sink, enz))
