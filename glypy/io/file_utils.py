@@ -52,8 +52,6 @@ class TextFileParserBase(object):
 class FastaLikeFileParser(TextFileParserBase):
     format_name = 'fasta'
 
-    __metaclass__ = FormatRegisteringMeta
-
     def __init__(self, file_spec, processor):
         super(FastaLikeFileParser, self).__init__()
         self.state = ParserState.defline
@@ -99,8 +97,6 @@ class FastaLikeFileParser(TextFileParserBase):
 class StructurePerLineParser(TextFileParserBase):
     format_name = 'line'
 
-    __metaclass__ = FormatRegisteringMeta
-
     def __init__(self, file_spec, processor):
         super(StructurePerLineParser, self).__init__()
         self.handle = opener(file_spec)
@@ -127,3 +123,12 @@ class ParserInterface(TextFileParserBase):
     @classmethod
     def loads(cls, text, file_type='line'):
         return cls(StringIO(text), file_type=file_type)
+
+    @classmethod
+    def load(cls, fd, file_type='line'):
+        reader = cls(fd, file_type=file_type)
+        data = list(reader)
+        if len(data) == 1:
+            return data[0]
+        else:
+            return data
