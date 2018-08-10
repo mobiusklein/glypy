@@ -24,6 +24,8 @@ anomer_map_from['?'] = anomer_map_from.pop('x')
 anomer_map_to = invert_dict(anomer_map_from)
 anomer_map_from['beta'] = anomer_map_from['b']
 anomer_map_from['alpha'] = anomer_map_from['a']
+anomer_map_from[u"\u03B1"] = anomer_map_from['a']
+anomer_map_from[u"\u03B2"] = anomer_map_from['b']
 
 
 Stem = constants.Stem
@@ -165,7 +167,7 @@ class ModificationSerializer(object):
                 except Exception:  # pragma: no cover
                     pass
 
-        elif "Fuc" in base_type:
+        elif "Fuc" in base_type or "Qui" in base_type or "Rha" in base_type:
             for mod in [Modification.d]:
                 pop_ix = mods.index(mod)
                 pos.pop(pop_ix)
@@ -236,9 +238,7 @@ class MonosaccharideSerializer(object):
             modification_extractor = ModificationSerializer()
         self.modification_extractor = modification_extractor
 
-    def resolve_special_base_type(self, residue, monosaccharide_reference=None):
-        if monosaccharide_reference is None:
-            monosaccharide_reference = self.monosaccharide_reference
+    def resolve_special_base_type(self, residue):
         if residue.superclass == SuperClass.non:
             if residue.stem == (Stem.gro, Stem.gal):
                 substituents = [sub.name for p, sub in residue.substituents() if not sub._derivatize]
@@ -261,10 +261,15 @@ class MonosaccharideSerializer(object):
                    Modification.keto in residue.modifications[2] and\
                    Modification.d in residue.modifications[3]:
                     return "Kdo"
-        elif residue.stem == (Stem.gal,) and residue.configuration == (Configuration.l,):
+        elif residue.stem == (Stem.gal,):
             if Modification.d in residue.modifications.values():
                 return "Fuc"
-
+        elif residue.stem == (Stem.man,):
+            if Modification.d in residue.modifications.values():
+                return "Rha"
+        elif residue.stem == (Stem.glc,):
+            if Modification.d in residue.modifications.values():
+                return "Qui"
         return None
 
     def monosaccharide_to_iupac(self, residue):
@@ -486,14 +491,14 @@ def parse_linkage_structure(linkage_string):
 
 
 class MonosaccharideDeserializer(object):
-    pattern = re.compile(r'''(?:(?P<anomer>[abo?]|alpha|beta)-)?
+    pattern = re.compile(ur'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
                              (?P<configuration>[LD?])-
                              (?P<modification>[a-z0-9_\-,]*?)
                              (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
                              (?P<ring_type>[xpfo?])?
                              (?P<substituent>[^-]*?)
                              (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?
-                             $''', re.VERBOSE)
+                             $''', re.VERBOSE | re.UNICODE)
 
     def __init__(self, modification_parser=None, substituent_parser=None):
         if modification_parser is None:
@@ -647,14 +652,14 @@ class MonosaccharideDeserializer(object):
 
 
 class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
-    pattern = re.compile(r'''(?:(?P<anomer>[abo?]|alpha|beta)-)?
+    pattern = re.compile(ur'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
                              (?P<configuration>[LD?])-
                              (?P<modification>[a-z0-9_\-,]*)
                              (?P<base_type>[^-]{3}?)
                              (?P<ring_type>[xpfo?])?
                              (?P<substituent>[^-]*?)
                              (?P<derivatization>\^[^\s-]*?)?
-                             (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE)
+                             (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE | re.UNICODE)
 
     def add_monosaccharide_bond(self, residue, parent, linkage):
         if parent is not None and linkage != ():
@@ -863,6 +868,9 @@ class IUPACParser(ParserInterface):
     def process_result(self, line):
         structure = loads(line)
         return structure
+
+
+load = IUPACParser.load
 
 
 Monosaccharide.register_serializer("iupac", dumps)
