@@ -491,14 +491,20 @@ def parse_linkage_structure(linkage_string):
 
 
 class MonosaccharideDeserializer(object):
-    pattern = re.compile(ur'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
-                             (?P<configuration>[LD?])-
-                             (?P<modification>[a-z0-9_\-,]*?)
-                             (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
-                             (?P<ring_type>[xpfo?])?
-                             (?P<substituent>[^-]*?)
-                             (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?
-                             $''', re.VERBOSE | re.UNICODE)
+    _pattern = r'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
+                   (?P<configuration>[LD?])-
+                   (?P<modification>[a-z0-9_\-,]*?)
+                   (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
+                   (?P<ring_type>[xpfo?])?
+                   (?P<substituent>[^-]*?)
+                   (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?
+                   $'''
+    try:
+        # convert to unicode for Py2
+        _pattern = _pattern.decode("raw_unicode_escape")
+    except AttributeError:
+        pass
+    pattern = re.compile(_pattern, re.VERBOSE | re.UNICODE)
 
     def __init__(self, modification_parser=None, substituent_parser=None):
         if modification_parser is None:
@@ -652,14 +658,20 @@ class MonosaccharideDeserializer(object):
 
 
 class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
-    pattern = re.compile(ur'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
-                             (?P<configuration>[LD?])-
-                             (?P<modification>[a-z0-9_\-,]*)
-                             (?P<base_type>[^-]{3}?)
-                             (?P<ring_type>[xpfo?])?
-                             (?P<substituent>[^-]*?)
-                             (?P<derivatization>\^[^\s-]*?)?
-                             (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE | re.UNICODE)
+    _pattern = r'''(?:(?P<anomer>[abo?]|alpha|beta|\u03B1|\u03B2)-)?
+                   (?P<configuration>[LD?])-
+                   (?P<modification>[a-z0-9_\-,]*)
+                   (?P<base_type>[^-]{3}?)
+                   (?P<ring_type>[xpfo?])?
+                   (?P<substituent>[^-]*?)
+                   (?P<derivatization>\^[^\s-]*?)?
+                   (?P<linkage>-\([0-9?/]+->?[0-9?/]+\)-?)?$'''
+    try:
+        # convert to unicode for Py2
+        _pattern = _pattern.decode("raw_unicode_escape")
+    except AttributeError:
+        pass
+    pattern = re.compile(_pattern, re.VERBOSE | re.UNICODE)
 
     def add_monosaccharide_bond(self, residue, parent, linkage):
         if parent is not None and linkage != ():
