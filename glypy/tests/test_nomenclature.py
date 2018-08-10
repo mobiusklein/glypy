@@ -21,6 +21,15 @@ class IdentifyTests(unittest.TestCase):
                     raise AssertionError(
                         "{}".format((name, pref_name, synonyms.monosaccharides[pref_name])))
 
+    def test_identify_index(self):
+        identifier = identity.MonosaccharideIdentifier()
+        for name, mono in monosaccharides.items():
+            pref_name = identifier.identify(mono)
+            if monosaccharides[pref_name] == mono:
+                if not (name == pref_name or name in synonyms.monosaccharides[pref_name]):
+                    raise AssertionError(
+                        "{}".format((name, pref_name, synonyms.monosaccharides[pref_name])))
+
     def test_identify_substituents(self):
         self.assertTrue(
             identity.is_a(Substituent("n-acetyl"), Substituent("n-acetyl")))
