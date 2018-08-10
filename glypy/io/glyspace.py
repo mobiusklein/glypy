@@ -53,6 +53,7 @@ NSUnicorn = Namespace("http://purl.jp/bio/12/glyco/unicorn/")
 NSOwl = Namespace("http://www.w3.org/2002/07/owl#")
 NSSIO = Namespace("http://semanticscience.org/resource/")
 NSFOAF = Namespace("http://xmlns.com/foaf/0.1/")
+NSRDF = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
 GlycoRDF = _glycordf.glycordf
 
