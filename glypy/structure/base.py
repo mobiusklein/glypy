@@ -17,6 +17,9 @@ class MoleculeBase(object):
     def has_undefined_linkages(self):
         return True
 
+    def copy(self, *args, **kwargs):
+        return self.clone(*args, **kwargs)
+
 
 class SaccharideBase(MoleculeBase):
     __slots__ = ()
