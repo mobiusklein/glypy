@@ -431,9 +431,9 @@ class SubstituentResidue(Substituent):
             can_nh_derivatize=can_nh_derivatize, is_nh_derivatizable=is_nh_derivatizable,
             derivatize=derivatize, attachment_composition=attachment_composition)
 
+        self._residue_name = SubstituentResidue.sigil + self._name
         self.composition -= self.attachment_composition
         self.composition -= {"H": 1}
-        self._residue_name = SubstituentResidue.sigil + self._name
         self._hash = None
 
     def __hash__(self):  # pragma: no cover
@@ -449,6 +449,15 @@ class SubstituentResidue(Substituent):
             return self._hash
         except AttributeError:
             return hash(self._residue_name)
+
+    def __getstate__(self):
+        state = super(SubstituentResidue, self).__getstate__()
+        state['_residue_name'] = self._residue_name
+        return state
+
+    def __setstate__(self, state):
+        super(SubstituentResidue, self).__setstate__(state)
+        self._residue_name = state.get("_residue_name")
 
     def to_iupac_lite(self):
         return self._residue_name
