@@ -244,6 +244,10 @@ class MonosaccharideTests(unittest.TestCase):
             self.assertEqual(ids[i], node.id)
             self.assertEqual(node, self.glycan[i])
 
+    def test_pickle(self):
+        for mono in named_structures.monosaccharides.values():
+            self.assertEqual(mono, pickle.loads(pickle.dumps(mono)))
+
 
 class ReducedEndTests(unittest.TestCase):
     def test_equality(self):
