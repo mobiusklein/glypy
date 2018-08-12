@@ -9,10 +9,10 @@
   }, 
   {
     "names": [
-      "Ara", 
-      "Arabinose"
+      "Psicose", 
+      "Psi"
     ], 
-    "structure": "RES 1b:x-lara-PEN-1:4"
+    "structure": "RES 1b:x-drib-HEX-2:6|2:keto"
   }, 
   {
     "names": [
@@ -20,6 +20,12 @@
       "Gulose"
     ], 
     "structure": "RES 1b:x-dgul-HEX-1:5"
+  }, 
+  {
+    "names": [
+      "Sug"
+    ], 
+    "structure": "RES 1b:x-SUG-0:0"
   }, 
   {
     "names": [
@@ -51,6 +57,13 @@
   }, 
   {
     "names": [
+      "Sorbose", 
+      "Sor"
+    ], 
+    "structure": "RES 1b:x-dxyl-HEX-2:6|2:keto"
+  }, 
+  {
+    "names": [
       "Tet"
     ], 
     "structure": "RES 1b:x-TET-x:x"
@@ -67,6 +80,13 @@
       "Oct"
     ], 
     "structure": "RES 1b:x-dman-OCT-2:6"
+  }, 
+  {
+    "names": [
+      "Fru", 
+      "Fructose"
+    ], 
+    "structure": "RES 1b:x-dara-HEX-2:6|2:keto"
   }, 
   {
     "names": [
@@ -97,8 +117,8 @@
   }, 
   {
     "names": [
-      "Tyvelose", 
-      "Tyv"
+      "Tyv", 
+      "Tyvelose"
     ], 
     "structure": "RES 1b:x-dara-HEX-1:5|3:d|6:d"
   }, 
@@ -127,8 +147,8 @@
   }, 
   {
     "names": [
-      "Rhamnose", 
-      "Rha"
+      "Rha", 
+      "Rhamnose"
     ], 
     "structure": "RES 1b:x-lman-HEX-1:5|6:d"
   }, 
@@ -176,6 +196,13 @@
   }, 
   {
     "names": [
+      "Xulose", 
+      "Xul"
+    ], 
+    "structure": "RES 1b:x-dthr-PEN-2:5|2:keto"
+  }, 
+  {
+    "names": [
       "Allose", 
       "All"
     ], 
@@ -183,10 +210,15 @@
   }, 
   {
     "names": [
-      "Fru", 
       "Fructofuranose"
     ], 
     "structure": "RES 1b:x-dara-HEX-2:5|2:keto"
+  }, 
+  {
+    "names": [
+      "Tag"
+    ], 
+    "structure": "RES 1b:x-dlyx-HEX-2:6|2:keto"
   }, 
   {
     "names": [
@@ -218,9 +250,10 @@
   }, 
   {
     "names": [
-      "HexNAc"
+      "Sed", 
+      "Sedulose"
     ], 
-    "structure": "RES 1b:x-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n"
+    "structure": "RES 1b:x-dalt-HEP-2:6|2:keto"
   }, 
   {
     "names": [
@@ -230,9 +263,10 @@
   }, 
   {
     "names": [
-      "Sug"
+      "Ara", 
+      "Arabinose"
     ], 
-    "structure": "RES 1b:x-SUG-0:0"
+    "structure": "RES 1b:x-lara-PEN-1:4"
   }, 
   {
     "names": [
@@ -250,10 +284,16 @@
   {
     "names": [
       "2-Keto-3-deoxynanonic acid", 
-      "KDN", 
-      "Kdn"
+      "Kdn", 
+      "KDN"
     ], 
     "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d"
+  }, 
+  {
+    "names": [
+      "HexNAc"
+    ], 
+    "structure": "RES 1b:x-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n"
   }, 
   {
     "names": [
@@ -297,8 +337,8 @@
   }, 
   {
     "names": [
-      "Bacillosamine", 
-      "Bac"
+      "Bac", 
+      "Bacillosamine"
     ], 
     "structure": "RES 1b:a-lglc-HEX-1:5|6:d 2s:amino 3s:amino LIN 1:1d(2+1)2n 2:1d(4+1)3n"
   }, 

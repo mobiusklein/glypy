@@ -84,4 +84,15 @@
   Olivose: RES 1b:x-dara-HEX-1:5|2:d|6:d
   Tyv: RES 1b:x-dara-HEX-1:5|3:d|6:d
   Tyvelose: RES 1b:x-dara-HEX-1:5|3:d|6:d
+  Psi: RES 1b:x-drib-HEX-2:6|2:keto
+  Psicose: RES 1b:x-drib-HEX-2:6|2:keto
+  Fru: RES 1b:x-dara-HEX-2:6|2:keto
+  Fructose: RES 1b:x-dara-HEX-2:6|2:keto
+  Sor: RES 1b:x-dxyl-HEX-2:6|2:keto
+  Sorbose: RES 1b:x-dxyl-HEX-2:6|2:keto
+  Tag: RES 1b:x-dlyx-HEX-2:6|2:keto
+  Xul: RES 1b:x-dthr-PEN-2:5|2:keto
+  Xulose: RES 1b:x-dthr-PEN-2:5|2:keto
+  Sed: RES 1b:x-dalt-HEP-2:6|2:keto
+  Sedulose: RES 1b:x-dalt-HEP-2:6|2:keto
 }

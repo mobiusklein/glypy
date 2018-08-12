@@ -5,12 +5,15 @@
     "N-Acetylglucosamine"
   ], 
   [
-    "Ara", 
-    "Arabinose"
+    "Psicose", 
+    "Psi"
   ], 
   [
     "Gul", 
     "Gulose"
+  ], 
+  [
+    "Sug"
   ], 
   [
     "Neu5Ac", 
@@ -29,6 +32,10 @@
     "Non"
   ], 
   [
+    "Sorbose", 
+    "Sor"
+  ], 
+  [
     "Tet"
   ], 
   [
@@ -37,6 +44,10 @@
   ], 
   [
     "Oct"
+  ], 
+  [
+    "Fru", 
+    "Fructose"
   ], 
   [
     "Fucose", 
@@ -54,8 +65,8 @@
     "GlcA"
   ], 
   [
-    "Tyvelose", 
-    "Tyv"
+    "Tyv", 
+    "Tyvelose"
   ], 
   [
     "bdGal", 
@@ -72,8 +83,8 @@
     "Mannose"
   ], 
   [
-    "Rhamnose", 
-    "Rha"
+    "Rha", 
+    "Rhamnose"
   ], 
   [
     "Galacturonic Acid", 
@@ -100,12 +111,18 @@
     "Xyl"
   ], 
   [
+    "Xulose", 
+    "Xul"
+  ], 
+  [
     "Allose", 
     "All"
   ], 
   [
-    "Fru", 
     "Fructofuranose"
+  ], 
+  [
+    "Tag"
   ], 
   [
     "GlcN", 
@@ -124,13 +141,15 @@
     "Neu5,9Ac2"
   ], 
   [
-    "HexNAc"
+    "Sed", 
+    "Sedulose"
   ], 
   [
     "Pen"
   ], 
   [
-    "Sug"
+    "Ara", 
+    "Arabinose"
   ], 
   [
     "adMan", 
@@ -141,8 +160,11 @@
   ], 
   [
     "2-Keto-3-deoxynanonic acid", 
-    "KDN", 
-    "Kdn"
+    "Kdn", 
+    "KDN"
+  ], 
+  [
+    "HexNAc"
   ], 
   [
     "Lyx", 
@@ -167,8 +189,8 @@
     "ManAnhydro"
   ], 
   [
-    "Bacillosamine", 
-    "Bac"
+    "Bac", 
+    "Bacillosamine"
   ], 
   [
     "Threose", 
