@@ -1361,7 +1361,7 @@ class Monosaccharide(SaccharideBase):
         return self._degree
 
     def __iter__(self):
-        return self.children()
+        return iter(self.children())
 
     def has_undefined_linkages(self):
         for link in self.links.values():

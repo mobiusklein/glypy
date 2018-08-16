@@ -429,7 +429,7 @@ class Substituent(SubstituentBase):
             comp = comp + sub.total_composition()
         return comp
 
-    def children(self, links=False):
+    def children(self, links=False, bridging=False):
         '''
         Returns an iterator over the :class:`Monosaccharide`s which are considered
         the descendants of ``self``.
@@ -439,8 +439,12 @@ class Substituent(SubstituentBase):
             if link.is_child(self):
                 continue
             if links:
+                if bridging and not link.is_bridge_link():
+                    continue
                 result.append((pos, link))
             else:
+                if bridging and not link.is_bridge_link():
+                    continue
                 result.append((pos, link.child))
         return result
 
@@ -458,6 +462,12 @@ class Substituent(SubstituentBase):
             else:
                 result.append((pos, link.parent))
         return result
+
+    def is_bridge(self):
+        for pos, link in self.children(links=True):
+            if link.is_bridge():
+                return True
+        return False
 
     def attachment_composition_loss(self):
         return self.attachment_composition.clone()

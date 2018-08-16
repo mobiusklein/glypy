@@ -181,10 +181,20 @@ class Link(object):
         -------
         bool
         '''
-        # return isinstance(self.child, SubstituentBase) and isinstance(
-        #     self.parent, SaccharideBase)
         return (self.child.node_type is SubstituentBase.node_type) and\
             (self.parent.node_type is SaccharideBase.node_type)
+
+    def is_bridge_link(self):
+        '''
+        If :attr:`parent` is a |Substituent| and :attr:`child` is a |Monosaccharide|, then `self`
+        is a *bridge_link*
+
+        Returns
+        -------
+        bool
+        '''
+        return (self.parent.node_type is SubstituentBase.node_type) and\
+            (self.child.node_type is SaccharideBase.node_type)
 
     def is_parent(self, mol):
         '''
