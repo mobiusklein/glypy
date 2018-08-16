@@ -215,6 +215,10 @@ class GlycanCompositionTests(unittest.TestCase):
         x = self.GlycanCompositionType.parse('{Fuc:1; Hex:5; HexNAc:4; Neu5NAc:1; @sulfate:1}')
         self.assertEqual(x, pickle.loads(pickle.dumps(x)))
 
+    def test_unsaturated(self):
+        x = self.GlycanCompositionType.parse("{Xyl:1; a,enHex:1; Hex:1; HexS:1; aHex:1; HexNAc(S):1}")
+        self.assertAlmostEqual(x.mass(), 1171.205, 3)
+
 
 class FrozenGlycanCompositionTests(GlycanCompositionTests):
     GlycanCompositionType = glycan_composition.FrozenGlycanComposition
