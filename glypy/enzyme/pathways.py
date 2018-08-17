@@ -6,6 +6,7 @@ import glypy
 
 from glypy.io import iupac
 
+from glypy.structure.base import MoleculeBase
 from glypy.algorithms import subtree_search
 from glypy.algorithms.similarity import commutative_similarity
 
@@ -52,10 +53,12 @@ class Glycoenzyme(object):
 
         self._parent_position = ()
         self._child_position = ()
+        self._parents = ()
+        self._child = None
 
-        self.parent_position = self._conform_position(parent_position)
-        self.child_position = self._conform_position(child_position)
-        self.parent = parent
+        self.parent_position = parent_position
+        self.child_position = child_position
+        self.parents = parent
         self.child = child
         self.terminal = terminal
         self.comparator = comparator
@@ -78,6 +81,22 @@ class Glycoenzyme(object):
     def child_position(self, value):
         self._child_position = self._conform_position(value)
 
+    @property
+    def parents(self):
+        return self._parent
+
+    @parents.setter
+    def parents(self, value):
+        self._parent = self._conform_molecule(value)
+
+    @property
+    def child(self):
+        return self._child
+
+    @child.setter
+    def child(self, value):
+        self._child = value
+
     def _conform_validator(self, fn):
         try:
             iter(fn)
@@ -98,6 +117,15 @@ class Glycoenzyme(object):
             return tuple(value)
         except TypeError:
             return (value,)
+
+    def _conform_molecule(self, value):
+        if value is None:
+            return value
+        if isinstance(value, MoleculeBase):
+            value = (value, )
+        else:
+            value = tuple(value)
+        return value
 
     def _traverse(self, structure):
         raise NotImplementedError()
@@ -127,13 +155,15 @@ class Transferase(Glycoenzyme):
         self.exact = exact
 
     def _traverse(self, structure):
-        for node in subtree_search.find_matching_subtree_roots(self.parent, structure, exact=True):
-            node = self._get_paired_node(node)
-            for parent_position in self.parent_position:
-                if not node.is_occupied(parent_position) and (
-                   (len(node.children()) == 0 and self.terminal) or (
-                        not self.terminal)) and self.validate_site(structure, node):
-                    yield node
+        if self.parents is not None:
+            for parent in self.parents:
+                for node in subtree_search.find_matching_subtree_roots(parent, structure, exact=True):
+                    node = self._get_paired_node(node, parent)
+                    for parent_position in self.parent_position:
+                        if not node.is_occupied(parent_position) and (
+                           (len(node.children()) == 0 and self.terminal) or (
+                                not self.terminal)) and self.validate_site(structure, node):
+                            yield node
 
     def validate_site(self, structure, node):
         for fn in self.site_validators:
@@ -141,27 +171,31 @@ class Transferase(Glycoenzyme):
                 return False
         return True
 
-    def _get_paired_node(self, node):
-        return {k.id: v for k, v in subtree_search.walk_with(node, self.parent)
+    def _get_paired_node(self, node, parent):
+        return {k.id: v for k, v in subtree_search.walk_with(node, parent)
                 }.get(self.parent_node_id)
 
-    def apply(self, node, parent_position=None, child_position=None):
+    def make_bond(self, node, parent_position=None, child_position=None):
         raise NotImplementedError()
 
-    def __call__(self, structure, parent_position=None, child_position=None):
+    def apply(self, structure, parent_position=None, child_position=None):
         for node in self.traverse(structure):
             new_structure = structure.clone()
             node = new_structure.get(node.id)
-            self.apply(node, parent_position, child_position)
+            self.make_bond(node, parent_position, child_position)
             # reset ids, rebuild the index, and standardize traversal order
             new_structure.reindex()
             new_structure.canonicalize()
             yield new_structure
 
+    def __call__(self, structure, parent_position=None, child_position=None):
+        return self.apply(
+            structure, parent_position=parent_position, child_position=child_position)
+
 
 class Glycosyltransferase(Transferase):
 
-    def apply(self, node, parent_position=None, child_position=None):
+    def make_bond(self, node, parent_position=None, child_position=None):
         new_monosaccharide = self.child.clone()
         node.add_monosaccharide(
             new_monosaccharide, position=self.parent_position[0],
@@ -170,7 +204,7 @@ class Glycosyltransferase(Transferase):
 
 class Substituentransferase(Glycosyltransferase):
 
-    def apply(self, node, parent_position=None, child_position=None):
+    def make_bond(self, node, parent_position=None, child_position=None):
         new_substituent = self.child.clone()
         node.add_substituent(
             new_substituent, position=self.parent_position[0],
@@ -179,10 +213,18 @@ class Substituentransferase(Glycosyltransferase):
 
 class Glycosylase(Glycoenzyme):
 
+    @property
+    def child(self):
+        return self._child
+
+    @child.setter
+    def child(self, value):
+        self._child = self._conform_molecule(value)
+
     def _test(self, link):
         return (
-            (self.parent is None or self.comparator(link.parent, self.parent)),
-            (self.child is None or self.comparator(link.child, self.child)),
+            (self.parents is None or any(self.comparator(link.parent, parent) for parent in self.parents)),
+            (self.child is None or any(self.comparator(link.child, child) for child in self.child)),
             (self.parent_position is None or link.parent_position in self.parent_position),
             (self.child_position is None or link.child_position in self.child_position)
             (len(link.child.children()) == 0 and self.terminal) or (not self.terminal)
@@ -194,25 +236,28 @@ class Glycosylase(Glycoenzyme):
                 warnings.warn(
                     "Glycosylase do not support ambiguous linkages at this time.")
             else:
-                if (self.parent is None or self.comparator(link.parent, self.parent)) and\
-                   (self.child is None or self.comparator(link.child, self.child)) and\
+                if (self.parents is None or any(self.comparator(link.parent, parent) for parent in self.parents)) and\
+                   (self.child is None or any(self.comparator(link.child, child) for child in self.child)) and\
                    (self.parent_position is None or link.parent_position in self.parent_position) and\
                    (self.child_position is None or link.child_position in self.child_position) and\
                    ((len(link.child.children()) == 0 and self.terminal) or (not self.terminal)):
                     yield link
 
-    def apply(self, link, refund=False):
+    def digest(self, link, refund=False):
         link.break_link(refund=refund)
 
-    def __call__(self, structure, refund=False):
+    def apply(self, structure, refund=False):
         for link in self.traverse(structure):
             new_structure = structure.clone()
             link = new_structure.get_link(link.id)
-            self.apply(link, refund)
+            self.digest(link, refund)
             parent, child = structure.__class__(
                 link.parent, index_method=None).reroot(index_method='dfs'), structure.__class__(
                 link.child, index_method='dfs')
             yield parent.canonicalize(), child.canonicalize()
+
+    def __call__(self, structure, refund=False):
+        return self.apply(structure, refund=refund)
 
 
 def make_n_glycan_pathway():
@@ -294,9 +339,9 @@ def make_n_glycan_pathway():
     siat2_3 = Glycosyltransferase(3, 2, parent, child, identifying_information=enzdb[
                                   2, 4, 99, 6], parent_node_id=3)
 
-    parent = iupac.loads("b-D-Glcp2NAc")
-    child = iupac.loads("b-D-Galp2NAc")
-    b4galnact = Glycosyltransferase(4, 1, parent, child, parent_node_id=1, identifying_information=None)
+    # parent = iupac.loads("b-D-Glcp2NAc")
+    # child = iupac.loads("b-D-Galp2NAc")
+    # b4galnact = Glycosyltransferase(4, 1, parent, child, parent_node_id=1, identifying_information=None)
 
     parent = iupac.loads("b-D-Galp-(1-4)-b-D-Glcp2NAc")
     child = iupac.loads("a-L-Fucp")
@@ -462,3 +507,40 @@ def make_mucin_type_o_glycan_pathway():
 
     seeds = [glypy.Glycan(iupac.loads("a-D-Galp2NAc"))]
     return glycosylases, glycosyltransferases, seeds
+
+
+ABS_Sialidase = Glycosylase((3, 6, 8, 9), 2, parent=None, child=iupac.loads("a-D-Neup5Ac"))
+NAN1_Sialidase = Glycosylase((3,), 2, parent=None, child=iupac.loads("a-D-Neup5Ac"))
+BKF_Fucosidase = Glycosylase((2, 3, 4, 6), 1, parent=None, child=iupac.loads("a-L-Fucp"))
+XMF_Fucosidase = Glycosylase((2,), 1, parent=None, child=iupac.loads("a-L-Fucp"))
+AMF_Fucosidase = Glycosylase((3, 4), 1, parent=None, child=iupac.loads("a-L-Fucp"))
+BTG_Galactosidase = Glycosylase((3, 4), 1, parent=None, child=iupac.loads("b-D-Galp"))
+SPG_Galactosidase = Glycosylase((4,), 1, parent=None, child=iupac.loads("b-D-Galp"))
+CBG_Galactosidase = Glycosylase((3, 4, 6), 1, parent=None, child=iupac.loads("b-D-Galp"))
+JBM_Mannosidase = Glycosylase((3, 4, 6), 1, parent=None, child=iupac.loads("a-D-Manp"))
+
+GUH_N_Acetylhexosaminidase = Glycosylase(
+    (2, 3, 4, 6), 1, parent=None, child=iupac.loads("b-D-GlcpNAc"),
+    # Add site_validator-like option to Glycosylase
+    # Block action on bisecting GlcNAc
+    # site_validator=reject_on_path(
+    #     iupac.loads("b-D-Glcp2NAc-(1-4)-b-D-Manp-(1-4)-b-D-Glcp2NAc-(1-4)-b-D-Glcp2NAc"))
+)
+
+JBH_N_Acetylhexosaminidase = Glycosylase((2, 3, 4, 6), 1, parent=None, child=(
+    iupac.loads("b-D-GlcpNAc"),
+    iupac.loads("b-D-GalpNAc")))
+
+glycodigest_rules = {
+    "ABS": ABS_Sialidase,
+    "NAN1": NAN1_Sialidase,
+    "BKF": BKF_Fucosidase,
+    "XMF": XMF_Fucosidase,
+    "AMF": AMF_Fucosidase,
+    "BTG": BTG_Galactosidase,
+    "SPG": SPG_Galactosidase,
+    "CBG": CBG_Galactosidase,
+    "JBM": JBM_Mannosidase,
+    "GUH": GUH_N_Acetylhexosaminidase,
+    "JBH": JBH_N_Acetylhexosaminidase
+}
