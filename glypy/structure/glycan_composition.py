@@ -60,8 +60,8 @@ monosaccharide_parser_lite = re.compile(
 monosaccharide_residue_reference = {}
 
 
-class IUPACLiteMonosaccharideDeserializer(iupac.DerivatizationAwareMonosaccharideDeserializer):
-    pattern = monosaccharide_parser_lite
+class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer):
+    # pattern = monosaccharide_parser_lite
 
     def monosaccharide_from_iupac(self, monosaccharide_str, residue_class=None):
         """
@@ -99,24 +99,14 @@ class IUPACLiteMonosaccharideDeserializer(iupac.DerivatizationAwareMonosaccharid
         return residue_class.from_monosaccharide(residue)
 
     def build_residue(self, match_dict):
-        base_type = match_dict["base_type"]
-        modification = (match_dict['modification'] or '').rstrip("-")
-
-        try:
-            residue = named_structures.monosaccharides[base_type]
-        except KeyError:
-            raise IUPACError("Unknown Residue Base-type %r" % (base_type,))
-        base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
-
-        self.set_modifications(residue, modification)
-        self.set_substituents(residue, match_dict['substituent'], base_is_modified, base_type)
+        residue, linkage = super(IUPACLiteMonosaccharideDeserializer, self).build_residue(match_dict)
         return residue
 
     def __call__(self, string, residue_class=None):
         return self.monosaccharide_from_iupac(string, residue_class=residue_class)
 
 
-class IUPACLiteMonosaccharideSerializer(iupac.DerivatizationAwareMonosaccharideSerializer):
+class IUPACLiteMonosaccharideSerializer(iupac.SimpleMonosaccharideSerializer):
     def monosaccharide_to_iupac(self, residue):
         """
         Encode a subset of traits of a :class:`Monosaccharide`-like object
@@ -140,25 +130,7 @@ class IUPACLiteMonosaccharideSerializer(iupac.DerivatizationAwareMonosaccharideS
         --------
         :func:`from_iupac_lite`
         """
-        template = "{modification}{base_type}{substituent}"
-        modification = ""
-        base_type = self.resolve_special_base_type(residue)
-        if base_type is None:
-            if len(residue.stem) == 1 and residue.stem[0] is not Stem.Unknown:
-                base_type = residue.stem[0].name.title()
-            else:
-                base_type = residue.superclass.name.title()
-        modification = self.modification_extractor(residue.modifications, base_type)
-        substituent = self.substituent_resolver(residue)
-        string = template.format(
-            modification=modification,
-            base_type=base_type,
-            substituent=substituent
-        )
-
-        deriv = has_derivatization(residue)
-        if deriv:
-            string = "%s^%s" % (string, self.substituent_resolver.serialize_substituent(deriv))
+        string = super(IUPACLiteMonosaccharideSerializer, self).monosaccharide_to_iupac(residue)
         return string
 
 

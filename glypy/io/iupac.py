@@ -18,6 +18,20 @@ from glypy.io.file_utils import ParserInterface, ParserError
 # A static copy of monosaccharide names to structures for copy-free comparison
 monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.items()}
 
+special_base_types = {
+    # "Neu5Ac", "Neu5Gc", "Neu",
+    # "Kdn", "Kdo",
+    "Oli", "Tyv",
+    "Psi", "Fru", "Sor", "Tag",
+    "Xul", "Sed"
+}
+
+special_base_types = {
+    s: monosaccharide_reference[s]
+    for s in special_base_types
+}
+
+special_base_type_resolver = identity.MonosaccharideIdentifier(special_base_types)
 
 anomer_map_from = dict(format_constants_map.anomer_map)
 anomer_map_from['?'] = anomer_map_from.pop('x')
@@ -270,6 +284,9 @@ class MonosaccharideSerializer(object):
         elif residue.stem == (Stem.glc,):
             if Modification.d in residue.modifications.values():
                 return "Qui"
+        query = special_base_type_resolver.query(residue)
+        if query:
+            return special_base_type_resolver.name_map[query]
         return None
 
     def monosaccharide_to_iupac(self, residue):
@@ -311,21 +328,92 @@ class DerivatizationAwareMonosaccharideSerializer(MonosaccharideSerializer):
         return string
 
 
+class SimpleMonosaccharideSerializer(DerivatizationAwareMonosaccharideSerializer):
+    def monosaccharide_to_iupac(self, residue):
+        """
+        Encode a subset of traits of a :class:`Monosaccharide`-like object
+        using a limited subset of the IUPAC three letter code.
+
+        Parameters
+        ----------
+        residue: :class:`~Monosaccharide`
+            The object to be encoded
+
+        Returns
+        -------
+        str
+        """
+        template = "{modification}{base_type}{substituent}"
+        modification = ""
+        base_type = self.resolve_special_base_type(residue)
+        if base_type is None:
+            if len(residue.stem) == 1 and residue.stem[0] is not Stem.Unknown:
+                base_type = residue.stem[0].name.title()
+            else:
+                base_type = residue.superclass.name.title()
+        modification = self.modification_extractor(residue.modifications, base_type)
+        substituent = self.substituent_resolver(residue)
+        string = template.format(
+            modification=modification,
+            base_type=base_type,
+            substituent=substituent
+        )
+
+        deriv = has_derivatization(residue)
+        if deriv:
+            string = "%s^%s" % (string, self.substituent_resolver.serialize_substituent(deriv))
+        return string
+
+
 monosaccharide_to_iupac = MonosaccharideSerializer()
 resolve_special_base_type = monosaccharide_to_iupac.resolve_special_base_type
 
 
-class GlycanSerializer(object):
-    def __init__(self, monosaccharide_serializer=None, open_edge='-(', close_edge=')-',
-                 open_branch='[', close_branch=']'):
-        if monosaccharide_serializer is None:
-            monosaccharide_serializer = MonosaccharideSerializer()
-        self.monosaccharide_serializer = monosaccharide_serializer
-
+class LinkageSerializer(object):
+    def __init__(self, open_edge='-(', close_edge=')-', open_branch='[', close_branch=']'):
         self.open_edge = open_edge
         self.close_edge = close_edge
         self.open_branch = open_branch
         self.close_branch = close_branch
+
+    def format_linkage(self, linkage):
+        text = "{oe}{attach}-{linkage_pos}{ce}".format(
+            linkage_pos=linkage.parent_position if linkage.parent_position != -1 else "?",
+            attach=linkage.child_position if linkage.child_position != -1 else "?",
+            oe=self.open_edge, ce=self.close_edge)
+        return text
+
+    def format_branch(self, branch):
+        branch = '{ob}{branch}{cb}'.format(
+            branch=''.join(branch),
+            ob=self.open_branch,
+            cb=self.close_branch
+        )
+        return branch
+
+
+class SimpleLinkageSerializer(LinkageSerializer):
+    def __init__(self, open_edge="(", close_edge=")", open_branch="[", close_branch="]"):
+        super(SimpleLinkageSerializer, self).__init__(open_edge, close_edge, open_branch, close_branch)
+
+    def format_linkage(self, linkage):
+        template = "{oe}{anomer}{attach}-{linkage_pos}{ce}"
+        text = template.format(
+            oe=self.open_edge, anomer=anomer_map_to.get(linkage.child.anomer, "?"),
+            linkage_pos=linkage.parent_position if linkage.parent_position != -1 else "?",
+            attach=linkage.child_position if linkage.child_position != -1 else "?",
+            ce=self.close_edge)
+        return text
+
+
+class GlycanSerializer(object):
+    def __init__(self, monosaccharide_serializer=None, linkage_serializer=None):
+        if monosaccharide_serializer is None:
+            monosaccharide_serializer = MonosaccharideSerializer()
+        if linkage_serializer is None:
+            linkage_serializer = LinkageSerializer()
+        self.monosaccharide_serializer = monosaccharide_serializer
+        self.linkage_serializer = linkage_serializer
 
     def glycan_to_iupac(self, structure=None, attach=None, is_branch=False):
         '''
@@ -352,10 +440,11 @@ class GlycanSerializer(object):
             outedge, node = stack.pop()
             link = ""
             if outedge is not None:
-                link = "{oe}{attach}-{outedge_pos}{ce}".format(
-                    outedge_pos=outedge.parent_position if outedge.parent_position != -1 else "?",
-                    attach=outedge.child_position if outedge.child_position != -1 else "?",
-                    oe=self.open_edge, ce=self.close_edge)
+                # link = "{oe}{attach}-{outedge_pos}{ce}".format(
+                #     outedge_pos=outedge.parent_position if outedge.parent_position != -1 else "?",
+                #     attach=outedge.child_position if outedge.child_position != -1 else "?",
+                #     oe=self.open_edge, ce=self.close_edge)
+                link = self.linkage_serializer.format_linkage(outedge)
             # Branch linkage does not start with leading dash
             if is_branch and link[-1] == '-':
                 link = link[:-1]
@@ -365,11 +454,13 @@ class GlycanSerializer(object):
             children = list((p, link) for p, link in node.links.items() if link.is_parent(node))
             if len(children) > 1:
                 for pos, link in children[:-1]:
-                    branch = '{ob}{branch}{cb}'.format(
-                        branch=''.join(self.glycan_to_iupac(link.child, link, is_branch=True)),
-                        ob=self.open_branch,
-                        cb=self.close_branch
-                    )
+                    # branch = '{ob}{branch}{cb}'.format(
+                    #     branch=''.join(self.glycan_to_iupac(link.child, link, is_branch=True)),
+                    #     ob=self.open_branch,
+                    #     cb=self.close_branch
+                    # )
+                    branch = self.linkage_serializer.format_branch(
+                        self.glycan_to_iupac(link.child, link, is_branch=True))
                     outstack.appendleft(branch)
                 pos, link = children[-1]
                 stack.append((link, link.child))
@@ -462,32 +553,45 @@ substituent_from_iupac = SubstituentDeserializer()
 LinkageSpecification = namedtuple("LinkageSpecification", ("child_position", "parent_position", "has_ambiguity"))
 
 
-def parse_linkage_position(position_string):
-    if position_string == '?':
-        return -1
-    elif '/' in position_string:
-        return list(map(int, position_string.split('/')))
-    else:
-        return int(position_string)
+class LinkageDeserializer(object):
+    pattern = re.compile(r"\((?P<child_linkage>[0-9?/]+)->?(?P<parent_linkage>[0-9?/]+)?\)?")
+
+    def parse(self, linkage_string):
+        if linkage_string is None:
+            return None
+        match = self.pattern.search(linkage_string)
+        if match is None:
+            raise ValueError(linkage_string)
+        has_ambiguity = "/" in linkage_string
+        match_groups = match.groupdict()
+        child_linkage = match_groups['child_linkage']
+        if child_linkage is not None:
+            child_linkage = self.parse_position(child_linkage)
+        parent_linkage = match_groups['parent_linkage']
+        if parent_linkage is not None:
+            parent_linkage = self.parse_position(parent_linkage)
+        return LinkageSpecification(child_linkage, parent_linkage, has_ambiguity)
+
+    def parse_position(self, position_string):
+        if position_string == '?':
+            return -1
+        elif '/' in position_string:
+            return list(map(int, position_string.split('/')))
+        else:
+            return int(position_string)
+
+    def __call__(self, linkage_string):
+        return self.parse(linkage_string)
 
 
-def parse_linkage_structure(linkage_string):
-    if linkage_string is None:
-        return None
-    match = re.search(
-        r"\((?P<child_linkage>[0-9?/]+)->?(?P<parent_linkage>[0-9?/]+)?\)?",
-        linkage_string)
-    if match is None:
-        raise ValueError(linkage_string)
-    has_ambiguity = "/" in linkage_string
-    match_groups = match.groupdict()
-    child_linkage = match_groups['child_linkage']
-    if child_linkage is not None:
-        child_linkage = parse_linkage_position(child_linkage)
-    parent_linkage = match_groups['parent_linkage']
-    if parent_linkage is not None:
-        parent_linkage = parse_linkage_position(parent_linkage)
-    return LinkageSpecification(child_linkage, parent_linkage, has_ambiguity)
+class SimpleLinkageDeserializer(LinkageDeserializer):
+    pattern = re.compile(r"""\((?P<anomer>[abo?])
+                             (?P<child_linkage>[0-9?/]+)->?
+                             (?P<parent_linkage>[0-9?/]+)?\)?""",
+                         re.VERBOSE)
+
+
+parse_linkage_structure = LinkageDeserializer()
 
 
 class MonosaccharideDeserializer(object):
@@ -505,6 +609,8 @@ class MonosaccharideDeserializer(object):
     except AttributeError:
         pass
     pattern = re.compile(_pattern, re.VERBOSE | re.UNICODE)
+
+    linkage_parser = parse_linkage_structure
 
     def __init__(self, modification_parser=None, substituent_parser=None):
         if modification_parser is None:
@@ -631,10 +737,13 @@ class MonosaccharideDeserializer(object):
         for pos, mod in self.modification_parser(modification_string):
             residue.add_modification(mod, pos)
 
+    def parse_linkage_structure(self, linkage):
+        return self.linkage_parser(linkage)
+
     def monosaccharide_from_iupac(self, monosaccharide_str, parent=None):
         match_dict = self.extract_pattern(monosaccharide_str)
         residue, linkage = self.build_residue(match_dict)
-        linkage = parse_linkage_structure(linkage)
+        linkage = self.parse_linkage_structure(linkage)
 
         self.add_monosaccharide_bond(residue, parent, linkage)
         return residue, linkage
@@ -712,7 +821,7 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
     def monosaccharide_from_iupac(self, monosaccharide_str, parent=None):
         match_dict = self.extract_pattern(monosaccharide_str)
         residue, linkage = self.build_residue(match_dict)
-        linkage = parse_linkage_structure(linkage)
+        linkage = self.parse_linkage_structure(linkage)
 
         self.add_monosaccharide_bond(residue, parent, linkage)
 
@@ -745,13 +854,33 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
         return self(base, **kwargs)
 
 
-class CondensedMonosaccharideDeserializer(object):
-    pattern = re.compile(r'''(?:
-                         (?P<modification>[a-z0-9_\-,]*)
-                         (?P<base_type>[^-]{3}?)
-                         (?P<substituent>[^-]*?)
-                         (?P<linkage>-\((?P<anomer>[ab?])[0-9?]->?[0-9?]\)-?)?
-                         )$''', re.VERBOSE)
+class SimpleMonosaccharideDeserializer(DerivatizationAwareMonosaccharideDeserializer):
+    pattern = re.compile(
+        r'''(?P<modification>[a-z0-9_\-,]*)
+            (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
+            (?P<substituent>[^-]*?)
+            (?P<derivatization>\^[^\s-]*?)?
+            (?P<linkage>-?\((?P<anomer>[ab?o]?)[0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE)
+
+    linkage_parser = SimpleLinkageDeserializer()
+
+    def parse_linkage_structure(self, linkage):
+        return self.linkage_parser(linkage)
+
+    def build_residue(self, match_dict):
+        base_type = match_dict["base_type"]
+        modification = (match_dict['modification'] or '').rstrip("-")
+
+        try:
+            residue = named_structures.monosaccharides[base_type]
+        except KeyError:
+            raise IUPACError("Unknown Residue Base-type %r" % (base_type,))
+        base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
+
+        self.set_modifications(residue, modification)
+        self.set_substituents(residue, match_dict['substituent'], base_is_modified, base_type)
+        linkage = match_dict.get("linkage")
+        return residue, linkage
 
 
 monosaccharide_from_iupac = MonosaccharideDeserializer()

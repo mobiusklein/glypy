@@ -44,8 +44,9 @@ NSUniprotCore = Namespace("http://purl.uniprot.org/core/")
 NSUniprotEntity = Namespace("http://purl.uniprot.org/uniprot/")
 NSTaxonomy = Namespace("http://purl.uniprot.org/taxonomy/")
 NSDCTerms = Namespace("http://purl.org/dc/terms/")
-NSGlycoconjugate = Namespace("http://purl.jp/bio/12/glyco/conjugate")
+NSGlycoconjugate = Namespace("http://purl.jp/bio/12/glyco/conjugate#")
 NSUnicarbKB = Namespace("http://rdf.unicarbkb.org/")
+NSUnicarbKBStructure = Namespace("http://rdf.unicarbkb.org/structure/")
 NSUnicarbKBProtein = Namespace("http://unicarbkb.org/unicarbkbprotein/")
 NSFaldo = Namespace("http://www.biohackathon.org/resource/faldo/")
 NSPato = Namespace("http://purl.obolibrary.org/obo/uo.owl")
@@ -281,7 +282,7 @@ class RDFClientBase(ConjunctiveGraph):
         -------
         rdflib.term.URIRef
         """
-        return self.accession_ns[accession]
+        return self.accession_ns[str(accession)]
 
     def get(self, uriref, simplify=True):
         """Download all related information for `uriref` from the remote
@@ -533,10 +534,10 @@ class GlyTouCanRDFClient(RDFClientBase):
 class UnicarbKBRDFClient(RDFClientBase):
     predicate_processor_map = ChainFunctionDict()
     _predicates_seen = set()
-    _sparql_endpoint_uri = 'http://137.92.56.159:40935/unicarbkb2.0/query'
+    _sparql_endpoint_uri = 'http://203.101.226.16:40935/unicarbkbv2.0.1/query'
 
     def __init__(self):
-        super(UnicarbKBRDFClient, self).__init__(self._sparql_endpoint_uri, NSUnicarbKB)
+        super(UnicarbKBRDFClient, self).__init__(self._sparql_endpoint_uri, NSUnicarbKBStructure)
         self.bind("glytoucan", NSGlyTouCan)
         self.bind("glycomedb", NSGlycomeDB)
         self.bind("glycan", NSGlycan)
@@ -548,6 +549,9 @@ class UnicarbKBRDFClient(RDFClientBase):
         self.bind("uk", NSUnicarbKB)
         self.bind("sio", NSSIO)
         self.bind("unicorn", NSUnicorn)
+        self.bind("owl", NSOwl)
+        self.bind("dcterms", NSDCTerms)
+        self.bind("faldo", NSFaldo)
 
 
 GlySpaceRDFClient = GlyTouCanRDFClient
@@ -564,6 +568,7 @@ triples = client.triples
 
 
 @GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
+@UnicarbKBRDFClient.register_predicate_processor(URIRef(NSGlycan[:-1] + "/has_glycosequence"))
 def has_glycosequence_processor(state, uri):
     """Detect and extract GlycoCT sequence data and parse
     into a |Glycan| object.
