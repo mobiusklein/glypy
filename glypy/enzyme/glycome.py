@@ -51,7 +51,7 @@ class Glycome(object):
             parentkey = None
             for enzkey, enz in self.glycosylases.items():
                 products = [root for root, leaf in enz(
-                    species, refund=1) if self.within_limits(root)]
+                    species, refund=True) if self.within_limits(root)]
                 if products:
                     if parentkey is None:
                         parentkey = str(species)
