@@ -282,4 +282,7 @@ class MonosaccharideIdentifier(object):
 
     def identify(self, monosaccharide, **kwargs):
         template = self.query(monosaccharide, **kwargs)
-        return self.name_map[template]
+        if template is not None:
+            return self.name_map[template]
+        else:
+            raise IdentifyException(monosaccharide)

@@ -1,6 +1,14 @@
 [
   {
     "names": [
+      "Neu5Ac", 
+      "Sialic Acid", 
+      "NeuAc"
+    ], 
+    "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n"
+  }, 
+  {
+    "names": [
       "GalNac", 
       "GalNAc", 
       "N-Acetylglucosamine"
@@ -23,17 +31,10 @@
   }, 
   {
     "names": [
-      "Sug"
+      "Sorbose", 
+      "Sor"
     ], 
-    "structure": "RES 1b:x-SUG-0:0"
-  }, 
-  {
-    "names": [
-      "Neu5Ac", 
-      "Sialic Acid", 
-      "NeuAc"
-    ], 
-    "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n"
+    "structure": "RES 1b:x-lxyl-HEX-2:6|2:keto"
   }, 
   {
     "names": [
@@ -57,10 +58,10 @@
   }, 
   {
     "names": [
-      "Sorbose", 
-      "Sor"
+      "Ara", 
+      "Arabinose"
     ], 
-    "structure": "RES 1b:x-dxyl-HEX-2:6|2:keto"
+    "structure": "RES 1b:x-lara-PEN-1:4"
   }, 
   {
     "names": [
@@ -216,7 +217,8 @@
   }, 
   {
     "names": [
-      "Tag"
+      "Tag", 
+      "Tagatose"
     ], 
     "structure": "RES 1b:x-dlyx-HEX-2:6|2:keto"
   }, 
@@ -263,10 +265,9 @@
   }, 
   {
     "names": [
-      "Ara", 
-      "Arabinose"
+      "Sug"
     ], 
-    "structure": "RES 1b:x-lara-PEN-1:4"
+    "structure": "RES 1b:x-SUG-0:0"
   }, 
   {
     "names": [
