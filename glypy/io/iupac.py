@@ -76,6 +76,7 @@ substituents_map_to["acetyl"] = "Ac"
 substituents_map_to["glycolyl"] = "Gc"
 substituents_map_to["fluoro"] = "F"
 substituents_map_to["amino"] = "N"
+substituents_map_to['phosphate'] = 'P'
 
 substituents_map_from = invert_dict(substituents_map_to)
 
@@ -109,7 +110,7 @@ class SubstituentSerializer(object):
         substituent = ""
         multi = False
         for name, pos in self.get_relevant_substituents(residue, monosaccharides):
-            if pos in {-1, None}:
+            if pos in {UnknownPosition, None}:
                 pos = ""
             if name in substituents_map_to:
                 part = substituents_map_to[name]
@@ -189,7 +190,7 @@ class ModificationSerializer(object):
 
         pos_mod_pairs = zip(pos, mods)
         for pos, mod in pos_mod_pairs:
-            if pos != -1:
+            if pos != UnknownPosition:
                 buff.append(template.format(position=pos, name=mod.name))
             else:
                 buff.append(mod.name)
@@ -224,11 +225,12 @@ class ModificationDeserializer(object):
             try:
                 pos, mod = token.split("-")
             except Exception:
-                pos = -1
+                pos = UnknownPosition
                 mod = token
             try:
                 mod_t = self.modification_map.get(mod, mod)
-                pairs.append((int(pos), Modification[mod_t]))
+                pos = int(pos)
+                pairs.append((pos, Modification[mod_t]))
             except KeyError:
                 raise IUPACError("Could not determine modification from %s" % modification_string)
         return pairs
@@ -378,8 +380,8 @@ class LinkageSerializer(object):
 
     def format_linkage(self, linkage):
         text = "{oe}{attach}-{linkage_pos}{ce}".format(
-            linkage_pos=linkage.parent_position if linkage.parent_position != -1 else "?",
-            attach=linkage.child_position if linkage.child_position != -1 else "?",
+            linkage_pos=linkage.parent_position if linkage.parent_position != UnknownPosition else "?",
+            attach=linkage.child_position if linkage.child_position != UnknownPosition else "?",
             oe=self.open_edge, ce=self.close_edge)
         return text
 
@@ -400,8 +402,8 @@ class SimpleLinkageSerializer(LinkageSerializer):
         template = "{oe}{anomer}{attach}-{linkage_pos}{ce}"
         text = template.format(
             oe=self.open_edge, anomer=anomer_map_to.get(linkage.child.anomer, "?"),
-            linkage_pos=linkage.parent_position if linkage.parent_position != -1 else "?",
-            attach=linkage.child_position if linkage.child_position != -1 else "?",
+            linkage_pos=linkage.parent_position if linkage.parent_position != UnknownPosition else "?",
+            attach=linkage.child_position if linkage.child_position != UnknownPosition else "?",
             ce=self.close_edge)
         return text
 
@@ -440,10 +442,6 @@ class GlycanSerializer(object):
             outedge, node = stack.pop()
             link = ""
             if outedge is not None:
-                # link = "{oe}{attach}-{outedge_pos}{ce}".format(
-                #     outedge_pos=outedge.parent_position if outedge.parent_position != -1 else "?",
-                #     attach=outedge.child_position if outedge.child_position != -1 else "?",
-                #     oe=self.open_edge, ce=self.close_edge)
                 link = self.linkage_serializer.format_linkage(outedge)
             # Branch linkage does not start with leading dash
             if is_branch and link[-1] == '-':
@@ -454,11 +452,6 @@ class GlycanSerializer(object):
             children = list((p, link) for p, link in node.links.items() if link.is_parent(node))
             if len(children) > 1:
                 for pos, link in children[:-1]:
-                    # branch = '{ob}{branch}{cb}'.format(
-                    #     branch=''.join(self.glycan_to_iupac(link.child, link, is_branch=True)),
-                    #     ob=self.open_branch,
-                    #     cb=self.close_branch
-                    # )
                     branch = self.linkage_serializer.format_branch(
                         self.glycan_to_iupac(link.child, link, is_branch=True))
                     outstack.appendleft(branch)
@@ -519,7 +512,7 @@ class SubstituentDeserializer(object):
             if len(split_part) == 3:
                 _, position, name = split_part
             else:
-                position = -1
+                position = UnknownPosition
                 name = split_part[0]
             try:
                 name = (substituents_map_from[name])
@@ -574,7 +567,7 @@ class LinkageDeserializer(object):
 
     def parse_position(self, position_string):
         if position_string == '?':
-            return -1
+            return UnknownPosition
         elif '/' in position_string:
             return list(map(int, position_string.split('/')))
         else:
@@ -685,7 +678,7 @@ class MonosaccharideDeserializer(object):
         i = 0
         for position, substituent in self.substituent_parser(substituent_string):
             i += 1
-            if position == -1 and base_is_modified:
+            if position == UnknownPosition and base_is_modified:
                 # Guess at what the user might mean using base_type
                 if base_type == "Neu" and substituent in ["acetyl", "glycolyl"] and i == 1:
                     position = 5
@@ -835,7 +828,7 @@ class DerivatizationAwareMonosaccharideDeserializer(MonosaccharideDeserializer):
         for node in glycan:
             neg_capacity = -node._remaining_capacity()
             if neg_capacity > 0:
-                unknowns = node.substituent_links[-1]
+                unknowns = node.substituent_links[UnknownPosition]
                 to_remove = []
                 for unknown in unknowns:
                     if unknown.child.node_type is Substituent.node_type and unknown.child._derivatize:
@@ -957,7 +950,7 @@ def set_default_positions(glycan):
     for node in glycan:
         candidates = []
         for pos, link in list(node.substituent_links.items()):
-            if pos == -1:
+            if pos == UnknownPosition:
                 candidates.append(link)
         for candidate in candidates:
             substituent = candidate.to(node)
