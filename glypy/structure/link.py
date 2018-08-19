@@ -5,9 +5,10 @@ from collections import Iterable
 from glypy.composition import Composition
 from glypy.utils import uid, basestring, make_struct
 from .base import SaccharideBase, SubstituentBase
-from .constants import UnknownPosition
+from .constants import UnknownPosition, LinkageType
 
-default_parent_loss = Composition(O=1, H=1)
+
+default_parent_loss = Composition({"O": 1, "H": 1})
 default_child_loss = Composition(H=1)
 
 
@@ -37,11 +38,14 @@ class Link(object):
     __slots__ = (
         "parent", "child", "parent_position", "child_position",
         "parent_loss", "child_loss", "id",
-        "label", "_attached"
+        "label", "_attached",
+        "parent_linkage_type",
+        "child_linkage_type"
     )
 
     def __init__(self, parent, child, parent_position=UnknownPosition, child_position=UnknownPosition,
-                 parent_loss=None, child_loss=None, id=None, attach=True):
+                 parent_loss=None, child_loss=None, id=None, attach=True, parent_linkage_type=None,
+                 child_linkage_type=None):
         '''
         Defines a bond between `parent` and `child` between the molecule positions specified.
         The bond may represent a partial loss of elemental composition from the parent and/or child
@@ -88,6 +92,8 @@ class Link(object):
         self.child_position = child_position
         self.parent_loss = parent_loss
         self.child_loss = child_loss
+        self.parent_linkage_type = parent_linkage_type or LinkageType.unknown
+        self.child_linkage_type = child_linkage_type or LinkageType.unknown
         self.id = id
         self.label = None
         self._attached = False
@@ -232,7 +238,9 @@ class Link(object):
                     parent_loss=self.parent_loss,
                     child_loss=self.child_loss,
                     id=self.id if prop_id else uuid4().int,
-                    attach=attach)
+                    attach=attach,
+                    parent_linkage_type=self.parent_linkage_type,
+                    child_linkage_type=self.child_linkage_type)
 
     def _get_parent_configuration(self):
         # Possible problem since Monosaccharide objects do not define __hash__
@@ -445,6 +453,8 @@ class Link(object):
         state["id"] = self.id
         state["label"] = self.label
         state["_attached"] = self._attached
+        state['parent_linkage_type'] = self.parent_linkage_type
+        state['child_linkage_type'] = self.child_linkage_type
         return state
 
     def __setstate__(self, state):
@@ -457,6 +467,14 @@ class Link(object):
         self.id = state["id"]
         self.label = state["label"]
         self._attached = state["_attached"]
+        try:
+            self.parent_linkage_type = state['parent_linkage_type']
+        except KeyError:
+            self.parent_linkage_type = LinkageType.unknown
+        try:
+            self.child_linkage_type = state['child_linkage_type']
+        except KeyError:
+            self.child_linkage_type = LinkageType.unknown
 
 
 class LinkMaskContext(object):
@@ -501,7 +519,8 @@ class AmbiguousLink(Link):
     )
 
     def __init__(self, parent, child, parent_position=(UnknownPosition,), child_position=(UnknownPosition,),
-                 parent_loss=None, child_loss=None, id=None, attach=True):
+                 parent_loss=None, child_loss=None, id=None, attach=True, parent_linkage_type=None,
+                 child_linkage_type=None):
         if not isinstance(parent, (list, tuple)):
             parent = [parent]
         if not isinstance(child, (list, tuple)):
@@ -522,7 +541,8 @@ class AmbiguousLink(Link):
             self.child_choices[0],
             self.parent_position_choices[0],
             self.child_position_choices[0],
-            parent_loss, child_loss, id, attach)
+            parent_loss, child_loss, id, attach,
+            parent_linkage_type, child_linkage_type)
 
     def __getstate__(self):
         state = super(AmbiguousLink, self).__getstate__()

@@ -43,6 +43,15 @@ link_replacement_composition_map = {
 }
 
 
+linkage_type_map = {
+    'o': constants.LinkageType.backbone_oxygen,
+    'd': constants.LinkageType.backbone_oxygen,
+    'h': constants.LinkageType.backbone_hydrogen,
+    'n': constants.LinkageType.other,
+    'x': constants.LinkageType.x
+}
+
+
 Modification = constants.Modification
 modification_map = {
     'd': Modification.Deoxygenated,

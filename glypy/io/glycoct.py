@@ -20,7 +20,8 @@ from glypy.utils.multimap import OrderedMultiMap
 from glypy.structure import monosaccharide, substituent, glycan, Modification, constants, UnknownPosition, NoPosition
 from glypy.structure.link import Link, AmbiguousLink
 from .format_constants_map import (anomer_map, superclass_map,
-                                   link_replacement_composition_map, modification_map)
+                                   link_replacement_composition_map,
+                                   modification_map, linkage_type_map)
 from .file_utils import ParserError
 from .tree_builder_utils import (
     decorate_tree,
@@ -229,7 +230,7 @@ class GlycoCTGraph(object):
         self.graph[id] = value
 
     def form_link(self, parent, child, parent_position, child_position, parent_loss,
-                  child_loss, id=None):
+                  child_loss, parent_linkage_type=None, child_linkage_type=None, id=None):
         if parent.node_type is Substituent.node_type and\
                 child.node_type is Monosaccharide.node_type:
             warnings.warn(
@@ -241,13 +242,15 @@ class GlycoCTGraph(object):
             link_obj = AmbiguousLink(
                 parent, child, parent_position=list(map(int, parent_position)),
                 child_position=list(map(int, child_position)), parent_loss=parent_loss,
-                child_loss=child_loss, id=id)
+                child_loss=child_loss, id=id, parent_linkage_type=parent_linkage_type,
+                child_linkage_type=child_linkage_type)
             link_obj.find_open_position()
         else:
             link_obj = Link(
                 parent, child, parent_position=int(parent_position[0]),
                 child_position=int(child_position[0]), parent_loss=parent_loss,
-                child_loss=child_loss)
+                child_loss=child_loss, parent_linkage_type=parent_linkage_type,
+                child_linkage_type=child_linkage_type)
         return link_obj
 
     def deferred_retrieval(self, id, direction=None):
@@ -576,10 +579,12 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 
         parent_residue_index = self.terminal_node_index
         parent_atom_replaced = link_replacement_composition_map[self.internal_linkage["parent_atom_replaced"]]
+        parent_linkage_type = linkage_type_map[self.internal_linkage["parent_atom_replaced"]]
         parent_attachment_position = self.internal_linkage["parent_attachment_position"]
 
         child_residue_index = self.origin_node_index
         child_atom_replaced = link_replacement_composition_map[self.internal_linkage["child_atom_replaced"]]
+        child_linkage_type = linkage_type_map[self.internal_linkage["child_atom_replaced"]]
         child_attachment_position = self.internal_linkage["child_attachment_position"]
 
         op_stack = []
@@ -595,7 +600,10 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
                 (self.form_link, [parent_node, child_node],
                  dict(parent_position=parent_attachment_position,
                       child_position=child_attachment_position,
-                      parent_loss=parent_atom_replaced, child_loss=child_atom_replaced)))
+                      parent_loss=parent_atom_replaced,
+                      child_loss=child_atom_replaced,
+                      parent_linkage_type=parent_linkage_type,
+                      child_linkage_type=child_linkage_type)))
 
         for op in op_stack:
             f, args, kwargs = op
@@ -683,6 +691,14 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 
 
 UndeterminedProbability = namedtuple("UndeterminedProbability", "major minor")
+
+
+LinkageSpecification = namedtuple(
+    "LinkageSpecification", [
+        "id", "parent_residue_index", "parent_atom_replaced", "parent_attachment_position",
+        "child_residue_index", "child_atom_replaced", "child_attachment_position",
+        "parent_linkage_type", "child_linkage_type"
+    ])
 
 
 class UndeterminedGlycoCTSubgraph(GlycoCTSubgraph):
@@ -992,12 +1008,22 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
 
         parent_atom_replaced = link_replacement_composition_map[link_dict["parent_atom_replaced"]]
         parent_attachment_position = list(map(int, link_dict["parent_attachment_position"].split("|")))
+        try:
+            parent_linkage_type = linkage_type_map[link_dict['parent_atom_replaced']]
+        except KeyError:
+            parent_linkage_type = constants.LinkageType.x
 
         child_atom_replaced = link_replacement_composition_map[link_dict["child_atom_replaced"]]
         child_attachment_position = list(map(int, link_dict["child_attachment_position"].split("|")))
+        try:
+            child_linkage_type = linkage_type_map[link_dict['child_atom_replaced']]
+        except KeyError:
+            child_linkage_type = constants.LinkageType.x
 
-        return (id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
-                child_residue_index, child_atom_replaced, child_attachment_position)
+        return LinkageSpecification(
+            id, parent_residue_index, parent_atom_replaced, parent_attachment_position,
+            child_residue_index, child_atom_replaced, child_attachment_position,
+            parent_linkage_type, child_linkage_type)
 
     def handle_linkage(self, line):
         '''
@@ -1013,7 +1039,8 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         a |Link| object.
         '''
         id, parent_residue_index, parent_atom_replaced, parent_attachment_position,\
-            child_residue_index, child_atom_replaced, child_attachment_position = self.parse_link(line)
+            child_residue_index, child_atom_replaced, child_attachment_position,\
+            parent_linkage_type, child_linkage_type = self.parse_link(line)
 
         parent = self.get_node(parent_residue_index)
         child = self.get_node(child_residue_index)
@@ -1067,7 +1094,8 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
             self.form_link(
                 parent, child,
                 parent_position=parent_attachment_position, child_position=child_attachment_position,
-                parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id)
+                parent_loss=parent_atom_replaced, child_loss=child_atom_replaced, id=id,
+                parent_linkage_type=parent_linkage_type, child_linkage_type=child_linkage_type)
 
     def handle_repeat_stub(self, line):
         if not self.allow_repeats:
