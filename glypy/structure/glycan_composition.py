@@ -145,6 +145,7 @@ to_iupac_lite = IUPACLiteMonosaccharideSerializer(
 def drop_stem(residue):
     if _resolve_special_base_type(residue) is None:
         residue.stem = (None,)
+    return residue
 
 
 def drop_positions(residue):
@@ -158,17 +159,20 @@ def drop_positions(residue):
             link.break_link(refund=True)
             link.parent_position = UnknownPosition
             link.apply()
+    return residue
 
 
 def drop_configuration(residue):
     if _resolve_special_base_type(residue) is None:
         residue.configuration = (None,)
+    return residue
 
 
 water_composition = Composition({"O": 1, "H": 2})
 
 
 class MonosaccharideResidue(Monosaccharide):
+    __slots__ = ()
 
     @classmethod
     def from_monosaccharide(cls, monosaccharide, configuration=False, stem=True, ring=False):
@@ -285,10 +289,11 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     This type is intended for use with :class:`FrozenGlycanComposition` to minimize the number of times
     :func:`from_iupac_lite` is called.
     '''
+    __slots__ = ("_frozen", "_total_composition", "_hash", "_name")
 
-    _frozen = False
+    # _frozen = False
+    # _total_composition = None
     __cache = {}
-    _total_composition = None
 
     @classmethod
     def from_monosaccharide(cls, monosaccharide, *args, **kwargs):
@@ -301,12 +306,17 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         return inst
 
     def __init__(self, *args, **kwargs):
+        self._total_composition = None
         super(FrozenMonosaccharideResidue, self).__init__(*args, **kwargs)
         self._frozen = kwargs.get("_frozen", False)
         self._hash = None
 
     def __setattr__(self, key, value):
-        if self._frozen and key not in ("_hash", '_total_composition'):
+        try:
+            is_frozen = self._frozen
+        except AttributeError:
+            is_frozen = False
+        if is_frozen and key not in ("_hash", '_total_composition'):
             self.get_cache().pop(self._name, None)
             raise FrozenError("Cannot change a frozen object")
         else:

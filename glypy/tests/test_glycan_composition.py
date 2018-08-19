@@ -68,6 +68,11 @@ class MonosaccharideResidueTests(unittest.TestCase):
         self.assertAlmostEqual(acidic_hexose1.mass() - hexose.mass(), 13.9792, 3)
         self.assertAlmostEqual(acidic_hexose2.mass() - hexose.mass(), 13.9792, 3)
 
+    def test_pickle(self):
+        case = glycan_composition.MonosaccharideResidue.from_iupac_lite("HexNAc")
+        test = pickle.loads(pickle.dumps(case))
+        self.assertEqual(case, test)
+
 
 class FrozenMonosaccharideResidueTests(unittest.TestCase):
     def test_from_monosaccharide(self):
@@ -112,6 +117,11 @@ class FrozenMonosaccharideResidueTests(unittest.TestCase):
         hexose = glycan_composition.FrozenMonosaccharideResidue.from_iupac_lite("Hex")
         self.assertAlmostEqual(acidic_hexose1.mass() - hexose.mass(), 13.9792, 3)
         self.assertAlmostEqual(acidic_hexose2.mass() - hexose.mass(), 13.9792, 3)
+
+    def test_pickle(self):
+        case = glycan_composition.MonosaccharideResidue.from_iupac_lite("HexNAc")
+        test = pickle.loads(pickle.dumps(case))
+        self.assertEqual(case, test)
 
 
 class GlycanCompositionTests(unittest.TestCase):
