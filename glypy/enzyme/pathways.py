@@ -36,6 +36,16 @@ def reject_on_path(*args):
     return checker
 
 
+def reject_on_parent(*args):
+    def checker(structure, selected_node):
+        for t in args:
+            for _, parent in selected_node.parents():
+                if parent == t:
+                    return False
+        return True
+    return checker
+
+
 class Glycoenzyme(object):
 
     def __init__(self, parent_position, child_position, parent, child, terminal=True,
@@ -338,6 +348,9 @@ def make_n_glycan_pathway():
                                   2, 4, 99, 1], parent_node_id=3)
     siat2_3 = Glycosyltransferase(3, 2, parent, child, identifying_information=enzdb[
                                   2, 4, 99, 6], parent_node_id=3)
+    # siat2_8 = Glycosyltransferase(
+    #     8, 2, child.clone(), child, identifying_information=enzdb[2, 4, 99, 8],
+    #     site_validator=reject_on_parent(child.clone()), parent_node_id=1)
 
     # parent = iupac.loads("b-D-Glcp2NAc")
     # child = iupac.loads("b-D-Galp2NAc")
