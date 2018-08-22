@@ -136,6 +136,15 @@ class LRUDict(object):  # pragma: no cover
 
 class PredicateDescriptor(text_type):
 
+    """A specialization of the unicode text type for representing a string which
+    is a convenient suffix of a complete URI denoting a predicate.
+
+    This type is used to attach a more verbose URI to a short string used for a
+    :class:`ReferenceEntity`'s attributes.
+
+    This class should be immutable, and caches all unique URIs.
+    """
+
     __slots__ = ("source", )
     _cache = {}
 
@@ -218,23 +227,48 @@ class ReferenceEntity(object):
     def uriref(self):
         return self._uriref
 
-    def to_graph(self, graph=None):
+    def to_graph(self, graph=None, deep=False, visited=None):
         if graph is None:
             graph = Graph()
             for prefix, ns in self._graph.namespaces():
                 graph.bind(prefix, ns)
+
+        if visited is None:
+            visited = set()
+        key = (self.uriref, self.query_type)
+        if key in visited:
+            return graph
+        else:
+            visited.add(key)
+
         for predicate, value in self:
             if isinstance(value, (text_type, Number)):
-                if not isinstance(value, URIRef):
-                    value = Literal(value)
-                graph.add((self.uriref, predicate.source, value))
+                is_uri = isinstance(value, URIRef)
+                if not is_uri:
+                    value_n = Literal(value)
+                else:
+                    value_n = URIRef(value)
+                graph.add((self.uriref, URIRef(predicate.source), value_n))
+                if is_uri and deep:
+                    try:
+                        value.to_graph(graph, deep=deep, visited=visited)
+                    except AttributeError:
+                        self._graph.get(value).to_graph(graph, deep=deep, visited=visited)
             elif isinstance(value, list):
                 value_collection = value
                 for value in value_collection:
                     if isinstance(value, (text_type, Number)):
-                        if not isinstance(value, URIRef):
-                            value = Literal(value)
-                        graph.add((self.uriref, predicate.source, value))
+                        is_uri = isinstance(value, URIRef)
+                        if not is_uri:
+                            value_n = Literal(value)
+                        else:
+                            value_n = URIRef(value)
+                        graph.add((self.uriref, URIRef(predicate.source), value_n))
+                        if is_uri and deep:
+                            try:
+                                value.to_graph(graph, deep=deep, visited=visited)
+                            except AttributeError:
+                                self._graph.get(value).to_graph(graph, deep=deep, visited=visited)
                     else:
                         raise TypeError(
                             "Could not translate %r of type %r for predicate %s" % (
@@ -249,50 +283,91 @@ class ReferenceEntity(object):
 class PredicateCollection(ReferenceEntity):
     query_type = 'predicate'
 
-    def to_graph(self, graph=None):
+    def to_graph(self, graph=None, deep=False, visited=None):
         if graph is None:
             graph = Graph()
             for prefix, ns in self._graph.namespaces():
                 graph.bind(prefix, ns)
+        if visited is None:
+            visited = set()
+        key = (self.uriref, self.query_type)
+        if key in visited:
+            return graph
+        else:
+            visited.add(key)
         for subj, obj in self:
             if isinstance(subj, (unicode, str, int, float)):
-                if not isinstance(subj, URIRef):
+                is_uri_subj = isinstance(subj, URIRef)
+                if not is_uri_subj:
                     subj = Literal(subj)
             if isinstance(obj, (unicode, str, int, float)):
-                if not isinstance(obj, URIRef):
+                is_uri_obj = isinstance(obj, URIRef)
+                if not is_uri_obj:
                     obj = Literal(obj)
             graph.add((subj, self.uriref, obj))
+            if is_uri_subj and deep:
+                try:
+                    subj.to_graph(graph, deep=deep, visited=visited)
+                except AttributeError:
+                    self._graph.get(subj).to_graph(graph, deep=deep, visited=visited)
+            if is_uri_obj:
+                try:
+                    obj.to_graph(graph, deep=deep, visited=visited)
+                except AttributeError:
+                    self._graph.get(obj).to_graph(graph, deep=deep, visited=visited)
+
         return graph
 
 
 class ObjectOfEntity(ReferenceEntity):
     query_type = 'object'
 
-    def to_graph(self, graph=None):
+    def to_graph(self, graph=None, deep=False, visited=None):
         if graph is None:
             graph = Graph()
             for prefix, ns in self._graph.namespaces():
                 graph.bind(prefix, ns)
-        for predicate, value in self:
-            if isinstance(value, (unicode, str, int, float)):
-                if not isinstance(value, URIRef):
-                    value = Literal(value)
-                graph.add((value, predicate.source, self.uriref))
-            elif isinstance(value, list):
-                value_collection = value
-                for value in value_collection:
-                    if isinstance(value, (unicode, str, int, float)):
-                        if not isinstance(value, URIRef):
-                            value = Literal(value)
-                        graph.add((value, predicate.source, self.uriref))
+
+        if visited is None:
+            visited = set()
+        key = (self.uriref, self.query_type)
+        if key in visited:
+            return graph
+        else:
+            visited.add(key)
+
+        for predicate, subj in self:
+            if isinstance(subj, (unicode, str, int, float)):
+                is_uri = isinstance(subj, URIRef)
+                if not is_uri:
+                    subj = Literal(subj)
+                graph.add((subj, URIRef(predicate.source), self.uriref))
+                if is_uri and deep:
+                    try:
+                        subj.to_graph(graph, deep=deep, visited=visited)
+                    except AttributeError:
+                        self._graph.get(subj).to_graph(graph, deep=deep, visited=visited)
+            elif isinstance(subj, list):
+                subj_collection = subj
+                for subj in subj_collection:
+                    if isinstance(subj, (unicode, str, int, float)):
+                        is_uri = isinstance(subj, URIRef)
+                        if not is_uri:
+                            subj = Literal(subj)
+                        graph.add((subj, URIRef(predicate.source), self.uriref))
+                        if is_uri and deep:
+                            try:
+                                subj.to_graph(graph, deep=deep, visited=visited)
+                            except AttributeError:
+                                self._graph.get(subj).to_graph(graph, deep=deep, visited=visited)
                     else:
                         raise TypeError(
                             "Could not translate %r of type %r for predicate %s" % (
-                                value, type(value), predicate.source))
+                                subj, type(subj), predicate.source))
             else:
                 raise TypeError(
                     "Could not translate %r of type %r for predicate %s" % (
-                        value, type(value), predicate.source))
+                        subj, type(subj), predicate.source))
         return graph
 
 
@@ -325,7 +400,7 @@ class BoundURIRef(URIRef):
     def __hash__(self):
         return URIRef.__hash__(self)
 
-    def get(self, simplify=True, refresh=False):
+    def get(self, simplify=True, refresh=False, query_type='auto'):
         """Get the referenced entity either from :attr:`_graph`
         or the cached reference in :attr:`_result_ref`
 
@@ -342,7 +417,7 @@ class BoundURIRef(URIRef):
         ReferenceEntity
         """
         if self._result_ref is None or refresh:
-            result = self._graph.get(self, simplify=simplify)
+            result = self._graph.get(self, simplify=simplify, query_type=query_type)
             self._result_ref = result
             return result
         else:
@@ -390,7 +465,10 @@ class BoundURIRef(URIRef):
             text = super(BoundURIRef, self).n3(namespace_manager)
             return text
         except Exception:
-            return URIRef(quote(self)).n3(namespace_manager)
+            if namespace_manager:
+                return namespace_manager.normalizeUri(self)
+            else:
+                return "<%s>" % self
 
 
 class ChainFunctionDict(defaultdict):
@@ -556,9 +634,7 @@ class RDFClientBase(ConjunctiveGraph):
         else:
             raise ValueError("Could not determine query type %s" % (query_type,))
         results = entity_type(BoundURIRef(uriref, source=self), **results)
-        if len(self.cache) > self.cache_size:
-            self.cache.popitem()
-            self.cache[uriref, query_type] = results
+        self.cache[uriref, query_type] = results
         return results
 
 
@@ -785,9 +861,12 @@ def has_glycosequence_processor(state, uri):
     -------
     BoundURIRef
     """
-    reference = uri()
+    reference = uri(query_type='subject')
     # print(uri, reference, state)
-    in_format = (reference.in_carbohydrate_format)
+    try:
+        in_format = (reference.in_carbohydrate_format)
+    except AttributeError:
+        return uri
     if in_format == (NSGlycan.carbohydrate_format_glycoct):
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
