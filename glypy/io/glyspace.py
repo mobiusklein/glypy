@@ -3,10 +3,11 @@ import re
 import warnings
 
 from collections import defaultdict
+from six import text_type
 
 import requests
 with warnings.catch_warnings():
-    from rdflib import ConjunctiveGraph, Namespace, URIRef, Literal
+    from rdflib import ConjunctiveGraph, Namespace, URIRef, Literal, Graph
     from rdflib.namespace import split_uri
     from glypy.io import glycoct, iupac, wurcs, _glycordf
 
@@ -69,6 +70,29 @@ def _camel_to_snake(name):
     return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', re.sub(r'(.)([A-Z][a-z]+)', r"\1_\2", name)).lower()
 
 
+def _uri_to_identifier(uri):
+    name = _camel_to_snake(split_uri(uri)[1])
+    return name
+
+
+class PredicateDescriptor(text_type):
+
+    __slots__ = ("source", )
+    _cache = {}
+
+    @classmethod
+    def bind(cls, uri):
+        return cls(_uri_to_identifier(uri), uri)
+
+    def __new__(cls, value, source):
+        if source in cls._cache:
+            return cls._cache[source]
+        named = super(PredicateDescriptor, cls).__new__(cls, value)
+        named.source = source
+        cls._cache[source] = named
+        return named
+
+
 class ReferenceEntity(object):
     '''
     A ReferenceEntity is a generic type to for storing results from
@@ -80,12 +104,16 @@ class ReferenceEntity(object):
     construction, such as `structure_` with a |Glycan| instance value
     when the referenced entity satisfies `glycan:has_glycosequence`.
     '''
+
+    query_type = 'subject'
+
     def __init__(self, uriref, **kwargs):
         self._uriref = uriref
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-        self._keys = kwargs.keys()
+        self._keys = {k for k in kwargs.keys() if isinstance(k, PredicateDescriptor)}
+        self._object_of = None
 
     def __iter__(self):
         for k in self._keys:
@@ -96,6 +124,8 @@ class ReferenceEntity(object):
 
     def __setitem__(self, k, v):  # pragma: no cover
         setattr(self, k, v)
+        if isinstance(k, PredicateDescriptor):
+            self._keys.add(k)
 
     def __repr__(self):  # pragma: no cover
         tokens = [self.__class__.__name__]
@@ -115,6 +145,97 @@ class ReferenceEntity(object):
     def __tree__(self):
         return self.structure_
 
+    @property
+    def _graph(self):
+        return self._uriref._graph
+
+    @property
+    def object_of(self):
+        if self._object_of is None:
+            self._object_of = self._graph.get(self._uriref, query_type='object')
+        return self._object_of
+
+    @property
+    def uriref(self):
+        return self._uriref
+
+    def to_graph(self, graph=None):
+        if graph is None:
+            graph = Graph()
+            for prefix, ns in self._graph.namespaces():
+                graph.bind(prefix, ns)
+        for predicate, value in self:
+            if isinstance(value, (unicode, str, int, float)):
+                if not isinstance(value, URIRef):
+                    value = Literal(value)
+                graph.add((self.uriref, predicate.source, value))
+            elif isinstance(value, list):
+                value_collection = value
+                for value in value_collection:
+                    if isinstance(value, (unicode, str, int, float)):
+                        if not isinstance(value, URIRef):
+                            value = Literal(value)
+                        graph.add((self.uriref, predicate.source, value))
+                    else:
+                        raise TypeError(
+                            "Could not translate %r of type %r for predicate %s" % (
+                                value, type(value), predicate.source))
+            else:
+                raise TypeError(
+                    "Could not translate %r of type %r for predicate %s" % (
+                        value, type(value), predicate.source))
+        return graph
+
+
+class PredicateCollection(ReferenceEntity):
+    query_type = 'predicate'
+
+    def to_graph(self, graph=None):
+        if graph is None:
+            graph = Graph()
+            for prefix, ns in self._graph.namespaces():
+                graph.bind(prefix, ns)
+        for subj, obj in self:
+            if isinstance(subj, (unicode, str, int, float)):
+                if not isinstance(subj, URIRef):
+                    subj = Literal(subj)
+            if isinstance(obj, (unicode, str, int, float)):
+                if not isinstance(obj, URIRef):
+                    obj = Literal(obj)
+            graph.add((subj, self.uriref, obj))
+        return graph
+
+
+class ObjectOfEntity(ReferenceEntity):
+    query_type = 'object'
+
+    def to_graph(self, graph=None):
+        if graph is None:
+            graph = Graph()
+            for prefix, ns in self._graph.namespaces():
+                graph.bind(prefix, ns)
+        for predicate, value in self:
+            if isinstance(value, (unicode, str, int, float)):
+                if not isinstance(value, URIRef):
+                    value = Literal(value)
+                graph.add((value, predicate.source, self.uriref))
+            elif isinstance(value, list):
+                value_collection = value
+                for value in value_collection:
+                    if isinstance(value, (unicode, str, int, float)):
+                        if not isinstance(value, URIRef):
+                            value = Literal(value)
+                        graph.add((value, predicate.source, self.uriref))
+                    else:
+                        raise TypeError(
+                            "Could not translate %r of type %r for predicate %s" % (
+                                value, type(value), predicate.source))
+            else:
+                raise TypeError(
+                    "Could not translate %r of type %r for predicate %s" % (
+                        value, type(value), predicate.source))
+        return graph
+
 
 class BoundURIRef(URIRef):
     '''
@@ -128,17 +249,17 @@ class BoundURIRef(URIRef):
 
     Attributes
     ----------
-    _bind_source: :class:`RDFClientBase`
+    _graph: :class:`RDFClientBase`
     _result_ref: :class:`ReferenceEntity`
         A reference to the ReferenceEntity fetched from this URI.
         Acts as a cache
 
     '''
-    __slots__ = ("_bind_source", "_result_ref")
+    __slots__ = ("_graph", "_result_ref")
 
     def __new__(cls, value, base=None, source=None):
         rt = URIRef.__new__(cls, value, base)
-        rt._bind_source = source
+        rt._graph = source
         rt._result_ref = None
         return rt
 
@@ -146,7 +267,7 @@ class BoundURIRef(URIRef):
         return URIRef.__hash__(self)
 
     def get(self, simplify=True, refresh=False):
-        """Get the referenced entity either from :attr:`_bind_source`
+        """Get the referenced entity either from :attr:`_graph`
         or the cached reference in :attr:`_result_ref`
 
         Parameters
@@ -162,7 +283,7 @@ class BoundURIRef(URIRef):
         ReferenceEntity
         """
         if self._result_ref is None or refresh:
-            result = self._bind_source.get(self, simplify=simplify)
+            result = self._graph.get(self, simplify=simplify)
             self._result_ref = result
             return result
         else:
@@ -284,7 +405,7 @@ class RDFClientBase(ConjunctiveGraph):
         """
         return self.accession_ns[str(accession)]
 
-    def get(self, uriref, simplify=True):
+    def get(self, uriref, simplify=True, query_type='auto'):
         """Download all related information for `uriref` from the remote
         data source.
 
@@ -315,25 +436,28 @@ class RDFClientBase(ConjunctiveGraph):
         """
         if not isinstance(uriref, URIRef):
             uriref = self.accession_to_uriref(uriref)
-        if uriref in self.cache:
-            return self.cache[uriref]
+        if (uriref, query_type) in self.cache:
+            return self.cache[uriref, query_type]
         results = defaultdict(list)
-        for subject, predicate, obj in set(self.triples((uriref, None, None))):
-            predicate_name = _camel_to_snake(split_uri(predicate)[1])
-            self._predicates_seen.add(predicate)
-            if isinstance(obj, Literal):
-                obj = obj.toPython()
-            elif isinstance(obj, URIRef):
-                obj = BoundURIRef(obj, source=self)
-            if predicate in self.predicate_processor_map:
-                obj = self.predicate_processor_map(predicate, results, obj)
-            if obj is not None:
-                results[predicate_name].append(obj)
+        if query_type == 'auto' or query_type == 'subject':
+            for subject, predicate, obj in set(self.triples((uriref, None, None))):
+                predicate_name = PredicateDescriptor.bind(predicate)
+                self._predicates_seen.add(predicate)
+                if isinstance(obj, Literal):
+                    obj = obj.toPython()
+                elif isinstance(obj, URIRef):
+                    obj = BoundURIRef(obj, source=self)
+                if predicate in self.predicate_processor_map:
+                    obj = self.predicate_processor_map(predicate, results, obj)
+                if obj is not None:
+                    results[predicate_name].append(obj)
+            if results:
+                query_type = 'subject'
 
         # If there were no results, the query might be a predicate, so try to find all the
         # pairs that satisfy it.
-        if len(results) == 0:
-            predicate_name = _camel_to_snake(split_uri(uriref)[1])
+        if (len(results) == 0 and query_type == 'auto') or query_type == 'predicate':
+            predicate_name = PredicateDescriptor.bind(uriref)
             for subject, predicate, obj in set(self.triples((None, uriref, None))):
                 if isinstance(obj, Literal):
                     obj = obj.toPython()
@@ -346,13 +470,36 @@ class RDFClientBase(ConjunctiveGraph):
                     subject = BoundURIRef(subject, source=self)
 
                 results[predicate_name].append((subject, obj))
+            if results:
+                query_type = 'predicate'
+
+        if query_type == 'object':
+            for subject, predicate, obj in set(self.triples((None, None, uriref))):
+                predicate_name = PredicateDescriptor.bind(predicate)
+                self._predicates_seen.add(predicate)
+                if isinstance(subject, Literal):
+                    subject = subject.toPython()
+                elif isinstance(subject, URIRef):
+                    subject = BoundURIRef(subject, source=self)
+                if predicate in self.predicate_processor_map:
+                    subject = self.predicate_processor_map(predicate, results, subject)
+                if subject is not None:
+                    results[predicate_name].append(subject)
 
         if simplify:
             results = {k: v if len(v) > 1 else v[0] for k, v in results.items()}
-        results = ReferenceEntity(uriref, **results)
+        if query_type in ('subject', 'auto'):
+            entity_type = ReferenceEntity
+        elif query_type == 'predicate':
+            entity_type = PredicateCollection
+        elif query_type == 'object':
+            entity_type = ObjectOfEntity
+        else:
+            raise ValueError("Could not determine query type %s" % (query_type,))
+        results = entity_type(BoundURIRef(uriref, source=self), **results)
         if len(self.cache) > self.cache_size:
             self.cache.popitem()
-            self.cache[uriref] = results
+            self.cache[uriref, query_type] = results
         return results
 
 
@@ -465,9 +612,6 @@ class GlyTouCanRDFClient(RDFClientBase):
 
             SELECT DISTINCT ?saccharide ?glycoct WHERE {
                 ?saccharide a glycan:saccharide .
-                ?saccharide glycan:has_glycosequence ?sequence .
-                FILTER CONTAINS(str(?sequence), "glycoct") .
-                ?sequence glycan:has_sequence ?glycoct .
                 ?saccharide glycan:has_motif <motif-accession>
             }
 
@@ -485,9 +629,6 @@ class GlyTouCanRDFClient(RDFClientBase):
         sparql = r'''
         SELECT DISTINCT ?saccharide ?glycoct WHERE {
                 ?saccharide a glycan:saccharide .
-                ?saccharide glycan:has_glycosequence ?sequence .
-                FILTER CONTAINS(str(?sequence), "glycoct") .
-                ?sequence glycan:has_sequence ?glycoct .
                 ?saccharide glycan:has_motif %s
         }
         '''
@@ -558,6 +699,8 @@ GlySpaceRDFClient = GlyTouCanRDFClient
 
 
 glytoucan_client = client = GlyTouCanRDFClient()
+unikarbkb_client = UnicarbKBRDFClient()
+
 
 get = client.get
 query = client.query
@@ -568,7 +711,7 @@ triples = client.triples
 
 
 @GlyTouCanRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
-@UnicarbKBRDFClient.register_predicate_processor(URIRef(NSGlycan[:-1] + "/has_glycosequence"))
+@UnicarbKBRDFClient.register_predicate_processor(NSGlycan.has_glycosequence)
 def has_glycosequence_processor(state, uri):
     """Detect and extract GlycoCT sequence data and parse
     into a |Glycan| object.
@@ -585,16 +728,17 @@ def has_glycosequence_processor(state, uri):
     BoundURIRef
     """
     reference = uri()
-    in_format = str(reference.in_carbohydrate_format).rstrip("/")
-    if in_format == str(NSGlycan.carbohydrate_format_glycoct):
+    # print(uri, reference, state)
+    in_format = (reference.in_carbohydrate_format)
+    if in_format == (NSGlycan.carbohydrate_format_glycoct):
         # trailing underscore in case a URI would claim "structure"
         state["structure_"] = [glycoct.loads(reference.has_sequence)]
-    if "structure_" not in state and in_format == str(NSGlycan.carbohydrate_format_wurcs):
+    if "structure_" not in state and in_format == (NSGlycan.carbohydrate_format_wurcs):
         try:
             state["structure_"] = [wurcs.loads(reference.has_sequence)]
         except wurcs.WURCSError:
             pass
-    if "structure_" not in state and in_format == str(NSGlycan.carbohydrate_format_iupac_extended):
+    if "structure_" not in state and in_format == (NSGlycan.carbohydrate_format_iupac_extended):
         try:
             state["structure_"] = [iupac.loads(reference.has_sequence)]
         except iupac.IUPACError:
