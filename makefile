@@ -16,6 +16,3 @@ sphinx:
 
 develop:
 	python setup.py develop
-
-serve-docs:
-	python -m webbrowser -n docs/build/html/index.html
