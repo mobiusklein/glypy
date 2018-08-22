@@ -277,6 +277,9 @@ class ReferenceEntity(object):
                 raise TypeError(
                     "Could not translate %r of type %r for predicate %s" % (
                         value, type(value), predicate.source))
+
+        if deep:
+            self.object_of.to_graph(graph, deep=deep, visited=visited)
         return graph
 
 
@@ -594,19 +597,23 @@ class RDFClientBase(ConjunctiveGraph):
         # If there were no results, the query might be a predicate, so try to find all the
         # pairs that satisfy it.
         if (len(results) == 0 and query_type == 'auto') or query_type == 'predicate':
-            predicate_name = PredicateDescriptor.bind(uriref)
-            for subject, predicate, obj in set(self.triples((None, uriref, None))):
-                if isinstance(obj, Literal):
-                    obj = obj.toPython()
-                elif isinstance(obj, URIRef):
-                    obj = BoundURIRef(obj, source=self)
+            try:
+                predicate_name = PredicateDescriptor.bind(uriref)
+            except Exception:
+                predicate_name = None
+            if predicate_name is not None:
+                for subject, predicate, obj in set(self.triples((None, uriref, None))):
+                    if isinstance(obj, Literal):
+                        obj = obj.toPython()
+                    elif isinstance(obj, URIRef):
+                        obj = BoundURIRef(obj, source=self)
 
-                if isinstance(subject, Literal):
-                    subject = subject.toPython()
-                elif isinstance(subject, URIRef):
-                    subject = BoundURIRef(subject, source=self)
+                    if isinstance(subject, Literal):
+                        subject = subject.toPython()
+                    elif isinstance(subject, URIRef):
+                        subject = BoundURIRef(subject, source=self)
 
-                results[predicate_name].append((subject, obj))
+                    results[predicate_name].append((subject, obj))
             if results:
                 query_type = 'predicate'
 
