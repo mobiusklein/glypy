@@ -22,7 +22,6 @@ True
 True
 
 '''
-import re
 from collections import Mapping
 
 from glypy.utils import tree, uid
@@ -37,7 +36,6 @@ from glypy.structure.constants import (Anomer, Stem, Configuration, UnknownPosit
 
 from glypy.io import iupac
 from glypy.io.iupac import (
-    named_structures,
     monosaccharide_reference as _monosaccharide_reference,
     resolve_special_base_type as _resolve_special_base_type,
     IUPACError)
@@ -50,18 +48,11 @@ from glypy.composition.composition_transform import (
 
 from six import string_types as basestring
 
-monosaccharide_parser_lite = re.compile(
-    r'''^(?P<modification>[a-z0-9_\-,]*)
-        (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
-        (?P<substituent>[^-]*?)
-        (?P<derivatization>\^[^\s-]*?)?$''', re.VERBOSE)
-
 
 monosaccharide_residue_reference = {}
 
 
 class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer):
-    # pattern = monosaccharide_parser_lite
 
     def monosaccharide_from_iupac(self, monosaccharide_str, residue_class=None):
         """
@@ -79,7 +70,7 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
             residue_class = MonosaccharideResidue
         try:
             match_dict = self.extract_pattern(monosaccharide_str)
-        except iupac.IUPACError:
+        except IUPACError:
             try:
                 result = SubstituentResidue.from_iupac_lite(monosaccharide_str)
                 return result
@@ -88,7 +79,7 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
                     result = MolecularComposition.from_iupac_lite(monosaccharide_str)
                     return result
                 except Exception:
-                    raise iupac.IUPACError("Cannot find pattern in {}".format(monosaccharide_str))
+                    raise IUPACError("Cannot find pattern in {}".format(monosaccharide_str))
         except TypeError:
             raise TypeError("Expected string, received {} ({})".format(monosaccharide_str, type(monosaccharide_str)))
         residue = self.build_residue(match_dict)
@@ -130,7 +121,15 @@ class IUPACLiteMonosaccharideSerializer(iupac.SimpleMonosaccharideSerializer):
         --------
         :func:`from_iupac_lite`
         """
-        string = super(IUPACLiteMonosaccharideSerializer, self).monosaccharide_to_iupac(residue)
+        try:
+            string = super(IUPACLiteMonosaccharideSerializer, self).monosaccharide_to_iupac(residue)
+        except (AttributeError, TypeError, ValueError):
+            # if the residue passed was *really* a monosaccharide then this error is valid and
+            # should propagate
+            if isinstance(residue, Monosaccharide):
+                raise
+            else:
+                string = str(residue)
         return string
 
 
@@ -142,14 +141,50 @@ to_iupac_lite = IUPACLiteMonosaccharideSerializer(
     iupac.SubstituentSerializer(monosaccharide_residue_reference))
 
 
-def drop_stem(residue):
-    if _resolve_special_base_type(residue) is None:
+def drop_stem(residue, force=False):
+    """Drops the stem, or the carbon ring stereochemical
+    classification from this monosaccharide.
+
+    Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+    returns a truthy value, this function will do nothing.
+
+    Parameters
+    ----------
+    residue : :class:`~.Monosaccharide`
+        The monosaccharide to change
+    force : bool, optional
+        Whether or not to override known special case named monosaccharides
+
+    Returns
+    -------
+    :class:`~.Monosaccharide`
+        The mutated monosaccharide
+    """
+    if _resolve_special_base_type(residue) is None or force:
         residue.stem = (None,)
     return residue
 
 
-def drop_positions(residue):
-    if _resolve_special_base_type(residue) is None:
+def drop_positions(residue, force=False):
+    """Drops the position classifiers from all links and modifications
+    attached to this monosaccharide.
+
+    Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+    returns a truthy value, this function will do nothing.
+
+    Parameters
+    ----------
+    residue : :class:`~.Monosaccharide`
+        The monosaccharide to change
+    force : bool, optional
+        Whether or not to override known special case named monosaccharides
+
+    Returns
+    -------
+    :class:`~.Monosaccharide`
+        The mutated monosaccharide
+    """
+    if _resolve_special_base_type(residue) is None or force:
         modifications = OrderedMultiMap()
         for k, v in residue.modifications.items():
             modifications[UnknownPosition] = v
@@ -162,8 +197,26 @@ def drop_positions(residue):
     return residue
 
 
-def drop_configuration(residue):
-    if _resolve_special_base_type(residue) is None:
+def drop_configuration(residue, force=False):
+    """Drops the absolute stereochemical configuration of this
+    monosaccharide.
+
+    Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+    returns a truthy value, this function will do nothing.
+
+    Parameters
+    ----------
+    residue : :class:`~.Monosaccharide`
+        The monosaccharide to change
+    force : bool, optional
+        Whether or not to override known special case named monosaccharides
+
+    Returns
+    -------
+    :class:`~.Monosaccharide`
+        The mutated monosaccharide
+    """
+    if _resolve_special_base_type(residue) is None or force:
         residue.configuration = (None,)
     return residue
 
@@ -171,7 +224,27 @@ def drop_configuration(residue):
 water_composition = Composition({"O": 1, "H": 2})
 
 
-class MonosaccharideResidue(Monosaccharide):
+class ResidueBase(object):
+    __slots__ = ()
+
+    def drop_stem(self, force=False):
+        return self
+
+    def drop_positions(self, force=False):
+        return self
+
+    def drop_configuration(self, force=False):
+        return self
+
+    def to_iupac_lite(self):
+        return to_iupac_lite(self)
+
+    @classmethod
+    def from_iupac_lite(cls, string):
+        return from_iupac_lite(string, residue_class=cls)
+
+
+class MonosaccharideResidue(Monosaccharide, ResidueBase):
     __slots__ = ()
 
     @classmethod
@@ -256,8 +329,6 @@ class MonosaccharideResidue(Monosaccharide):
         if not isinstance(other, (MonosaccharideResidue, str)):
             return False
         return str(self) == str(other)
-
-    from_iupac_lite = staticmethod(from_iupac_lite)
 
     def name(self):
         return to_iupac_lite(self)
@@ -378,7 +449,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         return from_iupac_lite.strip_derivatization(str(self), residue_class=self.__class__)
 
 
-class SubstituentResidue(Substituent):
+class SubstituentResidue(Substituent, ResidueBase):
     r'''
     Represent substituent molecules unassociated with a specific
     monosaccharide residue.
@@ -469,7 +540,7 @@ class SubstituentResidue(Substituent):
         return comp
 
 
-class MolecularComposition(MoleculeBase):  # pragma: no cover
+class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
     sigil = "#"
 
     def __init__(self, name, composition):
@@ -561,6 +632,10 @@ class GlycanComposition(dict, SaccharideCollection):
         Account for the one water molecule's worth of composition left over from applying the "residue"
         transformation to each monosaccharide in the aggregate.
     """
+    _monosaccharide_type = MonosaccharideResidue
+
+    _key_parser = staticmethod(from_iupac_lite)
+
     @classmethod
     def from_glycan(cls, glycan):
         """
@@ -618,7 +693,7 @@ class GlycanComposition(dict, SaccharideCollection):
             The value to store
         """
         if isinstance(key, basestring):
-            key = from_iupac_lite(key)
+            key = self._key_parser(key)
         if key.node_type is Monosaccharide.node_type and key.reducing_end is not None:
             self.reducing_end = key.reducing_end
             key = key.clone()
@@ -644,7 +719,7 @@ class GlycanComposition(dict, SaccharideCollection):
         int
         """
         if isinstance(key, basestring):
-            key = from_iupac_lite(key)
+            key = self._key_parser(key)
         try:
             return dict.__getitem__(self, key)
         except KeyError:
@@ -652,7 +727,7 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def __delitem__(self, key):
         if isinstance(key, basestring):
-            key = from_iupac_lite(key)
+            key = self._key_parser(key)
         dict.__delitem__(self, key)
         self._mass = None
 
@@ -761,7 +836,7 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def __contains__(self, key):
         if isinstance(key, basestring):
-            key = from_iupac_lite(key)
+            key = self._key_parser(key)
         return dict.__contains__(self, key)
 
     def drop_stems(self):
@@ -802,6 +877,85 @@ class GlycanComposition(dict, SaccharideCollection):
         for k, v in items:
             self[k] += v
 
+    def query(self, query, exact=True, **kwargs):
+        """Return the total count of all residues in `self` which
+        match `query` using :func:`glypy.io.nomenclature.identity.is_a`
+
+        Parameters
+        ----------
+        query : :class:`~.MonosaccharideResidue` or :class:`str`
+            A monosaccharide residue or a string which will be converted into one by
+            :func:`from_iupac_lite` to test for an `is-a` relationship with.
+        exact : bool, optional
+            Passed to :func:`~.is_a`. Explicitly |True| by default
+        **kwargs
+            Passed to :func:`~.is_a`
+
+        Returns
+        -------
+        int
+            The total count of all residues which satisfy the `is-a` relationship
+
+        See Also
+        --------
+        :func:`glypy.io.nomenclature.identity.is_a`
+
+        """
+        from glypy.io.nomenclature.identity import is_a
+        if isinstance(query, basestring):
+            query = self._key_parser(query)
+        count = 0
+        for key, value in self.items():
+            if is_a(key, query, exact=exact, **kwargs):
+                count += value
+        return count
+
+    def reinterpret(self, references, exact=True, **kwargs):
+        """Aggregate the counts of all residues in `self` for each
+        monosaccharide in `references` satisfying an `is-a` relationship,
+        collapsing multiple residues to a single key. Any residue not
+        aggregated will be preserved as-is.
+
+        .. note::
+            The order of ``references`` matters as any residue matched by
+            a reference will not be considered for later references.
+
+        Parameters
+        ----------
+        references : :class:`Iterable` of :class:`~.MonosaccharideResidue`
+            The monosaccharides with which to test for an `is-a` relationship
+        exact : bool, optional
+            Passed to :func:`~.is_a`. Explicitly |True| by default
+        **kwargs
+            Passed to :func:`~.is_a`
+
+        Returns
+        -------
+        :class:`~.GlycanComposition`
+            self after key collection and collapse
+        """
+        from glypy.io.nomenclature.identity import is_a
+        new_counts = []
+        pairs = list(self.items())
+        remaining_pairs = []
+        for ref in references:
+            count = 0
+            for key, value in pairs:
+                if is_a(key, ref, exact=exact, **kwargs):
+                    count += value
+                else:
+                    remaining_pairs.append((key, value))
+            if count > 0:
+                new_counts.append((ref, count))
+            pairs = remaining_pairs
+            remaining_pairs = []
+        self.clear()
+        for key, value in new_counts:
+            self[key] = value
+        for key, value in pairs:
+            self[key] = value
+        return self
+
     @property
     def reducing_end(self):
         return self._reducing_end
@@ -829,6 +983,10 @@ class GlycanComposition(dict, SaccharideCollection):
         if not propogate_composition_offset:
             dup.composition_offset = Composition('H2O')
         return dup
+
+    # inheriting from dict overwrites MoleculeBase.copy
+    def copy(self, *args, **kwargs):
+        return self.clone(*args, **kwargs)
 
     def serialize(self):
         form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
@@ -880,7 +1038,7 @@ class GlycanComposition(dict, SaccharideCollection):
                     return inst
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
-            inst[from_iupac_lite(residue)] = int(count)
+            inst[cls._key_parser(residue)] = int(count)
         inst._handle_reduction_and_derivatization(reduced)
         return inst
 
@@ -925,18 +1083,22 @@ class FrozenGlycanComposition(GlycanComposition):
 
     _str = None
 
+    _monosaccharide_type = FrozenMonosaccharideResidue
+
+    _key_parser = staticmethod(FrozenMonosaccharideResidue.from_iupac_lite)
+
     def __setitem__(self, key, value):
-        key = FrozenMonosaccharideResidue.from_iupac_lite(str(key))
+        key = self._key_parser(str(key))
         dict.__setitem__(self, key, value)
         self._mass = None
         self._total_composition = None
 
     def __getitem__(self, key):
-        key = FrozenMonosaccharideResidue.from_iupac_lite(str(key))
+        key = self._key_parser(str(key))
         return dict.__getitem__(self, key)
 
     def __delitem__(self, key):
-        key = FrozenMonosaccharideResidue.from_iupac_lite(str(key))
+        key = self._key_parser(str(key))
         dict.__delitem__(self, key)
         self._mass = None
 
@@ -952,7 +1114,7 @@ class FrozenGlycanComposition(GlycanComposition):
                     return inst
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
-            inst[FrozenMonosaccharideResidue.from_iupac_lite(residue)] = int(count)
+            inst[cls._key_parser(residue)] = int(count)
         inst._handle_reduction_and_derivatization(reduced)
         return inst
 
@@ -965,7 +1127,7 @@ class FrozenGlycanComposition(GlycanComposition):
 
     def __contains__(self, key):
         if isinstance(key, basestring):
-            key = FrozenMonosaccharideResidue.from_iupac_lite(key)
+            key = self._key_parser(key)
         return dict.__contains__(self, key)
 
     def thaw(self):
