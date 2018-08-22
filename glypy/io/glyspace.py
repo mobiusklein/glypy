@@ -2,8 +2,14 @@ import logging
 import re
 import warnings
 
-from collections import defaultdict
+from numbers import Number
+from collections import defaultdict, OrderedDict
 from six import text_type
+
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
 
 import requests
 with warnings.catch_warnings():
@@ -73,6 +79,59 @@ def _camel_to_snake(name):
 def _uri_to_identifier(uri):
     name = _camel_to_snake(split_uri(uri)[1])
     return name
+
+
+class LRUDict(object):  # pragma: no cover
+    def __init__(self, *args, **kwargs):
+        maxsize = kwargs.pop("maxsize", 24)
+        self.store = OrderedDict()
+        self.maxsize = maxsize
+        self.purge()
+
+    def __len__(self):
+        return len(self.store)
+
+    def popitem(self, last=True):
+        return self.store.popitem(last=last)
+
+    def pop(self, key, default=None):
+        return self.store.pop(key, default)
+
+    def purge(self):
+        overflow = max(0, len(self) - self.maxsize)
+        for _ in range(overflow):
+            self.popitem(last=False)
+
+    def __repr__(self):
+        return "LRUDict(%r)" % (dict(self.store),)
+
+    def __contains__(self, key):
+        return key in self.store
+
+    def __iter__(self):
+        return iter(self.store)
+
+    def keys(self):
+        return self.store.keys()
+
+    def values(self):
+        return self.store.values()
+
+    def items(self):
+        return self.store.items()
+
+    def __getitem__(self, key):
+        value = self.store[key]
+        self._mark_used(key)
+        return value
+
+    def __setitem__(self, key, value):
+        self.store[key] = value
+        self.purge()
+
+    def _mark_used(self, key):
+        value = self.store.pop(key, None)
+        self.store[key] = value
 
 
 class PredicateDescriptor(text_type):
@@ -165,14 +224,14 @@ class ReferenceEntity(object):
             for prefix, ns in self._graph.namespaces():
                 graph.bind(prefix, ns)
         for predicate, value in self:
-            if isinstance(value, (unicode, str, int, float)):
+            if isinstance(value, (text_type, Number)):
                 if not isinstance(value, URIRef):
                     value = Literal(value)
                 graph.add((self.uriref, predicate.source, value))
             elif isinstance(value, list):
                 value_collection = value
                 for value in value_collection:
-                    if isinstance(value, (unicode, str, int, float)):
+                    if isinstance(value, (text_type, Number)):
                         if not isinstance(value, URIRef):
                             value = Literal(value)
                         graph.add((self.uriref, predicate.source, value))
@@ -326,11 +385,12 @@ class BoundURIRef(URIRef):
         result = str(self) == str(other)
         return result
 
-    # def n3(self, namespace_manager=None):
-    #     if namespace_manager:
-    #         return namespace_manager.normalizeUri(self)
-    #     else:
-    #         return "<%s>" % self
+    def n3(self, namespace_manager=None):
+        try:
+            text = super(BoundURIRef, self).n3(namespace_manager)
+            return text
+        except Exception:
+            return URIRef(quote(self)).n3(namespace_manager)
 
 
 class ChainFunctionDict(defaultdict):
@@ -386,8 +446,7 @@ class RDFClientBase(ConjunctiveGraph):
         super(RDFClientBase, self).__init__(store="SPARQLStore")
         self.open(sparql_endpoint)
         self.accession_ns = accession_ns
-        self.cache = {}
-        self.cache_size = cache_size
+        self.cache = LRUDict(maxsize=cache_size)
 
     def accession_to_uriref(self, accession):
         """Utility method to translate free strings into full URIs
@@ -610,7 +669,7 @@ class GlyTouCanRDFClient(RDFClientBase):
 
         .. code-block:: sparql
 
-            SELECT DISTINCT ?saccharide ?glycoct WHERE {
+            SELECT DISTINCT ?saccharide WHERE {
                 ?saccharide a glycan:saccharide .
                 ?saccharide glycan:has_motif <motif-accession>
             }
@@ -627,7 +686,7 @@ class GlyTouCanRDFClient(RDFClientBase):
         list of :class:`ReferenceEntity`
         """
         sparql = r'''
-        SELECT DISTINCT ?saccharide ?glycoct WHERE {
+        SELECT DISTINCT ?saccharide WHERE {
                 ?saccharide a glycan:saccharide .
                 ?saccharide glycan:has_motif %s
         }
@@ -641,8 +700,7 @@ class GlyTouCanRDFClient(RDFClientBase):
             query_string += " limit %d" % limit
         results = self.query(query_string)
         k = results.vars[0]
-        g = results.vars[1]
-        return [ReferenceEntity(row[k], glycoct=row[g]) for row in results.bindings]
+        return [ReferenceEntity(row[k]) for row in results.bindings]
 
     def structure(self, *accessions):
         accumulator = []
