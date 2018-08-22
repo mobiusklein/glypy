@@ -1,9 +1,8 @@
 dill
 six>=1.9
 hjson>=1.5
-rdflib [glyspace]
-SPARQLWrapper [glyspace]
-requests [glyspace]
-requests [glycomedb]
-lxml [glycomedb]
-matplotlib >= 1.4.3 [plot]
+lxml
+rdflib[glyspace]
+SPARQLWrapper[glyspace]
+requests[glyspace]
+matplotlib >= 2.0[plot]
