@@ -1,5 +1,5 @@
 [![https://img.shields.io/travis/mobiusklein/glypy.svg](https://img.shields.io/travis/mobiusklein/glypy.svg)](https://travis-ci.org/mobiusklein/glypy)
-[![Documentation Status](https://readthedocs.org/projects/glypy/badge/?version=master)](http://glypy.readthedocs.org/en/master/?badge=master)
+[![Documentation Status](https://readthedocs.org/projects/glypy/badge/?version=latest&style=flatsquare)](https://glypy.readthedocs.io/en/latest/?badge=latest)
 # glypy
 Glycan Analysis and Glycoinformatics Library for Python
 
