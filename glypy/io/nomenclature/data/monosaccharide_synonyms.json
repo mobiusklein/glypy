@@ -1,10 +1,5 @@
 [
   [
-    "Neu5Ac", 
-    "Sialic Acid", 
-    "NeuAc"
-  ], 
-  [
     "GalNac", 
     "GalNAc", 
     "N-Acetylglucosamine"
@@ -18,8 +13,7 @@
     "Gulose"
   ], 
   [
-    "Sorbose", 
-    "Sor"
+    "Oct"
   ], 
   [
     "Kdo"
@@ -44,7 +38,9 @@
     "Erythrose"
   ], 
   [
-    "Oct"
+    "Neu5Ac", 
+    "Sialic Acid", 
+    "NeuAc"
   ], 
   [
     "Fru", 
@@ -59,11 +55,15 @@
     "Neu5Gc"
   ], 
   [
+    "Galacturonic Acid", 
+    "GalA"
+  ], 
+  [
     "Tri"
   ], 
   [
-    "Glucuronic Acid", 
-    "GlcA"
+    "Muramic Acid", 
+    "Mur"
   ], 
   [
     "Tyv", 
@@ -88,8 +88,11 @@
     "Rhamnose"
   ], 
   [
-    "Galacturonic Acid", 
-    "GalA"
+    "Glucuronic Acid", 
+    "GlcA"
+  ], 
+  [
+    "MurNGc"
   ], 
   [
     "Tal", 
@@ -123,8 +126,8 @@
     "Fructofuranose"
   ], 
   [
-    "Tag", 
-    "Tagatose"
+    "Sorbose", 
+    "Sor"
   ], 
   [
     "GlcN", 
@@ -134,6 +137,9 @@
   [
     "Oli", 
     "Olivose"
+  ], 
+  [
+    "MurNAc"
   ], 
   [
     "Ido"
@@ -151,6 +157,10 @@
   ], 
   [
     "Sug"
+  ], 
+  [
+    "Tag", 
+    "Tagatose"
   ], 
   [
     "adMan", 

@@ -96,4 +96,8 @@
   Xulose: RES 1b:x-dthr-PEN-2:5|2:keto
   Sed: RES 1b:x-dalt-HEP-2:6|2:keto
   Sedulose: RES 1b:x-dalt-HEP-2:6|2:keto
+  Mur: RES 1b:x-dglc-HEX-1:5 2s:amino 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n
+  "Muramic Acid": RES 1b:x-dglc-HEX-1:5 2s:amino 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n
+  MurNAc: RES 1b:x-dglc-HEX-1:5 2s:n-acetyl 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n
+  MurNGc: RES 1b:x-dglc-HEX-1:5 2s:n-glycolyl 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n
 }

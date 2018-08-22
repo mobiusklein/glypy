@@ -1,14 +1,6 @@
 [
   {
     "names": [
-      "Neu5Ac", 
-      "Sialic Acid", 
-      "NeuAc"
-    ], 
-    "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n"
-  }, 
-  {
-    "names": [
       "GalNac", 
       "GalNAc", 
       "N-Acetylglucosamine"
@@ -31,10 +23,9 @@
   }, 
   {
     "names": [
-      "Sorbose", 
-      "Sor"
+      "Oct"
     ], 
-    "structure": "RES 1b:x-lxyl-HEX-2:6|2:keto"
+    "structure": "RES 1b:x-dman-OCT-2:6"
   }, 
   {
     "names": [
@@ -78,9 +69,11 @@
   }, 
   {
     "names": [
-      "Oct"
+      "Neu5Ac", 
+      "Sialic Acid", 
+      "NeuAc"
     ], 
-    "structure": "RES 1b:x-dman-OCT-2:6"
+    "structure": "RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl LIN 1:1d(5+1)2n"
   }, 
   {
     "names": [
@@ -105,16 +98,23 @@
   }, 
   {
     "names": [
+      "Galacturonic Acid", 
+      "GalA"
+    ], 
+    "structure": "RES 1b:x-dgal-HEX-1:5|6:a"
+  }, 
+  {
+    "names": [
       "Tri"
     ], 
     "structure": "RES 1b:x-TRI-x:x"
   }, 
   {
     "names": [
-      "Glucuronic Acid", 
-      "GlcA"
+      "Muramic Acid", 
+      "Mur"
     ], 
-    "structure": "RES 1b:b-dglc-HEX-1:5|6:a"
+    "structure": "RES 1b:x-dglc-HEX-1:5 2s:amino 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n"
   }, 
   {
     "names": [
@@ -155,10 +155,16 @@
   }, 
   {
     "names": [
-      "Galacturonic Acid", 
-      "GalA"
+      "Glucuronic Acid", 
+      "GlcA"
     ], 
-    "structure": "RES 1b:x-dgal-HEX-1:5|6:a"
+    "structure": "RES 1b:b-dglc-HEX-1:5|6:a"
+  }, 
+  {
+    "names": [
+      "MurNGc"
+    ], 
+    "structure": "RES 1b:x-dglc-HEX-1:5 2s:n-glycolyl 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n"
   }, 
   {
     "names": [
@@ -217,10 +223,10 @@
   }, 
   {
     "names": [
-      "Tag", 
-      "Tagatose"
+      "Sorbose", 
+      "Sor"
     ], 
-    "structure": "RES 1b:x-dlyx-HEX-2:6|2:keto"
+    "structure": "RES 1b:x-lxyl-HEX-2:6|2:keto"
   }, 
   {
     "names": [
@@ -236,6 +242,12 @@
       "Olivose"
     ], 
     "structure": "RES 1b:x-dara-HEX-1:5|2:d|6:d"
+  }, 
+  {
+    "names": [
+      "MurNAc"
+    ], 
+    "structure": "RES 1b:x-dglc-HEX-1:5 2s:n-acetyl 3s:(r)-lactate LIN 1:1d(2+1)2n 2:1o(3+1)3n"
   }, 
   {
     "names": [
@@ -268,6 +280,13 @@
       "Sug"
     ], 
     "structure": "RES 1b:x-SUG-0:0"
+  }, 
+  {
+    "names": [
+      "Tag", 
+      "Tagatose"
+    ], 
+    "structure": "RES 1b:x-dlyx-HEX-2:6|2:keto"
   }, 
   {
     "names": [
