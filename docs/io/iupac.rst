@@ -5,7 +5,7 @@ IUPAC Three Letter Code
 .. currentmodule:: glypy.io.iupac
 
 
-.. automodule:: glypy.io.iupac
+.. module:: glypy.io.iupac
 
     .. autofunction:: dumps
     .. autofunction:: loads
@@ -44,6 +44,7 @@ IUPAC Three Letter Code
     .. autoclass:: GlycanSerializer
 
     .. autoclass:: DerivatizationAwareMonosaccharideSerializer
+    .. autoclass:: SimpleMonosaccharideSerializer
 
     .. autoclass:: SubstituentDeserializer
     .. autoclass:: ModificationDeserializer
@@ -51,5 +52,5 @@ IUPAC Three Letter Code
     .. autoclass:: GlycanDeserializer
 
     .. autoclass:: DerivatizationAwareMonosaccharideDeserializer
-    .. autoclass:: CondensedMonosaccharideDeserializer
+    .. autoclass:: SimpleMonosaccharideDeserializer
 
