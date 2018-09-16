@@ -2,6 +2,8 @@ import re
 import warnings
 
 from collections import deque, namedtuple
+from functools import partial
+
 from glypy.structure import (
     Monosaccharide, Glycan, Link, AmbiguousLink,
     Substituent, constants, named_structures, UnknownPosition)
@@ -468,8 +470,10 @@ class GlycanSerializer(object):
 
 glycan_to_iupac = GlycanSerializer()
 
+glycan_to_iupac_simple = GlycanSerializer(SimpleMonosaccharideSerializer(), SimpleLinkageSerializer())
 
-def to_iupac(structure):
+
+def to_iupac(structure, dialect=None):
     """Translate `structure` into its textual representation using IUPAC Three Letter Code
 
     Parameters
@@ -481,9 +485,13 @@ def to_iupac(structure):
     -------
     |str|
     """
+    if dialect is None:
+        dialect = 'extended'
     if isinstance(structure, Monosaccharide):
         return monosaccharide_to_iupac(structure)
     else:
+        if dialect == 'simple':
+            return glycan_to_iupac_simple(structure)
         return glycan_to_iupac(structure)
 
 
@@ -971,8 +979,10 @@ def set_default_positions(glycan):
 
 glycan_from_iupac = GlycanDeserializer()
 
+glycan_from_iupac_simple = GlycanDeserializer(SimpleMonosaccharideDeserializer())
 
-def from_iupac(text, structure_class=Glycan, resolve_default_positions=True, **kwargs):
+
+def from_iupac(text, structure_class=Glycan, resolve_default_positions=True, dialect=None, **kwargs):
     """Parse the given text into an instance of |Glycan|. If there is only a single monosaccharide
     in the output, just the Monosaccharide instance is returned.
 
@@ -985,7 +995,12 @@ def from_iupac(text, structure_class=Glycan, resolve_default_positions=True, **k
     |Glycan| or |Monosaccharide|
         If the resulting structure is just a single monosaccharide, the returned value is a Monosaccharide.
     """
-    res = glycan_from_iupac(text, structure_class=structure_class, **kwargs)
+    if dialect is None:
+        dialect = 'extended'
+    if dialect != 'simple':
+        res = glycan_from_iupac(text, structure_class=structure_class, **kwargs)
+    else:
+        res = glycan_from_iupac_simple(text, structure_class=structure_class, **kwargs)
     if resolve_default_positions:
         set_default_positions(res)
     if len(res) > 1:
@@ -1009,3 +1024,12 @@ load = IUPACParser.load
 
 Monosaccharide.register_serializer("iupac", dumps)
 Glycan.register_serializer("iupac", dumps)
+
+_dumps_simple = partial(dumps, dialect='simple')
+_dumps_extended = partial(dumps, dialect='extended')
+
+Monosaccharide.register_serializer("iupac_simple", _dumps_simple)
+Glycan.register_serializer("iupac_simple", _dumps_simple)
+
+Monosaccharide.register_serializer("iupac_extended", _dumps_extended)
+Glycan.register_serializer("iupac_extended", _dumps_extended)
