@@ -1,5 +1,9 @@
 import pkg_resources
+import logging
 from rdflib import Graph, Namespace
+
+logging.getLogger("rdflib.term").addHandler(logging.NullHandler())
+logging.getLogger("rdflib.term").propagate = False
 
 
 NSGlycan = ("http://purl.jp/bio/12/glyco/glycan#")
