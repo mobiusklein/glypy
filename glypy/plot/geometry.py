@@ -113,6 +113,62 @@ def bounding_box(path, padding=0):
         xmax = max(xmax, p[0])
         ymin = min(ymin, p[1])
         ymax = max(ymax, p[1])
+    xmin -= padding
+    xmax += padding
+    ymin -= padding
+    ymax += padding
+
+    return mtransform.Bbox.from_extents(xmin, ymin, xmax, ymax)
+    # return xmin, xmax, ymin, ymax
+
+
+class TransformProxy(object):
+    def __init__(self, base_transform, owner_update):
+        self.base_transform = base_transform
+        self.owner_update = owner_update
+
+    def _copy_transform(self):
+        return self.base_transform.frozen()
+
+    def scale(self, *args, **kwargs):
+        transform = self._copy_transform()
+        transform.scale(*args, **kwargs)
+        self.owner_update(transform)
+        self.base_transform = transform
+        return self
+
+    def rotate(self, *args, **kwargs):
+        transform = self._copy_transform()
+        transform.rotate(*args, **kwargs)
+        self.owner_update(transform)
+        self.base_transform = transform
+        return self
+
+    def rotate_deg(self, *args, **kwargs):
+        transform = self._copy_transform()
+        transform.rotate_deg(*args, **kwargs)
+        self.owner_update(transform)
+        self.base_transform = transform
+        return self
+
+    def rotate_around(self, *args, **kwargs):
+        transform = self._copy_transform()
+        transform.rotate_around(*args, **kwargs)
+        self.owner_update(transform)
+        self.base_transform = transform
+        return self
+
+    def rotate_deg_around(self, *args, **kwargs):
+        transform = self._copy_transform()
+        transform.rotate_deg_around(*args, **kwargs)
+        self.owner_update(transform)
+        self.base_transform = transform
+        return self
+
+    def __getattr__(self, name):
+        if name == 'base_transform':
+            raise AttributeError("Accessing Base Transform Too Early")
+        return getattr(self.base_transform, name)
 
 
 # def shift_path_2d(path, hits):

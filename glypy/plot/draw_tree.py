@@ -433,13 +433,13 @@ class DrawTreeNode(object):
             position_y -= 0.03
 
         position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y + 0.095,
+            ax=ax, x=position_x, y=position_y + 0.03,
             text=str(position_num) if position_num != -1 else "?",
-            fontsize=fontsize, center=True)
+            fontsize=fontsize, ha='center', va='bottom')
         anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y + 0.080,
+            ax, anomer_x, anomer_y + 0.03,
             r'${}$'.format(anomer_symbol_map.get(child.tree.anomer, child.tree.anomer.name)),
-            fontsize=fontsize, center=True)
+            fontsize=fontsize, ha='center', va='bottom')
         self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
 
     # Tree Layout Helpers
