@@ -3,6 +3,11 @@ from collections import defaultdict
 import warnings
 
 do_warn = True
+do_error = False
+
+
+class UnknownCompositionWarning(Warning):
+    pass
 
 
 class CompositionRule(object):
@@ -27,7 +32,10 @@ class CompositionIndex(dict):
             composition_dict = Composition()
             if do_warn:
                 warnings.warn("{key} could not be found. It may not have an explicit composition".format(key=key),
+                              UnknownCompositionWarning,
                               stacklevel=3)
+            if do_error:
+                raise
         # Explicitly copies
         return (composition_dict).clone()
 
