@@ -47,6 +47,9 @@ class EnumValue(object):
                                                       group_name=self.group.__name__,
                                                       value=self.value)
 
+    def __str__(self):
+        return self.name
+
     def __reduce__(self):
         return self.group, (self.name,)
 
