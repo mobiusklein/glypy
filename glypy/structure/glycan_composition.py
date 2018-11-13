@@ -71,6 +71,9 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
         try:
             match_dict = self.extract_pattern(monosaccharide_str)
         except IUPACError:
+            if monosaccharide_str.startswith(MolecularComposition.sigil):
+                result = MolecularComposition.from_iupac_lite(monosaccharide_str)
+                return result
             try:
                 result = SubstituentResidue.from_iupac_lite(monosaccharide_str)
                 return result
