@@ -149,10 +149,12 @@ class NodeCollection(object):
         for i, node in enumerate(self.nodes):
             node.id += base
             node.id *= -1
+        return self
 
     def reindex(self):
         for i, node in enumerate(self.nodes):
             node.id = i + 1
+        return self
 
     def clone(self, *args, **kwargs):
         root = monosaccharide.graph_clone(self.root)
@@ -163,6 +165,9 @@ class NodeCollection(object):
             if node.id == key:
                 return node
         raise IndexError(key)
+
+    def __getitem__(self, i):
+        return self.get(i)
 
     def __root__(self):
         return self.root
