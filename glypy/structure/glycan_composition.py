@@ -444,9 +444,39 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return from_iupac_lite(string, residue_class=cls)
 
     def total_composition(self):
-        if self._total_composition is None:
-            self._total_composition = super(FrozenMonosaccharideResidue, self).total_composition()
-        return self._total_composition
+        if self._frozen:
+            if self._total_composition is None:
+                self._total_composition = super(FrozenMonosaccharideResidue, self).total_composition()
+            return self._total_composition
+        else:
+            return super(FrozenMonosaccharideResidue, self).total_composition()
+
+    def mass(self, average=False, charge=0, mass_data=None, substituents=True):
+        '''
+        Calculates the total mass of ``self``.
+
+        Parameters
+        ----------
+        average: bool, optional, defaults to False
+            Whether or not to use the average isotopic composition when calculating masses.
+            When ``average == False``, masses are calculated using monoisotopic mass.
+        charge: int, optional, defaults to 0
+            If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is ``charge``
+        mass_data: dict, optional
+            If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
+            contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
+            Defaults to :const:`None`.
+        substituents: bool, optional, defaults to True
+            Whether or not to include substituents' masses.
+        Returns
+        -------
+        :class:`float`
+
+        See also
+        --------
+        :func:`glypy.composition.composition.calculate_mass`
+        '''
+        return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
 
     def copy_underivatized(self):
         return from_iupac_lite.strip_derivatization(str(self), residue_class=self.__class__)
