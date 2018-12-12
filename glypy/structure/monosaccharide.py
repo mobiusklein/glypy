@@ -1181,10 +1181,10 @@ class Monosaccharide(SaccharideBase):
         modification models.
         '''
         self._checked_for_reduction = False
-        self.anomer = state['_anomer']
-        self.superclass = state['_superclass']
-        self.stem = state['_stem']
-        self.configuration = state['_configuration']
+        self._anomer = state['_anomer']
+        self._superclass = state['_superclass']
+        self._stem = state['_stem']
+        self._configuration = state['_configuration']
         self._degree = state.get("_degree")
         self.ring_start = state['ring_start']
         self.ring_end = state['ring_end']
