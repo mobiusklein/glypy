@@ -14,16 +14,19 @@ class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
 
-    __slots__ = ('group', 'name', 'value', 'names')
+    __slots__ = ('group', 'name', 'value', 'names', '_hash')
 
     def __init__(self, group, name, value, other_names=None):
         self.name = intern(name)
         self.value = value
         self.names = {name} | (other_names or set())
         self.group = group
+        self._hash = None
 
     def __hash__(self):
-        return hash(self.name)
+        if self._hash is None:
+            self._hash = hash(self.name)
+        return self._hash
 
     def __index__(self):  # pragma: no cover
         return self.value
@@ -38,6 +41,12 @@ class EnumValue(object):
             return self is other
         except AttributeError:
             return self.value == other or other in self.names
+
+    def __and__(self, other):
+        return self.group[self.value & other]
+
+    def __or__(self, other):
+        return self.group[self.value | other]
 
     def __ne__(self, other):
         return not self == other
