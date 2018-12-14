@@ -9,7 +9,6 @@ except NameError:
 debug = False
 
 
-@total_ordering
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
@@ -30,6 +29,9 @@ class EnumValue(object):
 
     def __index__(self):  # pragma: no cover
         return self.value
+
+    def __int__(self):
+        return int(self.value)
 
     def __eq__(self, other):
         try:
@@ -80,6 +82,15 @@ class EnumValue(object):
 
     def __lt__(self, other):
         return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __le__(self, other):
+        return self.value <= other.value
+
+    def __ge__(self, other):
+        return self.value >= other.value
 
 
 debug = False
