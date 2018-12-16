@@ -432,9 +432,16 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         else:
             return super(FrozenMonosaccharideResidue, self).clone(*args, **kwargs)
 
+    def __getstate__(self):
+        state = super(FrozenMonosaccharideResidue, self).__getstate__()
+        state['_name'] = str(self)
+        state['_total_composition'] = self.total_composition()
+        return state
+
     def __setstate__(self, state):
         self._frozen = False
-        self._total_composition = None
+        self._total_composition = state.get('_total_composition')
+        self._name = state.get('_name')
         self._hash = None
         super(FrozenMonosaccharideResidue, self).__setstate__(state)
 
