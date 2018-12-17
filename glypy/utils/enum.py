@@ -45,10 +45,16 @@ class EnumValue(object):
             return self.value == other or other in self.names
 
     def __and__(self, other):
-        return self.group[self.value & other]
+        return self.value & other
 
     def __or__(self, other):
-        return self.group[self.value | other]
+        return self.value | other
+
+    def __rand__(self, other):
+        return self.value & other
+
+    def __ror__(self, other):
+        return self.value | other
 
     def __ne__(self, other):
         return not self == other
