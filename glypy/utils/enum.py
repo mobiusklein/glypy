@@ -6,8 +6,6 @@ try:
 except NameError:
     from sys import intern
 
-debug = False
-
 
 class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
@@ -97,6 +95,14 @@ class EnumValue(object):
 
     def __ge__(self, other):
         return self.value >= other.value
+
+
+try:
+    _EnumValue = EnumValue
+    _has_c = True
+    from glypy.utils.cenum import EnumValue
+except ImportError:
+    _has_c = False
 
 
 debug = False

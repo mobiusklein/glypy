@@ -17,6 +17,7 @@ try:
     from Cython.Build import cythonize
     extensions = cythonize(
         [Extension("glypy.composition.ccomposition", ["glypy/composition/ccomposition.pyx"]),
+         Extension("glypy.utils.cenum", ['glypy/utils/cenum.pyx'])
          ],
         annotate=True)
 except (ImportError, AttributeError):
@@ -24,6 +25,7 @@ except (ImportError, AttributeError):
     extensions = [
         Extension('glypy.composition.ccomposition', sources=[
                   'glypy/composition/ccomposition.c']),
+        Extension("glypy.utils.cenum", ['glypy/utils/cenum.c'])
     ]
 
 cmdclass = {}
