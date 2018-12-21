@@ -129,6 +129,8 @@ class {name}(object):
         {self_fields} = {args}
     def __getitem__(self, idx):
         return getattr(self, fields[idx])
+    def __setitem__(self, idx, value):
+        return setattr(self, fields[idx], value)
     def __getstate__(self):
         return ({self_fields})
     def __setstate__(self, state):
