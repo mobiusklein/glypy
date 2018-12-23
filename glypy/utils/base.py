@@ -136,10 +136,10 @@ class {name}(object):
     def __setstate__(self, state):
         {self_fields} = state
     def __repr__(self):
-        rep = "<{name}"
+        rep = "{name}("
         for f in {fields!r}:
             rep += " " + f + "=" + str(getattr(self, f))
-        rep += ">"
+        rep += ")"
         return rep
     def __eq__(self, other):
         for f in {fields!r}:
