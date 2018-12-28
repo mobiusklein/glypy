@@ -79,6 +79,60 @@ class NodeSimilarityComparator(object):
                    exact=True, ignore_reduction=False, ignore_ring=False,
                    treat_null_as_wild=True, match_attachement_positions=False,
                    short_circuit_after=None, visited=None):
+        """A heuristic comparison for measuring similarity between monosaccharides.
+
+        Compares:
+            1. ring_start and ring_end
+            2. superclass
+            3. configuration
+            4. stem
+            5. anomer
+            6. If `include_modifications`, each modification
+            7. If `include_substituents`, each substituent
+            8. If `include_children`, each child |Monosaccharide|
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+        include_substituents: bool
+            Include substituents in comparison (Defaults |True|)
+        include_modifications: bool
+            Include modifications in comparison (Defaults |True|)
+        include_children: bool
+            Include children in comparison (Defaults |False|)
+        exact: bool
+            Penalize for having unmatched attachments (Defaults |True|)
+        ignore_reduction: bool
+            Whether or not to include differences in reduction state as a
+            mismatch
+        ignore_ring: bool
+            Whether or not to include differences in ring coordinates as
+            a mismatch
+        treat_null_as_wild: bool
+            Whether or not to treat traits with a value of :const:`None` or
+            :const:`~.UnknownPosition` as always matching when the null
+            value is on the *target* residue (the residue that traits are being
+            matched to).
+        short_circuit_after: None or Number
+            Controls whether to quit comparing nodes if the difference
+            becomes too large, useful for speeding up pessimistic
+            comparisons
+        visited: set
+            Tracks which node pairs have already been compared to break
+            cycles. This carries state across multiple calls to :meth:`compare`
+            and must be reset by calling :meth:`reset` before reusing an
+            instance on new structures.
+
+        Returns
+        -------
+        :class:`int`: observed
+            The number of observed features that matched
+        :class:`int`: expected
+            The number of features that could have been matched
+        """
         inst = cls(
             include_substituents=include_substituents,
             include_modifications=include_modifications,
@@ -128,6 +182,19 @@ class NodeSimilarityComparator(object):
         target_reduced = False
         n_mods = 0
         if self.match_attachement_positions:
+            node_mods = node.modifications
+            n_mods = len(node_mods)
+            for pos, mod in target.modifications.items():
+                if mod == 'aldi':
+                    target_reduced = True
+                check = (mod in node_mods[pos])
+                if check:
+                    if mod == 'aldi':
+                        node_reduced = True
+                    test += 1
+                    n_mods -= 1
+                reference += 1
+        else:
             node_mods = list(node.modifications.values())
             n_mods = len(node_mods)
             for mod in target.modifications.values():
@@ -139,19 +206,6 @@ class NodeSimilarityComparator(object):
                         node_reduced = True
                     test += 1
                     node_mods.pop(node_mods.index(mod))
-                    n_mods -= 1
-                reference += 1
-        else:
-            node_mods = node.modifications
-            n_mods = len(node_mods)
-            for pos, mod in target.modifications.items():
-                if mod == 'aldi':
-                    target_reduced = True
-                check = (mod in node_mods[pos])
-                if check:
-                    if mod == 'aldi':
-                        node_reduced = True
-                    test += 1
                     n_mods -= 1
                 reference += 1
 
@@ -331,6 +385,27 @@ monosaccharide_similarity = NodeSimilarityComparator.similarity
 
 
 def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
+    """Apply :func:`monosaccharide_similarity` to ``node`` and ``target`` for both
+    ``node --> target`` and ``target --> node``, returning whether either comparison
+    passes the tolerance threshold.
+
+    Parameters
+    ----------
+    node: :class:`~.Monosaccharide`
+        The reference monosaccharide
+    target: :class:`~.Monosaccharide`
+        The monosaccharide to compare against
+    tolerance: :class:`int`, optional
+        The minimum number of errors to tolerate
+    *args:
+        Forwarded to :func:`monosaccharide_similarity`
+    **kwargs:
+        Forwarded to :func:`monosaccharide_similarity`
+
+    Returns
+    -------
+    :class:`bool`
+    """
     obs, expect = monosaccharide_similarity(node, target, *args, **kwargs)
     if (expect - obs) <= tolerance:
         return True
@@ -346,6 +421,20 @@ def commutative_similarity_score(node, target, *args, **kwargs):
 
 
 def has_substituent(monosaccharide, substituent):
+    """Checks whether ``monosaccharide`` has any substituent groups
+    matching ``substituent``.
+
+    Parameters
+    ----------
+    monosaccharide : :class:`~.Monosaccharide`
+        The monosaccharide to check
+    substituent : :class:`~.Substituent` or :class:`str`
+        The substituent to check for
+
+    Returns
+    -------
+    :class:`bool`
+    """
     # Use the setter property to force the translation
     # of the name string.
     if isinstance(substituent, basestring):
@@ -358,18 +447,54 @@ def has_substituent(monosaccharide, substituent):
 
 
 def has_modification(monosaccharide, modification):
+    """Checks whether ``monosaccharide`` has any modification sites
+    matching ``modification``.
+
+    Parameters
+    ----------
+    monosaccharide : :class:`~.Monosaccharide`
+        The monosaccharide to check
+    modification : :class:`~.constants.Modification` or :class:`str`
+        The modification to check for
+
+    Returns
+    -------
+    :class:`bool`
+    """
     for position, mod in monosaccharide.modifications.items():
         if mod == modification:
             return True
     return False
 
 
-def has_monosaccharide(glycan, monosaccharide, tolerance=0):
+def has_monosaccharide(glycan, monosaccharide, tolerance=0, *args, **kwargs):
+    """Checks whether ``glycan`` has any monosaccharide nodes
+    matching ``monosaccharide`` within ``tolerance`` using
+    :func:`commutative_similarity`
+
+    Parameters
+    ----------
+    glycan: :class:`~.SaccharideCollection`
+        The glycan structure or composition to search
+    monosaccharide: :class:`~.Monosaccharide`
+        The monosaccharide to search for
+    tolerance : int, optional
+        The error tolerance to use
+    *args:
+        Forwarded to :func:`monosaccharide_similarity`
+    **kwargs:
+        Forwarded to :func:`monosaccharide_similarity`
+
+    Returns
+    -------
+    :class:`bool`
+    """
     if isinstance(monosaccharide, basestring):
         monosaccharide = monosaccharides[monosaccharide]
     visited = set()
     for node in glycan:
-        if commutative_similarity(node, monosaccharide, tolerance=tolerance, visited=visited):
+        if commutative_similarity(
+                node, monosaccharide, tolerance=tolerance, visited=visited, *args, **kwargs):
             return node
     return False
 
