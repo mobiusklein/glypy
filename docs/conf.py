@@ -35,12 +35,12 @@ needs_sphinx = '1.3'
 extensions = [
     'nbsphinx',
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon',
     'matplotlib.sphinxext.plot_directive'
 ]
 
@@ -82,7 +82,6 @@ release = version
 # for a list of supported languages.
 #language = None
 
-autodoc_default_flags = ['members', 'special-members']
 numpydoc_show_class_members = False
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -293,7 +292,7 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 napoleon_use_ivar = True
 
 
-autodoc_default_flags = ['members', 'private-members', 'special-members',
+autodoc_default_flags = ['members', 'private-members',
                          #'undoc-members',
                          'show-inheritance']
 
