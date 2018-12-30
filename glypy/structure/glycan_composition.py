@@ -144,6 +144,9 @@ to_iupac_lite = IUPACLiteMonosaccharideSerializer(
     iupac.SubstituentSerializer(monosaccharide_residue_reference))
 
 
+Monosaccharide.register_serializer('iupac_lite', to_iupac_lite)
+
+
 def drop_stem(residue, force=False):
     """Drops the stem, or the carbon ring stereochemical
     classification from this monosaccharide.
@@ -231,12 +234,66 @@ class ResidueBase(object):
     __slots__ = ()
 
     def drop_stem(self, force=False):
+        """Drops the stem, or the carbon ring stereochemical
+        classification from this monosaccharide.
+
+        Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+        returns a truthy value, this function will do nothing.
+
+        Parameters
+        ----------
+        residue : :class:`~.Monosaccharide`
+            The monosaccharide to change
+        force : bool, optional
+            Whether or not to override known special case named monosaccharides
+
+        Returns
+        -------
+        :class:`~.Monosaccharide`
+            The mutated monosaccharide
+        """
         return self
 
     def drop_positions(self, force=False):
+        """Drops the position classifiers from all links and modifications
+        attached to this monosaccharide.
+
+        Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+        returns a truthy value, this function will do nothing.
+
+        Parameters
+        ----------
+        residue : :class:`~.Monosaccharide`
+            The monosaccharide to change
+        force : bool, optional
+            Whether or not to override known special case named monosaccharides
+
+        Returns
+        -------
+        :class:`~.Monosaccharide`
+            The mutated monosaccharide
+        """
         return self
 
     def drop_configuration(self, force=False):
+        """Drops the absolute stereochemical configuration of this
+        monosaccharide.
+
+        Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+        returns a truthy value, this function will do nothing.
+
+        Parameters
+        ----------
+        residue : :class:`~.Monosaccharide`
+            The monosaccharide to change
+        force : bool, optional
+            Whether or not to override known special case named monosaccharides
+
+        Returns
+        -------
+        :class:`~.Monosaccharide`
+            The mutated monosaccharide
+        """
         return self
 
     def to_iupac_lite(self):
@@ -296,6 +353,27 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
         self.anomer = Anomer.x
 
     def clone(self, *args, **kwargs):
+        '''
+        Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
+        with the same data. All mutable data structures are duplicated and distinct from the original.
+
+        Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
+        graph.
+
+        Parameters
+        ----------
+        prop_id: :class:`bool`
+            Whether to copy :attr:`id` from ``self`` to the new instance
+        fast: :class:`bool`
+            Whether to use the fast-path initialization process in :meth:`MonosaccharideResidue.__init__`
+        monosaccharide_type: :class:`type`
+            A subclass of :class:`MonosaccharideResidue` to use
+
+        Returns
+        -------
+        :class:`Monosaccharide`
+
+        '''
         kwargs.setdefault("monosaccharide_type", MonosaccharideResidue)
         residue = super(MonosaccharideResidue, self).clone(*args, **kwargs)
         return residue
@@ -316,6 +394,33 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
         return hash(self.name())
 
     def open_attachment_sites(self, max_occupancy=0):
+        '''
+        When attaching :class:`Monosaccharide` instances to other objects,
+        bonds are formed between the carbohydrate backbone and the other object.
+        If a site is already bound, the occupying object fills that space on the
+        backbone and prevents other objects from binding there.
+
+        Currently only cares about the availability of the hydroxyl group. As there
+        is not a hydroxyl attached to the ring-ending carbon, that should not be
+        considered an open site.
+
+        If any existing attached units have unknown positions, we can't provide any
+        known positions, in which case the list of open positions will be a :class:`list`
+        of ``-1`` s of the length of open sites.
+
+        Parameters
+        ----------
+        max_occupancy: int
+            The number of objects that may already be bound at a site before it
+            is considered unavailable for attachment.
+
+        Returns
+        -------
+        :class:`list`:
+            The positions open for binding
+        :class:`int`:
+            The number of bound but unknown locations on the backbone.
+        '''
         sites, unknowns = super(
             MonosaccharideResidue, self).open_attachment_sites(max_occupancy)
         return sites[:-2], unknowns
@@ -425,6 +530,27 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return name
 
     def clone(self, *args, **kwargs):
+        '''
+        Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
+        with the same data. All mutable data structures are duplicated and distinct from the original.
+
+        Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
+        graph.
+
+        Parameters
+        ----------
+        prop_id: :class:`bool`
+            Whether to copy :attr:`id` from ``self`` to the new instance
+        fast: :class:`bool`
+            Whether to use the fast-path initialization process in :meth:`Monosaccharide.__init__`
+        monosaccharide_type: :class:`type`
+            A subclass of :class:`Monosaccharide` to use
+
+        Returns
+        -------
+        :class:`Monosaccharide`
+
+        '''
         if self._frozen and kwargs.get(
                 "monosaccharide_type",
                 FrozenMonosaccharideResidue) is FrozenMonosaccharideResidue:
@@ -689,7 +815,7 @@ class GlycanComposition(dict, SaccharideCollection):
 
         Parameters
         ----------
-        glycan : Glycan
+        glycan : :class:`~.Glycan`
             The instance to be converted
 
         Returns

@@ -965,12 +965,32 @@ class Glycan(SaccharideCollection):
         return self.root.topological_equality(other.root)
 
     def __eq__(self, other):
+        """Test for exact ordering equality
+
+        Parameters
+        ----------
+        other : :class:`Glycan`
+
+        Returns
+        -------
+        :class:`bool`
+
+        See Also
+        --------
+        :meth:`exact_ordering_equality`
+        """
         return self.exact_ordering_equality(other)
 
     def __ne__(self, other):
         return not self == other
 
     def __hash__(self):
+        """Hashes the structure from the GlycoCT text representation
+
+        See Also
+        --------
+        :meth:`serialize`
+        """
         return hash(self.serialize("glycoct"))
 
     def substructures(self, max_cleavages=1, min_cleavages=1, inplace=False):

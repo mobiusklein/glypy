@@ -137,8 +137,12 @@ class {name}(object):
         {self_fields} = state
     def __repr__(self):
         rep = "{name}("
+        i = 0
         for f in {fields!r}:
-            rep += " " + f + "=" + str(getattr(self, f))
+            if i != 0:
+                rep += ", "
+            i += 1
+            rep += f + "=" + str(getattr(self, f))
         rep += ")"
         return rep
     def __eq__(self, other):

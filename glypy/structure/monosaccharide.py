@@ -278,26 +278,26 @@ class Monosaccharide(SaccharideBase):
     Attributes
     ----------
     anomer: :class:`Anomer`
-        An entry of :class:`~glypy.structure.constants.Anomer` that corresponds to the linkage type
+        An entry of :class:`~.Anomer` that corresponds to the linkage type
         of the carbohydrate backbone. Is an entry of a class based on :class:`Enum`
-    superclass: :class:`SuperClass`
-        An entry of :class:`~glypy.structure.constants.SuperClass` that corresponds to the number of
+    superclass: :class:`~.SuperClass`
+        An entry of :class:`~.SuperClass` that corresponds to the number of
         carbons in the carbohydrate backbone of the monosaccharide. Controls the base composition of the
         instance and the number of positions open to be linked to or modified. Is an entry of a class
-        based on :class:`Enum`
-    configuration: :class:`Configuration` or {'d', 'l', 'x', 'missing', None}
+        based on :class:`~.Enum`
+    configuration: :class:`~.Configuration` or {'d', 'l', 'x', 'missing', None}
         An entry of |Configuration| which corresponds to the optical
         stereomer state of the instance. Is an entry of a class based on :class:`Enum`. May possess
         more than one value.
-    stem: :class:`Stem`
+    stem: :class:`~.Stem`
         Corresponds to the bond conformation of the carbohydrate backbone. Is an entry of a class based
-        on :class:`Enum`. May possess more than one value.
+        on :class:`~.Enum`. May possess more than one value.
     ring_start: |int|
-        The index of the carbon of the carbohydrate backbone that starts a ring. A value of `-1`, `'x'`, or
-        |None| corresponds to an unknown start. A value of `0` refers to a linear chain.
+        The index of the carbon of the carbohydrate backbone that starts a ring. A value of ``-1``, ``'x'``, or
+        |None| corresponds to an unknown start. A value of ``0`` refers to a linear chain.
     ring_end:  |int|
-        The index of the carbon of the carbohydrate backbone that ends a ring. A value of `-1`, `'x'`, or
-        |None| corresponds to an unknown ends. A value of `0` refers to a linear chain.
+        The index of the carbon of the carbohydrate backbone that ends a ring. A value of ``-1``, ``'x'``, or
+        |None| corresponds to an unknown ends. A value of ``0`` refers to a linear chain.
     reducing_end: :class:`ReducedEnd`
         The reducing end terminal group of the monosaccharide if the monosaccharide is uncyclized
     modifications: |OrderedMultiMap|
@@ -420,9 +420,18 @@ class Monosaccharide(SaccharideBase):
         Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
         graph.
 
+        Parameters
+        ----------
+        prop_id: :class:`bool`
+            Whether to copy :attr:`id` from ``self`` to the new instance
+        fast: :class:`bool`
+            Whether to use the fast-path initialization process in :meth:`Monosaccharide.__init__`
+        monosaccharide_type: :class:`type`
+            A subclass of :class:`Monosaccharide` to use
+
         Returns
         -------
-        Monosaccharide
+        :class:`Monosaccharide`
 
         '''
         if monosaccharide_type is None:
@@ -457,12 +466,12 @@ class Monosaccharide(SaccharideBase):
     @property
     def ring_type(self):
         """The size of the ring-shape of the carbohydrate, as computed
-        by ring_end - ring_start.
+        by :attr:`ring_end` - :attr:`ring_start`.
 
         Returns
         -------
-        EnumValue:
-            The appropriate value of :class:`.RingType`
+        :class:`~.EnumValue`:
+            The appropriate value of :class:`~.RingType`
         """
         null_positions = (UnknownPosition, NoPosition)
         if self.ring_start in null_positions or self.ring_end in null_positions:
@@ -1006,7 +1015,18 @@ class Monosaccharide(SaccharideBase):
         cls._serializers[name] = method
 
     def serialize(self, name='glycoct'):
-        return self._serializers[name](self)
+        """Convert this object into text using the requested textual encoding
+
+        Parameters
+        ----------
+        name: :class:`str`, optional
+            The name of the textual encoding, e.g. "glycoct" or "iupac"
+
+        Returns
+        -------
+        :class:`str`
+        """
+        return self._serializers[name.lower()](self)
 
     def _flat_equality(self, other, lengths=True):
         '''
@@ -1154,8 +1174,6 @@ class Monosaccharide(SaccharideBase):
     def __ne__(self, other):
         return not (self == other)
 
-    # def __repr__(self):  # pragma: no cover
-    #     return self.to_glycoct().replace("\n", ' ')
     __repr__ = serialize
 
     def __getstate__(self):
