@@ -194,9 +194,8 @@ class GlycanSubstructure(object):
         if self.tree.root.reducing_end is not None:
             return True
 
-    def to_fragments(
-            self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True,
-            traversal_method='dfs'):
+    def to_fragments(self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True,
+                     traversal_method='dfs'):
         """Transform an instance of :class:`GlycanSubstructure` into every combination of
         :class:`GlycanFragment` allowed under `kind`.
 
