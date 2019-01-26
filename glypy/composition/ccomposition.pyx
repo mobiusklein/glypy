@@ -111,7 +111,7 @@ cdef class CComposition(dict):
     def __repr__(self):  # pragma: no cover
         return str(self)
 
-    def __iadd__(CComposition self, other):
+    cdef CComposition add_from(self, other):
         cdef:
             str elem
             long cnt
@@ -127,27 +127,21 @@ cdef class CComposition(dict):
         self._mass_args = None
         return self
 
+    def __iadd__(CComposition self, other):
+        self.add_from(other)
+        return self
+
 
     def __add__(self, other):
         cdef:
-            str elem
-            long cnt
             CComposition result
-            PyObject *pkey
-            PyObject *pvalue
-            Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             other, self = self, other
         result = CComposition._create(self)
-        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
-            elem = <str>pkey
-            cnt = result.getitem(elem)
-            cnt += PyInt_AsLong(<object>pvalue)
-            result.setitem(elem, cnt)
-
+        result.add_from(other)
         return result
 
-    def __isub__(self, other):
+    cdef CComposition subtract_from(self, other):
         cdef:
             str elem
             long cnt
@@ -163,23 +157,16 @@ cdef class CComposition(dict):
         self._mass_args = None
         return self
 
+    def __isub__(self, other):
+        return self.subtract_from(other)
+
     def __sub__(self, other):
         cdef:
-            str elem
-            long cnt
             CComposition result
-            PyObject *pkey
-            PyObject *pvalue
-            Py_ssize_t ppos = 0
         if not isinstance(self, CComposition):
             self = CComposition(self)
         result = CComposition._create(self)
-        while(PyDict_Next(other, &ppos, &pkey, &pvalue)):
-            elem = <str>pkey
-            cnt = result.getitem(elem)
-            cnt -= PyInt_AsLong(<object>pvalue)
-            result.setitem(elem, cnt)
-
+        result.subtract_from(other)
         return result
 
     def __reduce__(self):
@@ -341,7 +328,7 @@ cdef class CComposition(dict):
         PyDict_Update(dup, self)
         return dup
 
-    cdef inline long getitem(self, str elem):
+    cdef long getitem(self, str elem):
         cdef:
             PyObject* resobj
             long count
@@ -351,7 +338,7 @@ cdef class CComposition(dict):
         count = PyInt_AsLong(<object>resobj)
         return count
 
-    cdef inline void setitem(self, str elem, long val):
+    cdef void setitem(self, str elem, long val):
         PyDict_SetItem(self, elem, val)
         self._mass_args = None
 

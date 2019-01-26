@@ -9,6 +9,9 @@ cdef class CComposition(dict):
     cdef long getitem(self, str elem)
     cdef void setitem(self, str elem, long val)
 
+    cdef CComposition add_from(self, other)
+    cdef CComposition subtract_from(self, other)
+
     @staticmethod
     cdef CComposition _create(CComposition inst)
 
