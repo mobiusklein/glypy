@@ -871,6 +871,9 @@ class GlycanComposition(dict, SaccharideCollection):
         dict.__setitem__(self, key, int(value))
         self._mass = None
 
+    def _setitem_fast(self, key, value):
+        dict.__setitem__(self, key, value)
+
     def __getitem__(self, key):
         """
         Get the quantity of `key`
@@ -890,6 +893,12 @@ class GlycanComposition(dict, SaccharideCollection):
         """
         if isinstance(key, basestring):
             key = self._key_parser(key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return 0
+
+    def _getitem_fast(self, key):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
@@ -918,7 +927,6 @@ class GlycanComposition(dict, SaccharideCollection):
     def update(self, *args, **kwargs):
         if len(args) == 1:
             if isinstance(args[0], Mapping):
-                args = list(args)
                 for name, count in args[0].items():
                     if count != 0:
                         self[name] = count
@@ -1150,10 +1158,21 @@ class GlycanComposition(dict, SaccharideCollection):
         self._composition_offset = value
 
     def clone(self, propogate_composition_offset=True):
-        dup = self.__class__(self)
+        dup = self.__class__()
+        dup._update_from_typed_map(self)
         if not propogate_composition_offset:
-            dup.composition_offset = Composition('H2O')
+            dup._composition_offset = Composition('H2O')
+        else:
+            dup._composition_offset = self._composition_offset.clone()
         return dup
+
+    def _update_from_typed_map(self, template):
+        for name, count in template.items():
+            self._setitem_fast(name, count)
+        reduced = template.reducing_end
+        if reduced is not None:
+            self.reducing_end = reduced.clone()
+        self._mass = None
 
     # inheriting from dict overwrites MoleculeBase.copy
     def copy(self, *args, **kwargs):
@@ -1207,7 +1226,7 @@ class GlycanComposition(dict, SaccharideCollection):
             _deriv = has_derivatization(key)
             if _deriv:
                 deriv = _deriv
-            inst[key] = int(count)
+            inst._setitem_fast(key, int(count))
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
@@ -1287,7 +1306,7 @@ class FrozenGlycanComposition(GlycanComposition):
             _deriv = has_derivatization(key)
             if _deriv:
                 deriv = _deriv
-            inst[key] = int(count)
+            inst._setitem_fast(key, int(count))
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
