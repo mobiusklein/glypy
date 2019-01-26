@@ -27,8 +27,11 @@ cdef class EnumValue(object):
     def __eq__(self, other):
         cdef:
             EnumValue other_ev
+            object temp
         if not isinstance(self, EnumValue):
-            self, other = other, self
+            temp = self
+            self = <EnumValue>other
+            other = temp
         if isinstance(other, EnumValue):
             other_ev = <EnumValue>other
             if self.group is not other_ev.group:
@@ -38,20 +41,29 @@ cdef class EnumValue(object):
             return self.value == other or other in self.names
 
     def __and__(self, other):
+        cdef:
+            object temp
+            EnumValue self_t
         if not isinstance(self, EnumValue):
-            self, other = other, self
-        return self.value & other
+            temp = self
+            self_t = <EnumValue>other
+            other = temp
+        else:
+            self_t = <EnumValue>self
+        return self_t.value & other
 
     def __or__(self, other):
+        cdef:
+            object temp
+            EnumValue self_t
         if not isinstance(self, EnumValue):
-            self, other = other, self
-        return self.value | other
+            temp = self
+            self = <EnumValue>other
+            other = temp
+        else:
+            self_t = <EnumValue>self
+        return self_t.value | other
 
-    def __rand__(self, other):
-        return self.value & other
-
-    def __ror__(self, other):
-        return self.value | other
 
     def __ne__(self, other):
         return not self == other

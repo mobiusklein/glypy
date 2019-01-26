@@ -70,6 +70,7 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
             residue_class = MonosaccharideResidue
         try:
             match_dict = self.extract_pattern(monosaccharide_str)
+            residue = self.build_residue(match_dict)
         except IUPACError:
             if monosaccharide_str.startswith(MolecularComposition.sigil):
                 result = MolecularComposition.from_iupac_lite(monosaccharide_str)
@@ -85,7 +86,6 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
                     raise IUPACError("Cannot find pattern in {}".format(monosaccharide_str))
         except TypeError:
             raise TypeError("Expected string, received {} ({})".format(monosaccharide_str, type(monosaccharide_str)))
-        residue = self.build_residue(match_dict)
 
         deriv = match_dict.get("derivatization", '')
         if deriv is not None and deriv != "":
@@ -771,9 +771,6 @@ class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
         return not (self == other)
 
 
-water_mass = Composition("H2O").mass
-
-
 class GlycanComposition(dict, SaccharideCollection):
     """
     Describe a glycan  as a collection of :class:`MonosaccharideResidue` counts without
@@ -833,21 +830,22 @@ class GlycanComposition(dict, SaccharideCollection):
         return inst
 
     def __init__(self, *args, **kwargs):
-        self._reducing_end = None
         dict.__init__(self)
+        self._reducing_end = None
         self._mass = None
-        self._charge = None
-        self._composition_offset = Composition("H2O")
-        self.update(*args, **kwargs)
-        try:
+        if args or kwargs:
+            self.update(*args, **kwargs)
+        if args:
             template = args[0]
-        except IndexError:
-            template = None
-        if template is not None and isinstance(template, GlycanComposition):
-            reduced = template.reducing_end
-            if reduced is not None:
-                self.reducing_end = reduced.clone()
-            self._composition_offset = template._composition_offset.clone()
+            if isinstance(template, GlycanComposition):
+                reduced = template.reducing_end
+                if reduced is not None:
+                    self.reducing_end = reduced.clone()
+                self._composition_offset = template._composition_offset.clone()
+            else:
+                self._composition_offset = water_composition.clone()
+        else:
+            self._composition_offset = water_composition.clone()
 
     def __setitem__(self, key, value):
         """
@@ -904,7 +902,7 @@ class GlycanComposition(dict, SaccharideCollection):
         self._mass = None
 
     def mass(self, average=False, charge=0, mass_data=None):
-        if self._mass is not None and charge == self._charge:
+        if self._mass is not None and charge == 0:
             return self._mass
         if charge == 0:
             mass = self._composition_offset.mass
@@ -913,11 +911,8 @@ class GlycanComposition(dict, SaccharideCollection):
             if self._reducing_end is not None:
                 mass += self._reducing_end.mass(average=average, charge=0, mass_data=mass_data)
             self._mass = mass
-            self._charge = 0
         else:
             mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
-            self._mass = mass
-            self._charge = charge
         return mass
 
     def update(self, *args, **kwargs):
@@ -1015,16 +1010,19 @@ class GlycanComposition(dict, SaccharideCollection):
         for t in self:
             drop_stem(t)
         self.collapse()
+        return self
 
     def drop_positions(self):
         for t in self:
             drop_positions(t)
         self.collapse()
+        return self
 
     def drop_configurations(self):
         for t in self:
             drop_configuration(t)
         self.collapse()
+        return self
 
     def total_composition(self):
         comp = self._composition_offset.clone()
@@ -1048,6 +1046,7 @@ class GlycanComposition(dict, SaccharideCollection):
         self.clear()
         for k, v in items:
             self[k] += v
+        return self
 
     def query(self, query, exact=True, **kwargs):
         """Return the total count of all residues in `self` which
@@ -1184,24 +1183,18 @@ class GlycanComposition(dict, SaccharideCollection):
         tokens = tokens[1:-1].split('; ')
         return tokens, reduced
 
-    def _handle_reduction_and_derivatization(self, reduced):
+    def _handle_reduction_and_derivatization(self, reduced, deriv):
         if reduced:
             reduced = ReducedEnd(Composition(reduced))
             self.reducing_end = reduced
-        deriv = None
-        for key in self:
-            deriv = has_derivatization(key)
-            if deriv:
-                break
         if deriv:
-            # strip_derivatization(self)
-            # derivatize(self, deriv)
             self._derivatized(deriv.clone(), make_counter(uid()), include_reducing_end=False)
 
     @classmethod
     def parse(cls, string):
         tokens, reduced = cls._get_parse_tokens(string)
         inst = cls()
+        deriv = None
         for token in tokens:
             try:
                 residue, count = token.split(":")
@@ -1210,8 +1203,12 @@ class GlycanComposition(dict, SaccharideCollection):
                     return inst
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
-            inst[cls._key_parser(residue)] = int(count)
-        inst._handle_reduction_and_derivatization(reduced)
+            key = cls._key_parser(residue)
+            _deriv = has_derivatization(key)
+            if _deriv:
+                deriv = _deriv
+            inst[key] = int(count)
+        inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
     def _derivatized(self, substituent, id_base, include_reducing_end=True):
@@ -1236,7 +1233,6 @@ class GlycanComposition(dict, SaccharideCollection):
 
     def _invalidate(self):
         self._mass = None
-        self._charge = None
 
 
 from_glycan = GlycanComposition.from_glycan
@@ -1278,6 +1274,7 @@ class FrozenGlycanComposition(GlycanComposition):
     def parse(cls, string):
         tokens, reduced = cls._get_parse_tokens(string)
         inst = cls()
+        deriv = None
         for token in tokens:
             try:
                 residue, count = token.split(":")
@@ -1286,8 +1283,12 @@ class FrozenGlycanComposition(GlycanComposition):
                     return inst
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
-            inst[cls._key_parser(residue)] = int(count)
-        inst._handle_reduction_and_derivatization(reduced)
+            key = cls._key_parser(residue)
+            _deriv = has_derivatization(key)
+            if _deriv:
+                deriv = _deriv
+            inst[key] = int(count)
+        inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
     def serialize(self):

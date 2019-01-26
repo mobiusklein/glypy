@@ -97,12 +97,12 @@ class EnumValue(object):
         return self.value >= other.value
 
 
-# try:
-#     _EnumValue = EnumValue
-#     _has_c = True
-#     from glypy.utils.cenum import EnumValue
-# except ImportError:
-#     _has_c = False
+try:
+    _EnumValue = EnumValue
+    _has_c = True
+    from glypy.utils.cenum import EnumValue
+except ImportError:
+    _has_c = False
 
 
 debug = False

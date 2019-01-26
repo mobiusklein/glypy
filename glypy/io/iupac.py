@@ -81,6 +81,7 @@ substituents_map_to["amino"] = "N"
 substituents_map_to['phosphate'] = 'P'
 
 substituents_map_from = invert_dict(substituents_map_to)
+substituents_map_from['Phosphate'] = 'phosphate'
 
 _modification_map_to = {
     'deoxy': 'd',
