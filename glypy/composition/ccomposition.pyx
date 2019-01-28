@@ -303,6 +303,8 @@ cdef class CComposition(dict):
             CComposition result
 
         result = CComposition.__new__(CComposition)
+        result._mass = None
+        result._mass_args = None
         if inst is None:
             return result
         PyDict_Update(result, inst)
@@ -476,7 +478,6 @@ cdef class CComposition(dict):
         `comp` without checking their type.
         '''
         PyDict_Update(self, comp)
-
 
     cpdef double calc_mass(self, int average=False, charge=None, dict mass_data=nist_mass) except -1:
         cdef object mdid
