@@ -79,22 +79,35 @@ def draw_triangle(ax, x, y, color, scale=0.1):
 
 
 def line_to(ax, sx, sy, ex, ey, zorder=1, color=None, lw=1):
-        if color is None:
-            color = default_line_color
-        vertices = [
-            (sx, sy),
-            (ex, ey),
-            (0, 0)
-        ]
-        codes = [
-            Path.MOVETO,
-            Path.LINETO,
-            Path.STOP
-        ]
-        path = Path(vertices, codes)
-        patch = patches.PathPatch(path, color=color, lw=lw, zorder=zorder)
-        ax.add_patch(patch)
-        return patch
+    if color is None:
+        color = default_line_color
+    vertices = [
+        (sx, sy),
+        (ex, ey),
+        (0, 0)
+    ]
+    codes = [
+        Path.MOVETO,
+        Path.LINETO,
+        Path.STOP
+    ]
+    path = Path(vertices, codes)
+    patch = patches.PathPatch(path, color=color, lw=lw, zorder=zorder)
+    ax.add_patch(patch)
+    return patch
+
+
+def line_along(ax, points, zorder=1, color=None, lw=1):
+    if color is None:
+        color = default_line_color
+    vertices = list(points)
+    vertices.append([0, 0])
+    codes = [Path.MOVETO] + [Path.LINETO] * (len(points) - 1)
+    codes.append(Path.STOP)
+    path = Path(vertices, codes)
+    patch = patches.PathPatch(path, edgecolor=color, facecolor='none', lw=lw, zorder=zorder)
+    ax.add_patch(patch)
+    return patch
 
 
 def transform_around_coords(x, y, xorigin, yorigin, transform):

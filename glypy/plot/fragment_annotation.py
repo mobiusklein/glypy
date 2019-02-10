@@ -1,14 +1,21 @@
 from matplotlib import patches
 from matplotlib import transforms as mtransforms
 from matplotlib.textpath import TextPath
-from glypy.plot.symbolic_nomenclature import line_to
+
+from glypy.plot.symbolic_nomenclature import line_to, line_along
+from glypy.plot.geometry import l2_distance, centroid
 
 
 def isclose(a, b):
     return abs(a - b) < 1e-4
 
 
+debug = False
 rot90 = mtransforms.Affine2D().rotate_deg(90)
+
+
+def midpoint(a, b):
+    return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
 
 
 class BondCleavageArtist(object):
@@ -73,6 +80,7 @@ class CleavageStrokeArtistBase(object):
         self.y_coords = []
         self.patch_dict = draw_tree.data['patches']
         self.options = options
+        self.reducing_end_coords = (self.draw_tree.x, self.draw_tree.y)
         self.edge_size = None
 
     def save_patch(self, key, value):
@@ -82,9 +90,20 @@ class CleavageStrokeArtistBase(object):
         else:
             self.patch_dict[key] = [[value]]
 
-    def textpath(self, x, y, text, line_weight=0.5, **kwargs):
+    def textpath(self, x, y, text, line_weight=0.5, ha='center', va='center', **kwargs):
         fs = kwargs.get("fontsize", 2) * .5
         t_path = TextPath((x, y), s=text, size=fs)
+        if ha == 'center':
+            cx, cy = centroid(t_path)
+            tf = mtransforms.Affine2D()
+            tf.translate(x - cx, 0)
+            t_path = t_path.transformed(tf)
+        if va == 'center':
+            cx, cy = centroid(t_path)
+            tf = mtransforms.Affine2D()
+            tf.translate(0, y - cy)
+            t_path = t_path.transformed(tf)
+
         patch = patches.PathPatch(t_path, facecolor="black", lw=line_weight / 20., zorder=4)
         a = self.ax.add_patch(patch)
         return a
@@ -203,8 +222,9 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
 
     def draw(self):
         self.compute_positions()
-        self.draw_main_stroke()
-        self.draw_edge_stroke()
+        self.configure_edge_stroke()
+        self.draw_stroke()
+        self.draw_label()
 
     def compute_positions(self):
         parent, child = self.parent, self.child
@@ -235,6 +255,8 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
             if py < cy:
                 lx2, ly2 = xcenter + xlength, ycenter + ylength
                 lx1, ly1 = xcenter - xlength, ycenter - ylength
+                if (py < ly1 < ly2 < cy) and (px < lx1 < lx2 < cx):
+                    lx1, lx2 = lx2, lx1
             else:
                 lx1, ly1 = xcenter - xlength, ycenter + ylength
                 lx2, ly2 = xcenter + xlength, ycenter - ylength
@@ -242,48 +264,149 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
 
         self.mode = mode
         self.edge_size = edge_size
+        self.point_a = [lx1, ly1]
+        self.point_b = [lx2, ly2]
         self.x_coords = [lx1, lx2]
         self.y_coords = [ly1, ly2]
 
-    def draw_main_stroke(self, **kwargs):
-        graphic_options = self.options.copy()
-        graphic_options.update(kwargs)
-
-        color = graphic_options.get('color', 'red')
-        lw = graphic_options.get('lw', 2)
-
+    def configure_edge_stroke(self, **kwargs):
         lx1, lx2 = self.x_coords
         ly1, ly2 = self.y_coords
 
-        line = line_to(self.ax, lx1, ly1, lx2, ly2,
-                       color=color, zorder=3, lw=lw)
-        self.save_patch(self.fragment.name, line)
-        line.set_gid(self.draw_tree.uuid + '-' + self.fragment.name)
+        if self.mode in ("sequential", "offsequence"):
+            self.reducing_end_coords = (self.parent.x, self.parent.y)
 
-    def draw_edge_stroke(self, **kwargs):
-        graphic_options = self.options.copy()
-        graphic_options.update(kwargs)
-
-        color = graphic_options.get('color', 'red')
-        lw = graphic_options.get('lw', 2)
-
-        lx1, lx2 = self.x_coords
-        ly1, ly2 = self.y_coords
-        # if self.mode == "offsequence":
-        #    lx1, lx2, _ = rot90.get_matrix().dot([lx1, lx2, 0])
-        #    ly1, ly2, _ = rot90.get_matrix().dot([ly1, ly2, 0])
         if self.reducing:
-            line = line_to(self.ax, lx1, ly2, lx1, ly2 -
-                           self.edge_size, color=color, zorder=3, lw=lw)
-            line.set_gid(self.draw_tree.uuid + '-' +
-                         self.fragment.name + "-direction")
-            self.save_patch(self.fragment.name + "_direction", line)
+            t1 = self.point_a
+            t2 = self.point_b
+
+            if debug:
+                self.ax.scatter(*t1, zorder=100, color='orange')
+                self.ax.scatter(*t2, zorder=100, color='green')
+
+            # find the terminal of the main stroke that points towards the reducing end
+            anchor_pt = t1
+            if l2_distance(t1, self.reducing_end_coords) > l2_distance(t2, self.reducing_end_coords):
+                anchor_pt = t2
+
+            # find the axis direction that points towards the reducing end
+            best_term_pt = None
+            best_distance = float('inf')
+            i = 0
+            for sign, idx in ((1, 0), (1, 1), (-1, 0), (-1, 1)):
+                new_pt = list(anchor_pt)
+                new_pt[idx] += sign * self.edge_size
+                dist = l2_distance(new_pt, self.reducing_end_coords)
+                i += 1
+                if dist < best_distance and l2_distance(midpoint(t1, t2), new_pt) > 1e-2:
+                    best_term_pt = new_pt
+                    best_distance = dist
+
+            if best_term_pt is None:
+                best_term_pt = anchor_pt
+
+            if debug:
+                self.ax.scatter(*best_term_pt, zorder=100, color='purple')
         else:
-            line = line_to(self.ax, lx2, ly2, lx2, ly2 +
-                           self.edge_size, color=color, zorder=3, lw=lw)
-            line.set_gid(self.draw_tree.uuid + '-' +
-                         self.fragment.name + "-direction")
-            self.save_patch(self.fragment.name + "_direction", line)
+            t1 = self.point_a
+            t2 = self.point_b
+
+            if debug:
+                self.ax.scatter(*t1, zorder=100, color='orange')
+                self.ax.scatter(*t2, zorder=100, color='green')
+
+            # find the terminal of the main stroke that points away from the reducing end
+            anchor_pt = t1
+            if l2_distance(t1, self.reducing_end_coords) <= l2_distance(t2, self.reducing_end_coords):
+                anchor_pt = t2
+
+            # find the axis direction that points away from the reducing end
+            best_term_pt = None
+            best_distance = -float('inf')
+            for sign, idx in ((1, 0), (1, 1), (-1, 0), (-1, 1)):
+                new_pt = list(anchor_pt)
+                new_pt[idx] += sign * self.edge_size
+                dist = l2_distance(new_pt, self.reducing_end_coords)
+                if dist > best_distance and l2_distance(midpoint(t1, t2), new_pt) > 1e-2:
+                    best_term_pt = new_pt
+                    best_distance = dist
+
+            if best_term_pt is None:
+                best_term_pt = anchor_pt
+
+            if debug:
+                self.ax.scatter(*best_term_pt, zorder=100, color='purple')
+
+        self.anchor_point = anchor_pt
+        self.terminal_point = best_term_pt
+        if self.anchor_point == self.point_a:
+            self.start_point = self.point_b
+        else:
+            self.start_point = self.point_a
+
+    def draw_stroke(self, **kwargs):
+        graphic_options = self.options.copy()
+        graphic_options.update(kwargs)
+
+        color = graphic_options.get('color', 'red')
+        lw = graphic_options.get('lw', 2)
+        line = line_along(
+            self.ax, [self.start_point, self.anchor_point, self.terminal_point],
+            color=color, zorder=3, lw=lw)
+        line.set_gid(self.draw_tree.uuid + '-' +
+                     self.fragment.name)
+        self.save_patch(self.fragment.name + "_direction", line)
+
+    def draw_label(self, **kwargs):
+        graphic_options = self.options.copy()
+        graphic_options.update(kwargs)
+
+        color = graphic_options.get('text_color', 'black')
+        pad = graphic_options.get('text_pading', 0.3)
+        lw = graphic_options.get('lw', 1)
+        anchor_pt = self.anchor_point
+        term_pt = self.terminal_point
+
+        # the edge is vertical
+        if anchor_pt[0] == term_pt[0]:
+            reference_pt = midpoint(anchor_pt, term_pt)
+            right_pt = list(reference_pt)
+            right_pt[0] += pad
+            left_pt = list(reference_pt)
+            left_pt[0] -= pad
+
+            if l2_distance(right_pt, self.start_point) < l2_distance(left_pt, self.start_point):
+                reference_pt = left_pt
+            else:
+                reference_pt = right_pt
+
+            if debug:
+                self.ax.scatter(*reference_pt, zorder=100, color='blue')
+            patch = self.textpath(
+                *reference_pt, text=self.fragment.fname, ha='center',
+                color=color, line_weight=lw, fontsize=0.5)
+            self.save_patch("text", patch)
+            self.label_point = reference_pt
+        # the edge is horizontal
+        elif anchor_pt[1] == term_pt[1]:
+            reference_pt = midpoint(anchor_pt, term_pt)
+            right_pt = list(reference_pt)
+            right_pt[1] += pad / 2.0
+            left_pt = list(reference_pt)
+            left_pt[1] -= pad / 2.0
+
+            if l2_distance(right_pt, self.start_point) < l2_distance(left_pt, self.start_point):
+                reference_pt = left_pt
+            else:
+                reference_pt = right_pt
+
+            if debug:
+                self.ax.scatter(*reference_pt, zorder=100, color='blue')
+            patch = self.textpath(
+                *reference_pt, text=self.fragment.fname, ha='center',
+                color=color, line_weight=lw, fontsize=0.5)
+            self.save_patch("text", patch)
+            self.label_point = reference_pt
 
 
 # Old Reference Implementation

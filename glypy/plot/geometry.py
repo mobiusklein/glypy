@@ -171,6 +171,14 @@ class TransformProxy(object):
         return getattr(self.base_transform, name)
 
 
+def l2_distance(a, b):
+    return sum([(ai - bi) ** 2 for ai, bi in zip(a, b)])
+
+
+def l1_distance(a, b):
+    return sum([abs(ai - bi) for ai, bi in zip(a, b)])
+
+
 # def shift_path_2d(path, hits):
 #     centers = map(centroid, hits)
 #     stacked = np.vstack(centers)

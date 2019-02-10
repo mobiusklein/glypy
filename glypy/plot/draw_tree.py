@@ -300,7 +300,10 @@ class DrawTreeNode(object):
             at = (0, 0)
         if self.transform:
             at = self.transform.transform(at)
-        return self.x + at[0], self.y + at[1]
+            x, y = self.transform.transform((self.x, self.y))
+        else:
+            x, y = self.x, self.y
+        return x + at[0], y + at[1]
 
     def draw_branches(self, at=(0, 0), ax=None, symbol_nomenclature=None,
                       label=True, visited=None, **kwargs):
@@ -525,7 +528,7 @@ class DrawTreeNode(object):
     def annotate_fragment(self, fragment, ax=None, color='red', label=True, **kwargs):
         if ax is None:
             ax = self.axes
-        BondCleavageArtist(self, fragment, ax, color=color, label=label, **kwargs)
+        return BondCleavageArtist(self, fragment, ax, color=color, label=label, **kwargs)
 
     def set_transform(self, transform):
         """Apply the passed Affine2D to each graphical unit. The transform is additive
@@ -573,25 +576,11 @@ class DrawTreeNode(object):
 
     transform = property(get_transform, set_transform)
 
-    def _compute_bounding_box(self):
+    def _compute_bounding_box(self, pad_factor=0.2):
         xmin, xmax, ymin, ymax = self.extrema()
-        trans = self.transform
-        upper_left = (xmin, ymax)
-        lower_left = (xmin, ymin)
-        upper_right = (xmax, ymax)
-        lower_right = (xmin, ymin)
-        points = [upper_left, lower_left, upper_right, lower_right]
-        if trans:
-            mat = trans.get_matrix()
-            result = []
-            for x, y in points:
-                x, y, w = mat.dot(np.array((x, y, 1)))
-                x /= w
-                y /= w
-                point = (x, y)
-                result.append(point)
-            points = result
-        return points
+        dx = (max(xmin, xmax) - min(xmin, xmax)) * pad_factor
+        dy = (max(ymin, ymax) - min(ymin, ymax)) * pad_factor
+        return (xmin - dx, xmax + dx), (ymin - dy, ymax + dy)
 
     def update_text_position(self, degrees):
         '''
@@ -735,10 +724,6 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
             at=at, ax=ax, scale=scale,
             symbol_nomenclature=symbol_nomenclature,
             **kwargs)
-    if orientation in {"h", "horizontal"}:
-        pass
-        # dtree.set_transform(mtransforms.Affine2D().rotate_deg(90).scale(*transform_scale))
-        # dtree.update_text_position(-90)
     # If the figure is stand-alone, center it
     if fig is not None or center:
         xlim, ylim = _bounding_box_to_limits(dtree)
