@@ -28,26 +28,26 @@ def _link_ids_splitter(fragment, link_ids, kind):  # pragma: no cover
 latex_symbol_map = {
     "a": r"\alpha",
     "b": r"\beta",
-    "c": r"\gamma",
+    "c": r"\sigma",
     "d": r"\delta",
     "e": r"\epsilon",
     "f": r"\zeta",
-    "g": r"\eta",
-    "h": r"\iota",
-    "i": r"\kappa",
+    "g": r"\gamma",
+    "h": r"\eta",
+    "i": r"\iota",
     "j": r"\lambda",
-    "k": r"\mu",
-    "l": r"\nu",
-    "m": r"\xi",
-    "n": r"\varsigma",
-    "o": r"\pi",
-    "p": r"\rho",
+    "k": r"\kappa",
+    "l": r"\lambda",
+    "m": r"\mu",
+    "n": r"\nu",
+    "o": r"\omicron",
+    "p": r"\pi",
     "q": r"\sigma",
-    "r": r"\tau",
+    "r": r"\rho",
     "s": r"\upsilon",
-    "t": r"\phi",
-    "u": r"\psi",
-    "v": r"\omega"
+    "t": r"\tau",
+    "u": r"\upsilon",
+    "v": r"\omega",
 }
 
 
@@ -128,7 +128,7 @@ class GlycanFragment(object):
         buff = []
         for c in self.name:
             if c in latex_symbol_map:
-                buff.append("${}$".format(latex_symbol_map[c]))
+                buff.append("$_{}$".format(latex_symbol_map[c]))
             else:
                 buff.append(c)
         return ''.join(buff)

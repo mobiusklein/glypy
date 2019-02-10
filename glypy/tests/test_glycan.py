@@ -240,7 +240,7 @@ class GlycanTests(unittest.TestCase):
     def test_fragment_properties(self):
         structure = load("branchy_glycan")
         frags = {f.name: f for f in structure.fragments("Y")}
-        self.assertEqual(frags["Ya2"].fname, r"Y$\alpha$2")
+        self.assertEqual(frags["Ya2"].fname, r"Y$_\alpha$2")
         Ya2 = frags["Ya2"]
         self.assertTrue(Ya2.is_reducing())
         self.assertFalse(Ya2.is_non_reducing())
