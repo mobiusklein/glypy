@@ -39,10 +39,15 @@ class CanonicalizerBase(object):
             seen.add(node.id)
             link_map = node.links.__class__()
             for link in self.sort_links(node.links.values(), reverse=self.reverse):
-                link_map[link.parent_position] = link
+                if link.is_parent(node):
+                    link_map[link.parent_position] = link
+                else:
+                    link_map[link.child_position] = link
             node.links = link_map
             for pos, parent in node.parents():
                 nodes.append(parent)
+        for link in self.structure.link_index:
+            link.label = None
         self.structure.label_branches()
 
     @classmethod
