@@ -807,7 +807,7 @@ class Glycan(SaccharideCollection):
         # Update parent branch lengths
         longest = self.branch_lengths[MAIN_BRANCH_SYM]
         for branch in sorted(list(self.branch_lengths.keys()), reverse=True):
-            if branch == '-':
+            if branch == MAIN_BRANCH_SYM:
                 continue
             length = self.branch_lengths[branch]
             longest = max(longest, length)
