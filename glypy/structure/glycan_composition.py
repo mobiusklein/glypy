@@ -771,7 +771,10 @@ class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
         return not (self == other)
 
 
-class GlycanComposition(dict, SaccharideCollection):
+_CompositionBase = dict
+
+
+class GlycanComposition(_CompositionBase, SaccharideCollection):
     """
     Describe a glycan  as a collection of :class:`MonosaccharideResidue` counts without
     explicit linkage information relating how each monosaccharide is connected to its neighbors.
@@ -868,11 +871,11 @@ class GlycanComposition(dict, SaccharideCollection):
             self.reducing_end = key.reducing_end
             key = key.clone()
             key.reducing_end = None
-        dict.__setitem__(self, key, int(value))
+        _CompositionBase.__setitem__(self, key, int(value))
         self._mass = None
 
     def _setitem_fast(self, key, value):
-        dict.__setitem__(self, key, value)
+        _CompositionBase.__setitem__(self, key, value)
 
     def __getitem__(self, key):
         """
@@ -894,20 +897,20 @@ class GlycanComposition(dict, SaccharideCollection):
         if isinstance(key, basestring):
             key = self._key_parser(key)
         try:
-            return dict.__getitem__(self, key)
+            return _CompositionBase.__getitem__(self, key)
         except KeyError:
             return 0
 
     def _getitem_fast(self, key):
         try:
-            return dict.__getitem__(self, key)
+            return _CompositionBase.__getitem__(self, key)
         except KeyError:
             return 0
 
     def __delitem__(self, key):
         if isinstance(key, basestring):
             key = self._key_parser(key)
-        dict.__delitem__(self, key)
+        _CompositionBase.__delitem__(self, key)
         self._mass = None
 
     def mass(self, average=False, charge=0, mass_data=None):
@@ -1012,7 +1015,7 @@ class GlycanComposition(dict, SaccharideCollection):
     def __contains__(self, key):
         if isinstance(key, basestring):
             key = self._key_parser(key)
-        return dict.__contains__(self, key)
+        return _CompositionBase.__contains__(self, key)
 
     def drop_stems(self):
         for t in self:
@@ -1276,17 +1279,17 @@ class FrozenGlycanComposition(GlycanComposition):
 
     def __setitem__(self, key, value):
         key = self._key_parser(str(key))
-        dict.__setitem__(self, key, value)
+        _CompositionBase.__setitem__(self, key, value)
         self._mass = None
         self._total_composition = None
 
     def __getitem__(self, key):
         key = self._key_parser(str(key))
-        return dict.__getitem__(self, key)
+        return _CompositionBase.__getitem__(self, key)
 
     def __delitem__(self, key):
         key = self._key_parser(str(key))
-        dict.__delitem__(self, key)
+        _CompositionBase.__delitem__(self, key)
         self._mass = None
 
     @classmethod
@@ -1320,7 +1323,7 @@ class FrozenGlycanComposition(GlycanComposition):
     def __contains__(self, key):
         if isinstance(key, basestring):
             key = self._key_parser(key)
-        return dict.__contains__(self, key)
+        return _CompositionBase.__contains__(self, key)
 
     def thaw(self):
         return GlycanComposition.parse(self)
