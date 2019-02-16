@@ -252,7 +252,7 @@ cdef void count_table_add(count_table* table_a, count_table* table_b):
     for i in range(table_b.size):
         for j in range(table_b.bins[i].used):
             if table_b.bins[i].cells[j].key != NULL:
-                value = table_b.bins[i].cells[j].value
+                count_table_get(table_b, table_b.bins[i].cells[j].key, &value)
                 count_table_increment(table_a, table_b.bins[i].cells[j].key, value)
 
 
@@ -263,7 +263,7 @@ cdef void count_table_subtract(count_table* table_a, count_table* table_b):
     for i in range(table_b.size):
         for j in range(table_b.bins[i].used):
             if table_b.bins[i].cells[j].key != NULL:
-                value = table_b.bins[i].cells[j].value
+                count_table_get(table_b, table_b.bins[i].cells[j].key, &value)
                 count_table_decrement(table_a, table_b.bins[i].cells[j].key, value)
 
 
@@ -623,30 +623,44 @@ cdef class CountTable(object):
     cdef void _add_from(self, CountTable other):
         count_table_add(self.table, other.table)
 
-    cdef void _add_from_dict(self, dict other):
+    cdef int _add_from_dict(self, dict other) except 1:
         cdef:
             PyObject *key
             PyObject *value
             Py_ssize_t pos
+            long v
         pos = 0
-        while PyDict_Next(other, &pos, &key, &value):
-            self.setitem(
-                <object>key,
-                PyInt_AsLong(<object>value) + self.getitem(<object>key))
+        try:
+            while PyDict_Next(other, &pos, &key, &value):
+                v = PyInt_AsLong(int(<object>value))
+                self.setitem(
+                    <object>key,
+                    v + self.getitem(<object>key))
+        except TypeError:
+            PyErr_SetString(TypeError, "%r must be a number" % (<object>value, ))
+            return 1
+        return 0
 
     cdef void _subtract_from(self, CountTable other):
         count_table_subtract(self.table, other.table)
 
-    cdef void _subtract_from_dict(self, dict other):
+    cdef int _subtract_from_dict(self, dict other) except 1:
         cdef:
             PyObject *key
             PyObject *value
             Py_ssize_t pos
+            long v
         pos = 0
-        while PyDict_Next(other, &pos, &key, &value):
-            self.setitem(
-                <object>key,
-                PyInt_AsLong(<object>value) - self.getitem(<object>key))
+        try:
+            while PyDict_Next(other, &pos, &key, &value):
+                v = PyInt_AsLong(<object>value)
+                self.setitem(
+                    <object>key,
+                    v - self.getitem(<object>key))
+        except TypeError:
+            PyErr_SetString(TypeError, "%r must be a number" % (<object>value, ))
+            return 1
+        return 0
 
     cdef void _scale_by(self, long value):
         count_table_scale(self.table, value)

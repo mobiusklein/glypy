@@ -78,9 +78,9 @@ cdef class CountTable(object):
     cdef void _update_from_count_table(self, CountTable other)
 
     cdef void _add_from(self, CountTable other)
-    cdef void _add_from_dict(self, dict other)
     cdef void _subtract_from(self, CountTable other)
-    cdef void _subtract_from_dict(self, dict other)
+    cdef int _add_from_dict(self, dict other) except 1
+    cdef int _subtract_from_dict(self, dict other) except 1
     cdef void _scale_by(self, long value)
 
     cdef bint equal_to(self, CountTable other)
