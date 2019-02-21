@@ -58,7 +58,7 @@ cdef class EnumValue(object):
             EnumValue self_t
         if not isinstance(self, EnumValue):
             temp = self
-            self = <EnumValue>other
+            self_t = <EnumValue>other
             other = temp
         else:
             self_t = <EnumValue>self
