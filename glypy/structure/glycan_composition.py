@@ -1226,9 +1226,10 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
             key = cls._key_parser(residue)
-            _deriv = has_derivatization(key)
-            if _deriv:
-                deriv = _deriv
+            if "^" in residue:
+                _deriv = has_derivatization(key)
+                if _deriv:
+                    deriv = _deriv
             inst._setitem_fast(key, int(count))
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
@@ -1306,9 +1307,10 @@ class FrozenGlycanComposition(GlycanComposition):
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
             key = cls._key_parser(residue)
-            _deriv = has_derivatization(key)
-            if _deriv:
-                deriv = _deriv
+            if "^" in residue:
+                _deriv = has_derivatization(key)
+                if _deriv:
+                    deriv = _deriv
             inst._setitem_fast(key, int(count))
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
