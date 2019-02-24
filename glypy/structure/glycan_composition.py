@@ -468,7 +468,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     This type is intended for use with :class:`FrozenGlycanComposition` to minimize the number of times
     :func:`from_iupac_lite` is called.
     '''
-    __slots__ = ("_frozen", "_total_composition", "_hash", "_name")
+    __slots__ = ("_frozen", "_total_composition", "_hash", "_name", "_mass")
 
     # _frozen = False
     # _total_composition = None
@@ -486,6 +486,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
 
     def __init__(self, *args, **kwargs):
         self._total_composition = None
+        self._mass = None
         super(FrozenMonosaccharideResidue, self).__init__(*args, **kwargs)
         self._frozen = kwargs.get("_frozen", False)
         self._hash = None
@@ -495,7 +496,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             is_frozen = self._frozen
         except AttributeError:
             is_frozen = False
-        if is_frozen and key not in ("_hash", '_total_composition'):
+        if is_frozen and key not in ("_hash", '_total_composition', "_mass"):
             self.get_cache().pop(self._name, None)
             raise FrozenError("Cannot change a frozen object")
         else:
@@ -615,6 +616,10 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
+        if not average and charge == 0 and mass_data is None:
+            if self._mass is None:
+                self._mass = self.total_composition().calc_mass()
+            return self._mass
         return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
 
     def copy_underivatized(self):
