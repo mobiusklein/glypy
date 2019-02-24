@@ -470,6 +470,11 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     '''
     __slots__ = ("_frozen", "_total_composition", "_hash", "_name", "_mass")
 
+    _attribute_caching_slots = (
+        '_total_composition', '_hash',
+        '_mass'
+    )
+
     # _frozen = False
     # _total_composition = None
     __cache = {}
@@ -496,7 +501,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             is_frozen = self._frozen
         except AttributeError:
             is_frozen = False
-        if is_frozen and key not in ("_hash", '_total_composition', "_mass"):
+        if is_frozen and key not in FrozenMonosaccharideResidue._attribute_caching_slots:
             self.get_cache().pop(self._name, None)
             raise FrozenError("Cannot change a frozen object")
         else:
@@ -587,6 +592,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         if self._frozen:
             if self._total_composition is None:
                 self._total_composition = super(FrozenMonosaccharideResidue, self).total_composition()
+                self._mass = None
             return self._total_composition
         else:
             return super(FrozenMonosaccharideResidue, self).total_composition()
@@ -616,7 +622,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        if not average and charge == 0 and mass_data is None:
+        if not average and charge == 0 and mass_data is None and self._frozen:
             if self._mass is None:
                 self._mass = self.total_composition().calc_mass()
             return self._mass
