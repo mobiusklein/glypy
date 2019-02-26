@@ -844,7 +844,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return inst
 
     def __init__(self, *args, **kwargs):
-        dict.__init__(self)
+        _CompositionBase.__init__(self)
         self._reducing_end = None
         self._mass = None
         if args or kwargs:

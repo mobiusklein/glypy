@@ -243,6 +243,14 @@ class EnumMeta(type):
     __call__ = translate
 
 
+try:
+    _EnumMeta = EnumMeta
+    _has_c = True
+    from glypy.utils.cenum import EnumMeta
+except ImportError:
+    _has_c = False
+
+
 @add_metaclass(EnumMeta)
 class Enum(object):
     '''

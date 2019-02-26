@@ -1,5 +1,6 @@
 import sys
-from cpython cimport PyErr_SetString
+cimport cython
+from cpython cimport PyErr_SetString, PyObject_Hash
 from cpython.mem cimport PyMem_Malloc, PyMem_Free, PyMem_Realloc
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF, Py_XDECREF, Py_XINCREF
 from cpython.int cimport PyInt_AsLong, PyInt_FromLong
@@ -65,10 +66,12 @@ cdef count_table* make_count_table(size_t table_size, size_t bin_size):
         count_table* table
     table = <count_table*>PyMem_Malloc(sizeof(count_table))
     if table == NULL:
-        raise MemoryError()
+        PyErr_SetString(MemoryError, "Could not allocate memory for count_table")
+        return NULL
     table.bins = <count_table_bin*>PyMem_Malloc(sizeof(count_table_bin) * table_size)
     if table.bins == NULL:
-        raise MemoryError()
+        PyErr_SetString(MemoryError, "Could not allocate memory for count_table")
+        return NULL
     for i in range(table_size):
         initialize_count_table_bin(&(table.bins[i]), bin_size)
     table.size = table_size
@@ -82,15 +85,13 @@ cdef void free_count_table(count_table* table):
     PyMem_Free(table)
 
 
+@cython.cdivision(True)
 cdef int count_table_find_bin(count_table* table, PyObject* query, Py_ssize_t* bin_index) except 1:
-    cdef object query_obj = <object>query
-    Py_INCREF(query_obj)
     try:
-        bin_index[0] = hash(query_obj) % table.size
+        bin_index[0] = PyObject_Hash(<object>query) % table.size
     except TypeError:
-        PyErr_SetString(TypeError, "%r is not hashable" % (query_obj, ))
+        PyErr_SetString(TypeError, "%r is not hashable" % (<object>query, ))
         return 1
-    Py_DECREF(query_obj)
     return 0
 
 
@@ -471,10 +472,11 @@ cdef class CountTable(object):
         if kwargs:
             self.update(kwargs)
 
-    cdef void _initialize_table(self):
+    cdef int _initialize_table(self) except 1:
         self.table = make_count_table(6, 2)
         if self.table == NULL:
-            raise MemoryError()
+            return 1
+        return 0
 
     cpdef update(self, obj):
         if isinstance(obj, CountTable):
@@ -492,7 +494,7 @@ cdef class CountTable(object):
             Py_ssize_t pos
         pos = 0
         while PyDict_Next(d, &pos, &key, &value):
-            self.setitem(<object>key, PyInt_AsLong(<object>value))
+            self.setitem(<object>key, PyInt_AsLong(int(<object>value)))
 
     cdef void _update_from_count_table(self, CountTable other):
         count_table_update(self.table, other.table)
@@ -512,7 +514,7 @@ cdef class CountTable(object):
         return PyInt_FromLong(value)
 
     def __setitem__(self, object key, object value):
-        self.setitem(key, PyInt_AsLong(value))
+        self.setitem(key, PyInt_AsLong(int(value)))
 
     def __delitem__(self, object key):
         self.pop(key)
@@ -653,7 +655,7 @@ cdef class CountTable(object):
         pos = 0
         try:
             while PyDict_Next(other, &pos, &key, &value):
-                v = PyInt_AsLong(<object>value)
+                v = PyInt_AsLong(int(<object>value))
                 self.setitem(
                     <object>key,
                     v - self.getitem(<object>key))
@@ -687,6 +689,21 @@ cdef class CountTable(object):
     def __ne__(self, other):
         return not (self == other)
 
+    def __hash__(self):
+        cdef:
+            Py_hash_t hash_value
+            size_t i, j
+
+        hash_value = 0
+        for i in range(self.table.size):
+            for j in range(self.table.bins[i].used):
+                if self.table.bins[i].cells[j].key != NULL:
+                    hash_value ^= hash(<object>self.table.bins[i].cells[j].key)
+                    hash_value ^= self.table.bins[i].cells[j].value
+        hash_value ^= (hash_value >> 11) ^ (hash_value >> 25)
+        hash_value = hash_value * 69069 + 907133923
+        return hash_value
+
     cpdef list keys(self):
         return count_table_keys(self.table)
 
@@ -698,7 +715,7 @@ cdef class CountTable(object):
 
     cpdef clear(self):
         for key in self.keys():
-            self.setitem(key, 0)
+            self.delitem(key)
 
     cpdef setdefault(self, key, value):
         if self.getitem(key) == 0:

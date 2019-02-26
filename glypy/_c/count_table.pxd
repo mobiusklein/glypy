@@ -72,7 +72,7 @@ cdef class CountTable(object):
 
     @staticmethod
     cdef CountTable _create_from(CountTable table)
-    cdef void _initialize_table(self)
+    cdef int _initialize_table(self) except 1
 
     cdef void _update_from_dict(self, dict d)
     cdef void _update_from_count_table(self, CountTable other)

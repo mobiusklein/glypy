@@ -1,12 +1,141 @@
-# from glypy.composition.compat cimport PyStr_InternInPlace
+cimport cython
+from cpython cimport PyErr_SetString, PyErr_SetObject
+from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
+from cpython.object cimport PyObject
 
+
+cdef str QMARK = "?"
+
+
+@cython.final
+cdef class EnumMeta(type):
+    
+    def __cinit__(self, name, parents, attrs):
+        self.name_map = {}
+        self.value_map = {}
+
+        mapped = dict()
+        for label, value in list(attrs.items()):
+            if not (label.startswith("__") or label == "mro"):
+                attrs.pop(label)
+                enum_value = EnumValue(self, label, value)
+                if value in mapped:
+                    mapped[value].add_name(label)
+                    self.put(label, mapped[value])
+                else:
+                    mapped[value] = enum_value
+                    self.put(label, enum_value)
+
+        self.put(QMARK, None)
+        for tp in parents:
+            if isinstance(tp, EnumMeta):
+                for label, value in tp:
+                    if label == QMARK:
+                        continue
+                    self.put(label, value)
+
+    
+    def __iter__(self):
+        for attr, val in self.name_map.items():
+            if not attr.startswith("__") or attr == "mro":
+                yield (attr, val)
+
+    def __contains__(self, k):
+        val = (k in self.name_map) or (k in self.value_map)
+        return val
+    
+    def __getattr__(self, name):
+        return self.translate(name)
+    
+    def __setattr__(self, name, value):
+        self.put(name, value)
+
+    def __getitem__(self, name):
+        return self.translate(name)
+
+    def __setitem__(self, name, value):
+        self.put(name, value)
+
+    cdef int put(self, name, value) except -1:
+        if not isinstance(value, EnumValue):
+            existing_value = self.get(value)
+            if existing_value is not None:
+                value = existing_value
+                try:
+                    value.add_name(name)
+                except KeyError as e:
+                    PyErr_SetObject(KeyError, str(e))
+                    return -1
+            else:
+                value = EnumValue(self, name, value)
+        PyDict_SetItem(self.name_map, name, value)
+        PyDict_SetItem(self.value_map, value.value, name)
+        return 0
+    
+    cdef EnumValue get(self, k):
+        cdef:
+            PyObject* presult
+        presult = PyDict_GetItem(self.name_map, k)
+        if presult == NULL:
+            presult = PyDict_GetItem(self.value_map, k)
+            if presult == NULL:
+                return None
+            else:
+                presult = PyDict_GetItem(self.name_map, <object>presult)
+                if presult == NULL:
+                    return None
+        return <EnumValue>presult
+
+    cpdef translate(self, k):
+        '''
+        Attempt to translate the input object ``k`` into a data member of the Enum.
+
+        First try to find an element of ``self`` by hashing it against member names.
+
+        Then try to find an element of ``self`` by searching for a member in self that
+        is value-equal to ``k``
+
+        Otherwise throw a :exc:`KeyError`
+
+        Parameters
+        ----------
+        k: object
+            The value to be translated.
+
+        Returns
+        -------
+        :class:`EnumValue`
+
+        '''
+        cdef:
+            EnumValue result
+        result = self.get(k)
+        if result is None:
+            raise KeyError("Could not translate {0} through {1}".format(k, self))
+        return result
+
+    cpdef EnumValue name(self, v):
+        cdef:
+            PyObject* presult
+            object result
+        presult = PyDict_GetItem(self.value_map, v)
+        if presult == NULL:
+            return None
+        else:
+            result = <object>presult
+            return result
+    
+    def __repr__(self):
+        return "<Enum {0}>".format(self.__name__)
+    
+    def __call__(self, v):
+        return self.translate(v)
+    
 cdef class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
 
-
     def __init__(self, group, name, value, other_names=None):
-        # PyStr_InternInPlace(name)
         self.name = name
         self.value = value
         self.names = {name} | (other_names or set())
@@ -79,7 +208,7 @@ cdef class EnumValue(object):
     def __reduce__(self):
         return self.group, (self.name,)
 
-    def add_name(self, name, force=False):
+    cpdef add_name(self, basestring name, bint force=False):
         if name not in self.group or force:
             self.names.add(name)
             self.group[name] = self
