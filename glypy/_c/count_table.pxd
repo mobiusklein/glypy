@@ -41,6 +41,8 @@ cdef void count_table_subtract(count_table* table_a, count_table* table_b)
 cdef void count_table_scale(count_table* table, long value)
 
 cdef void count_table_update(count_table* table_a, count_table* table_b)
+cdef void count_table_clear(count_table* table)
+
 cdef count_table* count_table_copy(count_table* table_a)
 
 cdef bint count_table_equals(count_table* table_a, count_table* table_b)

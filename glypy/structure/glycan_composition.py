@@ -785,6 +785,13 @@ class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
 _CompositionBase = dict
 
 
+try:
+    from glypy._c.count_table import CountTable
+    # _CompositionBase = CountTable
+except ImportError:
+    pass
+
+
 class GlycanComposition(_CompositionBase, SaccharideCollection):
     """
     Describe a glycan  as a collection of :class:`MonosaccharideResidue` counts without
@@ -1011,7 +1018,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return self * other
 
     def __eq__(self, other):
-        if not isinstance(other, dict):
+        if not isinstance(other, _CompositionBase):
             return False
         self_items = set([i for i in self.items() if i[1]])
         other_items = set([i for i in other.items() if i[1]])
@@ -1296,7 +1303,8 @@ class FrozenGlycanComposition(GlycanComposition):
         self._total_composition = None
 
     def __getitem__(self, key):
-        key = self._key_parser(str(key))
+        if not isinstance(key, FrozenMonosaccharideResidue):
+            key = self._key_parser(str(key))
         return _CompositionBase.__getitem__(self, key)
 
     def __delitem__(self, key):

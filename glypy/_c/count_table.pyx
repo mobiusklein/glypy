@@ -51,7 +51,7 @@ cdef int count_table_bin_find(count_table_bin* bin, PyObject* query, Py_ssize_t*
         if bin.cells[i].key == NULL:
             continue
         Py_XINCREF(bin.cells[i].key)
-        if (<object>bin.cells[i].key) == (query_obj):
+        if (bin.cells[i].key == (<PyObject*>query_obj)) or ((<object>bin.cells[i].key) == (query_obj)):
             Py_XDECREF(bin.cells[i].key)
             cell_index[0] = i
             return 0
@@ -286,6 +286,16 @@ cdef void count_table_update(count_table* table_a, count_table* table_b):
             if table_b.bins[i].cells[j].key != NULL:
                 count_table_get(table_b, table_b.bins[i].cells[j].key, &value)
                 count_table_put(table_a, table_b.bins[i].cells[j].key, value)
+
+
+cdef void count_table_clear(count_table* table):
+    cdef:
+        size_t i, j
+    for i in range(table.size):
+        for j in range(table.bins[i].used):
+            Py_XDECREF(table.bins[i].cells[j].key)
+            table.bins[i].cells[j].key = NULL
+            table.bins[i].cells[j].value = 0
 
 
 cdef count_table* count_table_copy(count_table* table_a):
@@ -714,8 +724,7 @@ cdef class CountTable(object):
         return count_table_items(self.table)
 
     cpdef clear(self):
-        for key in self.keys():
-            self.delitem(key)
+        count_table_clear(self.table)
 
     cpdef setdefault(self, key, value):
         if self.getitem(key) == 0:
