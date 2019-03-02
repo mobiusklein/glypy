@@ -1,6 +1,9 @@
 test_reports/
 test_data/*.png
 *sublime*
+.pytest_cache/*
+**.doctree
+docs/_build/*
 examples/
 .coverage
 .noseids
