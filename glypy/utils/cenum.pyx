@@ -2,6 +2,7 @@ cimport cython
 from cpython cimport PyErr_SetString, PyErr_SetObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
 from cpython.object cimport PyObject
+from cpython.int cimport PyInt_AsLong
 
 
 cdef str QMARK = "?"
@@ -9,16 +10,16 @@ cdef str QMARK = "?"
 
 @cython.final
 cdef class EnumMeta(type):
-    
+
     def __cinit__(self, name, parents, attrs):
         self.name_map = {}
         self.value_map = {}
-
+        EnumType = attrs.get("__enum_type__", EnumValue)
         mapped = dict()
         for label, value in list(attrs.items()):
             if not (label.startswith("__") or label == "mro"):
                 attrs.pop(label)
-                enum_value = EnumValue(self, label, value)
+                enum_value = EnumType(self, label, value)
                 if value in mapped:
                     mapped[value].add_name(label)
                     self.put(label, mapped[value])
@@ -34,7 +35,7 @@ cdef class EnumMeta(type):
                         continue
                     self.put(label, value)
 
-    
+
     def __iter__(self):
         for attr, val in self.name_map.items():
             if not attr.startswith("__") or attr == "mro":
@@ -43,10 +44,10 @@ cdef class EnumMeta(type):
     def __contains__(self, k):
         val = (k in self.name_map) or (k in self.value_map)
         return val
-    
+
     def __getattr__(self, name):
         return self.translate(name)
-    
+
     def __setattr__(self, name, value):
         self.put(name, value)
 
@@ -71,7 +72,7 @@ cdef class EnumMeta(type):
         PyDict_SetItem(self.name_map, name, value)
         PyDict_SetItem(self.value_map, value.value, name)
         return 0
-    
+
     cdef EnumValue get(self, k):
         cdef:
             PyObject* presult
@@ -124,13 +125,14 @@ cdef class EnumMeta(type):
         else:
             result = <object>presult
             return result
-    
+
     def __repr__(self):
         return "<Enum {0}>".format(self.__name__)
-    
+
     def __call__(self, v):
         return self.translate(v)
-    
+
+
 cdef class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
@@ -235,3 +237,19 @@ cdef class EnumValue(object):
 
     def __ge__(self, other):
         return self.value >= other.value
+
+    cpdef int int_value(self) except -1:
+        try:
+            return PyInt_AsLong(int(self.value))
+        except Exception:
+            PyErr_SetString(TypeError, "Could not convert %s to int" % (self.value, ))
+            return -1
+
+
+cdef class IntEnumValue(EnumValue):
+    def __init__(self, group, name, value, other_names=None):
+        super(IntEnumValue, self).__init__(group, name, value, other_names)
+        self._int_value = PyInt_AsLong(self.value)
+
+    cpdef int int_value(self) except -1:
+        return self._int_value

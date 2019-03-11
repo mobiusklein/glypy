@@ -8,6 +8,12 @@ cdef class EnumValue(object):
         public object _hash
 
     cpdef add_name(self, basestring name, bint force=*)
+    cpdef int int_value(self) except -1
+
+
+cdef class IntEnumValue(EnumValue):
+    cdef:
+        public int _int_value
 
 
 cdef class EnumMeta(type):

@@ -4,7 +4,7 @@ from six import add_metaclass
 try:
     intern
 except NameError:
-    from sys import intern
+    from sys import intern # pylint: disable=no-name-in-module
 
 
 class EnumValue(object):
@@ -96,6 +96,8 @@ class EnumValue(object):
     def __ge__(self, other):
         return self.value >= other.value
 
+    def int_value(self):
+        return (int(self.value))
 
 try:
     _EnumValue = EnumValue
@@ -173,7 +175,7 @@ class EnumMeta(type):
         return val
 
     def __getitem__(self, k):
-        return self.translate(k)
+        return self.translate(k)  # pylint: disable=no-value-for-parameter
 
     def __setattr__(self, k, v):
         """Intercept attribute assignment, wrapping values in
@@ -191,9 +193,9 @@ class EnumMeta(type):
             v.names.add(k)
             super(EnumMeta, self).__setattr__(k, v)
         else:
-            name = self.name(v)
+            name = self.name(v)  # pylint: disable=no-value-for-parameter
             if name is not None:
-                self[name].add_name(k)
+                self[name].add_name(k)  # pylint: disable=unsubscriptable-object
             else:
                 super(EnumMeta, self).__setattr__(k, EnumValue(self, k, v))
 
@@ -228,7 +230,7 @@ class EnumMeta(type):
         if k in self.__dict__:
             return self.__dict__[k]
         elif k in self.__dict__.values():
-            return self[self.name(k)]
+            return self[self.name(k)]  # pylint: disable=unsubscriptable-object,no-value-for-parameter
         else:
             raise KeyError("Could not translate {0} through {1}".format(k, self))
 
