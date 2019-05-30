@@ -16,7 +16,15 @@ contrib/
 *__pycache__
 glypy/composition/ccomposition.c
 glypy/composition/ccomposition.html
+glypy/utils/cenum.c
+glypy/utils/cenum.html
+glypy/_c/count_table.c
+glypy/_c/count_table.html
+glypy/_c/structure/*.html
+glypy/_c/structure/*.c
 htmlcov/
 dist/
 build/
 .cache/
+.vscode/
+Untitled*.ipynb
