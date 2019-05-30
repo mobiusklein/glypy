@@ -62,7 +62,7 @@ class IUPACError(ParserError):
 
 
 def _make_substituent_name(name):
-    return ''.join(t.title() for t in name.split("_")).replace("(", "")
+    return ''.join(t.title() for t in name.split("_")).replace("(", "").replace(")", "")
 
 
 substituents_map_to = {
@@ -72,6 +72,7 @@ substituents_map_to = {
 # Special Cases
 substituents_map_to['n_acetyl'] = "NAc"
 substituents_map_to['n_glycolyl'] = "NGc"
+substituents_map_to['n_sulfate'] = "NS"
 substituents_map_to['sulfate'] = "S"
 substituents_map_to["methyl"] = "Me"
 substituents_map_to["acetyl"] = "Ac"

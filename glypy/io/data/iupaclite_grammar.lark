@@ -1,0 +1,26 @@
+glycan_spec: glycan_composition, "\t", glycan_class, "\n", glycan_spec | "" ;
+glycan_class: glycan_class_name, "\t", glycan_class | glycan_class_name
+glycan_class_name: "N-Glycan" | "O-Glycan" | "GAG Linker" | "" ;
+glycan_composition: "{", monosaccharide_count_list, "}" ;
+monosaccharide_count_list: monosaccharide_count, "; " | monosaccharide_count ;
+monosaccharide_count: iupaclite, ":", integer ;
+iupaclite: modifcations_list, residue, substituents_list ;
+modifcations_list: modification_spec | modification_spec, ",", modification_list | "";
+modification_spec: position, "-", modification_name | modification_name ;
+modification_name: "a" | "d" | "deoxy" | "en" | "keto";
+digit: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0";
+integer: digit | digit, integer ;
+position: integer | "?" ;
+residue: size_spec | stereotype | stereotype, size_spec | special_base ;
+size_spec: "Tri" | "Tet" | "Hex" | "Pen" | "Hep" | "Oct" | "Non";
+stereotype: "Gro" | "Ery" | "Rib" | "Ara" | "All" | "Alt" | "Glc" | "Man"
+            | "Tre" | "Xyl" | "Lyx" | "Gul" | "Ido" | "Gal" | "Tal" 
+            | "Thr" ;
+special_base: "NeuAc" | "NeuGc" | "Neu" | "Kdn" | "Kdo" | "Oli" | "Tyv"
+              | "Psi" | "Fru" | "Sor" | "Tag" | "Xul" | "Sed" | "Fuc"
+              | "Rha" | "Qui";
+substituents_list: substituent_spec | substituent_spec, extended_substituent_list | "";
+extended_substituent_list: "(", substituent_spec, ")", extended_substituent_list | "" ;
+substituent_spec: position, substituent_name | substituent_name ;
+substituent_name: "NAc" | "NGc" | "N" | "Ac" | "Gc" | "P" | "S" | "Me" | "F"
+
