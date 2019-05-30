@@ -1,6 +1,8 @@
-from glypy.composition import Composition
-from collections import defaultdict
 import warnings
+
+from collections import defaultdict
+
+from glypy.composition import Composition
 
 do_warn = True
 do_error = False
@@ -53,7 +55,7 @@ class CompositionRuleIndex(dict):
         try:
             rule = super(CompositionRuleIndex, self).__getitem__(key)
         except KeyError:  # pragma: no cover
-            rule = CompositionRule()
+            rule = CompositionRule(Composition())
             if do_warn:
                 warnings.warn("{key} could not be found. It may not have an explicit composition".format(key=key),
                               stacklevel=3)
@@ -192,17 +194,15 @@ _substituent_compositions = {
         "H": 1,
     }),
     "fluoro": Composition("FH"),
-    "formyl": Composition("CHOH"),
     "imino": Composition("NH2"),
     "chloro": Composition("ClH"),
     "formyl": Composition("CHOH"),
     "bromo": Composition("BrH"),
-    "pyruvate": Composition("COCOCH3H"),
     "n_alanine": Composition({
-      "C": 3,
-      "H": 8,
-      "N": 2,
-      "O": 1
+        "C": 3,
+        "H": 8,
+        "N": 2,
+        "O": 1
     }),
     "ethyl": Composition("CH2CH3H"),
     'n_ethyl': Composition("NHCH2CH3H"),
@@ -216,8 +216,8 @@ _substituent_compositions = {
     "(r)_pyruvate": Composition("CH2CCOOH"),
     "(s)_pyruvate": Composition("CH2CCOOH"),
     "pyruvate": Composition("COCOCH3H"),
-    "(r)_lactate": Composition("CH3CHCO"),
-    "(s)_lactate": Composition("CH3CHCO"),
+    "(r)_lactate": Composition("CH3CHCOOH2"),
+    "(s)_lactate": Composition("CH3CHCOOH2"),
     "ethanolamine": Composition("NHCH2CH2OHH"),
     "lactonization": -Composition("O"),
     "anhydro": -Composition("O"),  # Semantically, anhydro is more like a Modification
