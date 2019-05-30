@@ -269,7 +269,6 @@ class MonosaccharideIdentifier(object):
             if is_a(monosaccharide, c, exact=exact_candidates):
                 a, b = monosaccharide_similarity(
                     monosaccharide, c, **kwargs)
-                a / float(b)
                 is_a_potential[c] = a / float(b)
         return is_a_potential
 
