@@ -102,6 +102,14 @@ class GlycanFragment(object):
         self.name = name
         self.composition = composition
 
+    def copy(self):
+        return self.__class__(
+            self.kind, self.link_ids.copy(), self.included_nodes.copy(), self.mass,
+            self.name, self.crossring_cleavages.copy(), self.composition.copy())
+
+    def clone(self):
+        return self.copy()
+
     def is_reducing(self):
         """Is this fragment from the reducing end
 
@@ -109,7 +117,7 @@ class GlycanFragment(object):
         -------
         |bool|
         """
-        return set(self.kind) & set("XYZ")
+        return bool(set(self.kind) & set("XYZ"))
 
     def is_non_reducing(self):
         """Is this fragment from the non-reducing end
@@ -118,10 +126,10 @@ class GlycanFragment(object):
         -------
         |bool|
         """
-        return set(self.kind) & set("ABC")
+        return bool(set(self.kind) & set("ABC"))
 
     def is_internal(self):
-        return (self.is_reducing() & self.is_non_reducing())
+        return bool(self.is_reducing() and self.is_non_reducing())
 
     @property
     def fname(self):
@@ -129,6 +137,15 @@ class GlycanFragment(object):
         for c in self.name:
             if c in latex_symbol_map:
                 buff.append("$_{}$".format(latex_symbol_map[c]))
+            else:
+                buff.append(c)
+        return ''.join(buff)
+
+    def _make_tex_name(self):
+        buff = []
+        for c in self.name:
+            if c in latex_symbol_map:
+                buff.append("_{}".format(latex_symbol_map[c]))
             else:
                 buff.append(c)
         return ''.join(buff)
