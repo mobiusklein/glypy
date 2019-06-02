@@ -10,27 +10,66 @@ Affine2D = mtransform.Affine2D
 
 
 class TreeLayoutBase(object):
+    '''A base class for defining the layout of a glycan graph on an xy plane
+
+    Attributes
+    ----------
+    root: :class:`~.DrawTreeNode`
+        The root node of the tree to lay out
+    '''
+
     def __init__(self, root, **kwargs):
         self.root = root
 
     def layout(self, **kwargs):
+        """Perform a complete tree layout.
+
+        Parameters
+        ----------
+        transform: :class:`matplotlib.transforms.Affine2D`
+            A transform to apply over the coordinates of each
+            node in the tree after the layout algorithm has run.
+        **kwargs:
+            Forwarded to :meth:`before_layout`, :meth:`layout_tree`,
+            and :meth:`after_layout`.
+
+        """
+        transform = kwargs.pop("transform", None)
         self.before_layout(**kwargs)
         self.layout_tree(**kwargs)
         self.after_layout(**kwargs)
+        if transform is not None:
+            self.transform(transform)
 
     def traverse(self):
+        """Traverse the tree recursively.
+        """
         return self.root.traverse()
 
     def layout_tree(self, **kwargs):
+        """Assign tree nodes to x-y coordinates.
+        """
         raise NotImplementedError()
 
     def before_layout(self, **kwargs):
+        """Prepare the tree before applying layout
+        """
         pass
 
     def after_layout(self, **kwargs):
+        """Apply any cleanup after applying layout
+        """
         self.root.fix_special_cases()
 
     def transform(self, transform):
+        """Apply an :class:`matplotlib.transforms.Affine2D` transform
+        to the x-y coordinates of each node, updating them.
+
+        Parameters
+        ----------
+        transform : :class:`matplotlib.transforms.Affine2D`
+            The transform to apply.
+        """
         for node in self.traverse():
             node.x, node.y = transform.transform([node.x, node.y])
 

@@ -13,6 +13,8 @@ from glypy import monosaccharides
 from glypy.structure import constants
 from glypy.utils import root
 from glypy.io.nomenclature import identity
+from glypy.algorithms.similarity import is_derivatized
+from glypy.composition.composition_transform import strip_derivatization
 
 from .buchheim import BalancedTreeLayout
 from .topological_layout import TopologicalTreeLayout
@@ -80,6 +82,8 @@ def is_special_case(node):
     Check to see if `node` is a special case which requires a different layout
     scheme. See `special_cases`
     '''
+    if is_derivatized(node):
+        node = strip_derivatization(node.clone())
     for case in special_cases:
         if identity.is_a(node, case) and len(list(node.children())) == 0:
             return True
@@ -114,19 +118,14 @@ def breadth_first_traversal(tree, visited=None):
 
 
 def _bounding_box_to_limits(dtree):
-    scale_up = mtransforms.Affine2D().scale(1.1).get_matrix()
-    points = dtree._compute_bounding_box()
-    stretched = []
-    for x, y in points:
-        x, y, w = scale_up.dot(np.array((x, y, 1)))
-        x /= w
-        y /= w
-        stretched.append((x, y))
-    points = stretched
-    xs, ys = zip(*points)
-    min_x, max_x = min(xs) - 2, max(xs) + 2
-    min_y, max_y = min(ys) - 2, max(ys) + 2
-    return np.array((min_x, max_x)), np.array((min_y, max_y))
+    xlim, ylim = dtree._compute_bounding_box()
+    xlim = list(xlim)
+    xlim[0] -= 2
+    xlim[1] += 2
+    ylim = list(ylim)
+    ylim[0] -= 2
+    ylim[1] += 2
+    return np.array(xlim), np.array(ylim)
 
 
 def enumerate_tree(tree, ax, labeler=None):
@@ -545,7 +544,7 @@ class DrawTreeNode(object):
             transform = transform + current_transform
         self.data["transform"] = transform
 
-        # IMPORTANT: Merge the aggregated transform of the graph
+        # NOTE: Merge the aggregated transform of the graph
         # structure with the transformation induced by the Axes object
         # which draws each component. If this is skipped, all of the
         # geometries are wrong and the drawing will fail (or not even appear)
@@ -582,7 +581,7 @@ class DrawTreeNode(object):
         dy = (max(ymin, ymax) - min(ymin, ymax)) * pad_factor
         return (xmin - dx, xmax + dx), (ymin - dy, ymax + dy)
 
-    def update_text_position(self, degrees):
+    def update_text_position(self, degrees=0, preserve_orientation=True):
         '''
         This is a hack needed to orient text appropriately when the tree is rotated after labels
         are inscribed, as any new transform will override the correction.
@@ -676,6 +675,15 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
         be set to |True| if `ax` is |None|
     label: bool
         Should the bond annotations for `tree` be drawn? Defaults to |False|
+    symbol_nomenclature: str or :class:`~.SymbolicNomenclatureBase`
+        Either the name of a symbol nomenclature or an instance of :class:`~.SymbolicNomenclatureBase`.
+        Recognized names are "cfg", "snfg", and "iupac".
+    layout: str or :class:`~.TreeLayoutBase`
+        Either the name of a tree layout strategy or an instance of :class:`~.TreeLayoutBase`.
+        Recognized names are "balanced" and "topological".
+    layout_args: dict
+        Extra parameters to pass to :class:`~.TreeLayoutBase`. It may take its own "transform" parameter
+        passed here.
     scale: (float, float) or float
         Scale coefficients. Pass a pair to scale x and y dimensions respectively.
     '''

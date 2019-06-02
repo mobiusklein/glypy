@@ -1,3 +1,5 @@
+import re
+
 from matplotlib import patches
 from matplotlib import transforms as mtransforms
 from matplotlib.textpath import TextPath
@@ -26,6 +28,7 @@ class BondCleavageArtist(object):
         self.ax = ax
         self.artists = []
         self.patches = []
+        self.label = label
         self.graphic_options = graphic_options
         self.handle_glycosidic()
         self.handle_crossring()
@@ -40,6 +43,7 @@ class BondCleavageArtist(object):
                 reducing = False
             gba = GlycosidicBondCleavageStroke(self.draw_tree, parent, child, reducing,
                                                ax=self.ax, fragment=self.fragment,
+                                               label=self.label,
                                                **self.graphic_options)
             gba.draw()
             self.artists.append(gba)
@@ -54,6 +58,7 @@ class BondCleavageArtist(object):
                 reducing = False
             cra = CrossRingBondCleavageStroke(
                 self.draw_tree, node, reducing, self.ax, self.fragment,
+                label=self.label,
                 **self.graphic_options)
             cra.draw()
             self.artists.append(cra)
@@ -70,7 +75,7 @@ class BondCleavageArtist(object):
 
 class CleavageStrokeArtistBase(object):
 
-    def __init__(self, draw_tree, fragment, reducing, ax, **options):
+    def __init__(self, draw_tree, fragment, reducing, ax, label=True, **options):
         self.draw_tree = draw_tree
         self.ax = ax
         self.reducing = reducing
@@ -80,8 +85,10 @@ class CleavageStrokeArtistBase(object):
         self.y_coords = []
         self.patch_dict = draw_tree.data['patches']
         self.options = options
+        self.options.setdefault("fontsize", 0.5)
         self.reducing_end_coords = (self.draw_tree.x, self.draw_tree.y)
         self.edge_size = None
+        self.label = label
 
     def save_patch(self, key, value):
         self.patches.append(value)
@@ -111,9 +118,9 @@ class CleavageStrokeArtistBase(object):
 
 class CrossRingBondCleavageStroke(CleavageStrokeArtistBase):
 
-    def __init__(self, draw_tree, node, reducing, ax, fragment, **options):
+    def __init__(self, draw_tree, node, reducing, ax, fragment, label=True, **options):
         super(CrossRingBondCleavageStroke, self).__init__(
-            draw_tree, fragment, reducing, ax, **options)
+            draw_tree, fragment, reducing, ax, label, **options)
         self.node = node
         self.mode = None
 
@@ -224,17 +231,21 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
         self.compute_positions()
         self.configure_edge_stroke()
         self.draw_stroke()
-        self.draw_label()
+        if self.label:
+            self.draw_label()
 
     def compute_positions(self):
         parent, child = self.parent, self.child
         px, py = parent.x, parent.y
         cx, cy = child.x, child.y
 
+        line_length_scale = float(self.options.get("line_length_scale", 1.0))
+
         if isclose(py, cy) and not isclose(px, cx):
             mode = 'offsequence'
             center = (max(px, cx) - min(px, cx)) / 2. + min(px, cx)
             length = (center - min(px, cx))
+            length *= line_length_scale
             lx1, ly1 = center, py + length
             lx2, ly2 = center, py - length
             edge_size = abs(ly1 - ly2) / 2.
@@ -243,6 +254,7 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
             mode = "sequential"
             center = (max(py, cy) - min(py, cy)) / 2. + min(py, cy)
             length = center - min(py, cy)
+            length *= line_length_scale
             lx1, ly1 = px + length, center
             lx2, ly2 = px - length, center
             edge_size = abs(lx1 - lx2) / 2.
@@ -384,7 +396,7 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
                 self.ax.scatter(*reference_pt, zorder=100, color='blue')
             patch = self.textpath(
                 *reference_pt, text=self.fragment.fname, ha='center',
-                color=color, line_weight=lw, fontsize=0.5)
+                color=color, line_weight=lw, fontsize=self.options.get("fontsize", 0.5))
             self.save_patch("text", patch)
             self.label_point = reference_pt
         # the edge is horizontal
@@ -404,7 +416,7 @@ class GlycosidicBondCleavageStroke(CleavageStrokeArtistBase):
                 self.ax.scatter(*reference_pt, zorder=100, color='blue')
             patch = self.textpath(
                 *reference_pt, text=self.fragment.fname, ha='center',
-                color=color, line_weight=lw, fontsize=0.5)
+                color=color, line_weight=lw, fontsize=self.options.get("fontsize", 0.5))
             self.save_patch("text", patch)
             self.label_point = reference_pt
 
@@ -535,7 +547,7 @@ def draw_cleavage(self, fragment=None, at=(0, 0), ax=None, scale=0.1, color='red
                 lx2 += (0.05 * scale)
                 ly2 -= (0.15 * scale)
                 save_patch(patch_dict, fragment.name + "_text", textpath(lx2 + 0.05, ly2 - 0.15,
-                                                                        fragment.fname))
+                                                                         fragment.fname))
                 self.data['position'][fragment.name + "_text"] = lx2 + 0.05, ly2 - 0.15
 
     for crossring in crossring_targets:

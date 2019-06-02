@@ -135,7 +135,7 @@ class SymbolicNomenclatureBase(object):
         else:
             raise ValueError("Unknown Layout %r" % (orientation,))
 
-    def draw(monosaccharide, x, y, ax, tree_node=None, scale=0.1, annotation_transform=None, **kwargs):
+    def draw(self, monosaccharide, x, y, ax, tree_node=None, scale=0.1, annotation_transform=None, **kwargs):
         raise NotImplementedError()
 
     def _get_horizontal_alignment(self, kwargs):
