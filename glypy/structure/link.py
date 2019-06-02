@@ -396,7 +396,7 @@ class Link(object):
             return self.apply()
         return False
 
-    def _glycoct_sigils(link):
+    def _glycoct_sigils(self):
         '''
         Helper method for determining which GlycoCT symbols and losses to present
         '''
@@ -404,24 +404,24 @@ class Link(object):
         child_loss_str = 'x'
         water = Composition({"O": 1, "H": 1})
 
-        if link.child_loss == water:
+        if self.child_loss == water:
             child_loss_str = "d"
             parent_loss_str = "o"
-        elif link.parent_loss == water:
+        elif self.parent_loss == water:
             child_loss_str = 'o'
             parent_loss_str = 'd'
 
-        if link.child_loss == Composition(
-                H=1) and (link.child.node_type is SubstituentBase.node_type):
+        if self.child_loss == Composition(
+                H=1) and (self.child.node_type is SubstituentBase.node_type):
             child_loss_str = "n"
-            if link.parent_loss == water:
+            if self.parent_loss == water:
                 parent_loss_str = "d"
             else:
                 parent_loss_str = "o"
 
-        if link.child_loss is None:
+        if self.child_loss is None:
             child_loss_str = 'x'
-        if link.parent_loss is None:
+        if self.parent_loss is None:
             parent_loss_str = 'x'
 
         return parent_loss_str, child_loss_str

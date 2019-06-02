@@ -1178,18 +1178,22 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         self._mass = None
         self._composition_offset = value
 
-    def clone(self, propogate_composition_offset=True):
+    def clone(self, propogate_composition_offset=True, copy_nodes=True):
         dup = self.__class__()
-        dup._update_from_typed_map(self)
+        dup._update_from_typed_map(self, copy_nodes=copy_nodes)
         if not propogate_composition_offset:
             dup._composition_offset = Composition('H2O')
         else:
             dup._composition_offset = self._composition_offset.clone()
         return dup
 
-    def _update_from_typed_map(self, template):
-        for name, count in template.items():
-            self._setitem_fast(name, count)
+    def _update_from_typed_map(self, template, copy_nodes=False):
+        if copy_nodes:
+            for name, count in template.items():
+                self._setitem_fast(name.clone(), count)
+        else:
+            for name, count in template.items():
+                self._setitem_fast(name, count)
         reduced = template.reducing_end
         if reduced is not None:
             self.reducing_end = reduced.clone()
@@ -1254,7 +1258,10 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
     def _derivatized(self, substituent, id_base, include_reducing_end=True):
         n = 2
-        for k, v in self.items():
+        items = list(self.items())
+        self.clear()
+        for k, v in items:
+            self._setitem_fast(k, v)
             if k.node_type is Substituent.node_type:
                 n -= v
         self._composition_offset += (
