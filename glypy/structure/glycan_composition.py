@@ -449,6 +449,14 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
     drop_positions = drop_positions
     drop_configuration = drop_configuration
 
+    def copy_underivatized(self):
+        """Create a copy of this residue without derivatization.
+
+        Returns
+        -------
+        :class:`MonosaccharideResidue`
+        """
+        return from_iupac_lite.strip_derivatization(str(self), residue_class=self.__class__)
 
 monosaccharide_residue_reference.update({
     k: MonosaccharideResidue.from_monosaccharide(v) for k, v in _monosaccharide_reference.items()
@@ -628,9 +636,6 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
             return self._mass
         return self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
 
-    def copy_underivatized(self):
-        return from_iupac_lite.strip_derivatization(str(self), residue_class=self.__class__)
-
 
 class SubstituentResidue(Substituent, ResidueBase):
     r'''
@@ -721,6 +726,11 @@ class SubstituentResidue(Substituent, ResidueBase):
         comp = super(SubstituentResidue, self)._backsolve_original_composition()
         comp += {"H": 1}
         return comp
+
+    def copy_underivatized(self):
+        inst = self.clone()
+        strip_derivatization(inst)
+        return inst
 
 
 class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
