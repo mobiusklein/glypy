@@ -243,6 +243,13 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertAlmostEqual(x.mass(), y.mass(), 5)
         self.assertEqual(len(y), 3)
 
+    def test_equality(self):
+        x = self.GlycanCompositionType.parse("{Hex:9; HexNAc:2}")
+        self.assertEqual(x, str(x))
+        self.assertEqual(x, x)
+        y = self.GlycanCompositionType.parse("{Hex:9; HexNAc:3}")
+        self.assertNotEqual(x, y)
+        self.assertNotEqual(x, str(y))
 
 class FrozenGlycanCompositionTests(GlycanCompositionTests):
     GlycanCompositionType = glycan_composition.FrozenGlycanComposition

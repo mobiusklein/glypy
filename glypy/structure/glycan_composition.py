@@ -1028,11 +1028,16 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return self * other
 
     def __eq__(self, other):
+        if isinstance(other, basestring):
+            return str(self) == other
         if not isinstance(other, _CompositionBase):
             return False
         self_items = set([i for i in self.items() if i[1]])
         other_items = set([i for i in other.items() if i[1]])
         return self_items == other_items
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __neg__(self):
         return -1 * self
