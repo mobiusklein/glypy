@@ -8,9 +8,7 @@ from cpython.int cimport PyInt_AsLong
 cdef str QMARK = "?"
 
 
-@cython.final
 cdef class EnumMeta(type):
-
     def __cinit__(self, name, parents, attrs):
         self.name_map = {}
         self.value_map = {}
@@ -19,6 +17,7 @@ cdef class EnumMeta(type):
         for label, value in list(attrs.items()):
             if not (label.startswith("__") or label == "mro"):
                 attrs.pop(label)
+                delattr(self, label)
                 enum_value = EnumType(self, label, value)
                 if value in mapped:
                     mapped[value].add_name(label)
@@ -35,6 +34,8 @@ cdef class EnumMeta(type):
                         continue
                     self.put(label, value)
 
+    def __dir__(self):
+        return list(self.name_map.keys())
 
     def __iter__(self):
         for attr, val in self.name_map.items():
