@@ -7,7 +7,11 @@ import operator
 import logging
 import itertools
 from functools import partial
-from collections import deque, defaultdict, Callable
+from collections import deque, defaultdict
+try:
+    from collections.abc import Callable
+except ImportError:
+    from collections import Callable
 
 from glypy.utils import (
     identity,

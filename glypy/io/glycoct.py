@@ -8,9 +8,9 @@ from collections import defaultdict, Counter, deque, namedtuple, OrderedDict
 from functools import cmp_to_key
 
 try:
-    from collections import Iterator
-except ImportError:
     from collections.abc import Iterator
+except ImportError:
+    from collections import Iterator
 
 from glypy.utils import (
     opener, StringIO, root as rootp, tree as treep,

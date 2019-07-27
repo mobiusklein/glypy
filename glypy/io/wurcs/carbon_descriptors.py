@@ -2,9 +2,9 @@
 # though the representation of glycans in Eurocarbdb.MolecularFramework
 # may not map 1:1.
 try:
-    from collections import Sequence
-except ImportError:
     from collections.abc import Sequence
+except ImportError:
+    from collections import Sequence
 
 from .basetype_conversion import (
     descriptors_to_base_type)

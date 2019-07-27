@@ -1,6 +1,9 @@
 import itertools
 from uuid import uuid4
-from collections import Iterable
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 
 from glypy.composition import Composition
 from glypy.utils import uid, basestring, make_struct

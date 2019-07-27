@@ -22,7 +22,10 @@ True
 True
 
 '''
-from collections import Mapping
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 
 from glypy.utils import tree, uid
 from glypy.utils.multimap import OrderedMultiMap
@@ -796,8 +799,9 @@ _CompositionBase = dict
 
 
 try:
-    from glypy._c.count_table import CountTable
+    # from glypy._c.count_table import CountTable
     # _CompositionBase = CountTable
+    pass
 except ImportError:
     pass
 
