@@ -11,11 +11,11 @@ large, tree-like molecules are complex, having a wide variety of
 building blocks as well as modifications and substitutions on those
 building blocks.
 
-:mod:`glypy` is a Python library providing code for reading, writing, and
+`glypy` is a Python library providing code for reading, writing, and
 manipulating glycan structures, glycan compositions, monosaccharides, and
 their substituents. It also includes interfaces to popular glycan structure
 databases, `GlyTouCan <https://glytoucan.org/>`_ and `UnicarbKB <http://www.unicarbkb.org/>`_
-using :term:`SPARQL` queries and an RDF-object mapper.
+using `SPARQL` queries and an RDF-object mapper.
 
 Example Use Cases
 ~~~~~~~~~~~~~~~~~
@@ -55,7 +55,7 @@ Example Use Cases
 Citing
 ~~~~~~
 
-If you use :mod:`glypy` in a publication please cite:
+If you use `glypy` in a publication please cite:
 
     Klein, J., & Zaia, J. (2019). glypy - An open source glycoinformatics library.
     Journal of Proteome Research.
