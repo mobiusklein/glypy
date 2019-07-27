@@ -1,39 +1,65 @@
-[![https://img.shields.io/travis/mobiusklein/glypy.svg](https://img.shields.io/travis/mobiusklein/glypy.svg)](https://travis-ci.org/mobiusklein/glypy)
-[![Documentation Status](https://readthedocs.org/projects/glypy/badge/?version=latest&style=flatsquare)](https://glypy.readthedocs.io/en/latest/?badge=latest)
-# glypy
-Glycan Analysis and Glycoinformatics Library for Python
+glypy Glycan Analysis and Glycoinformatics Library for Python
+=============================================================
 
-Glycobiology is the study of the biological functions, properties, and structures of carbohydrate biomolecules,
-also called *glycans*. These large, tree-like molecules are complex, having a wide variety of building blocks
-as well as modifications and substitutions on those building blocks.
+[![<https://img.shields.io/travis/mobiusklein/glypy.svg>](https://img.shields.io/travis/mobiusklein/glypy.svg)](https://travis-ci.org/mobiusklein/glypy)
+[![Documentation
+Status](https://readthedocs.org/projects/glypy/badge/?version=master)](http://glypy.readthedocs.org/en/master/?badge=master)
 
-Much in the same way other bioinformatics libraries provide ways to represent DNA, RNA, or Protein sequences,
-this library attempts to provide a representation of glycans. Much of the variation found in the
-building blocks of these structures, monosaccharides, are caused by substitutions of functional groups on a
-common core structure.
+Glycobiology is the study of the biological functions, properties, and
+structures of carbohydrate biomolecules, also called *glycans*. These
+large, tree-like molecules are complex, having a wide variety of
+building blocks as well as modifications and substitutions on those
+building blocks.
 
-## Features
+[glypy]{role="mod"} is a Python library providing code for reading,
+writing, and manipulating glycan structures, glycan compositions,
+monosaccharides, and their substituents. It also includes interfaces to
+popular glycan structure databases, [GlyTouCan](https://glytoucan.org/)
+and [UnicarbKB](http://www.unicarbkb.org/) using [SPARQL]{role="term"}
+queries and an RDF-object mapper.
 
-### Read In and Write Out Common Glycan Structure Formats and Sources
-1. GlycoCT{condensed} (I/O)
-2. GlycoCT{XML} (I)
-3. GlycoMinds Linear Code (I/O)
-4. IUPAC Three Letter Code (I/O)
-5. Retreive data from `glySpace` using the web services provided by [GlyTouCan](https://glytoucan.org/), or run `SPARQL` queries directly on their Triplestore.
+Example Use Cases
+-----------------
 
-### Manipulate Glycan Structures
-1. Traverse structures using either canonical or residue-level rule ordering.
-2. Operate on monosaccharide and substituents as nodes and bonds as edges.
-3. Add, remove, and modify these structures to alter glycan properties.
-4. Identify substructures and motifs, classifying glycans.
-5. Evaluate structural similarities with one of several ordering and comparator methods.
-6. Plot tree structures with MatPlotLib, rendering using a configurable symbol nomenclature, such as SNFG, CFG, or IUPAC. Layout using vector graphics for perfect scaling.
+1.  Traverse structures using either canonical or residue-level rule
+    ordering.
+2.  Operate on monosaccharide and substituents as nodes and bonds as
+    edges.
+3.  Add, remove, and modify these structures to alter glycan properties.
+4.  Identify substructures and motifs, classifying glycans.
+5.  Evaluate structural similarities with one of several ordering and
+    comparator methods.
+6.  Plot tree structures with MatPlotLib, rendering using a configurable
+    symbol nomenclature, such as SNFG, CFG, or IUPAC. Layout using
+    vector graphics for lossless scaling.
+7.  Calculate the mass of a native or derivatized glycan.
+8.  Generate glycosidic and cross ring cleavage fragments for a
+    collection of glycan structures for performing MS/MS database
+    search.
+9.  Perform substructure similarity searches with exact ordering or
+    topological comparison and exact or fuzzy per-residue matching to
+    classify a structure as an N-linked glycan.
 
-### Example Use Cases
-1. Calculate the mass of a native or derivatized glycan.
-2. Generate glycosidic and cross ring cleavage fragments for a collection of glycan structures for performing MS/MS database search.
-3. Perform substructure similarity searches with exact ordering or topological comparison and exact or fuzzy per-residue matching to classify a structure as an N-linked glycan.
-4. Annotate MS spectra with glycan structures, labeling which peaks matched a database entry.
-5. Download all N-Glycans from [GlyTouCan](https://glytoucan.org/)
-6. Find all glycans in a list which contain a particular subtree, or find common subtrees in a database of glycans, performing treelet enrichment analysis.
-7. Synthesize all possible glycans using a set of enzymes starting from a set of seed structures.
+10. Annotate MS spectra with glycan structures, labeling which peaks
+
+:   matched a database entry.
+
+11. Download all N-Glycans from [GlyTouCan](https://glytoucan.org/)
+
+12. Find all glycans in a list which contain a particular subtree, or
+
+:   find common subtrees in a database of glycans, performing treelet
+    enrichment analysis.
+
+13. Synthesize all possible glycans using a set of enzymes starting from
+
+:   a set of seed structures.
+
+Citing
+------
+
+If you use [glypy]{role="mod"} in a publication please cite:
+
+> Klein, J., & Zaia, J. (2019). glypy - An open source glycoinformatics
+> library. Journal of Proteome Research.
+> <https://doi.org/10.1021/acs.jproteome.9b00367>

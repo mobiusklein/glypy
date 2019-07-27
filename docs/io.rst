@@ -5,6 +5,7 @@ Nomenclature and Serialization Formats
     :maxdepth: 2
 
     io/glycoct
+    io/wurcs
     io/iupac
     io/linear_code
     io/nomenclature/identity

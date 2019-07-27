@@ -1,19 +1,20 @@
-===============
-glySpace Client
-===============
+glySpace Clients
+================
 
 .. currentmodule:: glypy.io.glyspace
 
-This module implements a client for communicating with remote data stores part of the **glySpace** project.
-Currently, this communicates with the *SPARQL* endpoint hosted by https://glytoucan.org/.
+The :mod:`glyspace` module provides an API for interacting with `GlyTouCan <https://glytoucan.org/>`_
+and `UnicarbKB <http://www.unicarbkb.org/>`_. The interaction may be done by executing prepared
+:term:`SPARQL` queries through the provided methods, executing user-provided :term:`SPARQL` queries,
+:term:`RDF` Graph-operation supported by `RDFLib <https://rdflib.readthedocs.io/en/stable/>`_,
+or using :term:`RDF`-object mapping via :meth:`~.RDFClientBase.get` and related methods.
+
+The module contains a pre-created instance of :class:`GlyTouCanRDFClient` named `glytoucan_client` whose
+:meth:`GlyTouCanRDFClient.get`, :meth:`GlyTouCanRDFClient.structure`, :meth:`GlyTouCanRDFClient.from_taxon`,
+and :meth:`GlyTouCanRDFClient.structures_with_motif` methods are available as top-level functions of the
+module. There is also a :class:`UnicarbKBRDFClient` object called `unikarbkb_client` ready to use.
 
 
-The module contains a pre-created instance of :class:`GlySpaceRDFClient` named `client` whose
-:meth:`get`, :meth:`structure`, :meth:`from_taxon`, and :meth:`structures_with_motif` methods
-are available as top-level functions of the module.
-
-
------------------------------------
 RDF Namespaces that are pre-created
 -----------------------------------
 .. code-block:: python
@@ -28,9 +29,19 @@ RDF Namespaces that are pre-created
     NSTaxonomy = Namespace("http://purl.uniprot.org/taxonomy/")
 
 
-.. autoclass:: glypy.io.glyspace.GlySpaceRDFClient
+RDF Graph Clients
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: glypy.io.glyspace.RDFClientBase
+
+.. autoclass:: glypy.io.glyspace.GlyTouCanRDFClient
     :members: get, query, __getitem__, triples, from_taxon, structures_with_motif
 
+.. autoclass:: glypy.io.glyspace.UnicarbKBRDFClient
+
+
+RDF-Object Mapping Components
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: glypy.io.glyspace.BoundURIRef
     :members: get, __call__, __getattr__

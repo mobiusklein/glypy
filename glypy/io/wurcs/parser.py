@@ -145,6 +145,21 @@ class WURCSParser(object):
 
 
 def loads(text, structure_class=glycan.Glycan):
+    """Parse a WURCS-encoded glycan structure from `text` into a :class:`~.Glycan`
+    or :class:`~.GlycanComposition`.
+
+    Parameters
+    ----------
+    text : str
+        The WURCS string to parse
+    structure_class : :class:`type`, optional
+        The class to use to wrap the :class:`~.Monosaccharide` graph (the default is :class:`~.Glycan`)
+
+    Returns
+    -------
+    :class:`~.Glycan` or :class:`~.GlycanComposition`
+        The parsed result
+    """
     parser = WURCSParser(text, structure_class=structure_class)
     structure = parser.parse()
     return structure
