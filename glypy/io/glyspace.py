@@ -1,3 +1,11 @@
+'''The :mod:`glyspace` module provides an API for interacting with `GlyTouCan <https://glytoucan.org/>`_
+and `UnicarbKB <http://www.unicarbkb.org/>`_. The interaction may be done by executing prepared
+:term:`SPARQL` queries through the provided methods, executing user-provided :term:`SPARQL` queries,
+:term:`RDF` Graph-operation supported by `RDFLib <https://rdflib.readthedocs.io/en/stable/>`_,
+or using :term:`RDF`-object mapping via :meth:`GlySpaceRDFClient.get` and related methods.
+
+'''
+
 import logging
 import re
 import warnings
@@ -563,7 +571,8 @@ class RDFClientBase(ConjunctiveGraph):
         Parameters
         ----------
         uriref: str or rdflib.term.URIRef
-            A subject or predicate.
+            A subject, predicate, or a database accession number to transform through
+            :meth:`accession_to_uriref`
         simplify: bool, optional
             If true, any predicate with a single value will be a scalar,
             and any other will be a list.

@@ -1,3 +1,6 @@
+'''Implements a reader and writer for the `WURCS 2.0` format.
+'''
+
 from glypy.io.file_utils import ParserInterface
 from .parser import loads
 from .node_type import NodeTypeSpec

@@ -9,6 +9,14 @@ from .utils import base52
 
 
 class WURCSWriter(object):
+    """Implementation of WURCS encoding process.
+
+    Includes the steps for creating each section of the WURCS encoding,
+    and populating them from a saccharide structure, composition, or
+    monosaccharide.
+
+    """
+
     version = '2.0'
 
     def __init__(self, glycan):
@@ -101,6 +109,23 @@ class WURCSWriter(object):
 
 
 def dumps(glycan):
+    """Encode a saccharide object as a WURCS 2.0 string.
+
+    .. note::
+        The WURCS canonicalization has not been implemented yet, so the generated
+        string may differ from other sources. However, the :mod:`~.canonicalize` module
+        can be used to standardize structures prior to encoding them.
+
+    Parameters
+    ----------
+    glycan : :class:`~.Glycan`, :class:`~.GlycanComposition`, or :class:`~.Monosaccharide`
+        The structure to encode
+
+    Returns
+    -------
+    :class:`str`
+        The structure encoded as a string.
+    """
     if not isinstance(glycan, GlycanComposition):
         try:
             glycan = tree(glycan)
