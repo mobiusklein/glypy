@@ -739,6 +739,8 @@ class SubstituentResidue(Substituent, ResidueBase):
 class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
     sigil = "#"
 
+    __slots__ = ('name', 'composition', '_hash')
+
     def __init__(self, name, composition):
         self.name = name
         self.composition = composition
@@ -753,6 +755,9 @@ class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
             formula(self.composition))
 
     to_iupac_lite = __repr__
+
+    def __reduce__(self):
+        return self.__class__, (self.name, self.composition)
 
     def open_attachment_sites(self, *args, **kwargs):
         return 0
