@@ -553,6 +553,7 @@ class AmbiguousLink(Link):
         state['parent_position_choices'] = self.parent_position_choices
         state['child_choices'] = self.child_choices
         state['child_position_choices'] = self.child_position_choices
+        return state
 
     def __setstate__(self, state):
         super(AmbiguousLink, self).__setstate__(state)
