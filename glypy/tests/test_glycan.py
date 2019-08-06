@@ -310,6 +310,198 @@ LIN
         for a, b in pairs:
             assert a.canonicalize() == b.canonicalize()
 
+    def test_pickles(self):
+        ambig = '''
+        RES
+        1b:x-dglc-HEX-x:x
+        2s:n-acetyl
+        3b:b-dglc-HEX-1:5
+        4s:n-acetyl
+        5b:b-dman-HEX-1:5
+        6b:a-dman-HEX-1:5
+        7b:b-dglc-HEX-1:5
+        8s:n-acetyl
+        9b:b-dgal-HEX-1:5
+        10b:a-dman-HEX-1:5
+        11b:a-dman-HEX-1:5
+        LIN
+        1:1d(2+1)2n
+        2:1o(4+1)3d
+        3:3d(2+1)4n
+        4:3o(4+1)5d
+        5:5o(3|6+1)6d
+        6:6o(2+1)7d
+        7:7d(2+1)8n
+        8:7o(4+1)9d
+        9:5o(3|6+1)10d
+        10:10o(3|6+1)11d
+        '''
+
+        x = glycoct.loads(ambig)
+
+        result = pickle.loads(pickle.dumps(x, -1))
+        assert x == result
+
+        ambig = """
+        RES
+        1b:x-dglc-HEX-1:5
+        2b:x-dglc-HEX-1:5
+        3b:x-dman-HEX-1:5
+        4b:a-dman-HEX-1:5
+        5b:b-dglc-HEX-1:5
+        6s:n-acetyl
+        7b:a-dman-HEX-1:5
+        8b:b-dglc-HEX-1:5
+        9s:n-acetyl
+        10b:b-dglc-HEX-1:5
+        11b:x-dgal-HEX-1:5
+        12b:x-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        13s:n-acetyl
+        14s:n-acetyl
+        15s:n-acetyl
+        16s:n-acetyl
+        17b:a-lgal-HEX-1:5|6:d
+        LIN
+        1:1o(-1+1)2d
+        2:2o(-1+1)3d
+        3:3o(3+1)4d
+        4:4o(2|4+1)5d
+        5:5d(2+1)6n
+        6:3o(6+1)7d
+        7:7o(2+1)8d
+        8:8d(2+1)9n
+        9:7o(6+1)10d
+        10:10o(-1+1)11d
+        11:11o(-1+2)12d
+        12:12d(5+1)13n
+        13:10d(2+1)14n
+        14:2d(2+1)15n
+        15:1d(2+1)16n
+        16:1o(6+1)17d
+        """
+        x = glycoct.loads(ambig)
+        result = pickle.loads(pickle.dumps(x, -1))
+        assert x == result
+
+        ambig = """
+        RES
+        1b:b-dglc-HEX-1:5
+        2s:n-acetyl
+        3b:b-dglc-HEX-1:5
+        4s:n-acetyl
+        5b:b-dman-HEX-1:5
+        6b:a-dman-HEX-1:5
+        7b:b-dglc-HEX-1:5
+        8s:n-acetyl
+        9b:b-dgal-HEX-1:5
+        10b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        11s:n-acetyl
+        12b:b-dglc-HEX-1:5
+        13s:n-acetyl
+        14b:b-dgal-HEX-1:5
+        15b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        16s:n-acetyl
+        17b:a-dman-HEX-1:5
+        18b:b-dglc-HEX-1:5
+        19s:n-acetyl
+        20b:b-dgal-HEX-1:5
+        21b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        22s:n-acetyl
+        23b:a-lgal-HEX-1:5|6:d
+        LIN
+        1:1d(2+1)2n
+        2:1o(4+1)3d
+        3:3d(2+1)4n
+        4:3o(4+1)5d
+        5:5o(3|6+1)6d
+        6:6o(2+1)7d
+        7:7d(2+1)8n
+        8:7o(4+1)9d
+        9:9o(3|6+2)10d
+        10:10d(5+1)11n
+        11:6o(4|6+1)12d
+        12:12d(2+1)13n
+        13:12o(4+1)14d
+        14:14o(3|6+2)15d
+        15:15d(5+1)16n
+        16:5o(3|6+1)17d
+        17:17o(2+1)18d
+        18:18d(2+1)19n
+        19:18o(4+1)20d
+        20:20o(3|6+2)21d
+        21:21d(5+1)22n
+        22:1o(6+1)23d
+        """
+
+        x = glycoct.loads(ambig)
+        result = pickle.loads(pickle.dumps(x, -1))
+        assert x == result
+
+        ambig = """
+        RES
+        1b:x-dglc-HEX-1:5
+        2s:n-acetyl
+        3b:b-dglc-HEX-1:5
+        4s:n-acetyl
+        5b:b-dman-HEX-1:5
+        6b:a-dman-HEX-1:5
+        7b:b-dglc-HEX-1:5
+        8s:n-acetyl
+        9b:b-dgal-HEX-1:5
+        10b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        11s:n-acetyl
+        12b:b-dglc-HEX-1:5
+        13s:n-acetyl
+        14b:b-dgal-HEX-1:5
+        15b:a-dman-HEX-1:5
+        16b:b-dglc-HEX-1:5
+        17s:n-acetyl
+        18b:b-dgal-HEX-1:5
+        19b:b-dglc-HEX-1:5
+        20s:n-acetyl
+        21b:b-dgal-HEX-1:5
+        22b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        23s:n-acetyl
+        24b:b-dglc-HEX-1:5
+        25s:n-acetyl
+        26b:b-dgal-HEX-1:5
+        27b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d
+        28s:n-acetyl
+        29b:a-lgal-HEX-1:5|6:d
+        LIN
+        1:1d(2+1)2n
+        2:1o(4+1)3d
+        3:3d(2+1)4n
+        4:3o(4+1)5d
+        5:5o(3+1)6d
+        6:6o(2+1)7d
+        7:7d(2+1)8n
+        8:7o(4+1)9d
+        9:9o(3|6+2)10d
+        10:10d(5+1)11n
+        11:6o(4+1)12d
+        12:12d(2+1)13n
+        13:12o(4+1)14d
+        14:5o(6+1)15d
+        15:15o(2+1)16d
+        16:16d(2+1)17n
+        17:16o(4+1)18d
+        18:18o(3+1)19d
+        19:19d(2+1)20n
+        20:19o(4+1)21d
+        21:21o(3|6+2)22d
+        22:22d(5+1)23n
+        23:15o(6+1)24d
+        24:24d(2+1)25n
+        25:24o(4+1)26d
+        26:26o(3|6+2)27d
+        27:27d(5+1)28n
+        28:1o(6+1)29d
+        """
+        x = glycoct.loads(ambig)
+        result = pickle.loads(pickle.dumps(x, -1))
+        assert x == result
+
 
 if __name__ == '__main__':
     unittest.main()
