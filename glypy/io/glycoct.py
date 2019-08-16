@@ -137,6 +137,8 @@ und_link_pattern = re.compile(r'''
 
 
 class GlycoCTError(ParserError):
+    """Base error for GlycoCT-based parsing exceptions.
+    """
     pass
 
 
@@ -184,6 +186,8 @@ class GlycoCTGraph(object):
     ----------
     graph : dict
         Mapping from node id to node-like objects
+    id: tuple
+        A pair of (class name, ID)
     """
     def __init__(self, graph=None):
         if graph is None:
@@ -207,30 +211,90 @@ class GlycoCTGraph(object):
         return len(self.graph)
 
     def keys(self):
+        '''See :meth:`~.Mapping.keys`
+        '''
         return self.graph.keys()
 
     def values(self):
+        '''See :meth:`~.Mapping.values`
+        '''
         return self.graph.values()
 
     def items(self):
+        '''See :meth:`~.Mapping.items`
+        '''
         return self.graph.items()
 
     def clear(self):
+        '''See :meth:`~.MutableMapping.clear`
+        '''
         self.graph.clear()
 
     def __iter__(self):
         return iter(self.graph)
 
     def get_node(self, id, direction=None):
+        """Get a node by its id value.
+
+        Parameters
+        ----------
+        id : object
+            The node's id. Will be case as an :class:`int`
+        direction : object, optional
+            Included for compatibility, ignored.
+
+        Returns
+        -------
+        :class:`~.Monosaccharide` or :class:`~.Substituent
+        """
         id = int(id)
         return self.graph[id]
 
     def put_node(self, id, value):
+        """Store a node for the given id value.
+
+        Parameters
+        ----------
+        id : object
+            The node's id. Will be case as an :class:`int`
+        value : :class:`~.Monosaccharide` or :class:`~.Substituent
+            The node to store
+        """
         id = int(id)
         self.graph[id] = value
 
     def form_link(self, parent, child, parent_position, child_position, parent_loss,
                   child_loss, parent_linkage_type=None, child_linkage_type=None, id=None):
+        """Form a :class:`~.Link` between `parent` and `child` with the specified parameters.
+
+        If more than one position is passed for `parent_position` or `child_position`, an
+        :class:`~.AmbiguousLink` will be created instead.
+
+        Parameters
+        ----------
+        parent : :class:`~.Monosaccharide` or :class:`~.Substituent
+            The parent node in the bond
+        child : :class:`~.Monosaccharide` or :class:`~.Substituent
+            The child node in the bond
+        parent_position : list
+            The set of possible positions on the parent node to attach to.
+        child_position : list
+            The set of possible positions on the child node to attach to.
+        parent_loss : str or :class:`~.Compositition`
+            The composition lost from the parent node
+        child_loss : str or :class:`~.Compositition`
+            The composition lost from the child node
+        parent_linkage_type : :class:`~.EnumValue`, optional
+            A :class:`~.LinkageType` entry describing how the linkage is formed on the parent
+        child_linkage_type : :class:`~.EnumValue`, optional
+            A :class:`~.LinkageType` entry describing how the linkage is formed on the child
+        id : object, optional
+            The within-graph unique identifier of the :class:`~.Link` object
+
+        Returns
+        -------
+        :class:`~.Link`
+        """
         if parent.node_type is Substituent.node_type and\
                 child.node_type is Monosaccharide.node_type:
             warnings.warn(
@@ -254,14 +318,34 @@ class GlycoCTGraph(object):
         return link_obj
 
     def deferred_retrieval(self, id, direction=None):
+        """Construct a :class:`DeferredRetrieval` instance to carry out the
+        :meth:`get_node` at a later time.
+
+        Parameters
+        ----------
+        id : object
+            The node's id. Will be case as an :class:`int`
+        direction : object, optional
+            Included for compatibility, ignored.
+
+        Returns
+        -------
+        :class:`DeferredRetrieval`
+        """
         return DeferredRetrieval(self, id, direction)
 
     def __root__(self):
         return self.find_root_nodes()[0]
 
     def find_root_nodes(self):
+        """Find "root" nodes within the graph.
+
+        Returns
+        -------
+        list
+        """
         roots = []
-        for index, node in self.items():
+        for _index, node in self.items():
             try:
                 if node.parents():
                     continue
@@ -277,6 +361,28 @@ class GlycoCTGraph(object):
         return roots
 
     def visit(self, node, visited=None, fn=None):
+        """Visit `node`, calling `fn` on it, and then call :meth:`visit`
+        on each connected node from `node` that had not previously been
+        visited (tracked in `visited`).
+
+        If a `node` is actually a :class:`GlycoCTGraph`, it will be
+        traversed.
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide` or :class:`~.Substituent`
+            The node to visit.
+        visited : :class:`set`, optional
+            The set of previously visited node ids. If not provided, an empty set
+            will be used.
+        fn : :class:`callable`, optional
+            The function to call on each node.
+
+        Returns
+        -------
+        :class:`set`:
+            The visited nodes.
+        """
         if visited is None:
             visited = set()
         if isinstance(node, GlycoCTGraph):
@@ -287,14 +393,14 @@ class GlycoCTGraph(object):
         visited.add(node.id)
         if fn is not None:
             fn(node, visited)
-        for position, link in node.links.items():
+        for _position, link in node.links.items():
             ref = link.to(node)
             if ref.id in visited:
                 continue
             else:
                 self.visit(ref, visited, fn)
         try:
-            for position, link in node.substituent_links.items():
+            for _position, link in node.substituent_links.items():
                 ref = link.to(node)
                 if ref.id in visited:
                     continue
@@ -305,13 +411,31 @@ class GlycoCTGraph(object):
         return visited
 
     def is_fully_connected(self):
+        """Check that the graph is fully connected, meaning it has only
+        one root node.
+
+        Returns
+        -------
+        bool
+        """
         roots = self.find_root_nodes()
         visited = self.visit(roots[0])
         return len(visited) >= len(self)
 
 
 class GlycoCTGraphStack(GlycoCTGraph):
-    def __init__(self, stack=None, parent=None):
+    """Represent a stack of :class:`GlycoCTGraph` instances,
+    which may be nested inside another graph.
+
+    Attributes
+    ----------
+    stack: list
+        The stack of :class:`GlycoCTGraph` instances in the current state
+    history: list
+        The historical sequence of :class:`GlycoCTGraph` instances, added to
+        but never removed.
+    """
+    def __init__(self, stack=None, parent=None):  # pylint: disable=super-init-not-called
         if stack is None:
             stack = deque([GlycoCTSubgraph(parent=parent)])
         else:  # pragma: no cover
@@ -327,10 +451,22 @@ class GlycoCTGraphStack(GlycoCTGraph):
 
     @property
     def graph(self):
+        """The top :class:`GlycoCTGraph` on the stack
+
+        Returns
+        -------
+        :class:`GlycoCTGraph`
+        """
         return self.stack[-1]
 
     @property
     def parent(self):
+        """The graph that contains this one.
+
+        Returns
+        -------
+        :class:`GlycoCTGraph`
+        """
         return self.stack[0].parent
 
     @parent.setter
@@ -349,6 +485,18 @@ class GlycoCTGraphStack(GlycoCTGraph):
         return DeferredRetrieval(self, id, direction)
 
     def add(self, subgraph, parent=None):  # pragma: no cover
+        """Add `subgraph` to :attr:`stack`, setting the
+        graph's parent.
+
+        Parameters
+        ----------
+        subgraph: :class:`GlycoCTGraph`
+            The graph to add to the stack
+        parent: :class:`GlycoCTGraph`, optional
+            The parent to set for `subgraph`. If :const:`None`, this
+            defaults to `self`.
+
+        """
         if subgraph.parent is None:
             if parent is None:
                 parent = self
@@ -356,10 +504,23 @@ class GlycoCTGraphStack(GlycoCTGraph):
         self.push_level(subgraph)
 
     def push_level(self, subgraph):
+        """Push `subgraph` onto the stack, and the history.
+
+        Parameters
+        ----------
+        subgraph : :class:`GlycoCTGraph`
+            The graph to add.
+        """
         self.stack.append(subgraph)
         self.history.append(subgraph)
 
     def pop_level(self):
+        """Pop the last item from :attr:`stack`
+
+        Returns
+        -------
+        :class:`GlycoCTGraph`
+        """
         return self.stack.pop()
 
     def clear(self):
@@ -367,11 +528,27 @@ class GlycoCTGraphStack(GlycoCTGraph):
         self.history = list(self.stack)
 
     def find_subgraph_containing(self, id):
+        """Find the first subgraph which contains a node with
+        the query `id`
+
+        Parameters
+        ----------
+        id : tuple
+            The node id to find.
+
+        Returns
+        -------
+        :class:`GlycoCTGraph`
+
+        Raises
+        ------
+        KeyError:
+            If the `id` is not found.
+        """
         for level in reversed(self.history):
             if id in level:
                 return level
-        else:
-            raise KeyError(id)
+        raise KeyError(id)
 
     def __repr__(self):
         return "{self.__class__.__name__}({self.history})".format(self=self)
@@ -410,12 +587,25 @@ class GlycoCTGraphStack(GlycoCTGraph):
 
 
 class GlycoCTSubgraph(GlycoCTGraph):
+    """A :class:`GlycoCTGraph` which has an :attr:`parent` for use with
+    :class:`GlycoCTGraphStack`.
+
+    Attributes
+    ----------
+    parent: :class:`GlycoCTGraph`
+        The graph that contains this one.
+
+    """
     def __init__(self, graph=None, parent=None):
         super(GlycoCTSubgraph, self).__init__(graph)
         assert not isinstance(parent, dict)
         self.parent = parent
 
     def postprocess(self):
+        """Apply arbitrary post-processing before finalizing the subgraph.
+
+        To be overriden by subclasses. Base implementation is a no-op.
+        """
         pass
 
 
@@ -423,6 +613,27 @@ RepeatedMultitude = namedtuple("RepeatedMultitude", "lower upper")
 
 
 class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
+    """Implements the machinery for representing a repeated subgraph in GlycoCT.
+
+    Attributes
+    ----------
+    graph_index: int
+    repeast_index: int
+        The `i`th repeating subgraph in the graph.
+    internal_linkage: object
+        The linkage connecting two repetitions of the subgraph
+    external_linkage: object
+        The linkage connecting from the final repetition and the
+        outside nodes.
+    multitude: :class:`RepeatedMultitude`
+        Holds the lower and upper range of multiplicities this subgraph may be repeated
+        to.
+    repetitions: :class:`~.OrderedDict`
+        The repetitions of this subgraph, materialized during :meth:`postprocess`
+    postponed: :class:`~.deque`
+        A queue of post-processing callbacks.
+
+    """
     def __init__(self, graph_index, repeat_index, internal_linkage=None,
                  external_linkage=None, multitude=None, graph=None,
                  parent=None):
@@ -449,10 +660,23 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 
     @property
     def terminal_node_index(self):
+        """The index of the node that will connect to either the
+        external or internal target node.
+
+        Returns
+        -------
+        int
+        """
         return int(self.external_linkage['parent_residue_index'])
 
     @property
     def last_repeat_index(self):
+        """The last repeat's index in :attr:`repetitions`
+
+        Returns
+        -------
+        int
+        """
         sub_unit_indices = sorted(self.repetitions.keys())
         terminal_unit_ix = sub_unit_indices[-1]
         return terminal_unit_ix
@@ -461,10 +685,6 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
     def terminal_node(self):
         """Retrieves the terminal residue from the subgraph, where
         outgoing connections start from
-
-        Connections between repeats of this subgraph will start from
-        this node, as will connections between the final repeat of this
-        subgraph and its parent graph
 
         Returns
         -------
@@ -481,11 +701,24 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
 
     @property
     def first_repeat_index(self):
+        """The first repeat's index in :attr:`repetitions`
+
+        Returns
+        -------
+        int
+        """
         sub_unit_indices = sorted(self.repetitions.keys())
         return sub_unit_indices[0]
 
     @property
     def origin_node(self):
+        """Retrieves the root residue from the subgraph, where
+        the incoming external connection ends at.
+
+        Returns
+        -------
+        MoleculeBase
+        """
         root_unit_ix = self.first_repeat_index
         child_graph = self.repetitions[root_unit_ix]
         try:
@@ -503,9 +736,21 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         return child
 
     def postpone(self, f, args):
+        """Queue a callable `f` with `args`
+        to be run during postprocessing.
+
+        Parameters
+        ----------
+        f : :class:`Callable`
+            Some callable object
+        args : :class:`Iterable`
+            The arguments to call `f` with
+        """
         self.postponed.append((f, args))
 
     def complete_postponed_tasks(self):
+        """Call all of the postponed tasks.
+        """
         i = 0
         while self.postponed:
             i += 1
@@ -558,7 +803,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
                     duplicate_graph[k] = graph[k]
         return duplicate_graph
 
-    def postprocess(self, n=None):
+    def postprocess(self, n=None):  # pylint: disable=arguments-differ
         if n is None:
             if self.multitude.upper != -1:
                 n = self.multitude.upper
@@ -668,7 +913,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         if not self.repetitions:
             return super(RepeatedGlycoCTSubgraph, self).find_root_nodes()
         roots = []
-        for rep_index, node_set in self.repetitions.items():
+        for _rep_index, node_set in self.repetitions.items():
             for node in node_set:
                 try:
                     if node.parents():
@@ -685,9 +930,9 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
         return roots
 
     def prepare_glycan(self):
-        glycan = self.repetitions[self.first_repeat_index]
-        glycan.deindex()
-        return Glycan(glycan.root, index_method=None)
+        subglycan_start = self.repetitions[self.first_repeat_index]
+        subglycan_start.deindex()
+        return Glycan(subglycan_start.root, index_method=None)
 
 
 UndeterminedProbability = namedtuple("UndeterminedProbability", "major minor")
@@ -762,7 +1007,7 @@ def extract_composition(parser):
     # remove links between layers in the stack
     for layer in list(parser.stack)[1:]:
         node = rootp(layer)
-        for position, link in list(node.links.items()):
+        for _position, link in list(node.links.items()):
             if link.is_child(node):
                 link.break_link(refund=True)
 
@@ -855,7 +1100,7 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         for line in self.handle:
             self._source_line += 1
             for segment in re.split(r"\s|;", line):
-                if "" == segment.strip():
+                if not segment.strip():
                     continue
                 self._current_segment = segment
                 yield segment
@@ -913,8 +1158,8 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         mods = residue_dict["modifications"]
         modifications = OrderedMultiMap()
         if mods is not None:
-            for p, mod in modification_pattern.findall(mods):
-                positions = p.split(",")
+            for modp, mod in modification_pattern.findall(mods):
+                positions = modp.split(",")
                 if len(positions) > 1:
                     warnings.warn("Multi-site Modifications are not fully supported")
                 for p in positions:
@@ -1513,10 +1758,10 @@ class GlycoCTWriterBase(object):
                 child_loss=child_loss_str,
                 child_position=link.child_position)
 
-    def handle_substituent(self, substituent):
+    def handle_substituent(self, substituent):  # pylint: disable=redefined-outer-name
         return "s:{0}".format(substituent.name.replace("_", "-"))
 
-    def _format_monosaccharide(self, monosaccharide):
+    def _format_monosaccharide(self, monosaccharide):  # pylint: disable=redefined-outer-name
         residue_template = "{ix}b:{anomer}{conf_stem}{superclass}-{ring_start}:{ring_end}{modifications}"
 
         # This index is reused many times
@@ -1543,14 +1788,14 @@ class GlycoCTWriterBase(object):
                                               ring_start=ring_start, ring_end=ring_end)
         return residue_str, monosaccharide_index
 
-    def handle_monosaccharide(self, monosaccharide):
+    def handle_monosaccharide(self, monosaccharide):  # pylint: disable=redefined-outer-name
         residue_str, monosaccharide_index = self._format_monosaccharide(monosaccharide)
         res = [residue_str]
         lin = []
         visited_subst = dict()
         # Construct the substituent lines
         # and their links
-        for lin_pos, link_obj in monosaccharide.substituent_links.items():
+        for _lin_pos, link_obj in monosaccharide.substituent_links.items():
             sub = link_obj.to(monosaccharide)
             if sub.id not in visited_subst:
                 sub_index = self.res_counter()
@@ -1582,7 +1827,7 @@ class GlycoCTWriterBase(object):
             self.index_to_residue[index] = node
 
             if self.full:
-                for pos, lin in node.links.items():
+                for _pos, lin in node.links.items():
                     if lin.is_child(node):
                         continue
                     self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
@@ -1600,7 +1845,7 @@ class GlycoCTWriterBase(object):
                 self.buffer.write(line + '\n')
             residue = self.index_to_residue[res_ix]
             if self.full:
-                for pos, lin in residue.links.items():
+                for _pos, lin in residue.links.items():
                     if lin.is_child(residue):
                         continue
                     child_res = lin.child
@@ -1676,7 +1921,7 @@ class GlycoCTWriterBase(object):
 
     def add_glycan_composition(self, glycan_composition):
         for m in OrderingComparisonContext(self).sort_residues(glycan_composition):
-            for i in range(glycan_composition[m]):
+            for _i in range(glycan_composition[m]):
                 self.add_glycan_composition_single({m: 1})
 
     def add_glycan_composition_single(self, glycan_composition):
@@ -1738,10 +1983,10 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
             count = mapping[key]
             if count < 1:
                 continue
-            for i in range(count):
+            for _i in range(count):
                 yield key
 
-    def _write_und_subgraph(self, substituent):
+    def _write_und_subgraph(self, substituent):  # pylint: disable=redefined-outer-name
         self.handle_und_header(subtree_linkage_args=('o', -1, 1, 'n'))
         self.buffer.write("RES\n")
         sub_index = self.res_counter()
@@ -1786,7 +2031,7 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
                 self.index_to_residue[index] = node
 
                 if self.full:
-                    for pos, lin in node.links.items():
+                    for _pos, lin in node.links.items():
                         if lin.is_child(node):
                             continue
                         self.dependencies[lin.child.id][node.id] = ((self.lin_counter(), lin))
@@ -1805,7 +2050,7 @@ class GlycanCompositionGlycoCTWriter(GlycoCTWriterBase):
                         self.buffer.write(line + '\n')
                     residue = self.index_to_residue[res_ix]
                     if self.full:
-                        for pos, lin in residue.links.items():
+                        for _pos, lin in residue.links.items():
                             if lin.is_child(residue):
                                 continue
                             child_res = lin.child

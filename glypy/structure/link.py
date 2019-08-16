@@ -104,12 +104,35 @@ class Link(object):
             self.apply()
 
     def has_ambiguous_linkage(self):
+        """Returns whether the link position at either terminal is ambiguous
+
+        Returns
+        -------
+        bool
+        """
         return False
 
     def has_ambiguous_termini(self):
+        """Returns whether the link terminal is ambiguous
+
+        Returns
+        -------
+        bool
+        """
         return False
 
     def is_ambiguous(self):
+        """Returns if the link position or link terminal at either end is ambiguous
+
+        Returns
+        -------
+        bool
+
+        See Also
+        --------
+        :meth:`has_ambiguous_linkage`
+        :meth:`has_ambiguous_termini`
+        """
         return self.has_ambiguous_linkage() or self.has_ambiguous_termini()
 
     def apply(self):
@@ -515,6 +538,20 @@ class LinkMaskContext(object):
 
 
 class AmbiguousLink(Link):
+    '''A :class:`Link` that may have more than one option for connection position at either
+    terminal, or the terminals themselves may be chosen from a set of options.
+
+    Attributes
+    ----------
+    parent_choices: list
+        The set of possible choices for :attr:`parent`
+    parent_position_choices: list
+        The set of possible choices for :attr:`parent_position`
+    child_choices: list
+        The set of possible choices for :attr:`child`
+    child_position_choices: list
+        The set of possible choices for :attr:`child_position`
+    '''
 
     __slots__ = (
         "parent_choices", "parent_position_choices",
@@ -569,6 +606,20 @@ class AmbiguousLink(Link):
         return len(self.parent_choices) > 1 or len(self.child_choices) > 1
 
     def iterconfiguration(self, attach=False):
+        """Iterate over possible configurations for this link, yielding them.
+
+        If `attach` is :const:`True`, call :meth:`reconfigure` with each
+        specification.
+
+        Parameters
+        ----------
+        attach : bool, optional
+            Whether or not to apply each configuration (the default is :const:`False`)
+
+        Yields
+        ------
+        tuple of :attr:`parent`, :attr:`child`, :attr:`parent_position`, :attr:`child_position`
+        """
         configurations = self._configuration_crossproduct()
         for parent_o, child_o, parent_position_o, child_position_o in configurations:
             if attach:
@@ -582,6 +633,22 @@ class AmbiguousLink(Link):
         return configurations
 
     def reconfigure(self, parent, child, parent_position, child_position):
+        """Apply the specified configuration, replacing the current configuration.
+
+        This method calls :meth:`break_link` to refund the current bonds and
+        then calls :meth:`apply`.
+
+        Parameters
+        ----------
+        parent : :class:`~.Monosaccharide` or :class:`~.Substituent`
+            The parent of the link to form
+        child : :class:`~.Monosaccharide` or :class:`~.Substituent
+            The child of the link to form
+        parent_position : int
+            The position on the parent to connect to
+        child_position : int
+            The position on the child to connect to
+        """
         self.break_link(refund=True)
         self.parent = parent
         self.child = child
@@ -663,10 +730,23 @@ class AmbiguousLink(Link):
             positions = self._find_open_position_single(parent, child)
             if positions is not None:
                 return (parent, positions[0], child, positions[1])
-        else:
-            return None
 
     def find_open_position(self, attach=True):
+        """Identify a valid configuration of parent, child and respective positions
+        which are all open.
+
+        Parameters
+        ----------
+        attach : bool, optional
+            Whether or not to actually connect to the selected configuration, which will
+            break the current configuration (the default is :const:`True`).
+
+        Raises
+        ------
+        ValueError:
+            When no valid configuration can be found.
+
+        """
         if attach:
             self.break_link(refund=True)
         configuration = self._find_open_position_combinations()
