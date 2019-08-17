@@ -1,6 +1,8 @@
 import re
 from collections import namedtuple
 
+from six import string_types as basestring
+
 from glypy.composition import Composition
 from glypy.structure import substituent as _substituent
 from glypy.io.tree_builder_utils import try_int
