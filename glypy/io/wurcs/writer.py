@@ -23,15 +23,15 @@ class WURCSWriter(object):
         self.glycan = glycan
         self.node_type_map = OrderedDict()
         self.node_index_to_node_type = OrderedDict()
-        self.index_to_glyph = OrderedDict()
-        self.id_to_index = OrderedDict()
+        self.index_to_glyph = dict()
+        self.id_to_index = dict()
         self.extract_node_types()
 
     def extract_node_types(self):
         node_types = OrderedDict()
         node_index_to_node_type = OrderedDict()
-        index_to_glyph = OrderedDict()
-        id_to_index = OrderedDict()
+        index_to_glyph = dict()
+        id_to_index = dict()
         for i, node in enumerate(self._iter_monosaccharides(), 1):
             node_type = NodeTypeSpec.from_monosaccharide(node)
             index_to_glyph[i] = base52(i - 1)

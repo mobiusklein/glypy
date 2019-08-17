@@ -6,6 +6,8 @@ try:
 except ImportError:
     from collections import Sequence
 
+from six import string_types as basestring
+
 from .basetype_conversion import (
     descriptors_to_base_type)
 
@@ -43,16 +45,33 @@ class CarbonDescriptors(Sequence):
         return len(self.descriptors)
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        if other is None:
+            return False
+        if isinstance(other, basestring):
+            return str(self) == other
+        if self.descriptors != other.descriptors:
+            return False
+        elif self.anomer != other.anomer:
+            return False
+        elif self.anomeric_position != other.anomeric_position:
+            return False
+        elif self.ring_start != other.ring_start:
+            return False
+        elif self.ring_end != other.ring_end:
+            return False
+        return True
 
     def __ne__(self, other):
-        return str(self) != str(other)
+        return not self == other
 
     def __hash__(self):
-        return hash(str(self))
+        return hash(self.descriptors)
 
     def __getitem__(self, i):
         return self.descriptors[i]
+
+    def __iter__(self):
+        return iter(self.descriptors)
 
     def to_d_stereoform(self, code):
         out = []
@@ -252,7 +271,7 @@ class CarbonDescriptors(Sequence):
         '''
         parts = []
         # carbon descriptors
-        parts.append(''.join(map(str, self)))
+        parts.append(''.join([i for i in self]))
         # if the anomer is completely undefined, do not include it
         if not (self.anomeric_position == -1 and self.anomer == Anomer.x):
             parts.append("-%s%s" % (self._translate_position(self.anomeric_position),

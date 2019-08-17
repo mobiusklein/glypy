@@ -99,10 +99,18 @@ class NodeTypeSpec(_NodeTypeSpec):
         return super(NodeTypeSpec, self).__repr__()
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        if other is None:
+            return False
+        if isinstance(other, basestring):
+            return str(self) == other
+        if self.carbon_descriptor != other.carbon_descriptor:
+            return False
+        elif self.substituents != other.substituents:
+            return False
+        return True
 
     def __ne__(self, other):
-        return str(self) != str(other)
+        return not self == other
 
     def __hash__(self):
-        return hash(str(self))
+        return hash(self.carbon_descriptor)

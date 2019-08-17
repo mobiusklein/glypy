@@ -12,8 +12,8 @@ e   EN + deoxy core modifications
 n   EN core modification without DEOXY core modification
 E   EN core modification with unknown deoxygenation status
 y   YN core modification at non-terminal position
-s   SP2 core modifation
-t   SP core modifiation (always at terminal position)
+s   SP2 core modification
+t   SP core modification (always at terminal position)
 1   "L-Configuration" carbon atom
 2   "D-Configuration" carbon atom
 x   unknown configuration (D or L) carbon atom
@@ -21,6 +21,7 @@ x   unknown configuration (D or L) carbon atom
 
 import warnings
 from six import string_types as basestring
+from six.moves import range
 
 from glypy.utils.enum import EnumValue
 
@@ -117,8 +118,7 @@ def get_stereocode_key(monosaccharide, anomer=None, configuration=None):
 
 def _update_stereocode_basic(code, monosaccharide):
     for i in range(len(code)):
-        site = monosaccharide[i + 1]
-        modifications = site['modifications']
+        modifications = monosaccharide.modifications[i + 1]
         for mod in modifications:
             if mod.name == Modification.d:
                 code[i] = 0
@@ -138,8 +138,7 @@ def _update_stereocode_extended(code, monosaccharide):
     terminal = max(termini) - 1
     code[terminal] = Stereocoding.h
     for i in range(len(code)):
-        site = monosaccharide[i + 1]
-        modifications = site['modifications']
+        modifications = monosaccharide.modifications[i + 1]
         for mod in modifications:
             if mod.name == Modification.d.name:
                 if (i + 1) in ring_range:

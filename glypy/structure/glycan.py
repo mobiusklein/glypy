@@ -966,6 +966,10 @@ class Glycan(SaccharideCollection):
         --------
         :meth:`glypy.structure.Monosaccharide.topological_equality`
         '''
+        if other is None:
+            return False
+        elif not isinstance(other, Glycan):
+            return False
         return self.root.topological_equality(other.root)
 
     def __eq__(self, other):
