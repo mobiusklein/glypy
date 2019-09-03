@@ -1,3 +1,9 @@
+"""Implementation of explicit sub-graph inclusion and co-traversal algorithms.
+
+Graph inclusion here means that there exists a path through graph A that can be
+mapped onto equivalent nodes in graph B that are connected in the same way.
+
+"""
 from collections import deque, defaultdict
 
 from glypy.structure import UnknownPosition
@@ -6,6 +12,22 @@ from glypy.utils import root
 
 
 class TopologicalInclusionMatcher(object):
+    """A recursive topological traversal.
+
+    Attributes
+    ----------
+    target: :class:`~.Monosaccharide`
+        The target to test for inclusion with
+    reference: :class:`~.Monosaccharide`
+        The reference to test for inclusion in
+    substituents: bool
+        Whether to examine substituents when computing similarity and inclusion.
+    tolerance: float
+        The magnitude of the similarity error to tolerate.
+    visited: set
+        The set of target and reference node id pairs that have already been considered.
+
+    """
     def __init__(self, target, reference, substituents=True, tolerance=0, visited=None):
         self.target = target
         self.reference = reference
@@ -46,12 +68,27 @@ class TopologicalInclusionMatcher(object):
         return score
 
     def test_similarity(self):
+        """Calculate the commutative similarity between :attr:`target` and
+        :attr:`reference`.
+
+        Returns
+        -------
+        float
+
+        See Also
+        --------
+        :func:`~.commutative_similarity`
+        """
         similar = commutative_similarity(
             self.target, self.reference, self.tolerance,
             include_substituents=self.substituents)
         return similar
 
     def test_children(self):
+        """Find the optimal similarity pairing between descendents of
+        :attr:`target` and :attr:`reference`.
+
+        """
         match_index = self._build_child_pair_score_map()
         required_nodes = {node.id for p, node in self.target.children()}
         optimal_assignment, score = self.optimal_assignment(match_index, required_nodes)
