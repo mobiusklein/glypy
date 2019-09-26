@@ -1,8 +1,9 @@
 Welcome to glypy's documentation!
 ==================================
 
-Glycobiology is the study of the biological functions, properties, and structures of carbohydrate biomolecules,
-also called *glycans*. These large, tree-like molecules are complex, having a wide variety of building blocks
+Glycobiology is the study of the biological functions, properties,
+and structures of carbohydrate biomolecules, also called *glycans*.
+These large, tree-like molecules are complex, having a wide variety of building blocks
 as well as modifications and substitutions on those building blocks.
 
 Much in the same way other bioinformatics libraries provide ways to represent DNA, RNA, or Protein sequences,
@@ -16,9 +17,8 @@ common core structure.
 .. toctree::
    :maxdepth: 2
 
-   .. Quickstart <quickstart/quickstart>
    Quickstart <Quickstart>
-   
+
    structure
    composition
    io
@@ -26,6 +26,7 @@ common core structure.
    algorithms
    utils
    tutorials
+   glossary
 
 
 Indices and tables
@@ -34,4 +35,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

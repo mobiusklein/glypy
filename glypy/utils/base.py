@@ -215,14 +215,18 @@ def classproperty(func):
 
 
 class RootProtocolNotSupportedError(TypeError):
+    """A subclass of :class:`TypeError` that signals that the provided type
+    does not support the `__root__` protocol.
+    """
     pass
 
 
 def root(structure):
-    """The `root` protocol function.
-
-    Creates a generic method for obtaining the root of a structure representing
+    """A generic method for obtaining the root of a structure representing
     or containing a glycan graph with a single distinct root.
+
+    Implementing objects should provide a `__root__` method that returns a :class:`~.Monosaccharide`
+    object.
 
     Parameters
     ----------
@@ -233,6 +237,10 @@ def root(structure):
     Returns
     -------
     Monosaccharide : The root of the |Glycan| tree
+
+    Raises
+    ------
+    RootProtocolNotSupportedError
     """
     try:
         root = structure.__root__()
@@ -243,24 +251,32 @@ def root(structure):
 
 
 class TreeProtocolNotSupportedError(TypeError):
+    """A subclass of :class:`TypeError` that signals that the provided type
+    does not support the `__tree__` protocol.
+    """
     pass
 
 
 def tree(structure):
-    """The `tree` protocol function.
-
-    Creates a generic method for obtaining the :class:`Glycan` of a structure representing
+    """A generic method for obtaining the :class:`Glycan` of a structure representing
     or containing a glycan graph.
+
+    Implementing objects should provide a `__tree__` method that returns a :class:`~.Glycan`
+    object.
 
     Parameters
     ----------
     structure : any
-        An object that implements the `root` protocol, containing
+        An object that implements the `tree` protocol, containing
         a tree structure somewhere inside it.
 
     Returns
     -------
     Glycan
+
+    Raises
+    ------
+    TreeProtocolNotSupportedError
     """
     try:
         tree = structure.__tree__()

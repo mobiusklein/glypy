@@ -371,6 +371,8 @@ class Glycan(SaccharideCollection):
         This is the default traversal method for all |Glycan| objects. :meth:`~.dfs` is an alias of this method.
         Both names can be used to specify this strategy to :meth:`~._get_traversal_method`.
 
+        When selecting an iteration strategy, this strategy is specified as "dfs".
+
         Parameters
         ----------
         from_node: None or Monosaccharide
@@ -417,6 +419,8 @@ class Glycan(SaccharideCollection):
         '''
         Make a breadth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
+        When selecting an iteration strategy, this strategy is specified as "bfs".
+
         Parameters
         ----------
         from_node: None or Monosaccharide
@@ -462,6 +466,34 @@ class Glycan(SaccharideCollection):
     traversal_methods['breadth_first_traversal'] = "breadth_first_traversal"
 
     def indexed_traversal(self, from_node=None, apply_fn=identity, visited=None):
+        """Traverse the glycan structure along :attr:`index`.
+
+        This is substantially faster than other traversal methods for complete traversals
+        at the cost of a) requiring a call to :meth:`reindex` to populate :attr:`index`
+        if it has not been called, and b) is not automatically updated if the structure is
+        modified.
+
+        When selecting an iteration strategy, this strategy is specified as "index".
+
+        Parameters
+        ----------
+        from_node: None or Monosaccharide
+            If `from_node` is |None|, then traversal starts from the root node. Otherwise it begins
+            from the given node.
+        apply_fn: function
+            A function applied to each node on arrival. If this function returns a non-None value,
+            the result is yielded from the generator, otherwise it is ignored. Defaults to :func:`.identity`
+        visited: set or None
+            A :class:`set` of node ID values to ignore. If |None|, defaults to the empty `set`
+
+        Yields
+        ------
+        Return Value of `apply_fn`, by default |Monosaccharide|
+
+        See Also
+        --------
+        reindex
+        """
         if not self.index:
             self._build_node_index()
         if from_node is None and apply_fn is identity:
@@ -490,6 +522,24 @@ class Glycan(SaccharideCollection):
     traversal_methods['index'] = "indexed_traversal"
 
     def _get_traversal_method(self, method):
+        """An internal helper method used to resolve traversal
+        methods by name or alias.
+
+        Parameters
+        ----------
+        method : :class:`str` or :class:`Callable`
+            If a :class:`str`, it is looked up in the class-level
+            :attr:`traversal_methods` dictionary and the name of
+            the appropriate method is retrieved with :func:`getattr`
+            and returned.
+
+            If a :class:`Callable`, the function's first parameter is
+            bound to `self` and returned.
+
+        Returns
+        -------
+        :class:`Callable`
+        """
         if method == 'dfs':
             return self.depth_first_traversal
         elif method == 'bfs':
@@ -508,7 +558,8 @@ class Glycan(SaccharideCollection):
 
     def iternodes(self, from_node=None, apply_fn=identity, method='dfs', visited=None):
         '''
-        Generic iterator over nodes. :meth:`Glycan.__iter__` is an alias of this method
+        Generic iterator over nodes dispatching to a strategy given by `method`, defaulting
+        to :meth:`~.depth_first_traversal`.
 
         Parameters
         ----------
@@ -754,6 +805,15 @@ class Glycan(SaccharideCollection):
                     yield tuple(zip(ambiguous_links, configs))
 
     def has_undefined_linkages(self):
+        """Check if this structure has undefined or ambiguous connectivity
+        between its nodes.
+
+        Returns
+        -------
+        bool:
+            If any of its links are :class:`~.AmbiguousLink` instances, or
+            have unknown positions (-1).
+        """
         ambiguous_links = bool(self.ambiguous_links())
         if ambiguous_links:
             return ambiguous_links
@@ -852,12 +912,51 @@ class Glycan(SaccharideCollection):
 
     @classmethod
     def register_serializer(cls, name, method):
+        """Add `method` as `name` to the set of serializers to pick from
+        in :meth:`serialize`
+
+        Parameters
+        ----------
+        name : str
+            The name of the serializer
+        method : Callable
+            A callable object that when called with a :class:`Glycan` returns a :class:`str`
+        """
         cls._serializers[name] = method
 
+    @classmethod
+    def available_serializers(cls):
+        """Get the list of available serialization formats
+
+        Returns
+        -------
+        :class:`list` of :class:`str`
+        """
+        return list(cls._serializers.keys())
+
     def serialize(self, name='glycoct'):
+        """Convert the structure to text.
+
+        The serialization format is given by a :meth:`available_serializers`.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the serialization format (the default is 'glycoct')
+
+        Returns
+        -------
+        str
+        """
         return self._serializers[name](self)
 
     def __repr__(self):
+        """An alias for :meth:`serialize`.
+
+        Returns
+        -------
+        str
+        """
         return self.serialize()
 
     def mass(self, average=False, charge=0, mass_data=None, method='dfs'):
@@ -942,6 +1041,7 @@ class Glycan(SaccharideCollection):
         See also
         --------
         :meth:`glypy.structure.Monosaccharide.exact_ordering_equality`
+        :term:`Exact Matching`
         '''
         if other is None:
             return False
@@ -965,6 +1065,7 @@ class Glycan(SaccharideCollection):
         See also
         --------
         :meth:`glypy.structure.Monosaccharide.topological_equality`
+        :term:`Topological Matching`
         '''
         if other is None:
             return False
@@ -986,6 +1087,7 @@ class Glycan(SaccharideCollection):
         See Also
         --------
         :meth:`exact_ordering_equality`
+        :term:`Exact Matching`
         """
         return self.exact_ordering_equality(other)
 
