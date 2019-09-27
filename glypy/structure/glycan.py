@@ -141,6 +141,21 @@ class Glycan(SaccharideCollection):
         return subtree
 
     def fragment_to_substructure(self, fragment):
+        """Extract the substructure of `tree` which is contained in `fragment`
+
+        Parameters
+        ----------
+        fragment: :class:`~.GlycanFragment`
+            The :class:`~.GlycanFragment` to extract substructure for.
+        tree: :class:`Glycan`
+            The |Glycan| to extract substructure from.
+
+        Returns
+        -------
+        :class:`Glycan`:
+            The |Glycan| substructure defined by the nodes contained in `fragment` as
+            found in `tree`
+        """
         return fragment_to_substructure(fragment, self)
 
     traversal_methods = {}

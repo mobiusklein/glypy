@@ -48,7 +48,7 @@ Represent polysaccharide molecules and their associated functions
 
             .. automethod:: Glycan.iterlinks
 
-            .. automodule:: Glycan._get_traversal_method
+            .. automethod:: Glycan._get_traversal_method
 
     Specialized Traversals
     ~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +100,39 @@ Represent polysaccharide molecules and their associated functions
 
         .. automethod:: Glycan.available_serializers
 
+    Mass Spectrometry Utilities
+    ===================================================
+        :mod:`glypy` was originally written to support software for mass spectrometry experiments on
+        glycans. Like all molecular objects in the library, they support the :meth:`Glycan.mass` and
+        :meth:`Glycan.total_composition` methods. Additionally, they can generate glycosidic and cross-ring
+        fragments, as well as internal fragments caused by any combination of the two.
+
+        .. automethod:: Glycan.total_composition
+
+        .. automethod:: Glycan.mass
+
+        Fragmentation
+        ~~~~~~~~~~~~~
+
+            .. automethod:: Glycan.fragments
+
+            .. automethod:: Glycan.name_fragment
+
+
+            .. note::
+                There are also helper methods which modify the called object iteratively,
+                restoring the original state after the generator is complete. They should
+                not be used directly, instead see :meth:`Glycan.fragments` and
+                :meth:`Glycan.substructures`.
+
+            .. automethod:: Glycan.break_links_subtrees
+
+            .. automethod:: Glycan.crossring_subtrees
+
+
     Sub-Structures
     ==============
 
+        .. automethod:: Glycan.substructures
 
+        .. automethod:: Glycan.fragment_to_substructure
