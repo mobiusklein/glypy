@@ -272,7 +272,7 @@ class Monosaccharide(SaccharideBase):
         The methods for altering their contents, :meth:`add_substituent`, :meth:`add_monosaccharide`,
         :meth:`add_modification`, :meth:`drop_substituent`, :meth:`drop_monosaccharide`, and
         :meth:`drop_modification` are all responsible for handling these mutations for you. |Link| methods
-        like :meth:`Link.apply`, :meth:`Link.break_link`, and :meth:`Link.reconnect` are used internally.
+        like :meth:`Link.apply` and :meth:`Link.break_link` are used internally.
 
 
     Attributes

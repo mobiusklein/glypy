@@ -41,7 +41,7 @@ class LinkTests(unittest.TestCase):
         self.assertFalse(link_1.is_attached())
         self.assertFalse(link_1.is_attached(deep=True))
 
-        link_1.reconnect(refund=True)
+        link_1._reconnect(refund=True)
         self.assertTrue(len(parent.links[3]) == 1)
         self.assertTrue(len(child.links[3]) == 1)
 

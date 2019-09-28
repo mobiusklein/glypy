@@ -123,6 +123,8 @@ class Glycan(SaccharideCollection):
         The reducing end on :attr:`root`.
     branch_lengths: |dict|
         A dictionary mapping branch symbols to their lengths
+    branch_parent_map: |dict|
+        A dictionary mapping branch symbols to their parent branch symbols
     '''
 
     verbose = False
@@ -193,6 +195,18 @@ class Glycan(SaccharideCollection):
 
         Prior to constructing a |Glycan| instance, component |Monosaccharide| instances
         may be labeled, converting their id field into a tuple.
+
+        Calls :meth:`label_branches` after indexing is complete.
+
+        Returns
+        -------
+        Glycan:
+            self
+
+        See Also
+        --------
+        deindex
+        label_branches
         '''
         self.deindex()
         traversal = self._get_traversal_method(method)
@@ -250,6 +264,11 @@ class Glycan(SaccharideCollection):
         overlap, making it impossible to differentiate between a cycle and the new
         graph. This function mangles all of the node and link ids so that they are
         distinct from the pre-existing nodes.
+
+        Returns
+        -------
+        Glycan:
+            self
         '''
         if self.index is not None and len(self.index) > 0:
             base = uid()
@@ -270,9 +289,22 @@ class Glycan(SaccharideCollection):
         return self
 
     def reroot(self, index_method='dfs'):
-        '''
-        Set :attr:`root` to the node with the lowest :attr:`id`
-        '''
+        """Set :attr:`root` to the node with the lowest :attr:`id`.
+
+        Should only be used if the glycan has been indexed.
+
+        Parameters
+        ----------
+        index_method : str, optional
+            The name of the index method to use to reindex the glycan relative to
+            the new root node. If :const:`None`, no reindexing is done. The default
+            is 'dfs'
+
+        Returns
+        -------
+        Glycan:
+            self
+        """
         self.root = sorted(iter(self), key=operator.attrgetter('id'))[0]
         if index_method is not None:
             self.reindex(method=index_method)
@@ -291,7 +323,17 @@ class Glycan(SaccharideCollection):
 
     def __getitem__(self, ix):
         '''
-        Alias for :attr:`index.__getitem__`
+        Fetch a :class:`~.Monosaccharide` from :attr:`index`.
+
+        Returns
+        -------
+        Monosaccharide
+
+        Raises
+        ------
+        IndexError:
+            If the provided `ix` exceeds the length of the index,
+            or if :attr:`index` has not been populated.
         '''
         if self.index is not None:
             return self.index[ix]
@@ -312,6 +354,24 @@ class Glycan(SaccharideCollection):
         return self
 
     def get(self, ix):
+        """Get a :class:`~.Monosaccharide` from this structure by its :attr:`~.Monosaccharide.id` value.
+
+        If :attr:`index` is populated it will be iterated over, otherwise :meth:`__iter__` will be called.
+
+        Parameters
+        ----------
+        ix : int or tuple
+            The id value to search for.
+
+        Returns
+        -------
+        Monosaccharide
+
+        Raises
+        ------
+        IndexError:
+            If the id value is not found
+        """
         if self.index:
             iterable = self.index
         else:
@@ -323,6 +383,25 @@ class Glycan(SaccharideCollection):
             "Could not find a node with the given id {}".format(ix))
 
     def get_link(self, ix):
+        """Search for a :class:`~.Link` by :attr:`~.Link.id` value.
+
+        This will use :meth:`iterlinks` to iterate over the linkages
+        in the structure
+
+        Parameters
+        ----------
+        ix : int
+            The link index to search for.
+
+        Returns
+        -------
+        :class:`~.Link`
+
+        Raises
+        ------
+        IndexError:
+            if the id value is not found
+        """
         for pos, link in self.iterlinks():
             if link.id == ix or link.label == ix:
                 return link
@@ -344,9 +423,9 @@ class Glycan(SaccharideCollection):
 
     def set_reducing_end(self, value):
         '''
-        Sets the reducing end type, and configures the root residue appropriately.
+        Sets the reducing end type, and configures the :attr:`root` |Monosaccharide| appropriately.
 
-        If the reducing_end is not |None|, then the following state changes are made to the root:
+        If the reducing_end is not |None|, then the following state changes are made to :attr:`root`:
 
         .. code-block:: python
 
@@ -362,6 +441,9 @@ class Glycan(SaccharideCollection):
             self.root.ring_end = UnknownPosition
             self.root.anomer = None
 
+        .. note:: This method is called automatically when setting :attr:`reducing_end`, and does not
+
+        need to be used explicitly.
         '''
         if self.root.node_type is Substituent.node_type:
             raise TypeError("Cannot set reducing end on this glycan composition")
@@ -680,7 +762,7 @@ class Glycan(SaccharideCollection):
 
         Yields
         ------
-        |Monosaccharide|
+        :class:`~.Monosaccharide`
         '''
         traversal = self._get_traversal_method(method)
         if bidirectional:
@@ -841,7 +923,18 @@ class Glycan(SaccharideCollection):
         '''
         Labels each branch point with an alphabetical symbol. Also computes and stores
         each branch's length and stores it in :attr:`branch_lengths`. Sets :attr:`branch_lengths`
-        of `self` and :attr:`Link.label` for each link attached to `self`.
+        of `self` and :attr:`Link.label` for each link attached to `self`. Also populates
+        :attr:`branch_parent_map`.
+
+        Branch symbols are increasing alphabetical characters. The root branch is denoted '-', though
+        glycans having an :attr:`root` with multiple children will not have any actual branches with
+        that label.
+
+        :attr:`Link.label` updates use the current branch symbol, and the index of that link along
+        that branch.
+
+        .. note:: Labeling always uses a depth-first traversal of nodes.
+
         '''
         last_branch_label = MAIN_BRANCH_SYM
         self.branch_lengths = defaultdict(int)

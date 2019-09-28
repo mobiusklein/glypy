@@ -25,8 +25,8 @@ class Link(object):
 
     Attributes
     ----------
-    parent: :class:`~glypy.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
-    child: :class:`~glypy.structure.monosaccharide.Monosaccharide` or :class:`~.substituent.Substituent`
+    parent: :class:`~.Monosaccharide` or :class:`~.Substituent`
+    child: :class:`~.Monosaccharide` or :class:`~.Substituent`
     parent_position: int
         Position of link on :attr:`parent`
     child_position: int
@@ -35,7 +35,9 @@ class Link(object):
         Elemental composition lost from the :attr:`parent` when forming this bond
     child_loss: |Composition|
         Elemental composition lost from the :attr:`child` when forming this bond
-
+    _attached: :class:`bool`
+        An internal flag that keeps track of whether or not a link is attached to
+        its termini. Should not be read or manipulated directly. Instead see :meth:`is_attached`.
     '''
 
     __slots__ = (
@@ -60,18 +62,18 @@ class Link(object):
 
         Parameters
         ----------
-        parent: :class:`Monosaccharide` or :class:`Substituent`
-        child: :class:`Monosaccharide` or :class:`Substituent`
+        parent: :class:`~.Monosaccharide` or :class:`~.Substituent`
+        child: :class:`~.Monosaccharide` or :class:`~.Substituent`
         parent_position: int
-            The position on the parent to attach to Defaults to -1
+            The position on the parent to attach to Defaults to :const:`~.UnknownPosition`
         child_position: int
-            The position on the child to attach to. Defaults to -1
+            The position on the child to attach to. Defaults to :const:`~.UnknownPosition`
         parent_loss: :class:`Composition` or str
             The elemental composition deducted from the parent when the bond is applied
         child_loss: :class:`Composition` or str
             The elemental composition deducted from the child when the bond is applied
         id: int
-            A locally unique identifier within a graph. If |None|, uuid4 is used to generate one. Defaults to |None|
+            A locally unique identifier within a graph. If |None|, :func:`~.glypy.utils.uid` is used to generate one. Defaults to |None|
         attach: bool
             Whether to immediately attach the |Link| object to the `parent` and `child` molecules on instantiation
             by using :meth:`Link.apply`
@@ -104,7 +106,7 @@ class Link(object):
             self.apply()
 
     def has_ambiguous_linkage(self):
-        """Returns whether the link position at either terminal is ambiguous
+        """Returns whether the link position at either terminal is ambiguous, but not unknown.
 
         Returns
         -------
@@ -122,7 +124,8 @@ class Link(object):
         return False
 
     def is_ambiguous(self):
-        """Returns if the link position or link terminal at either end is ambiguous
+        """Returns if the link position or link terminal at either end is ambiguous,
+        but not unknown.
 
         Returns
         -------
@@ -150,11 +153,8 @@ class Link(object):
         See also
         --------
         :meth:`Link.break_link`
-        :meth:`Link.reconnect`
         :meth:`Link.refund`
-        :meth:`~.Monosaccharide.is_occupied`
-        :meth:`~.Substituent.is_occupied`
-
+        :meth:`Monosaccharide.is_occupied`
         '''
         # assert not self.is_attached(), ("Cannot apply an already attached link")
         self.parent.composition -= (self.parent_loss)
@@ -176,15 +176,15 @@ class Link(object):
 
         Parameters
         ----------
-        mol: :class:`Monosaccharide` or :class:`Substituent`
+        mol: :class:`~.Monosaccharide` or :class:`~.Substituent`
 
         Returns
         -------
-        :class:`Monosaccharide` or :class:`Substituent`
+        :class:`~.Monosaccharide` or :class:`~.Substituent`
 
         Raises
         ------
-        KeyError:
+        KeyError
             If `mol` is not the parent or child of this |Link|
         '''
         if mol is (self.parent):
@@ -343,7 +343,7 @@ class Link(object):
         self._attached = False
         return (self.parent, self.child)
 
-    def reconnect(self, refund=False):
+    def _reconnect(self, refund=False):
         '''
         The opposite of :meth:`Link.break_link`, add `self` to the appropriate places on
         :attr:`parent` and :attr:`child`
@@ -608,17 +608,17 @@ class AmbiguousLink(Link):
     def iterconfiguration(self, attach=False):
         """Iterate over possible configurations for this link, yielding them.
 
-        If `attach` is :const:`True`, call :meth:`reconfigure` with each
+        If ``attach`` is :const:`True`, call :meth:`reconfigure` with each
         specification.
 
         Parameters
         ----------
-        attach : bool, optional
-            Whether or not to apply each configuration (the default is :const:`False`)
+        attach: :class:`bool`, optional
+            Whether or not to apply each configuration. The default is :const:`False`
 
         Yields
         ------
-        tuple of :attr:`parent`, :attr:`child`, :attr:`parent_position`, :attr:`child_position`
+        :class:`tuple` of :attr:`parent`, :attr:`child`, :attr:`parent_position`, :attr:`child_position`
         """
         configurations = self._configuration_crossproduct()
         for parent_o, child_o, parent_position_o, child_position_o in configurations:

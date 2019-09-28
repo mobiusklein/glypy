@@ -619,7 +619,7 @@ class RepeatedGlycoCTSubgraph(GlycoCTSubgraph):
     ----------
     graph_index: int
     repeast_index: int
-        The `i`th repeating subgraph in the graph.
+        The ``i``th repeating subgraph in the graph.
     internal_linkage: object
         The linkage connecting two repetitions of the subgraph
     external_linkage: object
