@@ -246,7 +246,6 @@ def subtree_of(subtree, tree, exact=False, include_substituents=True, tolerance=
     Returns
     -------
     |int| or |None| if no match
-
     '''
     if exact:
         comparator = exact_ordering_inclusion
@@ -260,6 +259,24 @@ def subtree_of(subtree, tree, exact=False, include_substituents=True, tolerance=
 
 
 def find_matching_subtree_roots(subtree, tree, exact=False, include_substituents=True, tolerance=0):
+    '''
+    Find the list of nodes where occurences of `subtree` included in `tree` are rooted.
+
+    Parameters
+    ----------
+    subtree: :class:`~.Glycan`
+        The structure to search for. The search attempts to match the complete structure of subtree.
+    tree: :class:`~.Glycan`
+        The sturcture to search in. The search iterates over each residue in `tree` and calls a comparator
+        function, comparing the `subtree` to the substructure rooted at that residue.
+    exact: :class:`bool`
+        If |True|, use :func:`exact_ordering_inclusion` to compare nodes. Otherwise use :func:`topological_inclusion`.
+        Defaults to |False|.
+
+    Returns
+    -------
+    :class:`list` of :class:`~.Monosaccharide`
+    '''
     if exact:
         comparator = exact_ordering_inclusion
     else:
@@ -273,8 +290,12 @@ def find_matching_subtree_roots(subtree, tree, exact=False, include_substituents
 
 
 def walk_with(query, reference, visited=None, comparator=commutative_similarity, include_substituents=True):
-    """Walk the `query` along `refernece`, yielding successive matched nodes along
-    a subtree of `reference`.
+    """Walk the `query` along `reference`, yielding successive matched nodes along
+    a subtree of `reference` using a :term:`Exact Matching` traversal.
+
+    This function provides slightly more detail than :func:`subtree_of`
+    as it exposes every step along the subgraph traversal, rather than just the root.
+
 
     Parameters
     ----------

@@ -11,8 +11,24 @@ from glypy.structure.monosaccharide import depth
 
 
 #: Results Container for :func:`maximum_common_subgraph`
-MaximumCommonSubtreeResults = make_struct(
+_MaximumCommonSubtreeResults = make_struct(
     "MaximumCommonSubtreeResults", ("score", "tree", "similarity_matrix"))
+
+class MaximumCommonSubtreeResults(_MaximumCommonSubtreeResults):
+    """Holds a maximum common subgraph solution
+
+    Attributes
+    ----------
+    score: float
+        The alignment score between the trees compared
+    similarity_matrix: :class:`list` of :class:`list` of :class:`float`
+        A simple dynamic programming solution matrix describing the alignment
+        at each position.
+    tree: :class:`~.Glycan`
+        The maximum common subgraph, extracted as a separate :class:`~.Glycan`
+        object.
+    """
+    __slots__ = ()
 
 
 class MaximumCommonSubgraphSolver(object):
@@ -127,6 +143,10 @@ class MaximumCommonSubgraphSolver(object):
             Whether or not to take exact matches, or just take the best
             pairing. If `exact` = |True| and there is no exact match, the
             branch will terminate.
+
+        Returns
+        -------
+        :class:`~.Glycan`
         '''
         root_ = node_a.clone()
         node_stack = [(root_, node_a, node_b)]
@@ -189,7 +209,7 @@ class MaximumCommonSubgraphSolver(object):
 
         Returns
         -------
-        MaximumCommonSubtreeResults
+        :class:`MaximumCommonSubtreeResults`
 
         References
         ----------
@@ -369,7 +389,7 @@ class Treelet(object):
 
 
 class TreeletIterator(object):
-    """Iterate over all distinct :math:`k`-treelets of :attr:`tree`, all
+    """Iterator over all distinct :math:`k`-treelets of :attr:`tree`, all
     unique sub-trees of :attr:`tree` with :attr:`k` monosaccharides.
 
     Attributes
@@ -439,6 +459,18 @@ class TreeletIterator(object):
 
 
 def treelets(glycan, k, distinct=True):
+    """Iterator over all distinct :math:`k`-treelets of :attr:`tree`, all
+    unique sub-trees of :attr:`tree` with :attr:`k` monosaccharides.
+
+    Parameters
+    ----------
+    glycan : :class:`~.Glycan`
+        The glycan to extract reelets from
+    k : int
+        The number monosaccharides per treelet
+    distinct : bool
+        Whether or not to filter out duplicate treelets
+    """
     for treelet in TreeletIterator(glycan, k, distinct=distinct):
         yield treep(treelet)
 

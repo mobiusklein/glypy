@@ -298,6 +298,8 @@ class Monosaccharide(SaccharideBase):
     ring_end:  |int|
         The index of the carbon of the carbohydrate backbone that ends a ring. A value of ``-1``, ``'x'``, or
         |None| corresponds to an unknown ends. A value of ``0`` refers to a linear chain.
+    stereocode: :class:`~.Stereocode`
+        The stereochemistry of all carbons of the monosaccharide's backbone ring/chain.
     reducing_end: :class:`ReducedEnd`
         The reducing end terminal group of the monosaccharide if the monosaccharide is uncyclized
     modifications: |OrderedMultiMap|
@@ -330,6 +332,54 @@ class Monosaccharide(SaccharideBase):
                  superclass=None, ring_start=UnknownPosition, ring_end=UnknownPosition,
                  modifications=None, links=None, substituent_links=None,
                  composition=None, reduced=None, id=None, fast=False):
+        """Create a new :class:`Monosaccharide` using the provided attributes, leaving
+        any unspecified attributes in an explicit unknown state.
+
+        If ``fast`` is :const:`True`, all parameter values are assumed to be :class:`~.EnumValue`
+        instances from the correct classes, and reduction checking is done quickly. This option
+        is :const:`False` by default on explicit calls but set to :const:`True` for certain internal
+        cases where this precondition can be ensured.
+
+        Parameters
+        ----------
+        anomer : :class:`str` or :class:`~.EnumValue`, optional
+            Specify the anomeric carbon state. Translates through :class:`~.Anomer`
+        configuration : :class:`str` or :class:`~.EnumValue` or :class:`tuple` optional
+            Specify the stereoisomeric configuration state(s) of the carbon rings. Will
+            be converted to a :class:`tuple` if not provided as one, and elements will be
+            translated through :class:`~.consants.Configuration`
+        stem : :class:`str` or :class:`~.EnumValue` or :class:`tuple`, optional
+            Specify the base carbon ring stereochemical template. Will
+            be converted to a :class:`tuple` if not provided as one, and elements will be
+            translated through :class:`~.consants.Stem`
+        superclass : :class:`str` or :class:`~.EnumValue`, optional
+            Specify the carbon chain length. Translates through :class:`~.SuperClass`.
+        ring_start : int, optional
+            Specify the carbon ring start position. If missing, defaults to :const:`UnknownPosition`
+        ring_end : int, optional
+            Specify the carbon ring closing position. If missing, defaults to :const:`UnknownPosition`
+        modifications : OrderedMultiMap, optional
+            Specify the collection of :class:`~.constant.Modification` values located at different carbon
+            positions.
+        links : OrderedMultiMap, optional
+            Specify the collection of :class:`~.Link` instances connecting this monosaccharide to other
+            monosaccharides
+        substituent_links : OrderedMultiMap, optional
+            Specify the collection of :class:`~.Link` instances connecting this monosaccharide to its
+            substituents
+        composition : :class:`~.Composition`, optional
+            The chemical composition of the carbon ring to use prior to applying linkage changes and
+            modifications. Automatically derived from `superclass` if omitted.
+        reduced : :class:`ReducedEnd` or :class:`bool`, optional
+            Whether the monosaccharide is reduced, or if a :class:`ReducedEnd` is given, specifies the
+            reduction type.
+        id : :class:`int`, optional
+            The value to set for the node's :attr:`id`. If not provided, one will be generated using
+            :func:`~.glypy.utils.uid`.
+        fast : bool, optional
+            Whether or not to use the fast initialization branch or not. Should only be used if all
+            parameters have been properly typed and valid.
+        """
 
         if modifications is None:  # pragma: no cover
             modifications = OrderedMultiMap()
@@ -1010,10 +1060,6 @@ class Monosaccharide(SaccharideBase):
         link_obj.break_link(refund=refund)
         return self
 
-    @classmethod
-    def register_serializer(cls, name, method):
-        cls._serializers[name] = method
-
     def serialize(self, name='glycoct'):
         """Convert this object into text using the requested textual encoding
 
@@ -1027,6 +1073,30 @@ class Monosaccharide(SaccharideBase):
         :class:`str`
         """
         return self._serializers[name.lower()](self)
+
+    @classmethod
+    def register_serializer(cls, name, method):
+        """Add `method` as `name` to the set of serializers to pick from
+        in :meth:`serialize`
+
+        Parameters
+        ----------
+        name : str
+            The name of the serializer
+        method : Callable
+            A callable object that when called with a :class:`Monosaccharide` returns a :class:`str`
+        """
+        cls._serializers[name.lower()] = method
+
+    @classmethod
+    def available_serializers(cls):
+        """Get the list of available serialization formats
+
+        Returns
+        -------
+        :class:`list` of :class:`str`
+        """
+        return list(cls._serializers.keys())
 
     def _flat_equality(self, other, lengths=True):
         '''

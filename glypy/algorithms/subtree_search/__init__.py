@@ -8,3 +8,7 @@ from .inclusion import (
 from .common_subgraph import (
     maximum_common_subgraph, treelets, n_saccharide_similarity, distinct_fragments,
     treelet_enrichment)
+
+from .common_subgraph import (
+    Treelet, TreeletIterator, TreeletEnrichmentTest,
+    MaximumCommonSubgraphSolver, MaximumCommonSubtreeResults)

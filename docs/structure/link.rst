@@ -65,8 +65,13 @@ Represents the connections between residues, such as the bond between |Substitue
 
     Utilities
     ^^^^^^^^^
-
     .. automethod:: Link.clone
+
+    :class:`Link` objects support equality comparison, but this tests the equality of their termini. To test
+    whether two links' other properties are equal, see, :meth:`Link.trait_equality`
+
+    .. automethod:: Link.__eq__
+    .. automethod:: Link.trait_equality
 
 
 

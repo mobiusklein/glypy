@@ -299,7 +299,19 @@ class Link(object):
                       (self.parent == other.parent)
             return res
 
-    def _flat_equality(self, other):
+    def trait_equality(self, other):
+        """Test whether the intrinsic attributes of another :class:`Link` object
+        match this link without examining the actual termini.
+
+        Parameters
+        ----------
+        other : :class:`Link`
+            The object to compare against
+
+        Returns
+        -------
+        bool
+        """
         res = True
         if res:
             res = (self.parent_position == other.parent_position)
@@ -309,6 +321,10 @@ class Link(object):
             res = (self.parent_loss == other.parent_loss)
         if res:
             res = (self.child_loss == other.child_loss)
+        return res
+
+    def _flat_equality(self, other):
+        res = self.trait_equality(other)
         if res:
             res = (self.child.id == other.child.id) and\
                   (self.child == other.child)
