@@ -1376,10 +1376,10 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        |list| of
+        :class:`list` of
         position: int
             Location of the bond to the child |Monosaccharide|
-        child: |Monosaccharide|
+        child: Monosaccharide
             |Monosaccharide| at `position`
         '''
         if links:
@@ -1399,10 +1399,10 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        |list| of
+        :class:`list` of
         position: int
             Location of the bond to the parent |Monosaccharide|
-        parent: |Monosaccharide|
+        parent: Monosaccharide
             |Monosaccharide| at `position`
         '''
         if links:
@@ -1418,7 +1418,7 @@ class Monosaccharide(SaccharideBase):
 
         Returns
         -------
-        |list| of
+        :class:`list` of
         position: int
             Location of the bond to the substituent
         substituent: Substituent

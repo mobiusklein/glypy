@@ -91,6 +91,16 @@ class NodeSimilarityComparator(object):
             7. If `include_substituents`, each substituent
             8. If `include_children`, each child |Monosaccharide|
 
+        The result is two numbers, the observed similarity between `node` and `target`,
+        and the similarity between `target` and itself. `expected - observed` is there
+        number of differences observed between the two monosaccharides, which can be useful
+        for expressing how far apart two monosaccharides are in feature space. For more distant
+        similarity testing, especially when considering children, the ratio `observed / expected`
+        might be used instead.
+
+        Similarity is not symmetric, e.g. ``a -> b != b -> a``. A commutative version of similarity
+        can be used by calculating both directions, and taking the result with the smallest error.
+
         Parameters
         ----------
         node : :class:`~.Monosaccharide`
@@ -145,16 +155,68 @@ class NodeSimilarityComparator(object):
         return inst.compare(node, target)
 
     def compare_anomer(self, node, target):
+        """Compare :attr:`~.Monosaccharide.anomer` of `node` and `target`
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = (node.anomer == target.anomer) or ((target.anomer.value is None) and self.treat_null_as_wild)
         reference = 1
         return int(test), reference
 
     def compare_compositions(self, node, target):
+        """Compre :meth:`~.Monosaccharide.total_composition` of `node` and `target`.
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = int(node.total_composition() == target.total_composition())
         reference = 1
         return test, reference
 
     def compare_ring_structure(self, node, target):
+        """Compare the :attr:`~.Monosaccharide.superclass`, :attr:`~.Monosaccharide.stem`,
+        :attr:`~.Monosaccharide.configuration`, and possibly :attr:`~.Monosaccharide.ring_start`
+        and :attr:`~.Monosaccharide.ring_end` of `node` and `target`.
+
+        If :attr:`ignore_ring` is :const:`True`, ring positions will be assumed to match.
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = reference = 0
         test += (node.superclass == target.superclass) or ((target.superclass.value is None) and
                                                            self.treat_null_as_wild)
@@ -177,6 +239,22 @@ class NodeSimilarityComparator(object):
         return test, reference
 
     def compare_modifications(self, node, target):
+        """Compare the modifications of `node` and `target`
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = reference = 0
         node_reduced = False
         target_reduced = False
@@ -218,6 +296,26 @@ class NodeSimilarityComparator(object):
         return test, reference
 
     def compare_substituents(self, node, target):
+        """Compare the substituents of `node` and `target`.
+
+        If :attr:`match_attachement_positions` is :const:`True`,
+        the positions must match exactly, otherwise only the substituent
+        types must match.
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = reference = 0
         if self.match_attachement_positions:
             node_subs = defaultdict(list)
@@ -245,6 +343,17 @@ class NodeSimilarityComparator(object):
     def _build_child_pair_score_map(self, node, target):
         '''Compute all pair-wise similarities between children
         of ``node`` and ``target``
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        dict
         '''
         # TODO: support exactness penalty here, maybe recursively?
         node_children = list(child for p, child in node.children())
@@ -256,6 +365,26 @@ class NodeSimilarityComparator(object):
         return match_index
 
     def compare_children(self, node, target):
+        """Compute the similarity of the set of children between `node` and `target`
+
+        If :attr:`match_attachement_positions` is :const:`True`, this will require
+        the positions of child nodes to match exactly, otherwise, all pair-wise combinations
+        will be considered and the optimal solution will be selected using :meth:`optimal_assignment`
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         test = reference = 0
         if self.match_attachement_positions:
             node_children = defaultdict(list)
@@ -282,6 +411,25 @@ class NodeSimilarityComparator(object):
         return self.short_circuit_after is not None and (test - reference) < self.short_circuit_after
 
     def compare(self, node, target):
+        """Calculate the similarity between `node` and `target`.
+
+        This method does most of the organizational work, calling the appropriate
+        methods and checking for short-circuiting.
+
+        Parameters
+        ----------
+        node : :class:`~.Monosaccharide`
+            The reference monosaccharide
+        target : :class:`~.Monosaccharide`
+            The monosaccharide to compare against
+
+        Returns
+        -------
+        test: int
+            The similarity between node and target
+        reference: int
+            The expected similarity between target and itself
+        """
         key = (node.id, target.id)
         if key in self.visited:
             return 0, 0
@@ -415,9 +563,67 @@ def commutative_similarity(node, target, tolerance=0, *args, **kwargs):
 
 
 def commutative_similarity_score(node, target, *args, **kwargs):
+    """Apply :func:`monosaccharide_similarity` to ``node`` and ``target`` for both
+    ``node --> target`` and ``target --> node``, returning the maximally normalized
+    ratio of `observed / expected`.
+
+    Parameters
+    ----------
+    node: :class:`~.Monosaccharide`
+        The reference monosaccharide
+    target: :class:`~.Monosaccharide`
+        The monosaccharide to compare against
+    *args:
+        Forwarded to :func:`monosaccharide_similarity`
+    **kwargs:
+        Forwarded to :func:`monosaccharide_similarity`
+
+    Returns
+    -------
+    :class:`float`:
+        The maximal similarity score ratio
+    """
     a_b, b_b = monosaccharide_similarity(node, target, *args, **kwargs)
     b_a, a_a = monosaccharide_similarity(target, node, *args, **kwargs)
     return max(a_b / (1. * b_b), b_a / (1. * a_a))
+
+
+def commutative_similarity_score_with_tolerance(node, target, tolerance, *args, **kwargs):
+    """Apply :func:`monosaccharide_similarity` to ``node`` and ``target`` for both
+    ``node --> target`` and ``target --> node``, returning the maximally normalized
+    ratio score, and whether there was a pair error less than `tolerance`.
+
+    This can be viewed as a combination of :func:`commutative_similarity` and
+    :func:`commutative_similarity_score` while making fewer calls to
+    :func:`monosaccharide_similarity`.
+
+    Parameters
+    ----------
+    node: :class:`~.Monosaccharide`
+        The reference monosaccharide
+    target: :class:`~.Monosaccharide`
+        The monosaccharide to compare against
+    tolerance: :class:`int`
+        The minimum number of errors to tolerate
+    *args:
+        Forwarded to :func:`monosaccharide_similarity`
+    **kwargs:
+        Forwarded to :func:`monosaccharide_similarity`
+
+    Returns
+    -------
+    :class:`float`:
+        The maximal similarity score ratio
+    :class:`bool`:
+        Whether the difference passes error tolerance
+    """
+    a_b, b_b = monosaccharide_similarity(node, target, *args, **kwargs)
+    b_a, a_a = monosaccharide_similarity(target, node, *args, **kwargs)
+    pass_threshold = False
+    if (b_b - a_b) <= tolerance or (a_a - b_a) <= tolerance:
+        pass_threshold = True
+    return max(a_b / (1. * b_b), b_a / (1. * a_a)), pass_threshold
+
 
 
 def has_substituent(monosaccharide, substituent):
@@ -500,6 +706,19 @@ def has_monosaccharide(glycan, monosaccharide, tolerance=0, *args, **kwargs):
 
 
 def is_reduced(obj):
+    """A simple predicate to test whether an object has a reduced structure.
+
+     If `obj` does not have a `reducing_end` attribute, this will return :const:`False`
+
+    Parameters
+    ----------
+    obj : object
+        The object to check
+
+    Returns
+    -------
+    bool
+    """
     try:
         return obj.reducing_end is not None
     except AttributeError:
@@ -507,6 +726,21 @@ def is_reduced(obj):
 
 
 def is_amine(substituent):
+    """A simple predicate to test whether a substituent has an amine group adjacent
+    attached to the carbon backbone by naming convention.
+
+    This predicate checks to see if the name of the substituent is "amino" or if it
+    starts with the phrase "n_" only.
+
+    Parameters
+    ----------
+    substituent : Substituent  or str
+        The object to test
+
+    Returns
+    -------
+    bool
+    """
     if isinstance(substituent, Substituent):
         name = substituent.name
     else:
@@ -515,6 +749,24 @@ def is_amine(substituent):
 
 
 def is_aminated(monosaccharide):
+    """Tests to see if any substituents of `monosaccharide` are amines.
+
+    Each substituent is tested using :func:`is_amine`, with all the caveats that
+    entails.
+
+    Parameters
+    ----------
+    monosaccharide : Monosaccharide
+        The monosaccharide to test
+
+    Returns
+    -------
+    bool
+
+    See Also
+    --------
+    is_amine
+    """
     for p, substituent in monosaccharide.substituents():
         if is_amine(substituent):
             return True
@@ -528,10 +780,33 @@ is_sulfated = functools.partial(has_substituent, substituent=Substituent("sulfat
 
 
 def is_generic_monosaccharide(monosaccharide):
+    """Tests if the :attr:`~.Monosaccharide.stem` is unknown.
+
+    Parameters
+    ----------
+    monosaccharide : Monosaccharide
+        The object to test
+
+    Returns
+    -------
+    bool
+    """
     return monosaccharide.stem[0] is Stem.x
 
 
 def is_derivatized(monosaccharide):
+    """Tests whether any of the substituents attached to `monosaccharide` were
+    added by derivatization.
+
+    Parameters
+    ----------
+    monosaccharide : Monosaccharide
+        The object to test
+
+    Returns
+    -------
+    bool
+    """
     for pos, sub in monosaccharide.substituents():
         if sub._derivatize:
             return True

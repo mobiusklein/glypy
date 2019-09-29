@@ -7,7 +7,7 @@ mapped onto equivalent nodes in graph B that are connected in the same way.
 from collections import deque, defaultdict
 
 from glypy.structure import UnknownPosition
-from glypy.algorithms.similarity import commutative_similarity
+from glypy.algorithms.similarity import commutative_similarity, commutative_similarity_score_with_tolerance
 from glypy.utils import root
 
 
@@ -38,7 +38,7 @@ class TopologicalInclusionMatcher(object):
     @classmethod
     def compare(cls, target, reference, substituents=True, tolerance=0, visited=None):
         '''
-        A generalization of :meth:`~.topological_equality` which allows for ``target``
+        A generalization of :meth:`~Monosaccharide.topological_equality` which allows for ``target``
         to be matched to ``reference``, but for ``reference`` to include more. Consequently,
         this method is not commutative.
 
@@ -60,6 +60,11 @@ class TopologicalInclusionMatcher(object):
         :class:`float`
             The inclusion score. Greater than 0 indicates topological inclusion,
             though larger corresponds to better alignment.
+
+        See Also
+        --------
+        :func:`~.commutative_similarity_score_with_tolerance`
+        exact_ordering_inclusion
         '''
         inst = cls(
             target, reference, substituents=substituents,
@@ -77,12 +82,12 @@ class TopologicalInclusionMatcher(object):
 
         See Also
         --------
-        :func:`~.commutative_similarity`
+        :func:`~.commutative_similarity_score_with_tolerance`
         """
-        similar = commutative_similarity(
+        score, similar = commutative_similarity_score_with_tolerance(
             self.target, self.reference, self.tolerance,
             include_substituents=self.substituents)
-        return similar
+        return score, similar
 
     def test_children(self):
         """Find the optimal similarity pairing between descendents of
@@ -95,17 +100,24 @@ class TopologicalInclusionMatcher(object):
         return optimal_assignment, score, bool(required_nodes)
 
     def test(self):
+        """Compute the similarity metric for the current node pair.
+
+        Returns
+        -------
+        float:
+            The similarity score for the current pair.
+        """
         key = (self.target.id, self.reference.id)
         if key in self.visited:
             return True
         self.visited.add(key)
-        similar = self.test_similarity()
+        pair_score, similar = self.test_similarity()
         if similar:
             child_pairs, score, had_children = self.test_children()
             if child_pairs:
-                return similar + score
+                return pair_score + score
             elif not had_children:
-                return similar
+                return pair_score
             else:
                 return 0
         return 0
@@ -170,7 +182,7 @@ topological_inclusion = TopologicalInclusionMatcher.compare
 
 def exact_ordering_inclusion(target, reference, substituents=True, tolerance=0, visited=None):
     '''
-    A generalization of :meth:`~.exact_ordering_equality` which allows for ``target``
+    A generalization of :meth:`~Monosaccharide.exact_ordering_equality` which allows for ``target``
     to be matched to ``reference``, but for ``reference`` to include more. Consequently,
     this method is not commutative.
 
@@ -189,41 +201,52 @@ def exact_ordering_inclusion(target, reference, substituents=True, tolerance=0, 
 
     Returns
     -------
-    :class:`bool`
+    :class:`float`:
+        The similarity score between the two structures. A score of 0 means no
+        inclusion, and a non-zero score means inclusion, with larger scores indicating
+        more node pairs matching.
+
+    See Also
+    --------
+    commutative_similarity_score_with_tolerance
+    topological_inclusion
     '''
     if visited is None:
         visited = set()
     if (target.id, reference.id) in visited:
         return True
-    similar = commutative_similarity(target, reference, tolerance, include_substituents=substituents)
+    node_score, similar = commutative_similarity_score_with_tolerance(
+        target, reference, tolerance, include_substituents=substituents)
     if similar:
         if substituents:
             reference_substituents = dict(reference.substituents())
             for a_pos, a_sub in target.substituents():
                 b_sub = reference_substituents.get(a_pos)
                 if b_sub is None:  # pragma: no cover
-                    return False
+                    return 0
                 if a_sub != b_sub:  # pragma: no cover
-                    return False
+                    return 0
         reference_mods = dict(reference.modifications.items())
         for a_pos, a_mod in target.modifications.items():
             b_mod = reference_mods.get(a_pos)
             if b_mod is None:  # pragma: no cover
-                return False
+                return 0
             if a_mod != b_mod:  # pragma: no cover
-                return False
+                return 0
         reference_children = dict(reference.children())
         for pos, a_child in target.children():
             b_child = reference_children.get(pos)
             if b_child is None:  # pragma: no cover
-                return False
+                return 0
             if a_child[0] == b_child[0]:
-                if not exact_ordering_inclusion(a_child, b_child, substituents=substituents,
-                                                tolerance=tolerance, visited=visited):
-                    return False
+                match_score = exact_ordering_inclusion(a_child, b_child, substituents=substituents,
+                                                       tolerance=tolerance, visited=visited)
+                if not match_score:
+                    return 0
+                node_score += match_score
             else:
-                return False
-        return True
+                return 0
+        return node_score
 
 
 def subtree_of(subtree, tree, exact=False, include_substituents=True, tolerance=0):
