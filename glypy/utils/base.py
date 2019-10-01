@@ -108,7 +108,7 @@ def chrinc(a='a', i=1):
     return chr(ord(a) + i)
 
 
-def make_struct(name, fields, debug=False):
+def make_struct(name, fields, debug=False, docstring=None):
     '''
     A convenience function for defining plain-old-data (POD) objects that are optimized
     for named accessor lookup, unlike `namedtuple`. If the named container does not
@@ -120,10 +120,26 @@ def make_struct(name, fields, debug=False):
     name: str
         The name of the new class structure
     fields: iterable of str
-
+    debug: bool
+        Should the generated code be printed
+    docstring: str, optional
+        The docstring to apply to the generated class
     '''
+    # Generate a totally uninformative docstring
+    if docstring is None:
+        docstring = """{name} is a plain-old-data holder.
+
+Attributes
+----------
+""".format(name=name)
+        for field in fields:
+            docstring += "    {field}: object\n".format(field=field)
+        docstring = '\n'.join(["    " + line for line in docstring.splitlines()]).strip()
     template = ('''
 class {name}(object):
+    r"""{docstring!s}
+    """
+
     __slots__ = {fields!r}
     def __init__(self, {args}):
         {self_fields} = {args}
@@ -163,7 +179,8 @@ class {name}(object):
         name=name,
         fields=fields,
         args=','.join(fields),
-        self_fields=','.join('self.' + f for f in fields))
+        self_fields=','.join('self.' + f for f in fields),
+        docstring=docstring)
     d = {'fields': fields}
     if debug:  # pragma: no cover
         print(template)

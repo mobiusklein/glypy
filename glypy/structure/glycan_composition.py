@@ -154,7 +154,7 @@ def drop_stem(residue, force=False):
     """Drops the stem, or the carbon ring stereochemical
     classification from this monosaccharide.
 
-    Unless ``force`` is |True|, if :func:`~.iupac.resolve_special_base_type`
+    Unless ``force`` is |True|, if :func:`~glypy.io.iupac.resolve_special_base_type`
     returns a truthy value, this function will do nothing.
 
     Parameters
@@ -300,14 +300,42 @@ class ResidueBase(object):
         return self
 
     def to_iupac_lite(self):
+        """Encode this residue using `iupac_lite` notation.
+
+        Returns
+        -------
+        str
+        """
         return to_iupac_lite(self)
 
     @classmethod
     def from_iupac_lite(cls, string):
+        """Parse a string of `iupac_lite` notation to produce a residue object
+
+        Parameters
+        ----------
+        string : :class:`str`
+            The string to parse
+
+        Returns
+        -------
+        ResidueBase
+        """
         return from_iupac_lite(string, residue_class=cls)
 
 
 class MonosaccharideResidue(Monosaccharide, ResidueBase):
+    """Represents a :class:`Monosaccharide`-like object, save that it does
+    not connect to other :class:`~.Monosaccharide` objects and does not have
+    properties related to topology, specifically, :attr:`anomer`.
+
+    A single :class:`MonosaccharideResidue` has lost a water molecule from its
+    composition, reflecting its residual nature. This is accounted for when dealing
+    with aggreates of residues. They also have altered carbon backbone occupancies.
+
+    :class:`MonosaccharideResidue` objects are hashable and comparable on their
+    `iupac_lite` representation, which is given by :meth:`__str__` or :meth:`name`.
+    """
     __slots__ = ()
 
     @classmethod
@@ -357,7 +385,7 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
 
     def clone(self, *args, **kwargs):
         '''
-        Copies just this |Monosaccharide| and its |Substituent|s, creating a separate instance
+        Copies just this |Monosaccharide| and its |Substituent| objects, creating a separate instance
         with the same data. All mutable data structures are duplicated and distinct from the original.
 
         Does not copy any :attr:`links` as this would cause recursive duplication of the entire |Glycan|
@@ -374,7 +402,7 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
 
         Returns
         -------
-        :class:`Monosaccharide`
+        :class:`MonosaccharideResidue`
 
         '''
         kwargs.setdefault("monosaccharide_type", MonosaccharideResidue)
@@ -398,7 +426,7 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
 
     def open_attachment_sites(self, max_occupancy=0):
         '''
-        When attaching :class:`Monosaccharide` instances to other objects,
+        When attaching :class:`~.Monosaccharide` instances to other objects,
         bonds are formed between the carbohydrate backbone and the other object.
         If a site is already bound, the occupying object fills that space on the
         backbone and prevents other objects from binding there.
@@ -410,6 +438,9 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
         If any existing attached units have unknown positions, we can't provide any
         known positions, in which case the list of open positions will be a :class:`list`
         of ``-1`` s of the length of open sites.
+
+        A :class:`MonosaccharideResidue` has two fewer open attachment sites than
+        the equivalent :class:`~.Monosaccharide`
 
         Parameters
         ----------
@@ -442,9 +473,30 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
         return str(self) == str(other)
 
     def name(self):
+        """Name this object according to `iupac_lite`.
+
+        Returns
+        -------
+        str
+
+        See Also
+        --------
+        :meth:`to_iupac_lite`
+        """
         return to_iupac_lite(self)
 
     def residue_name(self):
+        """Name this object according to `iupac_lite`, omitting any derivatization
+
+        Returns
+        -------
+        str
+
+        See Also
+        --------
+        :meth:`to_iupac_lite`
+        :meth:`name`
+        """
         name = self.name()
         return name.split("^")[0]
 
@@ -834,10 +886,10 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
     Attributes
     ----------
-    reducing_end : |ReducingEnd|
+    reducing_end : ReducedEnd
         Describe the reducing end of the aggregate without binding it to a specific monosaccharide.
         This will contribute to composition and mass calculations.
-    _composition_offset: |Composition|
+    _composition_offset: CComposition
         Account for the one water molecule's worth of composition left over from applying the "residue"
         transformation to each monosaccharide in the aggregate.
     """
@@ -870,6 +922,21 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return inst
 
     def __init__(self, *args, **kwargs):
+        """Initialize a :class:`GlycanComposition` using the provided objects or keyword
+        arguments, imitating the :class:`dict` initialization signature.
+
+        If a :class:`Mapping` is provided as a positional argument, it will be used as a
+        template. If arbitrary keyword arguments are provided, they will be interpreted
+        using :meth:`update`. As a special case, if another :class:`GlycanComposition` is
+        provided, its :attr:`reducing_end` attribute will also be copied.
+
+        Parameters
+        ----------
+        *args:
+            Arbitrary positional arguments
+        **kwargs:
+            Arbitrary keyword arguments
+        """
         _CompositionBase.__init__(self)
         self._reducing_end = None
         self._mass = None
@@ -951,6 +1018,29 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         self._mass = None
 
     def mass(self, average=False, charge=0, mass_data=None):
+        '''
+        Calculates the total mass of ``self``.
+
+        Parameters
+        ----------
+        average: bool, optional, defaults to False
+            Whether or not to use the average isotopic composition when calculating masses.
+            When ``average == False``, masses are calculated using monoisotopic mass.
+        charge: int, optional, defaults to 0
+            If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is ``charge``
+        mass_data: dict, optional
+            If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
+            contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
+            Defaults to :const:`None`.
+
+        Returns
+        -------
+        :class:`float`
+
+        See also
+        --------
+        :func:`glypy.composition.composition.calculate_mass`
+        '''
         if self._mass is not None and charge == 0:
             return self._mass
         if charge == 0:
@@ -1078,6 +1168,14 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return self
 
     def total_composition(self):
+        '''
+        Computes the sum of the composition of all |Monosaccharide| objects in ``self``
+
+        Returns
+        -------
+        :class:`~glypy.composition.Composition`
+        '''
+
         comp = self._composition_offset.clone()
         for residue, count in self.items():
             comp += residue.total_composition() * count
@@ -1228,6 +1326,16 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         return self.clone(*args, **kwargs)
 
     def serialize(self):
+        """Convert a glycan composition into a curly brace-enclosed string specifying
+        pairs of `iupac_lite` and a integer count.
+
+        If the glycan is reduced, it will be appended to the closing brace following a
+        `$` character.
+
+        Returns
+        -------
+        str
+        """
         form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
             self.items(), key=lambda x: (x[0].mass(), str(x[0]))) if v != 0)
         reduced = self.reducing_end
@@ -1260,6 +1368,19 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
     @classmethod
     def parse(cls, string):
+        """Parse a :class:`str` into a :class:`GlycanComposition`.
+
+        This will parse the format produced by :meth:`serialize`
+
+        Parameters
+        ----------
+        string : :class:`str`
+            The string to parse
+
+        Returns
+        -------
+        :class:`GlycanComposition`
+        """
         tokens, reduced = cls._get_parse_tokens(string)
         inst = cls()
         deriv = None
@@ -1378,6 +1499,13 @@ class FrozenGlycanComposition(GlycanComposition):
         return _CompositionBase.__contains__(self, key)
 
     def thaw(self):
+        """Convert this :class:`FrozenGlycanComposition` into a :class:`GlycanComposition`
+        that is not frozen.
+
+        Returns
+        -------
+        :class:`GlycanComposition`
+        """
         return GlycanComposition.parse(self)
 
     def extend(self, *args):

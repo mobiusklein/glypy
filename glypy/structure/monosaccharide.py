@@ -1342,7 +1342,7 @@ class Monosaccharide(SaccharideBase):
     def total_composition(self):
         '''
         Computes the sum of the composition of ``self`` and each of its linked
-        :class:`~glypy.structure.substituent.Substituent`s
+        :class:`~glypy.structure.substituent.Substituent`\ s
 
         Returns
         -------
@@ -1468,7 +1468,9 @@ class ReducedEnd(object):
     Attributes
     ----------
     composition : |Composition|
-    substituents: |OrderedMultiMap|
+        The elemental composition of the reducing end reduction modification.
+    links: |OrderedMultiMap|
+        The attached substituents
     valence: |int|
         Number of substituents this node can host
     id: |int|
@@ -1658,7 +1660,7 @@ class ReducedEnd(object):
 
     def children(self):
         '''
-        Returns an iterator over the :class:`Monosaccharide`s which are considered
+        Returns an iterator over the nodes which are considered
         the descendants of ``self``.
         '''
         for pos, link in self.links.items():
