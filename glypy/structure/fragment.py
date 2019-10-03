@@ -164,6 +164,9 @@ class GlycanFragment(object):
         for a, v in state.items():
             setattr(self, a, v)
 
+    def __hash__(self):
+        return hash((self.name, int(self.mass)))
+
     def __eq__(self, other):  # pragma: no cover
         for field in self.__slots__:
             if getattr(self, field) != getattr(other, field, NotImplemented):
