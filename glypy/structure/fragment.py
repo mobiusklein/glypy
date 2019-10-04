@@ -67,7 +67,7 @@ class GlycanFragment(object):
         The :attr:`id` value of each |Monosaccharide| contained in the fragment
 
     mass: |float|
-        The mass or `m/z` of the fragment
+        The mass of the fragment
 
     name: |str|
         The fragment name under the branching nomenclature
@@ -75,8 +75,8 @@ class GlycanFragment(object):
     crossring_cleavages: |dict| of |int| -> |tuple|
         The :attr:`id` value of each link cleaved to the corresponding cleavage type, including ring coordinates
 
-    score: |float|
-        A score value assigned to the fragment structure by an application
+    composition: |Composition|
+        The elemental composition of the fragment
 
     See Also
     --------
@@ -103,11 +103,23 @@ class GlycanFragment(object):
         self.composition = composition
 
     def copy(self):
+        """Create a deep copy of the fragment.
+
+        Returns
+        -------
+        GlycanFragment
+        """
         return self.__class__(
             self.kind, self.link_ids.copy(), self.included_nodes.copy(), self.mass,
             self.name, self.crossring_cleavages.copy(), self.composition.copy())
 
     def clone(self):
+        """Create a deep copy of the fragment.
+
+        Returns
+        -------
+        GlycanFragment
+        """
         return self.copy()
 
     def is_reducing(self):
@@ -129,10 +141,23 @@ class GlycanFragment(object):
         return bool(set(self.kind) & set("ABC"))
 
     def is_internal(self):
+        """Is the fragment composed of both reducing and non-reducing bond
+        cleavage events.
+
+        Returns
+        -------
+        bool
+        """
         return bool(self.is_reducing() and self.is_non_reducing())
 
     @property
     def fname(self):
+        """A `LaTeX` formatted version of the fragment's name
+
+        Returns
+        -------
+        str
+        """
         buff = []
         for c in self.name:
             if c in latex_symbol_map:
@@ -152,6 +177,12 @@ class GlycanFragment(object):
 
     @property
     def series(self):
+        """An alias for :attr:`kind`
+
+        Returns
+        -------
+        str
+        """
         return self.kind
 
     def __getstate__(self):  # pragma: no cover
@@ -189,10 +220,22 @@ class GlycanFragment(object):
 
     @property
     def break_count(self):
+        """The number of cleavage events to create this fragment.
+
+        Returns
+        -------
+        int
+        """
         return len(self.link_ids) + len(self.crossring_cleavages)
 
     @property
     def residues_contained(self):
+        """The number of :class:`~.Monosaccharide` nodes included in the fragmented sub-tree.
+
+        Returns
+        -------
+        int
+        """
         return len(self.included_nodes)
 
 
@@ -200,6 +243,30 @@ Fragment = GlycanFragment
 
 
 class GlycanSubstructure(object):
+    """Represent a subgraph of a :class:`~.Glycan` produced
+    from another :class:`~.Glycan` by breaking linkages.
+
+    Supports the :func:`~.root` and :func:`~.tree` protocols.
+
+    Attributes
+    ----------
+    tree : :class:`~.Glycan`
+        The substructure
+    include_nodes : set
+        The :attr:`~.Monosaccharide.id` of all included monosaccharides
+    link_ids : list
+        The :attr:`~.Link.id` of all linkages broken to form this substructure
+    parent_breaks : dict
+        Mapping from :attr:`~.Link.id` to :attr:`~.Monosaccharide.id` if that monosaccharide
+        was the :attr:`~.Link.parent` of that linkage and that linkage was broken.
+    child_breaks : dict
+        Mapping from :attr:`~.Link.id` to :attr:`~.Monosaccharide.id` if that monosaccharide
+        was the :attr:`~.Link.child` of that linkage and that linkage was broken.
+    crossring_cleavages : dict
+        Mapping from :attr:`~.Monosaccharide.id` to :class:`str` denoting the ring coordinate pair that
+        was cleaved to produce any included crossring cleavage events.
+
+    """
 
     def __init__(self, tree, include_nodes, link_ids,
                  parent_breaks, child_breaks, crossring_cleavages=None):
@@ -211,8 +278,13 @@ class GlycanSubstructure(object):
         self.crossring_cleavages = crossring_cleavages or {}
 
     def contains_reducing_end(self):
-        if self.tree.root.reducing_end is not None:
-            return True
+        """Whether or not the sub-tree includes a :class:`ReducedEnd`
+
+        Returns
+        -------
+        bool
+        """
+        return self.tree.root.reducing_end is not None
 
     def to_fragments(self, kind="BY", average=False, charge=None, mass_data=None, include_composition=True,
                      traversal_method='dfs'):
@@ -301,8 +373,8 @@ class GlycanSubstructure(object):
     def __repr__(self):  # pragma: no cover
         rep = ("<GlycanSubstructure include_nodes={} link_ids={} parent_breaks={}"
                " child_breaks={} crossring_cleavages={}>\n{}").format(
-            self.include_nodes, self.link_ids, self.parent_breaks,
-            self.child_breaks, self.crossring_cleavages, self.tree)
+                   self.include_nodes, self.link_ids, self.parent_breaks,
+                   self.child_breaks, self.crossring_cleavages, self.tree)
         return rep
 
     def __root__(self):  # pragma: no cover
