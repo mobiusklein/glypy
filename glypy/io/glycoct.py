@@ -1,5 +1,25 @@
+# coding: utf-8
 '''
-A GlycoCT (Condensed) parser.
+A parser for :title-reference:`GlycoCT{condensed}` format.
+
+:title-reference:`GlycoCT{condensed}` is a multi-line format for representing
+glycan structures and compositions published in [1]. The format is intended to
+be human-readable, easily compressed, and includes a canonicalization algorithm
+to ensure that there is only a single representation for a glycan structure.
+
+:title-reference:`GlycoCT{condensed}` can represent glycan structures with ambiguous
+or repeating sub-units. The specification includes additional section directives with
+support for stochastic sub-units as well as disjoint subgraphs, though these have not
+been implemented in :mod:`glypy`.
+
+
+References
+----------
+[1] Herget, S., Ranzinger, R., Maass, K., & Lieth, C.-W. V. D. (2008).
+    GlycoCT-a unifying sequence format for carbohydrates.
+    Carbohydrate Research, 343(12), 2162–2171.
+    https://doi.org/10.1016/j.carres.2008.03.011
+
 '''
 
 import re

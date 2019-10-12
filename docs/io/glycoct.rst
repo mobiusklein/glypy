@@ -4,7 +4,11 @@ GlycoCT
 .. currentmodule:: glypy.io.glycoct
 
 .. automodule:: glypy.io.glycoct
-    
+    :no-members:
+
+    High Level Functions
+    --------------------
+
     .. autofunction:: dump
 
     .. autofunction:: load

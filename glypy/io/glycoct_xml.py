@@ -1,4 +1,13 @@
+'''
+A parser for :title-reference:`GlycoCT{XML}` format.
+
+This module provides a simple parser for GlycoCT XML. It has fewer
+features than :mod:`glypy.io.glycoct`, and does not support writing.
+
+It is included for historical purposes.
+'''
 # pragma: no cover
+
 from operator import itemgetter
 from collections import defaultdict
 from glypy.utils import opener, StringIO, ET
@@ -29,6 +38,11 @@ class GlycoCTXMLSectionUnsupported(GlycoCTXMLError):
 
 
 class GlycoCTXML(object):
+    '''Parse :title-reference:`GlycoCT{XML}` text data into |Glycan| objects.
+
+    The parser implements the :class:`Iterator` interface, yielding successive glycans
+    from a text stream separated by empty lines.
+    '''
     @classmethod
     def loads(cls, glycoct_str):
         '''Parse results from |str|'''
@@ -150,11 +164,36 @@ class GlycoCTXML(object):
 def read(stream):
     '''
     A convenience wrapper for :class:`GlycoCTXML`
+
+    Parameters
+    ----------
+    stream : file-like
+        The text stream to parse structures from
+
+    Returns
+    -------
+    :class:`~.GlycoCTXML`
     '''
     return GlycoCTXML(stream)
 
 
 def load(stream, structure_class=Glycan, allow_multiple=True):
+    """Read all structures from the provided text stream.
+
+    Parameters
+    ----------
+    stream : file-like
+        The text stream to parse structures from
+    structure_class : type, optional
+        :class:`~.Glycan` subclass to use
+    allow_multiple: bool, optional
+        If :const:`False`, makes loading multiple structures an error.
+
+    Returns
+    -------
+    :class:`~.Glycan` or :class:`list` of :class:`~.Glycan`
+    """
+
     g = GlycoCTXML(stream, structure_class=structure_class)
     first = next(g)
     if not allow_multiple:
@@ -169,12 +208,20 @@ def load(stream, structure_class=Glycan, allow_multiple=True):
         return first
 
 
-def loads(glycoct_str, allow_multiple=True):
-    '''
-    A convenience wrapper for :meth:`GlycoCTXML.loads`
-    '''
+def loads(text, allow_multiple=True):
+    """Read all structures from the provided text string.
 
-    g = GlycoCTXML.loads(glycoct_str)
+    Parameters
+    ----------
+    text : str
+        The text to parse structures from
+
+    Returns
+    -------
+    :class:`~.Glycan` or :class:`list` of :class:`~.Glycan`
+    """
+
+    g = GlycoCTXML.loads(text)
     first = next(g)
     if not allow_multiple:
         return first

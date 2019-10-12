@@ -5,8 +5,8 @@ WURCS
 .. automodule:: glypy.io.wurcs
     :exclude-members: CarbonDescriptors, NodeTypeSpec, dumps, loads
 
-    High Level API
-    --------------
+    High Level Functions
+    --------------------
 
      .. autofunction:: dumps
 
