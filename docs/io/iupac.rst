@@ -1,14 +1,27 @@
 IUPAC Three Letter Code
 =======================
 
+A reader and writer for the ubiquitious trivial IUPAC notation for glycan structures. This notation
+will be familiar to biologists and biochemists, and the parser attempts to recognize common shorthand
+and special cases that may be inconsistent with the grammmar used to describe the format.
 
 .. currentmodule:: glypy.io.iupac
 
+
+High Level Functions
+--------------------
 
 .. autofunction:: dumps
 .. autofunction:: loads
 
 .. autoexception:: IUPACError
+
+There are multiple dialects of IUPAC, affecting how monosaccharides are written and how linkages are
+denoted. The ``dialect`` parameter in these functions control which dialect is expected or generated.
+
+The `simple` dialect: ``Neu5Gc(a2-3)Gal(b1-4)[Fuc(a1-3)]Glc2NAc``
+The `extended` dialect: ``a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc``
+
 
 Example
 -------
