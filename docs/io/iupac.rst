@@ -20,6 +20,7 @@ There are multiple dialects of IUPAC, affecting how monosaccharides are written 
 denoted. The ``dialect`` parameter in these functions control which dialect is expected or generated.
 
 The `simple` dialect: ``Neu5Gc(a2-3)Gal(b1-4)[Fuc(a1-3)]Glc2NAc``
+
 The `extended` dialect: ``a-D-Neup5Gc-(2-3)-b-D-Galp-(1-4)-[a-L-Fucp-(1-3)]b-D-Glcp2NAc``
 
 
