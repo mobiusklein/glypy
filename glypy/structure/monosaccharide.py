@@ -57,6 +57,7 @@ def _get_standard_composition(monosaccharide):
     base = monosaccharide_composition[monosaccharide.superclass.name]
     modifications = list(monosaccharide.modifications.items())
     double_bond_count = 0
+    keto_group = False
     for mod_pos, mod_val in modifications:
         # Don't set the reducing end here
         if isinstance(mod_val, ReducedEnd):
@@ -66,6 +67,8 @@ def _get_standard_composition(monosaccharide):
         elif mod_val is Modification.aldi:  # pragma: no cover
             monosaccharide.reducing_end = True
             continue
+        elif mod_val is Modification.keto and mod_pos != 0:
+            keto_group = True
         if mod_val == Modification.en:
             double_bond_count += 1
             if double_bond_count % 2 == 0:
@@ -76,6 +79,11 @@ def _get_standard_composition(monosaccharide):
         # Using object-oriented modification
         except Exception:  # pragma: no cover
             base += mod_val.composition
+
+    # The presence of a keto group implicitly converts the C1 carbonyl oxygen into
+    # a hydroxyl and balances C1 with another hydrogen.
+    if keto_group:
+        base += Composition("H2")
     return base
 
 

@@ -18,6 +18,8 @@ wiki_masses = {
     "Iduronic Acid": 194.04,
     "Bacillosamine": 162.10,
     "Allose": 180.06,
+    "Neu5Ac": 309.105,
+    "Fru": 180.06,
 }
 
 ReducedEnd = monosaccharide.ReducedEnd

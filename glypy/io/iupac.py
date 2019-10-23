@@ -274,7 +274,11 @@ class ModificationSerializer(object):
                 pop_ix = mods.index(mod)
                 pos.pop(pop_ix)
                 mods.pop(pop_ix)
-
+        elif "Fru" in base_type or "Psi" in base_type or "Sor" in base_type or "Tag" in base_type:
+            for mod in [Modification.keto]:
+                pop_ix = mods.index(mod)
+                pos.pop(pop_ix)
+                mods.pop(pop_ix)
         pos_mod_pairs = zip(pos, mods)
         for pos, mod in pos_mod_pairs:
             if pos != UnknownPosition:

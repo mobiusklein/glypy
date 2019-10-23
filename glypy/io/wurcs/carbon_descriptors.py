@@ -240,7 +240,7 @@ class CarbonDescriptors(Sequence):
                     code[position - 1] = 'd'
             elif modification == Modification.Ketone:
                 is_aldose = False
-                code[position] = 'o'
+                # code[position] = 'o'
                 anomeric_sites.append(position)
             elif modification == Modification.en:
                 code[position - 1] = 'E'

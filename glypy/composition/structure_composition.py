@@ -132,7 +132,7 @@ _modification_compositions = {
     "a": CompositionRule({
         "H": -2,
         "O": 1
-    }, {1: {"H": 2}}),
+    }),
     "keto": CompositionRule({"H": -2}),
     "en": CompositionRule({
         "H": -2,
