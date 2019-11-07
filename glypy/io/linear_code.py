@@ -10,6 +10,8 @@ Currently does not handle the sigils indicating deviation from the common forms.
 import re
 from collections import OrderedDict, deque
 
+from six import string_types as basestring
+
 from glypy.io import format_constants_map
 from glypy.io.nomenclature import identity
 from glypy.structure import constants, named_structures, Monosaccharide, Glycan, Substituent
@@ -21,7 +23,10 @@ Stem = constants.Stem
 Configuration = constants.Configuration
 
 # A static copy of monosaccharide names to structures for copy-free comparison
-monosaccharide_reference = {k: v for k, v in named_structures.monosaccharides.items()}
+monosaccharide_reference = {k: v.clone() for k, v in named_structures.monosaccharides.items()}
+# Unset the anomericity as this does not influence monosaccharide resolution
+for k, v in monosaccharide_reference.items():
+    v.anomer = None
 
 #: A mapping from common monosaccharide names to their symbol, ordered by priority
 monosaccharides_to = OrderedDict((
@@ -44,7 +49,7 @@ monosaccharides_to = OrderedDict((
     ("Ara", "R"),
     ("GlcA", "U"),
     ("All", 'O'),
-    ("Api", 'P'),
+    # ("Api", 'P'),
     ("Fru", "E")
 ))
 
@@ -191,9 +196,10 @@ def priority(sym):
     int
     '''
     i = 0
+    is_str = isinstance(sym, basestring)
     for key, value in monosaccharides_to.items():
         i += 1
-        if key == sym or value == sym:
+        if (identity.is_a(sym, monosaccharide_reference[key])) if not is_str else value == sym:
             return i
     return -1
 
@@ -305,6 +311,8 @@ def parse_linear_code(text, structure_class=Glycan):
 
     Supports only *concrete* structures.
 
+    The resulting structure will be canonicalized.
+
     Parameters
     ----------
     text: str
@@ -364,6 +372,7 @@ def parse_linear_code(text, structure_class=Glycan):
                 raise LinearCodeError("Could not identify residue '...{}' at {}".format(text[-10:], len(text)))
 
     res = structure_class(root=root).reindex()
+    res.canonicalize()
     if len(res) > 1:
         return res
     else:
