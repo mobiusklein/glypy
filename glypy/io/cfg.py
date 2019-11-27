@@ -7,7 +7,7 @@ from functools import partial
 from glypy.structure import (
     Monosaccharide, Glycan, Link, AmbiguousLink,
     Substituent, constants, named_structures,
-    UnknownPosition, SuperClass)
+    UnknownPosition, SuperClass, Modification)
 from glypy.composition import Composition
 from glypy.composition.structure_composition import substituent_compositions
 from glypy.composition.composition_transform import has_derivatization, derivatize
@@ -131,6 +131,16 @@ class SubstituentDeserializer(object):
         return self.substituent_from_cfg(substituents)
 
 
+def aminate_substituent(substituent):
+    if substituent.name.startswith("n_"):
+        # already aminated
+        return substituent
+    aminated = Substituent("n_" + substituent.name)
+    if aminated.composition == {}:
+        raise ValueError("Could not aminate substituent")
+    return aminated
+
+
 class MonosaccharideDeserializer(object):
     pattern = re.compile(r"""
         (:?\((?P<substituent_prefix_position>[0-9\?]+?)
@@ -238,7 +248,7 @@ class MonosaccharideDeserializer(object):
                             substituent, position, occupancy,
                             parent_loss=substituent.attachment_composition_loss(), child_loss='H')
                     except ValueError:
-                        raise IUPACError("Can't resolve %s" % substituent)
+                        raise CFGError("Can't resolve %s" % substituent)
                 else:
                     raise
 
