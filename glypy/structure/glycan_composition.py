@@ -1451,8 +1451,7 @@ class FrozenGlycanComposition(GlycanComposition):
     def __setitem__(self, key, value):
         key = self._key_parser(str(key))
         _CompositionBase.__setitem__(self, key, value)
-        self._mass = None
-        self._total_composition = None
+        self._invalidate()
 
     def __getitem__(self, key):
         if not isinstance(key, FrozenMonosaccharideResidue):
@@ -1462,7 +1461,7 @@ class FrozenGlycanComposition(GlycanComposition):
     def __delitem__(self, key):
         key = self._key_parser(str(key))
         _CompositionBase.__delitem__(self, key)
-        self._mass = None
+        self._invalidate()
 
     @classmethod
     def parse(cls, string):
@@ -1515,7 +1514,8 @@ class FrozenGlycanComposition(GlycanComposition):
             elif isinstance(args[0], Glycan):
                 args = map(
                     FrozenMonosaccharideResidue.from_monosaccharide,
-                    [node for node in args[0] if node.node_type is FrozenMonosaccharideResidue.node_type])
+                    [node for node in args[0]
+                     if node.node_type is FrozenMonosaccharideResidue.node_type])
             else:
                 raise TypeError(
                     "Can't convert {} to FrozenMonosaccharideResidue".format(
@@ -1523,11 +1523,33 @@ class FrozenGlycanComposition(GlycanComposition):
         for residue in args:
             self[residue] += 1
 
+    def _validate(self):
+        '''Populate the caching fields used for common behaviors, e.g.
+        mass and string representation.
+        '''
+        if self._mass is None:
+            self.mass()
+        if self._str is None:
+            self.serialize()
+
+    def _invalidate(self):
+        '''Clear the caching fields, forcing them to all be recalculated
+        when next requested.
+        '''
+        self._mass = None
+        self._str = None
+        self._total_composition = None
+
 
 class FrozenError(ValueError):
     pass
 
 
 class HashableGlycanComposition(FrozenGlycanComposition):
+    def __str__(self):
+        self._validate()
+        return super(HashableGlycanComposition, self).__str__()
+
     def __hash__(self):
+        self._validate()
         return hash(str(self))
