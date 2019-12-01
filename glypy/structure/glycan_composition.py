@@ -1551,5 +1551,4 @@ class HashableGlycanComposition(FrozenGlycanComposition):
         return super(HashableGlycanComposition, self).__str__()
 
     def __hash__(self):
-        self._validate()
         return hash(str(self))
