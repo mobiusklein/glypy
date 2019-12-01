@@ -142,14 +142,20 @@ def aminate_substituent(substituent):
 
 
 class MonosaccharideDeserializer(object):
-    pattern = re.compile(r"""
+    _pattern = r"""
         (:?\((?P<substituent_prefix_position>[0-9\?]+?)
              (?P<substituent_prefix_name>[A-Za-z]+?)\))?
         (?P<base_type>(?:[A-Z][a-z]{2}?|(:?[a-z]{3}[A-Z][a-z]{2})))
         (?:(?P<substituent_position>\d+?)?(?P<substituent_name>[A-Za-z]+?))?
         (?P<anomer>a|b|\?|alpha|beta|\u03B1|\u03B2)
         (?P<linkage>[0-9?/]+(:?->?|,)[0-9?/]+?)?
-        $""", re.VERBOSE | re.UNICODE)
+        $"""
+    try:
+        # convert to unicode for Py2
+        _pattern = _pattern.decode("raw_unicode_escape")
+    except AttributeError:
+        pass
+    pattern = re.compile(_pattern, re.VERBOSE | re.UNICODE)
 
     def __init__(self, substituent_deserializer=None):
         if substituent_deserializer is None:
@@ -175,13 +181,6 @@ class MonosaccharideDeserializer(object):
         base_type = match_dict["base_type"]
         linkage = match_dict.get("linkage")
         original_base_type = base_type
-        # alternate carbon backbone size encoded as stem{3}Superclass{3}
-        # instead of Stem{3}
-        if len(base_type) == 6:
-            superclass_type = base_type[3:].lower()
-            base_type = base_type[:3].title()
-        else:
-            superclass_type = None
         try:
             residue = named_structures.monosaccharides[base_type]
         except KeyError:
