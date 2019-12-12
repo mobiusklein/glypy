@@ -398,12 +398,13 @@ class Substituent(SubstituentBase):
         :meth:`.structure.Monosaccharide.clone`
         '''
 
-        substituent = Substituent(self.name,
-                                  can_nh_derivatize=self.can_nh_derivatize,
-                                  is_nh_derivatizable=self.is_nh_derivatizable,
-                                  id=self.id if prop_id else None,
-                                  derivatize=self._derivatize,
-                                  attachment_composition=self.attachment_composition)
+        substituent = self.__class__(
+            self.name,
+            can_nh_derivatize=self.can_nh_derivatize,
+            is_nh_derivatizable=self.is_nh_derivatizable,
+            id=self.id if prop_id else None,
+            derivatize=self._derivatize,
+            attachment_composition=self.attachment_composition)
         for pos, link in self.links.items():
             if link.is_child(self):
                 continue
