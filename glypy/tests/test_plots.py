@@ -1,5 +1,7 @@
 import os
 import unittest
+import matplotlib
+matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from glypy import monosaccharides, glycans
