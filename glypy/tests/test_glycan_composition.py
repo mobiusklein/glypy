@@ -251,6 +251,7 @@ class GlycanCompositionTests(unittest.TestCase):
         self.assertNotEqual(x, y)
         self.assertNotEqual(x, str(y))
 
+
 class FrozenGlycanCompositionTests(GlycanCompositionTests):
     GlycanCompositionType = glycan_composition.FrozenGlycanComposition
 

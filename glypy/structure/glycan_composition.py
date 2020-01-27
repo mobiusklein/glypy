@@ -770,6 +770,8 @@ class SubstituentResidue(Substituent, ResidueBase):
     def __eq__(self, other):
         if (other is None):
             return False
+        if isinstance(other, str):
+            return other == self._residue_name
         if not isinstance(other, SubstituentResidue):
             return False
         return self.name == other.name
@@ -1121,7 +1123,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         for k, v in self.items():
             prod[k] = v * other
 
-        return GlycanComposition(prod)
+        return self.__class__(prod)
 
     def __rmul__(self, other):
         return self * other
@@ -1539,6 +1541,15 @@ class FrozenGlycanComposition(GlycanComposition):
         self._mass = None
         self._str = None
         self._total_composition = None
+
+    def clone(self, propogate_composition_offset=True, copy_nodes=False):
+        dup = self.__class__()
+        dup._update_from_typed_map(self, copy_nodes=copy_nodes)
+        if not propogate_composition_offset:
+            dup._composition_offset = Composition('H2O')
+        else:
+            dup._composition_offset = self._composition_offset.clone()
+        return dup
 
 
 class FrozenError(ValueError):
