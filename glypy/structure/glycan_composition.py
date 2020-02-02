@@ -939,7 +939,8 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         **kwargs:
             Arbitrary keyword arguments
         """
-        _CompositionBase.__init__(self)
+        # dict.__init__ just calls C update method. Expensive parameter parsing
+        # _CompositionBase.__init__(self)
         self._reducing_end = None
         self._mass = None
         if args or kwargs:
