@@ -771,11 +771,11 @@ class Monosaccharide(SaccharideBase):
 
         Parameters
         ----------
-        position: int or 'x'
-            The location to add the :class:`~.constants.Modification` to.
         modification: str or Modification
             The modification to add. If passed a |str|, it will be
             translated into an instance of :class:`~glypy.structure.constants.Modification`
+        position: int or 'x'
+            The location to add the :class:`~.constants.Modification` to.
         max_occupancy: int, optional
             The maximum number of items acceptable at `position`. defaults to :const:`1`
 
