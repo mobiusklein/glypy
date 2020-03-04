@@ -6,6 +6,8 @@ try:
 except ImportError:
     from collections import Sequence
 
+import warnings
+
 from six import string_types as basestring
 
 from .basetype_conversion import (
@@ -163,11 +165,20 @@ class CarbonDescriptors(Sequence):
                         configurations.append(conf)
                     start += 1
         else:
+            # This cannot handle unspecified nonulonic acids and other modified but unspecified
+            # monosaccharides with multiple chiral centers well.
             stems.append(None)
             if carbon_coding[0] in ('u', 'h'):
                 configurations.append(None)
             else:
-                raise ValueError("Cannot infer chirality from %r" % (str(self),))
+                warnings.warn("Cannot infer chirality from %r" % (str(self),))
+                configurations.append(None)
+            # Guess if the monosaccharide is large enough to have a second chiral center, because
+            # no other rule seems obvious. This could produce incorrect monosaccharide compositions?
+            if len(carbon_coding) > 6:
+                stems.append(None)
+                configurations.append(None)
+
         anomeric_position = None
         double_bonds = []
         for i, site in enumerate(self):

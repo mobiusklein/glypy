@@ -1165,6 +1165,35 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
     def state(self, value):
         self._state = value
 
+    def _parse_modifications(self, residue_dict):
+        mods = residue_dict["modifications"]
+        modifications = OrderedMultiMap()
+        if mods is not None:
+            for modp, mod in modification_pattern.findall(mods):
+                positions = modp.split(",")
+                if len(positions) > 1:
+                    warnings.warn("Multi-site Modifications are not fully supported")
+                for p in positions:
+                    modifications[try_int(p)] = modification_map[mod]
+        is_reduced = "aldi" in modifications[1]
+        if is_reduced:
+            modifications.pop(1, "aldi")
+            is_reduced = monosaccharide.ReducedEnd()
+        else:
+            is_reduced = None
+        return modifications, is_reduced
+
+    def _parse_conf_stem(self, residue_dict):
+        conf_stem = residue_dict["conf_stem"]
+        if conf_stem is not None:
+            config, stem = zip(*conf_stem_pattern.findall(conf_stem))
+        else:
+            config = ('x',)
+            stem = ('x',)
+        stem_ = tuple(Stem[s] for s in stem)
+        configuration_ = tuple(Configuration[c] for c in config)
+        return stem_, configuration_
+
     def handle_residue_line(self, line):
         '''
         Handle a base line, creates an instance of |Monosaccharide|
@@ -1175,31 +1204,9 @@ class GlycoCTReader(GlycoCTGraphStack, Iterator):
         _, ix, residue_str = re.split(r"^(\d+)b", line, maxsplit=1)
         residue_dict = res_pattern.search(residue_str).groupdict()
 
-        mods = residue_dict["modifications"]
-        modifications = OrderedMultiMap()
-        if mods is not None:
-            for modp, mod in modification_pattern.findall(mods):
-                positions = modp.split(",")
-                if len(positions) > 1:
-                    warnings.warn("Multi-site Modifications are not fully supported")
-                for p in positions:
-                    modifications[try_int(p)] = modification_map[mod]
+        modifications, is_reduced = self._parse_modifications(residue_dict)
 
-        is_reduced = "aldi" in modifications[1]
-        if is_reduced:
-            modifications.pop(1, "aldi")
-            is_reduced = monosaccharide.ReducedEnd()
-        else:
-            is_reduced = None
-
-        conf_stem = residue_dict["conf_stem"]
-        if conf_stem is not None:
-            config, stem = zip(*conf_stem_pattern.findall(conf_stem))
-        else:
-            config = ('x',)
-            stem = ('x',)
-        stem_ = tuple(Stem[s] for s in stem)
-        configuration_ = tuple(Configuration[c] for c in config)
+        stem_, configuration_ = self._parse_conf_stem(residue_dict)
 
         ring_start_, ring_end_ = [
             (try_int(i) if i != 'x' else UnknownPosition) for i in residue_dict["indices"].split(":")]

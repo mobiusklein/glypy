@@ -794,6 +794,7 @@ class Monosaccharide(SaccharideBase):
         if self.is_occupied(position) > max_occupancy:
             raise ValueError("Site is already occupied")
         self._checked_for_reduction = False
+        is_keto = modification == Modification.keto
         if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = ReducedEnd()
         else:
@@ -804,6 +805,13 @@ class Monosaccharide(SaccharideBase):
             except Exception:  # pragma: no cover
                 self.composition += modification.composition
                 self.modifications[position] = modification
+        if is_keto:
+            n_ketos = 0
+            for position, modification in self.modifications.items():
+                if modification == Modification.keto:
+                    n_ketos += 1
+            if n_ketos == 1:
+                self.composition += Composition("H2")
         return self
 
     def drop_modification(self, position, modification):
@@ -836,6 +844,7 @@ class Monosaccharide(SaccharideBase):
             self.modifications.pop(position, modification)
         except IndexError:
             raise ValueError("Modification {} not found at {}".format(modification, position))
+        is_keto = modification == Modification.keto
         self._checked_for_reduction = False
         if modification is Modification.aldi:  # pragma: no cover
             self.reducing_end = None
@@ -846,6 +855,13 @@ class Monosaccharide(SaccharideBase):
             # OO Modification
             except Exception:  # pragma: no cover
                 self.composition = self.composition - modification.composition
+        if is_keto:
+            n_ketos = 0
+            for position, modification in self.modifications.items():
+                if modification == Modification.keto:
+                    n_ketos += 1
+            if n_ketos == 0:
+                self.composition -= Composition("H2")
         return self
 
     def add_substituent(self, substituent, position=-1, max_occupancy=0,

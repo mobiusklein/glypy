@@ -35,6 +35,20 @@ ssl_verification = False
 
 sparql_endpoint = "http://ts.glytoucan.org/sparql"
 
+_get_all_monosaccharides_sparql = r'''
+PREFIX glycan: <http://purl.jp/bio/12/glyco/glycan#>
+PREFIX glytoucan:  <http://www.glytoucan.org/glyco/owl/glytoucan#>
+
+SELECT DISTINCT ?Saccharide ?Sequence
+WHERE {
+    ?Saccharide glycan:has_glycosequence ?GlycoSequence .
+    ?GlycoSequence glycan:has_sequence ?Sequence .
+    ?GlycoSequence glycan:in_carbohydrate_format glycan:carbohydrate_format_glycoct .
+    ?Saccharide a glycan:monosaccharide
+}
+'''
+
+
 _get_all_glycans_sparql = r'''
 PREFIX glycan: <http://purl.jp/bio/12/glyco/glycan#>
 PREFIX glytoucan:  <http://www.glytoucan.org/glyco/owl/glytoucan#>

@@ -1287,12 +1287,15 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
     @reducing_end.setter
     def reducing_end(self, value):
-        self._mass = None
+        self._invalidate()
         self._reducing_end = value
 
     def set_reducing_end(self, value):
-        self._mass = None
+        self._invalidate()
         self._reducing_end = value
+
+    def _invalidate(self):
+        self._mass = None
 
     @property
     def composition_offset(self):
@@ -1300,8 +1303,9 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
     @composition_offset.setter
     def composition_offset(self, value):
-        self._mass = None
+        self._invalidate()
         self._composition_offset = value
+
 
     def clone(self, propogate_composition_offset=True, copy_nodes=True):
         dup = self.__class__()
@@ -1489,7 +1493,7 @@ class FrozenGlycanComposition(GlycanComposition):
         return inst
 
     def serialize(self):
-        if self._mass is None or self._str is None:
+        if self._str is None:
             self._str = super(FrozenGlycanComposition, self).serialize()
         return self._str
 
