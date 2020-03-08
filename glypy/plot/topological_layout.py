@@ -24,6 +24,11 @@ class TopologicalTreeLayout(TreeLayoutBase):
         for node in self.traverse():
             node.mask_special_cases = False
 
+    def after_layout(self, **kwargs):
+        """Apply any cleanup after applying layout
+        """
+        pass
+
     def layout_tree(self, **kwargs):
         visited = set()
         iterations = kwargs.get("iterations", 25)

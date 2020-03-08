@@ -329,6 +329,7 @@ class DrawTreeNode(object):
         if self.id in visited:
             return x, y
         visited.add(self.id)
+        edge_weight = kwargs.get("edge_weight", 0.5)
         for child in self:
             cx, cy = child.draw_branches(at=at, ax=ax,
                                          symbol_nomenclature=symbol_nomenclature,
@@ -336,7 +337,7 @@ class DrawTreeNode(object):
             patch = symbol_nomenclature.line_to(
                 ax, x, y, cx, cy,
                 color=kwargs.get('link_color', symbol_nomenclature.default_line_color),
-                zorder=1, lw=0.5)
+                zorder=1, lw=edge_weight)
             self.data['lines'][self.id, child.id] = [patch]
             self.lines.append(patch)
         return x, y
@@ -380,35 +381,12 @@ class DrawTreeNode(object):
             child.draw_nodes(at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
                              visited=visited, **kwargs)
 
-    def draw_linkage_annotations(self, at=(0, 0), ax=None, symbol_nomenclature=None, child=None, **kwargs):
-        '''
-        Draw the parent outlink position and the child anomer symbol
-
-        Parameters
-        ----------
-        at: :class:`tuple`
-            The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
-        ax: :class:`matplotlib.axes.Axis`
-            A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
-            an axis is not provided, a new figure will be created and used.
-        symbol_nomenclature: |str|
-            A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
-            is |None|, `cfg` will be used.
-        child: :class:`DrawTreeNode`
-            The child node to draw relative to.
-        '''
-        if child is None:
-            for child in self:
-                self.draw_linkage_annotations(
-                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
-                    child=child, **kwargs)
-                child.draw_linkage_annotations(
-                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
-            return
+    def _draw_linkage_label(self, child, at=(0, 0), ax=None, symbol_nomenclature=None, **kwargs):
         sx, sy = self.coords(at)
         cx, cy = child.coords(at)
 
         fontsize = kwargs.get("fontsize", 6)
+        style = kwargs.get('label_style', 'split')
 
         position_x = (sx * 0.65 + cx * 0.35)
         if abs(sx - cx) < 1e-2:
@@ -434,15 +412,53 @@ class DrawTreeNode(object):
             anomer_y -= 0.03
             position_y -= 0.03
 
-        position_text = symbol_nomenclature.draw_text(
-            ax=ax, x=position_x, y=position_y + 0.03,
-            text=str(position_num) if position_num != -1 else "?",
-            fontsize=fontsize, ha='center', va='bottom')
-        anomer_text = symbol_nomenclature.draw_text(
-            ax, anomer_x, anomer_y + 0.03,
-            r'${}$'.format(anomer_symbol_map.get(child.tree.anomer, child.tree.anomer.name)),
-            fontsize=fontsize, ha='center', va='bottom')
-        self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
+        if style == 'split':
+            position_text = symbol_nomenclature.draw_text(
+                ax=ax, x=position_x, y=position_y + 0.03,
+                text=str(position_num) if position_num != -1 else "?",
+                fontsize=fontsize, ha='center', va='bottom')
+            anomer_text = symbol_nomenclature.draw_text(
+                ax, anomer_x, anomer_y + 0.03,
+                r'${}$'.format(anomer_symbol_map.get(
+                    child.tree.anomer, child.tree.anomer.name)),
+                fontsize=fontsize, ha='center', va='bottom')
+            self.data['text'][self.id, child.id]['linkage'] = [position_text, anomer_text]
+        elif style == 'centered':
+            symbol_nomenclature.draw_text(
+                ax=ax, x=(position_x + anomer_x) / 2.0, y=(position_y + anomer_y) / 2.0,
+                text=(str(position_num) if position_num != -1 else "?") + r'${}$'.format(anomer_symbol_map.get(
+                    child.tree.anomer, child.tree.anomer.name)),
+                fontsize=fontsize, ha='center', va='bottom')
+        else:
+            raise ValueError(
+                "Unrecognized label_style position style %r" % (style, ))
+
+    def draw_linkage_annotations(self, at=(0, 0), ax=None, symbol_nomenclature=None, child=None, **kwargs):
+        '''
+        Draw the parent outlink position and the child anomer symbol
+
+        Parameters
+        ----------
+        at: :class:`tuple`
+            The x, y coordinates at which to draw the glycan's reducing_end. Defaults to `(0, 0)`
+        ax: :class:`matplotlib.axes.Axis`
+            A matplotlib axis on which to draw. Useful for adding glycans to existing figures. If
+            an axis is not provided, a new figure will be created and used.
+        symbol_nomenclature: |str|
+            A string mapping to the symbol nomenclature to use. Defaults to |None|. When `symbol_nomenclature`
+            is |None|, `cfg` will be used.
+        child: :class:`DrawTreeNode`
+            The child node to draw relative to.
+        '''
+        if child is None:
+            for child in self:
+                self.draw_linkage_annotations(
+                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature,
+                    child=child, **kwargs)
+                child.draw_linkage_annotations(
+                    at=at, ax=ax, symbol_nomenclature=symbol_nomenclature, **kwargs)
+            return
+        self._draw_linkage_label(child, at, ax, symbol_nomenclature, **kwargs)
 
     # Tree Layout Helpers
     def left(self):
@@ -686,9 +702,19 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
         passed here.
     scale: (float, float) or float
         Scale coefficients. Pass a pair to scale x and y dimensions respectively.
+    symbol_scale: float, optional
+        A scale coefficient for the size of the monosaccharide symbols, without changing the overall size
+        of the layout.
+    edge_weight: float, optional
+        The line weight of the edges connecting monosaccharide symbols.
+    label_style: str, optional
+        The layout style used for drawing edge labels. May be one of "split" or "centered", where
+        "split" will place the position close to the parent symbol and the anomer close to the
+        child residue and "centered" places the symbols together at the centroid of the edge.
+        Defaults to 'split'.
     '''
 
-    scale = DEFAULT_SYMBOL_SCALE_FACTOR
+    scale = DEFAULT_SYMBOL_SCALE_FACTOR * kwargs.pop('symbol_scale', 1.0)
     transform_scale = kwargs.pop("scale", (1,))
     try:
         transform_scale = tuple(transform_scale)
