@@ -79,6 +79,10 @@ class WURCSParser(object):
         if section is None:
             section = self.extract_sections()[3]
         if "{" in section or "}" in section:
+            links = section.split("_")
+            if len(links) > 1 and len(set(links)) == 1:
+                # This is a composition, everybody is ambiguously linked to everybody
+                return False
             raise WURCSFeatureNotSupported("Braced Undefined Linkages are not supported")
 
         links = section.split("_")
@@ -128,6 +132,13 @@ class WURCSParser(object):
                 bond = _link.Link(
                     parent, child, parent_position=parent_position, child_position=child_position,
                     parent_loss=Composition("H"), child_loss=Composition("OH"))
+        return True
+
+    def _to_composition(self):
+        gc = glycan_composition.GlycanComposition()
+        for node in self.node_index_to_node.values():
+            gc[glycan_composition.MonosaccharideResidue.from_monosaccharide(node)] += 1
+        return gc
 
     def parse(self):
         (count_section, node_type_section, node_index_to_type_section, node_linkage_section) = self.extract_sections()
@@ -135,13 +146,11 @@ class WURCSParser(object):
         self.parse_node_type_section(node_type_section)
         self.parse_node_index_to_type_section(node_index_to_type_section)
         if node_linkage_section:
-            self.parse_connectivity_map(node_linkage_section)
-            return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
+            if self.parse_connectivity_map(node_linkage_section):
+                return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
+            return self._to_composition()
         else:
-            gc = glycan_composition.GlycanComposition()
-            for node in self.node_index_to_node.values():
-                gc[glycan_composition.MonosaccharideResidue.from_monosaccharide(node)] += 1
-            return gc
+            return self._to_composition()
 
 
 def loads(text, structure_class=glycan.Glycan):
