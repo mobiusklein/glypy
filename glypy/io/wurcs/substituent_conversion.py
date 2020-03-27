@@ -165,6 +165,7 @@ _substituent_translation = [
     SubstituentTranslation('(s)-carboxyethyl', 'C^SCO/3=O/2C', None),
     SubstituentTranslation('n-methyl-carbamoyl', 'CNC/2=O', None),
     SubstituentTranslation('phospho-ethanolamine', 'P^XOCCN/2O/2=O', True),
+    SubstituentTranslation('phospho-ethanolamine', 'OP^XOCCN/3O/3=O', True),
     SubstituentTranslation('diphospho-ethanolamine', 'P^XOP^XOCCN/4O/4=O/2O/2=O', True),
     SubstituentTranslation('phospho-choline', 'P^XOCCN/5N/5N/2O/2=O', None),
     SubstituentTranslation('(x)-lactate', 'CC^XC/3O/2=O', None),

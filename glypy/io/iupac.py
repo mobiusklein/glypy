@@ -80,6 +80,8 @@ substituents_map_to["glycolyl"] = "Gc"
 substituents_map_to["fluoro"] = "F"
 substituents_map_to["amino"] = "N"
 substituents_map_to['phosphate'] = 'P'
+substituents_map_to['phospho_ethanolamine'] = 'PEtn'
+substituents_map_to['ethanolamine'] = 'Etn'
 
 substituents_map_from = invert_dict(substituents_map_to)
 substituents_map_from['Phosphate'] = 'phosphate'
