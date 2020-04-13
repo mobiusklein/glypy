@@ -1132,7 +1132,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
     def __eq__(self, other):
         if isinstance(other, basestring):
             return str(self) == other
-        if not isinstance(other, _CompositionBase):
+        if not isinstance(other, Mapping):
             return False
         self_items = set([i for i in self.items() if i[1]])
         other_items = set([i for i in other.items() if i[1]])
