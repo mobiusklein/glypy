@@ -47,7 +47,10 @@ cdef class EnumMeta(type):
         return val
 
     def __getattr__(self, name):
-        return self.translate(name)
+        try:
+            return self.translate(name)
+        except KeyError:
+            raise AttributeError(name)
 
     def __setattr__(self, name, value):
         self.put(name, value)
