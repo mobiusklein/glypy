@@ -7,7 +7,22 @@ import weakref
 from itertools import chain
 
 import numpy as np
-from matplotlib.path import Path, get_paths_extents
+from matplotlib.path import Path
+
+try:
+    from matplotlib.path import get_paths_extents
+except ImportError:
+    # TODO: Check why this was deprecated, beyond redundancy
+    def get_paths_extents(paths):
+        from matplotlib.path import _path
+        from matplotlib.transforms import BBox, Affine2D
+
+        transforms = []
+        if len(paths) == 0:
+            raise ValueError("No paths provided")
+        return Bbox.from_extents(*_path.get_path_collection_extents(
+            Affine2D(), paths, transforms, [], Affine2D()))
+
 
 chain_iterable = chain.from_iterable
 
