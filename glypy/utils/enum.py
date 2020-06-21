@@ -54,6 +54,12 @@ class EnumValue(object):
     def __ror__(self, other):
         return self.value | other
 
+    def __xor__(self, other):
+        return self.value ^ other
+
+    def __rxor__(self, other):
+        return self.value ^ other
+
     def __ne__(self, other):
         return not self == other
 

@@ -199,6 +199,17 @@ cdef class EnumValue(object):
             self_t = <EnumValue>self
         return self_t.value | other
 
+    def __xor__(self, other):
+        cdef:
+            object temp
+            EnumValue self_t
+        if not isinstance(self, EnumValue):
+            temp = self
+            self_t = <EnumValue>other
+            other = temp
+        else:
+            self_t = <EnumValue>self
+        return self_t.value ^ other
 
     def __ne__(self, other):
         return not self == other
