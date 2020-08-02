@@ -903,12 +903,12 @@ def has_glycosequence_processor(state, uri):
     if "structure_" not in state and in_format == (NSGlycan.carbohydrate_format_wurcs):
         try:
             state["structure_"] = [wurcs.loads(reference.has_sequence)]
-        except wurcs.WURCSError:
+        except (wurcs.WURCSError, KeyError):
             pass
     if "structure_" not in state and in_format == (NSGlycan.carbohydrate_format_iupac_extended):
         try:
             state["structure_"] = [iupac.loads(reference.has_sequence)]
-        except iupac.IUPACError:
+        except (iupac.IUPACError, KeyError):
             pass
     return uri
 

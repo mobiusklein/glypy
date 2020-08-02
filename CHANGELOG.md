@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ## [Unreleased]
 
+### Added
+
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+* `glyspace` reading commands do not fail if a structure fails to parse due to a missing structure definition or reference
+
+### Security
 
 ---
 
