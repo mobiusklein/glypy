@@ -1,7 +1,7 @@
 {
   NeuGc: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-glycolyl LIN 1:1d(5+1)2n
   NeuAc2: RES 1b:a-dgro-dgal-NON-2:6|1:a|2:keto|3:d 2s:n-acetyl 3s:n-acetyl LIN 1:1d(5+1)2n 2:1d(9+1)3n
-  Oct: RES 1b:x-dman-OCT-2:6
+  Oct: RES 1b:x-OCT-2:6
   Non: RES 1b:a-dgro-dgal-NON-2:6
   GlcNAc: RES 1b:b-dglc-HEX-1:5 2s:n-acetyl LIN 1:1d(2+1)2n
   Gal: RES 1b:b-dgal-HEX-1:5
