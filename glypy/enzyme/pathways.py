@@ -55,7 +55,7 @@ class Glycoenzyme(object):
         if comparator is None:
             comparator = commutative_similarity
         if validator is None:
-            def validator(structure):
+            def validator(structure):  # pylint: disable=function-redefined
                 return True
         if isinstance(identifying_information, basestring):
             identifying_information = EnzymeInformation(
@@ -156,7 +156,7 @@ class Transferase(Glycoenzyme):
             parent_position, child_position, parent, child, terminal,
             identifying_information, comparator, validator)
         if site_validator is None:
-            def site_validator(structure, selected_node):
+            def site_validator(structure, selected_node):  # pylint: disable=function-redefined
                 return True
         if parent_node_id is None:
             parent_node_id = proot(self.parent).id
