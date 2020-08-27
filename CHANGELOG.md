@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 
 ### Changed
-* `Oct` is no longer automatically considered a `Manose`
+* `Oct` is no longer automatically considered a `Mannose`
 
 ### Deprecated
 

@@ -1345,7 +1345,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         """
         form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
             self.items(), key=lambda x: (x[0].mass(), str(x[0]))) if v != 0)
-        reduced = self.reducing_end
+        reduced = self._reducing_end
         if reduced is not None:
             form = "%s$%s" % (form, formula(reduced.total_composition()))
         return form
@@ -1564,7 +1564,9 @@ class FrozenError(ValueError):
 class HashableGlycanComposition(FrozenGlycanComposition):
     def __str__(self):
         self._validate()
-        return super(HashableGlycanComposition, self).__str__()
+        # Directly use internal cache variable to save time calling
+        # the super method chain
+        return self._str
 
     def __hash__(self):
         return hash(str(self))
