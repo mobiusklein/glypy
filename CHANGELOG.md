@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
-
+* Added `glypy.io.byonic` to parse and write Byonic glycan compositions.
 
 ### Changed
 * `Oct` is no longer automatically considered a `Mannose`
