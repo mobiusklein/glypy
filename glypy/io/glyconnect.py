@@ -1,5 +1,3 @@
-'''A simple dialect of the Byonic glycan composition notation.
-'''
 import re
 
 from glypy.structure import glycan_composition
@@ -27,11 +25,11 @@ defined_symbols = {
 monosaccharide_to_symbol = invert_dict(defined_symbols)
 
 
-tokenizer = re.compile(r"([^\(]+)\((\d+)\)")
+tokenizer = re.compile(r"([^:\s]+):(\d+)")
 
 
 def loads(string):
-    '''Parse a Byonic glycan composition into a :class:`~.FrozenGlycanComposition`
+    '''Parse a GlyConnect glycan composition into a :class:`~.FrozenGlycanComposition`
 
     Parameters
     ----------
@@ -44,7 +42,7 @@ def loads(string):
 
     Raises
     ------
-    :class:`KeyError`: Raised if a key isn't defined by the Byonic dialect
+    :class:`KeyError`: Raised if a key isn't defined by the GlyConnect dialect
     '''
     tokens = tokenizer.findall(string)
     gc = FrozenGlycanComposition()
@@ -56,7 +54,7 @@ def loads(string):
 
 
 def dumps(composition):
-    '''Encode :class:`~.GlycanComposition` or :class:`~.Glycan` into the Byonic
+    '''Encode :class:`~.GlycanComposition` or :class:`~.Glycan` into the GlyConnect
     glycan composition text format.
 
     Parameters
@@ -70,13 +68,12 @@ def dumps(composition):
 
     Raises
     ------
-    :class:`KeyError`: Raised if a key isn't defined by the Byonic dialect
+    :class:`KeyError`: Raised if a key isn't defined by the GlyConnect Compozitor dialect
     '''
     if isinstance(composition, Glycan):
         composition = FrozenGlycanComposition.from_glycan(composition)
     tokens = []
     for key, value in composition.items():
         key = monosaccharide_to_symbol[key]
-        tokens.append("%s(%d)" % (key, value))
-    return ''.join(tokens)
-
+        tokens.append("%s:%d" % (key, value))
+    return ' '.join(tokens)
