@@ -153,6 +153,7 @@ class SymbolicNomenclatureBase(object):
         return value
 
     def draw_text(self, ax, x, y, text, scale=0.1, center=False, **kwargs):
+        kwargs.setdefault('lw', line_weight / 20.0)
         fs = kwargs.get("fontsize", 2) * scale * .25
         t_path = TextPath((x, y), s=text, size=fs)
         ha = self._get_horizontal_alignment(kwargs)
@@ -169,7 +170,7 @@ class SymbolicNomenclatureBase(object):
             tf = Affine2D()
             tf.translate(0, cy - ymin)
             t_path = t_path.transformed(tf)
-        patch = patches.PathPatch(t_path, facecolor="black", lw=line_weight / 20., zorder=4)
+        patch = patches.PathPatch(t_path, facecolor="black", lw=kwargs['lw'], zorder=4)
         a = ax.add_patch(patch)
         return (a,)
 
