@@ -2,6 +2,7 @@ import unittest
 from glypy.io import glyspace
 from glypy import tree, root
 
+from pytest import mark
 
 try:
     is_online = True
@@ -13,9 +14,9 @@ except:
 
 def skip_not_online(fn):
     if not is_online:
-        return unittest.skip("Not able to reach host")(fn)
+        return mark.xfail(mark.skip("Not able to reach host")(fn))
     else:
-        return fn
+        return mark.xfail(fn)
 
 
 example_n3 = '''@prefix dcterms: <http://purl.org/dc/terms/> .
