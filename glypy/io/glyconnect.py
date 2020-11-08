@@ -9,6 +9,12 @@ from glypy.structure.glycan import Glycan
 from glypy.utils import invert_dict
 
 
+try:
+    import requests
+except ImportError:
+    requests = None
+
+
 defined_symbols = {
     "Hex": FrozenMonosaccharideResidue.from_iupac_lite("Hex"),
     "HexNAc": FrozenMonosaccharideResidue.from_iupac_lite('HexNAc'),
@@ -77,3 +83,16 @@ def dumps(composition):
         key = monosaccharide_to_symbol[key]
         tokens.append("%s:%d" % (key, value))
     return ' '.join(tokens)
+
+
+API_SERVER = "https://glyconnect.expasy.org/api"
+
+
+def from_glytoucan_id(glytoucan_id):
+    response = requests.post(
+        "{server}/structures/search/glytoucan".format(server=API_SERVER),
+        {"glytoucan_id": glytoucan_id})
+    response.raise_for_status()
+    data = response.json()
+    return data
+
