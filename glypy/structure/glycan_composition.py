@@ -555,6 +555,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
     def __init__(self, *args, **kwargs):
         self._total_composition = None
         self._mass = None
+        # _name is left undefined to use a fast-path in __str__ by not testing for
+        # presence first.
+        # self._name = None
         super(FrozenMonosaccharideResidue, self).__init__(*args, **kwargs)
         self._frozen = kwargs.get("_frozen", False)
         self._hash = None
@@ -565,7 +568,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         except AttributeError:
             is_frozen = False
         if is_frozen and key not in FrozenMonosaccharideResidue._attribute_caching_slots:
-            self.get_cache().pop(self._name, None)
+            self.get_cache().pop(str(self), None)
             raise FrozenError("Cannot change a frozen object")
         else:
             object.__setattr__(self, key, value)
@@ -580,12 +583,32 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         -------
         int
         """
-        try:
-            if self._hash is None:
-                self._hash = hash(str(self))
-            return self._hash
-        except AttributeError:
-            return hash(str(self))
+        if self._hash is None:
+            self._hash = hash(str(self))
+        return self._hash
+
+    def _update_hash(self):
+        self._hash = hash(str(self))
+        return self._hash
+
+    def __eq__(self, other):
+        '''
+        Test for equality between :class:`MonosaccharideResidue` instances by comparing
+        the result of :meth:`MonosaccharideResidue.name` calls between `self` and `other`.
+
+        :meth:`MonosaccharideResidue.name` is an alias of :func:`to_iupac_lite` called on `self`
+        '''
+        if isinstance(other, MonosaccharideResidue):
+            try:
+                return self._name == other._name
+            except AttributeError:
+                return str(self) == str(other)
+        elif isinstance(other, str):
+            return str(self) == other
+        if (other is None):
+            return False
+        if not isinstance(other, (MonosaccharideResidue, str)):
+            return False
 
     def _save_to_cache(self):
         self.get_cache()[str(self)] = self
@@ -641,8 +664,8 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         super(FrozenMonosaccharideResidue, self).__setstate__(state)
 
     @classmethod
-    def get_cache(self):
-        return self.__cache
+    def get_cache(cls):
+        return cls.__cache
 
     @classmethod
     def from_iupac_lite(cls, string):
