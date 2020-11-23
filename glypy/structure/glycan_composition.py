@@ -558,9 +558,9 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         # _name is left undefined to use a fast-path in __str__ by not testing for
         # presence first.
         # self._name = None
+        # self._hash = None
         super(FrozenMonosaccharideResidue, self).__init__(*args, **kwargs)
         self._frozen = kwargs.get("_frozen", False)
-        self._hash = None
 
     def __setattr__(self, key, value):
         try:
@@ -583,9 +583,11 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         -------
         int
         """
-        if self._hash is None:
+        try:
+            return self._hash
+        except AttributeError:
             self._hash = hash(str(self))
-        return self._hash
+            return self._hash
 
     def _update_hash(self):
         self._hash = hash(str(self))
@@ -660,7 +662,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         self._frozen = False
         self._total_composition = state.get('_total_composition')
         self._name = state.get('_name')
-        self._hash = None
+        self._hash = hash(str(self))
         super(FrozenMonosaccharideResidue, self).__setstate__(state)
 
     @classmethod
