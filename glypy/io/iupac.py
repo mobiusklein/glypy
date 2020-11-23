@@ -879,11 +879,11 @@ class MonosaccharideDeserializer(object):
                 # Guess at what the user might mean using base_type
                 if base_type == "Neu" and substituent in ["acetyl", "glycolyl"] and i == 1:
                     position = 5
-                else:
-                    raise ValueError(
-                        "Cannot have ambiguous location of substituents on a base type which"
-                        " has default modifications or substituents. {} {}".format(
-                            residue, (position, substituent)))
+                # else:
+                #     raise ValueError(
+                #         "Cannot have ambiguous location of substituents on a base type which"
+                #         " has default modifications or substituents. {} {}".format(
+                #             residue, (position, substituent)))
             # Often, acidic monosaccharides will be suffixed "A" instead of prefixed "a".
             # Handle this here.
             if substituent == "A":

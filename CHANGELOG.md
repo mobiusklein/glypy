@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ### Changed
 * `Oct` is no longer automatically considered a `Mannose`
+* `glypy.io.iupac` now accepts unknown positions for substituents for `Neu` bases.
 
 ### Deprecated
 
