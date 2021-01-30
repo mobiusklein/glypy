@@ -1,8 +1,0 @@
-{% if experimental_statistics is not undefined %}
-    <h2>Experimental Statistics</h2>
-    {% for key, value in experimental_statistics.items() %}
-        <div class="settings-item">
-            <span class='label label-default'>{{key | replace("_", " ") | title}}:</span> {{value}}
-        </div>
-    {% endfor %}
-{% endif %}
