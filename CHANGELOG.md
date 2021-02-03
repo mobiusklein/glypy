@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
+
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [0.12.7] - 2021-02-02
+
+### Added
 * Added `glypy.io.byonic` to parse and write Byonic glycan compositions.
 
 ### Changed
@@ -53,6 +69,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v0.12.7...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
+[0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
