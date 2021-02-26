@@ -119,9 +119,15 @@ class FrozenMonosaccharideResidueTests(unittest.TestCase):
         self.assertAlmostEqual(acidic_hexose2.mass() - hexose.mass(), 13.9792, 3)
 
     def test_pickle(self):
-        case = glycan_composition.MonosaccharideResidue.from_iupac_lite("HexNAc")
+        case = glycan_composition.FrozenMonosaccharideResidue.from_iupac_lite("HexNAc")
         test = pickle.loads(pickle.dumps(case))
         self.assertEqual(case, test)
+
+    def test_from_iupac_equivalence(self):
+        no_digit = glycan_composition.FrozenMonosaccharideResidue.from_iupac_lite("NeuAc")
+        with_digit = glycan_composition.FrozenMonosaccharideResidue.from_iupac_lite("Neu5Ac")
+        assert no_digit == with_digit
+        assert no_digit is with_digit
 
 
 class GlycanCompositionTests(unittest.TestCase):

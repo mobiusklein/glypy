@@ -671,10 +671,19 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
 
     @classmethod
     def from_iupac_lite(cls, string):
+        cache = cls.get_cache()
         try:
-            return cls.get_cache()[string]
+            return cache[string]
         except KeyError:
-            return from_iupac_lite(string, residue_class=cls)
+            result = from_iupac_lite(string, residue_class=cls)
+            if string not in cache:
+                for k, v in cache.items():
+                    if v == result:
+                        cache[string] = v
+                        break
+                else:
+                    cache[string] = result
+            return result
 
     def total_composition(self):
         if self._frozen:
