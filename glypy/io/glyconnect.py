@@ -1,3 +1,5 @@
+'''A simple dialect of the Glyconnect/GlycoMod glycan composition notation.
+'''
 import re
 
 from glypy.structure import glycan_composition
@@ -25,6 +27,9 @@ defined_symbols = {
     "P": SubstituentResidue("phosphate"),
     "Xyl": FrozenMonosaccharideResidue.from_iupac_lite("Xyl"),
     "HexA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
+    "Pent": FrozenMonosaccharideResidue.from_iupac_lite("Pen"),
+    "Kdn": FrozenMonosaccharideResidue.from_iupac_lite("Kdn"),
+    "Su": SubstituentResidue("sulfate"),
 }
 
 

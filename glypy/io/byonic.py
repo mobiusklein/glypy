@@ -21,6 +21,7 @@ defined_symbols = {
     "P": SubstituentResidue("phosphate"),
     "Xyl": FrozenMonosaccharideResidue.from_iupac_lite("Xyl"),
     "HexA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
+    "Pent": FrozenMonosaccharideResidue.from_iupac_lite("Pen")
 }
 
 
