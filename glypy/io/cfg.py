@@ -1,3 +1,11 @@
+'''
+CFG Format
+----------
+
+An experimental parser for the `Consortium for Functional Glycomics <http://www.functionalglycomics.org/>`_
+(CFG) glycan line format.
+
+'''
 import re
 import warnings
 
@@ -386,3 +394,9 @@ class GlycanDeserializer(object):
                     candidate.apply()
         return glycan
 
+
+glycan_parser = GlycanDeserializer()
+
+
+def loads(text):
+    return glycan_parser(text)

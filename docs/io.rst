@@ -36,4 +36,6 @@ for converting objects to and from strings.
     io/wurcs
     io/iupac
     io/linear_code
+    io/other_line_formats
     io/nomenclature/identity
+

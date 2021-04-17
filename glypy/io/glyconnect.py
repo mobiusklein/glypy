@@ -1,4 +1,8 @@
-'''A simple dialect of the Glyconnect/GlycoMod glycan composition notation.
+'''
+Glyconnect
+----------
+
+A simple dialect of the Glyconnect/GlycoMod glycan composition notation.
 '''
 import re
 
@@ -16,7 +20,7 @@ try:
 except ImportError:
     requests = None
 
-
+#: The set of defined symbols and their mappings.
 defined_symbols = {
     "Hex": FrozenMonosaccharideResidue.from_iupac_lite("Hex"),
     "HexNAc": FrozenMonosaccharideResidue.from_iupac_lite('HexNAc'),

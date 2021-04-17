@@ -1,4 +1,8 @@
-'''A simple dialect of the Byonic glycan composition notation.
+'''
+Byonic Format
+-------------
+
+A simple dialect of Protein Metrics Byonic's glycan composition notation.
 '''
 import re
 
@@ -11,6 +15,7 @@ from glypy.structure.glycan import Glycan
 from glypy.utils import invert_dict
 
 
+#: The set of defined symbols and their mappings.
 defined_symbols = {
     "Hex": FrozenMonosaccharideResidue.from_iupac_lite("Hex"),
     "HexNAc": FrozenMonosaccharideResidue.from_iupac_lite('HexNAc'),

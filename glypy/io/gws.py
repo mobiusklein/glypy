@@ -1,5 +1,11 @@
-import re
+'''
+GWS Format
+----------
 
+A parser for a subset of the GlycoWorkbench sequence format.
+'''
+import re
+import warnings
 from collections import deque
 
 from glypy.structure import (
@@ -12,7 +18,7 @@ from glypy.utils import invert_dict
 
 from glypy.io import format_constants_map
 from glypy.io.nomenclature import identity
-from glypy.io import iupac
+from glypy.io import iupac, file_utils
 
 monosaccharide_reference = {k: v for k,
                             v in named_structures.monosaccharides.items()}
@@ -61,6 +67,10 @@ linkage_pattern = re.compile(
 
 def _make_substituent_name(name):
     return ''.join(t.title() for t in name.split("_")).replace("(", "").replace(")", "")
+
+
+class GWSError(file_utils.ParserError):
+    pass
 
 
 substituents_map_to = {
@@ -155,10 +165,24 @@ def apply_linkage(parent, child, linkage_spec, child_type):
     elif child_type == "modification":
         parent.add_modification(child, parent_position)
     else:
-        raise ValueError(child_type)
+        raise GWSError(child_type)
 
 
-def parse_gws(text):
+def loads(text):
+    '''Parse a single GWS glycan sequence plus metadata.
+
+    Parameters
+    ----------
+    text : str
+        The sequence to parse
+
+    Returns
+    -------
+    structure : :class:`~.Glycan`
+        The parsed glycan structure
+    metadata : :class:`tuple`
+        Unstructured metadata associated with the sequence.
+    '''
     reducing_end = reducing_or_free.search(text)
     if reducing_end:
         text = text[reducing_end.end():]
@@ -178,20 +202,20 @@ def parse_gws(text):
             metadata = text[1:].split(",")
             break
         elif text[0] == '}':
-            print("Unknown symbol }, ignoring")
+            warnings.warn("Unknown symbol }, ignoring")
             text = text[1:]
         i += 1
         linkage = linkage_pattern.search(text)
         if linkage:
             text = text[linkage.end():]
         else:
-            raise ValueError(
+            raise GWSError(
                 "Failed to parse linkage from \"%s\"..." % (text[:20], ))
         residue = residue_pattern.search(text)
         if residue:
             text = text[residue.end():]
         else:
-            raise ValueError(
+            raise GWSError(
                 "Failed to parse residue from \"%s\"..." % (text[:20], ))
         residue, node_type = build_residue(residue.groupdict())
         apply_linkage(last_residue, residue, linkage.groupdict(), node_type)
@@ -201,6 +225,9 @@ def parse_gws(text):
             # refuse to handle bridge substituents
             last_residue = residue
     return Glycan(root).reindex(), metadata
+
+
+parse_gws = loads
 
 
 test_data = '''redEnd--?a1D-GalNAc,p--3b1D-Gal,p--3a2D-NeuAc,p$MONO,Und,-H,0,redEnd
