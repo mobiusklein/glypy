@@ -399,4 +399,19 @@ glycan_parser = GlycanDeserializer()
 
 
 def loads(text):
+    '''Parse a single CFG glycan sequence.
+
+    .. note::
+        The spacer, if any, is ignored.
+
+    Parameters
+    ----------
+    text : str
+        The sequence to parse
+
+    Returns
+    -------
+    structure : :class:`~.Glycan`
+        The parsed glycan structure
+    '''
     return glycan_parser(text)

@@ -48,8 +48,8 @@ Example Use Cases
 
 .. |https://img.shields.io/travis/mobiusklein/glypy.svg| image:: https://img.shields.io/travis/mobiusklein/glypy.svg
    :target: https://travis-ci.org/mobiusklein/glypy
-.. |Documentation Status| image:: https://readthedocs.org/projects/glypy/badge/?version=master
-   :target: http://glypy.readthedocs.org/en/master/?badge=master
+.. |Documentation Status| image:: https://readthedocs.org/projects/glypy/badge/?version=latest
+   :target: http://glypy.readthedocs.org/en/latest/?badge=latest
 
 
 Citing

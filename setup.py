@@ -123,8 +123,16 @@ def run_setup(include_cext=True):
         url="https://github.com/mobiusklein/glypy",
         maintainer='Joshua Klein',
         maintainer_email="jaklein@bu.edu",
+        classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Science/Research',
+            'License :: OSI Approved :: Apache Software License',
+            'Topic :: Scientific/Engineering :: Bio-Informatics',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3'],
         project_urls={
-
+            "Documentation": "https://glypy.readthedocs.io/",
+            "Repository": "https://github.com/mobiusklein/glypy",
         }
     )
 
