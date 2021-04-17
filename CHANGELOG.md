@@ -9,9 +9,10 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 
 ### Changed
-* `FrozenMonosaccharideResidue.from_iupac_lite` now accounts for when the parsed string is different
-  from the canonical name (e.g. `"NeuAc"` vs `"Neu5Ac"`). The returned objects are now guaranteed to be
-  identical and both cached properly.
+1. `FrozenMonosaccharideResidue.from_iupac_lite` now accounts for when the parsed string is different
+   from the canonical name (e.g. `"NeuAc"` vs `"Neu5Ac"`). The returned objects are now guaranteed to be
+   identical and both cached properly.
+2. Improved documentation of extra line formats and IUPAClite.
 
 ### Deprecated
 
