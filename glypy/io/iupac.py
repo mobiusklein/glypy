@@ -114,13 +114,16 @@ class SubstituentSerializer(object):
         Map base type to :class:`~.Monosaccharide`
     """
 
-    def __init__(self, monosaccharides=None, substitution_rules=None):
+    def __init__(self, monosaccharides=None, substitution_rules=None, substituent_map=None):
         if monosaccharides is None:
             monosaccharides = monosaccharide_reference
         if substitution_rules is None:
             substitution_rules = _substituent_replacement_rules
+        if substituent_map is None:
+            substituent_map = substituents_map_to
         self.monosaccharide_reference = monosaccharides
         self.substitution_rules = substitution_rules
+        self.substituent_map = substituent_map
 
     def __call__(self, residue, **kwargs):
         """Alias for :meth:`resolve_substituents`
@@ -140,12 +143,14 @@ class SubstituentSerializer(object):
         :class:`str`
         """
         name = substituent.name
-        if name in substituents_map_to:
-            part = substituents_map_to[name]
+        if name in self.substituent_map:
+            part = self.substituent_map[name]
         else:
             part = _make_substituent_name(name)
-            substituents_map_to[name] = part
-            substituents_map_from[part] = name
+            warnings.warn("Registering IUPAC  name %r for %r" % (name, part))
+            self.substituent_map[name] = part
+            if part not in substituents_map_from:
+                substituents_map_from[part] = name
         return part
 
     def resolve_substituents(self, residue, **kwargs):
@@ -165,12 +170,15 @@ class SubstituentSerializer(object):
         for name, pos in self.get_relevant_substituents(residue):
             if pos in {UnknownPosition, None}:
                 pos = ""
-            if name in substituents_map_to:
-                part = substituents_map_to[name]
+            if name in self.substituent_map:
+                part = self.substituent_map[name]
             else:
                 part = _make_substituent_name(name)
-                substituents_map_to[name] = part
-                substituents_map_from[part] = name
+                warnings.warn("Registering IUPAC  name %r for %r" %
+                              (name, part))
+                self.substituent_map[name] = part
+                if part not in substituents_map_from:
+                    substituents_map_from[part] = name
             # If there is a substituent after the first, successive ones are placed in parentheses
             if multi:
                 substituent += "({}{})".format(pos, part)
@@ -695,8 +703,11 @@ def aminate_substituent(substituent):
 
 
 class SubstituentDeserializer(object):
-    def __init__(self, error_on_missing=True):
+    def __init__(self, substituents_map=None, error_on_missing=True):
+        if substituents_map is None:
+            substituents_map = substituents_map_from
         self.error_on_missing = error_on_missing
+        self.substituents_map = substituents_map
 
     def substituent_from_iupac(self, substituents):
         parts = re.split(r"\(|\)", substituents)
@@ -712,7 +723,7 @@ class SubstituentDeserializer(object):
                 position = UnknownPosition
                 name = split_part[0]
             try:
-                name = (substituents_map_from[name])
+                name = self.substituents_map[name]
             except KeyError:
                 # Acidic special case:
                 # Often, acidic monosaccharides are written with a trailing A like a substituent while
@@ -721,6 +732,10 @@ class SubstituentDeserializer(object):
                 # downstream by :func:`monosaccharide_from_iupac`.
                 if name == "A":
                     pass
+                elif name.startswith("O"):
+                    if name[1:] in self.substituents_map:
+                        # Some dialects prefix non-amine substituents with O to differentiate them
+                        name = self.substituents_map[name[1:]]
                 else:  # pragma: no cover
                     if not self.error_on_missing:
                         warnings.warn("No translation rule found to convert %s into a Substituent" % name)
@@ -730,7 +745,7 @@ class SubstituentDeserializer(object):
             yield int(position), name
 
     def symbol_to_name(self, symbol):
-        name = substituents_map_from[symbol]
+        name = self.substituents_map[symbol]
         return name
 
     def __call__(self, substituents):
@@ -1048,6 +1063,7 @@ class SimpleMonosaccharideDeserializer(DerivatizationAwareMonosaccharideDeserial
     pattern = re.compile(
         r'''(?P<modification>[a-z0-9_\-,]*)
             (?P<base_type>(?:[A-Z][a-z]{2}?|(?:[a-z]{3}[A-Z][a-z]{2})))
+            (?P<ring_type>[pfox])?
             (?P<substituent>[^-]*?)
             (?P<derivatization>\^[^\s-]*?)?
             (?P<linkage>-?\((?P<anomer>[ab?o]?)[0-9?/]+->?[0-9?/]+\)-?)?$''', re.VERBOSE)
@@ -1066,7 +1082,9 @@ class SimpleMonosaccharideDeserializer(DerivatizationAwareMonosaccharideDeserial
         except KeyError:
             raise IUPACError("Unknown Residue Base-type %r" % (base_type,))
         base_is_modified = len(residue.substituent_links) + len(residue.modifications) > 0
-
+        ring_type = match_dict.get('ring_type')
+        if ring_type is not None:
+            self.ring_bounds(residue, ring_type)
         self.set_modifications(residue, modification)
         self.set_substituents(residue, match_dict['substituent'], base_is_modified, base_type)
         linkage = match_dict.get("linkage")

@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
    from the canonical name (e.g. `"NeuAc"` vs `"Neu5Ac"`). The returned objects are now guaranteed to be
    identical and both cached properly.
 2. Improved documentation of extra line formats and IUPAClite.
+3. Added support for "O"-prefixed substituents when parsing IUPAC. Does not alter the
+   chemical interpretation, but resolves the name without the "O".
 
 ### Deprecated
 
