@@ -16,7 +16,7 @@ def skip_not_online(fn):
     if not is_online:
         return mark.xfail(mark.skip("Not able to reach host")(fn))
     else:
-        return mark.xfail(fn)
+        return fn
 
 
 example_n3 = '''@prefix dcterms: <http://purl.org/dc/terms/> .
