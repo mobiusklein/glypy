@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
-
+1. Added support for more monomer names to `glypy.io.byonic`.
 
 ### Changed
 1. `FrozenMonosaccharideResidue.from_iupac_lite` now accounts for when the parsed string is different

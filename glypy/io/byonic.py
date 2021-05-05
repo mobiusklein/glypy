@@ -7,10 +7,11 @@ A simple dialect of Protein Metrics Byonic's glycan composition notation.
 import re
 
 from glypy.structure import glycan_composition
+from glypy.composition import Composition
 from glypy.structure.glycan_composition import (
     FrozenGlycanComposition,
     FrozenMonosaccharideResidue,
-    SubstituentResidue)
+    SubstituentResidue, MolecularComposition)
 from glypy.structure.glycan import Glycan
 from glypy.utils import invert_dict
 
@@ -23,9 +24,18 @@ defined_symbols = {
     "NeuAc": FrozenMonosaccharideResidue.from_iupac_lite("NeuAc"),
     "NeuGc": FrozenMonosaccharideResidue.from_iupac_lite("NeuGc"),
     "S": SubstituentResidue("sulfate"),
+    "Sulfo": SubstituentResidue("sulfate"),
+    "S": SubstituentResidue("sulfate"),
     "P": SubstituentResidue("phosphate"),
-    "Xyl": FrozenMonosaccharideResidue.from_iupac_lite("Xyl"),
+    "Ac": SubstituentResidue("acetyl"),
+    "Acetyl": SubstituentResidue("acetyl"),
+    "Phospho": SubstituentResidue("phosphate"),
+    "Na": MolecularComposition("Na1H-1", Composition("Na1H-1")),
+    "Sodium": MolecularComposition("Na1H-1", Composition("Na1H-1")),
+    "GlcA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
+    "IdoA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
     "HexA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
+    "Xyl": FrozenMonosaccharideResidue.from_iupac_lite("Xyl"),
     "Pent": FrozenMonosaccharideResidue.from_iupac_lite("Pen")
 }
 
