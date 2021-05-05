@@ -793,7 +793,6 @@ class GlyTouCanRDFClient(RDFClientBase):
         """
         sparql = r'''
         SELECT DISTINCT ?saccharide WHERE {
-                ?saccharide a glycan:saccharide .
                 ?saccharide glycan:has_motif %s
         }
         '''
@@ -812,7 +811,6 @@ class GlyTouCanRDFClient(RDFClientBase):
         accumulator = []
         sparql = r'''
         SELECT DISTINCT ?saccharide ?glycoct WHERE {
-            ?saccharide a glycan:saccharide .
             ?saccharide glycan:has_glycosequence ?sequence .
             FILTER CONTAINS(str(?sequence), "glycoct") .
             ?sequence glycan:has_sequence ?glycoct .

@@ -37,6 +37,8 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Removed
 
 ### Fixed
+1. Fixed several pre-canned queries in `glypy.io.glyspace` which relied on glycan objects having
+   an is-a relationship with `glycan:saccharide`. This appears to no longer be the case.
 
 ### Security
 

@@ -73,9 +73,6 @@ class GlyTouCanRDFClientTest(unittest.TestCase):
         record = glyspace.get("G00034ND")
         self.assertEqual(record.has_primary_id, u'G00034ND')
         self.assertEqual(round(tree(record).mass()), 4104.0)
-        self.assertEqual(record.exact_match.structure_, record.structure_)
-        # matches = glyspace.get(glyspace.NSSKOS.exactMatch)
-        # self.assertTrue(len(matches.exact_match) > 0)
 
     def test_from_taxon(self):
         self.assertTrue(len(glyspace.client.from_taxon(9606, limit=10)) == 10)
