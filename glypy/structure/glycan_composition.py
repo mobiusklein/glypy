@@ -1427,7 +1427,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         deriv = None
         for token in tokens:
             try:
-                residue, count = token.split(":")
+                residue, count = _parse_name_count(token)
             except ValueError:
                 if string == "{}":
                     return inst
@@ -1438,7 +1438,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
                 _deriv = has_derivatization(key)
                 if _deriv:
                     deriv = _deriv
-            inst._setitem_fast(key, int(count))
+            inst._setitem_fast(key, count)
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
@@ -1512,7 +1512,7 @@ class FrozenGlycanComposition(GlycanComposition):
         key_parser = cls._key_parser
         for token in tokens:
             try:
-                residue, count = token.split(":")
+                residue, count = _parse_name_count(token)
             except ValueError:
                 if string == "{}":
                     return inst
@@ -1523,7 +1523,7 @@ class FrozenGlycanComposition(GlycanComposition):
                 _deriv = has_derivatization(key)
                 if _deriv:
                     deriv = _deriv
-            inst._setitem_fast(key, int(count))
+            inst._setitem_fast(key, count)
         inst._handle_reduction_and_derivatization(reduced, deriv)
         return inst
 
@@ -1607,9 +1607,15 @@ class HashableGlycanComposition(FrozenGlycanComposition):
         return hash(str(self))
 
 
+def _parse_name_count(string):
+    name, count = string.split(":")
+    count = int(count)
+    return name, count
+
+
 try:
     _has_c = True
-    from glypy._c.utils import get_parse_tokens
+    from glypy._c.utils import get_parse_tokens, parse_name_count as _parse_name_count
     GlycanComposition._get_parse_tokens = get_parse_tokens
 except ImportError:
     _has_c = False

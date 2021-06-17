@@ -1,12 +1,33 @@
 cimport cython
 
 from cpython.list cimport PyList_Append
+from cpython.dict cimport PyDict_GetItem
 
 from libc.string cimport strcmp, memcpy, strlen, strncpy
 from libc.stdlib cimport malloc, free, realloc, atoi, calloc
 
 from glypy._c.compat cimport (
-    PyStr_FromStringAndSize, PyStr_AsUTF8AndSize)
+    PyStr_FromStringAndSize, PyStr_AsUTF8AndSize, PyInt_FromString)
+
+
+cpdef tuple parse_name_count(str string):
+    cdef:
+        size_t i
+        Py_ssize_t n
+        Py_ssize_t boundary
+        char* cstring
+        str elt
+        object count
+
+    cstring = PyStr_AsUTF8AndSize(<str>string, &n)
+    elt = None
+    count = 0
+    for i in range(n):
+        if cstring[i] == ':' and i < n:
+            elt = PyStr_FromStringAndSize(cstring, i)
+            count = PyInt_FromString(&cstring[i + 1], NULL, 10)
+            return elt, count
+    raise ValueError()
 
 
 cpdef tuple get_parse_tokens(object string):
