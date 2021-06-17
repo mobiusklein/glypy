@@ -1604,3 +1604,11 @@ class HashableGlycanComposition(FrozenGlycanComposition):
 
     def __hash__(self):
         return hash(str(self))
+
+
+try:
+    _has_c = True
+    from glypy._c.utils import get_parse_tokens
+    GlycanComposition._get_parse_tokens = get_parse_tokens
+except ImportError:
+    _has_c = False
