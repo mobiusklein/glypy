@@ -1509,6 +1509,7 @@ class FrozenGlycanComposition(GlycanComposition):
         tokens, reduced = cls._get_parse_tokens(string)
         inst = cls()
         deriv = None
+        key_parser = cls._key_parser
         for token in tokens:
             try:
                 residue, count = token.split(":")
@@ -1517,7 +1518,7 @@ class FrozenGlycanComposition(GlycanComposition):
                     return inst
                 else:
                     raise ValueError("Malformed Token, %s" % (token,))
-            key = cls._key_parser(residue)
+            key = key_parser(residue)
             if "^" in residue:
                 _deriv = has_derivatization(key)
                 if _deriv:

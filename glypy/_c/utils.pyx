@@ -32,7 +32,7 @@ cpdef tuple get_parse_tokens(object string):
             PyList_Append(tokens, token)
             elt_start = i + 2
         elif cstring[i] == '}':
-            elt_end = i - 1
+            elt_end = i
             token = PyStr_FromStringAndSize(
                 &cstring[elt_start], elt_end - elt_start)
             PyList_Append(tokens, token)
