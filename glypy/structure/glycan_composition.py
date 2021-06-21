@@ -888,13 +888,39 @@ class MolecularComposition(MoleculeBase, ResidueBase):  # pragma: no cover
         return not (self == other)
 
 
-_CompositionBase = dict
+class _CompositionBase(dict):
 
+    def _setitem_fast(self, key, value):
+        dict.__setitem__(self, key, value)
+
+    def _getitem_fast(self, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return 0
+
+    @classmethod
+    def _empty(cls):
+        inst = cls.__new__(cls)
+        inst._composition_offset = water_composition.clone()
+        inst._reducing_end = None
+        inst._mass = None
+        return inst
+
+    def _update_from_typed_map(self, template, copy_nodes=False):
+        if copy_nodes:
+            for name, count in template.items():
+                self._setitem_fast(name.clone(), count)
+        else:
+            for name, count in template.items():
+                self._setitem_fast(name, count)
+        reduced = template.reducing_end
+        if reduced is not None:
+            self.reducing_end = reduced.clone()
+        self._mass = None
 
 try:
-    # from glypy._c.count_table import CountTable
-    # _CompositionBase = CountTable
-    pass
+    from glypy._c.structure.glycan_composition import _CompositionBase
 except ImportError:
     pass
 
@@ -1015,9 +1041,6 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         _CompositionBase.__setitem__(self, key, int(value))
         self._mass = None
 
-    def _setitem_fast(self, key, value):
-        _CompositionBase.__setitem__(self, key, value)
-
     def __getitem__(self, key):
         """
         Get the quantity of `key`
@@ -1037,12 +1060,6 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         """
         if isinstance(key, basestring):
             key = self._key_parser(key)
-        try:
-            return _CompositionBase.__getitem__(self, key)
-        except KeyError:
-            return 0
-
-    def _getitem_fast(self, key):
         try:
             return _CompositionBase.__getitem__(self, key)
         except KeyError:
@@ -1342,25 +1359,13 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
 
 
     def clone(self, propogate_composition_offset=True, copy_nodes=True):
-        dup = self.__class__()
+        dup = self._empty()
         dup._update_from_typed_map(self, copy_nodes=copy_nodes)
         if not propogate_composition_offset:
             dup._composition_offset = Composition('H2O')
         else:
             dup._composition_offset = self._composition_offset.clone()
         return dup
-
-    def _update_from_typed_map(self, template, copy_nodes=False):
-        if copy_nodes:
-            for name, count in template.items():
-                self._setitem_fast(name.clone(), count)
-        else:
-            for name, count in template.items():
-                self._setitem_fast(name, count)
-        reduced = template.reducing_end
-        if reduced is not None:
-            self.reducing_end = reduced.clone()
-        self._mass = None
 
     # inheriting from dict overwrites MoleculeBase.copy
     def copy(self, *args, **kwargs):
@@ -1423,7 +1428,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         :class:`GlycanComposition`
         """
         tokens, reduced = cls._get_parse_tokens(string)
-        inst = cls()
+        inst = cls._empty()
         deriv = None
         for token in tokens:
             try:
@@ -1507,7 +1512,7 @@ class FrozenGlycanComposition(GlycanComposition):
     @classmethod
     def parse(cls, string):
         tokens, reduced = cls._get_parse_tokens(string)
-        inst = cls()
+        inst = cls._empty()
         deriv = None
         key_parser = cls._key_parser
         for token in tokens:
@@ -1583,7 +1588,7 @@ class FrozenGlycanComposition(GlycanComposition):
         self._total_composition = None
 
     def clone(self, propogate_composition_offset=True, copy_nodes=False):
-        dup = self.__class__()
+        dup = self._empty()
         dup._update_from_typed_map(self, copy_nodes=copy_nodes)
         if not propogate_composition_offset:
             dup._composition_offset = Composition('H2O')

@@ -1,0 +1,12 @@
+from glypy.composition.ccomposition cimport CComposition
+
+cdef class _CompositionBase(dict):
+    cdef:
+        public object _mass
+        public object _reducing_end
+        public CComposition _composition_offset
+
+    cpdef object _getitem_fast(self, object key)
+    cpdef object _setitem_fast(self, object key, object value)
+
+    cpdef object _update_from_typed_map(self, _CompositionBase template, bint copy_nodes=*)

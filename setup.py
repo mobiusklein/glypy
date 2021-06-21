@@ -20,6 +20,8 @@ try:
          Extension("glypy.utils.cenum", ['glypy/utils/cenum.pyx']),
          Extension("glypy._c.count_table", ["glypy/_c/count_table.pyx"]),
          Extension("glypy._c.utils", ["glypy/_c/utils.pyx"]),
+         Extension("glypy._c.structure.glycan_composition", [
+                   "glypy/_c/structure/glycan_composition.pyx"]),
          ],
         annotate=True)
 except (ImportError, AttributeError):
@@ -30,6 +32,8 @@ except (ImportError, AttributeError):
         Extension("glypy.utils.cenum", ['glypy/utils/cenum.c']),
         Extension("glypy._c.count_table", ["glypy/_c/count_table.c"]),
         Extension("glypy._c.utils", ["glypy/_c/utils.c"]),
+        Extension("glypy._c.structure.glycan_composition", [
+                  "glypy/_c/structure/glycan_composition.c"]),
     ]
 
 cmdclass = {}
