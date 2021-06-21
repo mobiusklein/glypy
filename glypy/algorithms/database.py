@@ -5,7 +5,7 @@ import functools
 try:
     from collections import Counter
     from collections.abc import Iterable, Callable
-from ImportError:
+except ImportError:
     from collections import Counter, Iterable, Callable
 
 
