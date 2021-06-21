@@ -899,6 +899,22 @@ class _CompositionBase(dict):
         except KeyError:
             return 0
 
+    def __reduce__(self):
+        return self.__class__, (), self.__getstate__()
+
+    def __getstate__(self):
+        d = {
+            'mapping': dict(self),
+            'reducing_end': self._reducing_end,
+            'composition_offset': self._composition_offset
+        }
+        return d
+
+    def __setstate__(self, state):
+        self.update(state['mapping'])
+        self._reducing_end = state['reducing_end']
+        self._composition_offset = state['composition_offset']
+
     @classmethod
     def _empty(cls):
         inst = cls.__new__(cls)
