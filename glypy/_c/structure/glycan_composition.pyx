@@ -16,7 +16,7 @@ cdef class _CompositionBase(dict):
         cdef _CompositionBase inst = cls.__new__(cls)
         inst._mass = None
         inst._reducing_end = None
-        inst._composition_offset = water.clone()
+        inst._composition_offset = CComposition._create(water)
         return inst
 
     cpdef object _getitem_fast(self, object key):
@@ -30,6 +30,9 @@ cdef class _CompositionBase(dict):
 
     cpdef object _setitem_fast(self, object key, object value):
         PyDict_SetItem(self, key, value)
+
+    def __reduce__(self):
+        return self.__class__, (), self.__getstate__()
 
     def __getstate__(self):
         d = {
