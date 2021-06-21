@@ -2,7 +2,12 @@ import os
 import sqlite3
 import logging
 import functools
-from collections import Counter, Iterable, Callable
+try:
+    from collections import Counter
+    from collections.abc import Iterable, Callable
+from ImportError:
+    from collections import Counter, Iterable, Callable
+
 
 import glypy
 
