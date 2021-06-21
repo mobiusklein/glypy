@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
-
+1. Added C-extensions for core components of the `GlycanComposition` class
 
 ### Changed
 
