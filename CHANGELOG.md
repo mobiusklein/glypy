@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
+
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [1.0.2] - 2021-06-21
+
+### Added
 1. Added C-extensions for core components of the `GlycanComposition` class
 
 ### Changed
@@ -93,9 +108,10 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.2...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
 [0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
 [1.0.0]: https://github.com/mobiusklein/glypy/releases/v1.0.0
 [1.0.1]: https://github.com/mobiusklein/glypy/releases/v1.0.1
+[1.0.2]: https://github.com/mobiusklein/glypy/releases/v1.0.2
