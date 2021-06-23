@@ -45,6 +45,8 @@ cpdef tuple get_parse_tokens(object string):
     cstring = PyStr_AsUTF8AndSize(<str>string, &n)
     elt_start = 1
     elt_end = -1
+    if n == 0 or (n > 0 and cstring[0] != '{'):
+        raise ValueError("Malformed glycan composition!")
     for i in range(1, n - 1):
         if (cstring[i] == ';' and cstring[i + 1] == ' '):
             elt_end = i
