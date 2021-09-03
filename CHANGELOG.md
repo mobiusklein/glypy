@@ -3,10 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
-## [Unreleased]
+## [1.0.3] - 2021-09-02
 
 ### Added
-
+1. Added simple validation logic when handling malformed glycan composition string
 
 ### Changed
 
