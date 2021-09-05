@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Removed
 
 ### Fixed
+1. Tolerate empty glycan composition strings in the first pass of the tokenizer again
 
 ### Security
 
