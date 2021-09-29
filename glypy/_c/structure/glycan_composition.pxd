@@ -10,3 +10,4 @@ cdef class _CompositionBase(dict):
     cpdef object _setitem_fast(self, object key, object value)
 
     cpdef object _update_from_typed_map(self, _CompositionBase template, bint copy_nodes=*)
+    cpdef str serialize(self)

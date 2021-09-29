@@ -935,6 +935,24 @@ class _CompositionBase(dict):
             self.reducing_end = reduced.clone()
         self._mass = None
 
+    def serialize(self):
+        """Convert a glycan composition into a curly brace-enclosed string specifying
+        pairs of `iupac_lite` and a integer count.
+
+        If the glycan is reduced, it will be appended to the closing brace following a
+        `$` character.
+
+        Returns
+        -------
+        str
+        """
+        form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
+            self.items(), key=lambda x: (x[0].mass(), str(x[0]))) if v != 0)
+        reduced = self._reducing_end
+        if reduced is not None:
+            form = "%s$%s" % (form, formula(reduced.total_composition()))
+        return form
+
 try:
     from glypy._c.structure.glycan_composition import _CompositionBase
 except ImportError:
@@ -1387,25 +1405,8 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
     def copy(self, *args, **kwargs):
         return self.clone(*args, **kwargs)
 
-    def serialize(self):
-        """Convert a glycan composition into a curly brace-enclosed string specifying
-        pairs of `iupac_lite` and a integer count.
-
-        If the glycan is reduced, it will be appended to the closing brace following a
-        `$` character.
-
-        Returns
-        -------
-        str
-        """
-        form = "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
-            self.items(), key=lambda x: (x[0].mass(), str(x[0]))) if v != 0)
-        reduced = self._reducing_end
-        if reduced is not None:
-            form = "%s$%s" % (form, formula(reduced.total_composition()))
-        return form
-
-    __str__ = serialize
+    def __str__(self):
+        return self.serialize()
 
     @classmethod
     def _get_parse_tokens(cls, string):

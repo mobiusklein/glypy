@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Added
 
 ### Changed
+1. Added a C accelerator for `GlycanComposition.serialize`
 
 ### Deprecated
 

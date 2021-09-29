@@ -2,6 +2,9 @@ from cpython.object cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next
 
 from glypy.composition.ccomposition cimport CComposition
+from glypy.composition import formula
+
+from glypy._c.utils cimport _prepare_glycan_composition_string
 
 cdef CComposition water = CComposition("H2O")
 
@@ -63,3 +66,10 @@ cdef class _CompositionBase(dict):
         if reduced is not None:
             self._reducing_end = reduced.clone()
         self._mass = None
+
+    cpdef str serialize(self):
+        cdef str result = _prepare_glycan_composition_string(self)
+        reduced = self._reducing_end
+        if reduced is not None:
+            result = "%s$%s" % (result, formula(reduced.total_composition()))
+        return result
