@@ -1133,7 +1133,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
             return self._mass
         if charge == 0:
             mass = self._composition_offset.mass
-            for residue_type, count in list(self.items()):
+            for residue_type, count in self.items():
                 mass += residue_type.mass(average=average, charge=0, mass_data=mass_data) * count
             if self._reducing_end is not None:
                 mass += self._reducing_end.mass(average=average, charge=0, mass_data=mass_data)

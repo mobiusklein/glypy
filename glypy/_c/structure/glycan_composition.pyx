@@ -68,8 +68,22 @@ cdef class _CompositionBase(dict):
         self._mass = None
 
     cpdef str serialize(self):
-        cdef str result = _prepare_glycan_composition_string(self)
+        # Causes segmentation fault in unrelated mass calculation code?
+        # cdef str result = _prepare_glycan_composition_string(self)
+        cdef str result = _reformat(self)
         reduced = self._reducing_end
         if reduced is not None:
             result = "%s$%s" % (result, formula(reduced.total_composition()))
         return result
+
+
+cpdef sorter(tuple pair):
+    x = pair[0]
+    m = x.mass()
+    s = str(x)
+    return (m, s)
+
+
+cdef str _reformat(dict self):
+    return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
+            self.items(), key=sorter) if v != 0)
