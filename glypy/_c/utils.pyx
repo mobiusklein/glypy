@@ -135,7 +135,8 @@ cdef int get_str_int(int i, string_cell* out):
         object py_i
         str pa
         Py_ssize_t z
-    if i < ARRAY_SIZE:
+
+    if i < ARRAY_SIZE and i >= 0:
         out[0] = str_ints[i]
         return 0
 
@@ -233,7 +234,6 @@ cpdef str _prepare_glycan_composition_string(dict composition):
     for j in range(n):
         if cells[j].string == NULL:
             continue
-
         memcpy(&text_buffer[k], cells[j].string, cells[j].size)
         k += cells[j].size
         text_buffer[k] = ':'
