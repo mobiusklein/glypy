@@ -209,7 +209,8 @@ cpdef str _prepare_glycan_composition_string(dict composition):
             name = str(<object>pkey)
             ptmp = PyDict_GetItem(intern_table, name)
             if ptmp == NULL:
-                PyDict_SetItem(intern_table, name[:], name[:])
+                Py_INCREF(name)
+                PyDict_SetItem(intern_table, name, name)
             else:
                 name = <str>ptmp
 

@@ -1,6 +1,8 @@
 from cpython.object cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next
-
+from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE, PyList_Sort
+from cpython.tuple cimport PyTuple_GET_ITEM
+from cpython.int cimport PyInt_AsLong
 from glypy.composition.ccomposition cimport CComposition
 from glypy.composition import formula
 
@@ -77,13 +79,31 @@ cdef class _CompositionBase(dict):
         return result
 
 
-cpdef sorter(tuple pair):
-    x = pair[0]
-    m = x.mass()
-    s = str(x)
-    return (m, s)
-
-
 cdef str _reformat(dict self):
-    return "{%s}" % '; '.join("{}:{}".format(str(k), v) for k, v in sorted(
-            self.items(), key=sorter) if v != 0)
+    cdef:
+        list tokens, strings
+        Py_ssize_t i, n
+        PyObject* k
+        PyObject* v
+        object key
+        int count
+        tuple token
+
+    tokens = []
+    strings = []
+    i = 0
+    while PyDict_Next(self, &i, &k, &v):
+        count = PyInt_AsLong(<object>v)
+        if count != 0:
+            key = <object>k
+            PyList_Append(tokens, (key.mass(), str(key), (<object>v)))
+    PyList_Sort(tokens)
+    i = 0
+    n = PyList_GET_SIZE(tokens)
+    for i in range(n):
+        token = <tuple>PyList_GET_ITEM(tokens, i)
+        name = <object>PyTuple_GET_ITEM(token, 1)
+        cnt = <object>PyTuple_GET_ITEM(token, 2)
+        part = "%s:%d" % (name, cnt)
+        PyList_Append(strings, part)
+    return "{%s}" % '; '.join(strings)
