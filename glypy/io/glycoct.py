@@ -2367,6 +2367,73 @@ class OrderingComparisonContext(object):
                       reverse=reverse)
 
 
+class SubtreeJourney(object):
+    def __init__(self, links):
+        self.links = links
+
+    def __repr__(self):
+        template = "{self.__class__.__name__}({self.links!r})"
+        return template.format(self=self)
+
+    def __iter__(self):
+        return iter(self.links)
+
+    def __len__(self):
+        return len(self.links)
+
+    def __getitem__(self, i):
+        return self.links[i]
+
+
+class OrderedSubtreeTraverser(object):
+    def __init__(self, ordering_context):
+        self.ordering_context = ordering_context
+
+    def visit_link(self, link, ignore_ambiguous=False):
+        if isinstance(link, AmbiguousLink) and len(link.parent_choices) and not ignore_ambiguous:
+            subtree = OrderedSubtreeTraverser(self.ordering_context)
+            return [SubtreeJourney(subtree.visit_subtree(link, True))]
+        node = link.child
+        if node.node_type is Monosaccharide.node_type:
+            next_links = self.visit_monosaccharide(node)
+        else:
+            next_links = self.visit_substituent(node)
+        return next_links
+
+    def visit_monosaccharide(self, monosaccharide):
+        link_collection = list(monosaccharide.substituent_links.values())
+        link_collection.extend(
+            [cl for p, cl in monosaccharide.children(links=True)])
+        links = self.ordering_context.sort_links(link_collection)
+        return links[::-1]
+
+    def visit_substituent(self, substituent):
+        links = self.ordering_context.sort_links(
+            [cl for p, cl in substituent.children(links=True)])
+        return links[::-1]
+
+    def visit_subtree(self, link, ignore_ambiguous=False):
+        visited = set()
+        link_queue = deque([link])
+        journey = deque()
+
+        while link_queue:
+            link = link_queue.popleft()
+            # Explicitly add before skipping to avoid double-writing
+            # residues, but including multiple-link cases
+            journey.append(link)
+            if isinstance(link, SubtreeJourney):
+                continue
+            if link.child.id in visited:
+                continue
+            visited.add(link.child.id)
+            link_queue.extend(
+                self.visit_link(
+                    link, ignore_ambiguous=ignore_ambiguous))
+            ignore_ambiguous &= False
+        return journey
+
+
 class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
     def __init__(self, structure, buffer=None, full=True):
         super(OrderRespectingGlycoCTWriter, self).__init__(structure, buffer, full)
@@ -2404,18 +2471,29 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
         if structure is None:
             raise GlycoCTError("No structure is ready to be written.")
 
-        self.buffer.write("RES\n")
+        self.process_graph(structure.root)
+        return self.buffer
 
-        visited = set()
-        if structure.root.node_type is Monosaccharide.node_type:
-            res_str = self.handle_monosaccharide(structure.root)
+    def process_graph(self, root, visited=None, link_queue=None):
+        if visited is None:
+            visited = set()
+
+        if link_queue is None:
+            link_queue = self.link_queue
+
+        links_in_order = []
+        underdetermined_subtrees = []
+
+        self.buffer.write("RES\n")
+        if root.node_type is Monosaccharide.node_type:
+            res_str = self.handle_monosaccharide(root)
             self.buffer.write(res_str + "\n")
         else:
-            res_str = self.handle_substituent(structure.root)
+            res_str = self.handle_substituent(root)
             self.buffer.write(res_str + "\n")
-        links_in_order = []
-        while self.link_queue:
-            link = self.link_queue.popleft()
+
+        while link_queue:
+            link = link_queue.popleft()
             # Explicitly add before skipping to avoid double-writing
             # residues, but including multiple-link cases
             links_in_order.append(link)
@@ -2434,13 +2512,94 @@ class OrderRespectingGlycoCTWriter(GlycoCTWriterBase):
                 continue
             parent_ix = self.residue_to_index[link.parent.id]
             child_ix = self.residue_to_index[link.child.id]
-            line = self.handle_link(link, self.lin_counter(), parent_ix, child_ix)
+            line = self.handle_link(
+                link, self.lin_counter(), parent_ix, child_ix)
             self.buffer.write(line + "\n")
+
+        return visited, underdetermined_subtrees
+
+
+class UNDOrderRespectingGlycoCTWriter(OrderRespectingGlycoCTWriter):
+    def gobble_subtree(self, link):
+        traverser = OrderedSubtreeTraverser(self.ordering_context)
+        return SubtreeJourney(traverser.visit_subtree(link, True))
+
+    def process_graph(self, root, visited=None, link_queue=None):
+        if visited is None:
+            visited = set()
+
+        if link_queue is None:
+            link_queue = self.link_queue
+
+        links_in_order = []
+        underdetermined_subtrees = []
+
+        self.buffer.write("RES\n")
+        if root.node_type is Monosaccharide.node_type:
+            res_str = self.handle_monosaccharide(root)
+            self.buffer.write(res_str + "\n")
+        else:
+            res_str = self.handle_substituent(root)
+            self.buffer.write(res_str + "\n")
+
+        while link_queue:
+            link = link_queue.popleft()
+            if isinstance(link, AmbiguousLink) and len(link.parent_choices) > 1:
+                underdetermined_subtrees.append(self.gobble_subtree(link))
+                continue
+            # Explicitly add before skipping to avoid double-writing
+            # residues, but including multiple-link cases
+            links_in_order.append(link)
+            if link.child.id in visited:
+                continue
+            visited.add(link.child.id)
+            if link.child.node_type is Monosaccharide.node_type:
+                line = self.handle_monosaccharide(link.child)
+            else:
+                line = self.handle_substituent(link.child)
+            self.buffer.write(line + "\n")
+
+        self.buffer.write("LIN\n")
+        for link in links_in_order:
+            if not link.is_substituent_link() and not self.full:
+                continue
+            parent_ix = self.residue_to_index[link.parent.id]
+            child_ix = self.residue_to_index[link.child.id]
+            line = self.handle_link(
+                link, self.lin_counter(), parent_ix, child_ix)
+            self.buffer.write(line + "\n")
+
+        return visited, underdetermined_subtrees
+
+    def handle_glycan(self, structure):
+        if structure is None:
+            raise GlycoCTError("No structure is ready to be written.")
+
+        visited, underdetermined_subtrees = self.process_graph(structure.root)
+
+        if underdetermined_subtrees:
+            self.begin_underdetermined()
+            for i, und in enumerate(underdetermined_subtrees, 1):
+                und = deque(und)
+                self.buffer.write("UND%d:100.0:100.0\n" % i)
+                base_link = und.popleft()
+                parent_ids = "|".join([str(self.residue_to_index[p.id]) for p in base_link.parent_choices])
+                self.buffer.write("ParentIDs:%s\n" % parent_ids)
+                subtree_linkage = self.handle_link(base_link, '-', '', '')[2:]
+                self.buffer.write("SubtreeLinkageID1:%s\n" % subtree_linkage)
+
+                outer_link_deque = self.link_queue
+                self.link_queue = deque([])
+
+                child = base_link.child
+                self.process_graph(child, visited=visited, link_queue=und)
+
+                self.link_queue = outer_link_deque
 
         return self.buffer
 
 
-GlycoCTWriter = OrderRespectingGlycoCTWriter
+GlycoCTWriter = UNDOrderRespectingGlycoCTWriter
 
 
 def dump(structure, buffer=None):

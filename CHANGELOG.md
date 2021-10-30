@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
+1. Added support for writing UND sections using `glypy.io.glycoct`. The previous implementation
+   is still available explicitly in `glypy.io.glycoct.OrderRespectingGlycoCTWriter`, the new
+   behavior is implemented in `UNDOrderRespectingGlycoCTWriter`, which is now the value of
+   `glypy.io.glycoct.GlycoCTWriter`.
 
 ### Changed
 1. Added a C accelerator for `GlycanComposition.serialize`
