@@ -1630,6 +1630,12 @@ class HashableGlycanComposition(FrozenGlycanComposition):
     def __hash__(self):
         return hash(str(self))
 
+    def __eq__(self, other):
+        if isinstance(other, HashableGlycanComposition):
+            return str(other) == str(self)
+        else:
+            return super(HashableGlycanComposition, self).__eq__(other)
+
 
 def _parse_name_count(string):
     name, count = string.split(":")
