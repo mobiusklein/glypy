@@ -1219,8 +1219,6 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
             return str(self) == other
         if not isinstance(other, Mapping):
             return False
-        if len(self) != len(other):
-            return False
         self_items = set([i for i in self.items() if i[1]])
         other_items = set([i for i in other.items() if i[1]])
         return self_items == other_items
