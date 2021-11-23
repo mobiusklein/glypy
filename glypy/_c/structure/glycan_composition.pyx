@@ -2,7 +2,7 @@ from cpython.object cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE, PyList_Sort
 from cpython.tuple cimport PyTuple_GET_ITEM
-from cpython.int cimport PyInt_AsLong
+from cpython.int cimport PyInt_AsLong, PyInt_FromLong
 from glypy.composition.ccomposition cimport CComposition
 from glypy.composition import formula
 
@@ -35,6 +35,42 @@ cdef class _CompositionBase(dict):
 
     cpdef object _setitem_fast(self, object key, object value):
         PyDict_SetItem(self, key, value)
+
+    cdef void _add_from(self, _CompositionBase other):
+        cdef:
+            Py_ssize_t i
+            PyObject* pkey
+            PyObject* pval
+            PyObject* ptmp
+            long value
+
+        i = 0
+        while PyDict_Next(other, &i, &pkey, &pval):
+            ptmp = PyDict_GetItem(self, <object>pkey)
+            if ptmp == NULL:
+                value = 0
+            else:
+                value = PyInt_AsLong(<object>ptmp)
+            value += PyInt_AsLong(<object>pval)
+            PyDict_SetItem(self, <object>pkey, PyInt_FromLong(value))
+
+    cdef void _subtract_from(self, _CompositionBase other):
+        cdef:
+            Py_ssize_t i
+            PyObject* pkey
+            PyObject* pval
+            PyObject* ptmp
+            long value
+
+        i = 0
+        while PyDict_Next(other, &i, &pkey, &pval):
+            ptmp = PyDict_GetItem(self, <object>pkey)
+            if ptmp == NULL:
+                value = 0
+            else:
+                value = PyInt_AsLong(<object>ptmp)
+            value -= PyInt_AsLong(<object>pval)
+            PyDict_SetItem(self, <object>pkey, PyInt_FromLong(value))
 
     def __reduce__(self):
         return self.__class__, (), self.__getstate__()

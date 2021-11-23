@@ -11,3 +11,6 @@ cdef class _CompositionBase(dict):
 
     cpdef object _update_from_typed_map(self, _CompositionBase template, bint copy_nodes=*)
     cpdef str serialize(self)
+
+    cdef void _add_from(self, _CompositionBase other)
+    cdef void _subtract_from(self, _CompositionBase other)
