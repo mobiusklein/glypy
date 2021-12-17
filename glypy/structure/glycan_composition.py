@@ -22,6 +22,9 @@ True
 True
 
 '''
+
+import warnings
+
 try:
     from collections.abc import Mapping
 except ImportError:
@@ -78,6 +81,9 @@ class IUPACLiteMonosaccharideDeserializer(iupac.SimpleMonosaccharideDeserializer
             if monosaccharide_str.startswith(MolecularComposition.sigil):
                 result = MolecularComposition.from_iupac_lite(monosaccharide_str)
                 return result
+            if monosaccharide_str == "Pent":
+                warnings.warn("Pent is not proper IUPAC. Converting to Pen")
+                return self.monosaccharide_from_iupac("Pen", residue_class)
             try:
                 result = SubstituentResidue.from_iupac_lite(monosaccharide_str)
                 return result

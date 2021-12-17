@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
+## [1.0.5]
+
+### Changed
+1. If a user passes `Pent` to an IUPACLite parser, it will be interpreted as `Pen`.
+
+
 ## [1.0.4] - 2021-10-29
 
 ### Added
