@@ -37,5 +37,4 @@ NSGlycan = parse_owl(pkg_resources.resource_stream(__name__, "data/glycan.owl"))
 
 __all__ = [
     "NSGlycan",
-    "glycordf",
 ]
