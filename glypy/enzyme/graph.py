@@ -1,9 +1,9 @@
 import json
 from collections import namedtuple, defaultdict, deque
 try:
-    from collections import Mapping
-except ImportError:
     from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 
 from glypy.io import glycoct
 from glypy.structure.glycan_composition import HashableGlycanComposition
