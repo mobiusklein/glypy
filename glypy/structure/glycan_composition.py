@@ -1636,6 +1636,10 @@ class HashableGlycanComposition(FrozenGlycanComposition):
 
     def __eq__(self, other):
         if isinstance(other, HashableGlycanComposition):
+            if self._str is not None:
+                if other._str is not None:
+                    return self._str == other._str
+                return self._str == str(other)
             return str(other) == str(self)
         else:
             return super(HashableGlycanComposition, self).__eq__(other)
