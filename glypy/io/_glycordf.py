@@ -1,17 +1,9 @@
 import pkg_resources
 import logging
-from rdflib import Graph, Namespace
+from rdflib import Namespace
 
 logging.getLogger("rdflib.term").addHandler(logging.NullHandler())
 logging.getLogger("rdflib.term").propagate = False
-
-
-NSGlycan = ("http://purl.jp/bio/12/glyco/glycan#")
-glycordf = Graph().parse(pkg_resources.resource_stream(__name__, "data/glycordf.ttl"), format='turtle')
-_entities = set(glycordf.subjects()) | set(glycordf.objects())
-_entities = [
-    entity.replace(NSGlycan, "") for entity in _entities if (NSGlycan in entity)
-]
 
 
 class PopulatedNamespace(Namespace):
@@ -26,7 +18,21 @@ class PopulatedNamespace(Namespace):
         return members
 
 
-NSGlycan = PopulatedNamespace(NSGlycan, _entities)
+def parse_owl(stream):
+    from lxml import etree
+
+    tree = etree.parse(stream)
+    root = tree.getroot()
+
+    entities = []
+    for elt in root.iter("{http://www.w3.org/2002/07/owl#}Declaration"):
+        decl = elt[0]
+        if "IRI" in decl.attrib:
+            entities.append(decl.attrib['IRI'].strip("#"))
+    return PopulatedNamespace("http://purl.jp/bio/12/glyco/glycan#", entities)
+
+
+NSGlycan = parse_owl(pkg_resources.resource_stream(__name__, "data/glycan.owl"))
 
 
 __all__ = [
