@@ -3,6 +3,39 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
+## [Unreleased]
+
+### Added
+-
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [1.0.6] - 2022-01-15
+
+### Added
+- Add specialized path for comparing two fully initialized `HashableGlycanComposition` instances
+- Updated `GlycoRDF` to use OWL instead of cached turtle
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
 ## [1.0.5]
 
 ### Changed
@@ -134,7 +167,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.6...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
 [0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
@@ -143,3 +176,5 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.2]: https://github.com/mobiusklein/glypy/releases/v1.0.2
 [1.0.3]: https://github.com/mobiusklein/glypy/releases/v1.0.3
 [1.0.4]: https://github.com/mobiusklein/glypy/releases/v1.0.4
+[1.0.5]: https://github.com/mobiusklein/glypy/releases/v1.0.5
+[1.0.6]: https://github.com/mobiusklein/glypy/releases/v1.0.6
