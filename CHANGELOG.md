@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 
 ### Added
--
+- Added two new parameters to `plot` and `draw_tree`, `pad` and `pad_factor` to control
+  the padding around a drawn glycan in stand-alone mode. Contributed by @michaelmarty (GH #24)
 
 ### Changed
 
