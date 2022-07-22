@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
-## [Unreleased]
+## [1.0.7] - 2022-07-22
 
 ### Added
 - Added two new parameters to `plot` and `draw_tree`, `pad` and `pad_factor` to control
@@ -168,7 +168,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.7...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
 [0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
@@ -179,3 +179,4 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.4]: https://github.com/mobiusklein/glypy/releases/v1.0.4
 [1.0.5]: https://github.com/mobiusklein/glypy/releases/v1.0.5
 [1.0.6]: https://github.com/mobiusklein/glypy/releases/v1.0.6
+[1.0.7]: https://github.com/mobiusklein/glypy/releases/v1.0.7
