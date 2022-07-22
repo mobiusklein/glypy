@@ -117,14 +117,14 @@ def breadth_first_traversal(tree, visited=None):
                 yield descend
 
 
-def _bounding_box_to_limits(dtree):
-    xlim, ylim = dtree._compute_bounding_box()
+def _bounding_box_to_limits(dtree, pad=2, pad_factor=0.2):
+    xlim, ylim = dtree._compute_bounding_box(pad_factor=pad_factor)
     xlim = list(xlim)
-    xlim[0] -= 2
-    xlim[1] += 2
+    xlim[0] -= pad
+    xlim[1] += pad
     ylim = list(ylim)
-    ylim[0] -= 2
-    ylim[1] += 2
+    ylim[0] -= pad
+    ylim[1] += pad
     return np.array(xlim), np.array(ylim)
 
 
@@ -669,7 +669,7 @@ class DrawTree(object):  # pragma: no cover
 
 
 def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
-         symbol_nomenclature='snfg', layout='balanced', layout_args=None, **kwargs):
+         symbol_nomenclature='snfg', layout='balanced', layout_args=None, pad=2, pad_factor=0.2, **kwargs):
     '''
     Draw the parent outlink position and the child anomer symbol
 
@@ -700,6 +700,12 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
     layout_args: dict
         Extra parameters to pass to :class:`~.TreeLayoutBase`. It may take its own "transform" parameter
         passed here.
+    pad: float
+        Size of the pad around the structure in units of residues. Default is 2.
+        A value of 0.5 will yield less space around the plot.
+    pad_factor: float
+        Multiplicative factor of padding around the structure. Default is 0.2.
+        Works in tandem with pad. The final padding is the multiplied pad_factor plus the additional pad.
     scale: (float, float) or float
         Scale coefficients. Pass a pair to scale x and y dimensions respectively.
     symbol_scale: float, optional
@@ -760,7 +766,7 @@ def plot(tree, at=(0, 0), ax=None, orientation='h', center=False, label=False,
             **kwargs)
     # If the figure is stand-alone, center it
     if fig is not None or center:
-        xlim, ylim = _bounding_box_to_limits(dtree)
+        xlim, ylim = _bounding_box_to_limits(dtree, pad, pad_factor)
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
         ax.get_xaxis().set_visible(False)
