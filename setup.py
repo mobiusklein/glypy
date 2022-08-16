@@ -1,5 +1,5 @@
 import sys
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_packages, Extension as _Extension
 
 # With gratitude to the SqlAlchemy setup.py authors
 
@@ -13,31 +13,38 @@ if sys.platform == 'win32':
     # find the compiler
     ext_errors += (IOError,)
 
+
+def Extension(*args, **kwargs):
+    ext = _Extension(*args, **kwargs)
+    ext.include_dirs.append("src/glypy/_c/")
+    return ext
+
+
 try:
     from Cython.Build import cythonize
     extensions = cythonize(
-        [Extension("glypy.composition.ccomposition", ["glypy/composition/ccomposition.pyx"]),
-         Extension("glypy.utils.cenum", ['glypy/utils/cenum.pyx']),
-         Extension("glypy._c.utils", ["glypy/_c/utils.pyx"]),
+        [Extension("glypy.composition.ccomposition", ["src/glypy/composition/ccomposition.pyx"]),
+         Extension("glypy.utils.cenum", ['src/glypy/utils/cenum.pyx']),
+         Extension("glypy._c.utils", ["src/glypy/_c/utils.pyx"]),
          Extension("glypy._c.structure.glycan_composition", [
-                   "glypy/_c/structure/glycan_composition.pyx"]),
+                   "src/glypy/_c/structure/glycan_composition.pyx"]),
          ],
         annotate=True)
 except (ImportError, AttributeError):
     print("No Cython")
     extensions = [
         Extension('glypy.composition.ccomposition', sources=[
-                  'glypy/composition/ccomposition.c']),
-        Extension("glypy.utils.cenum", ['glypy/utils/cenum.c']),
-        Extension("glypy._c.utils", ["glypy/_c/utils.c"]),
+                  'src/glypy/composition/ccomposition.c']),
+        Extension("glypy.utils.cenum", ['src/glypy/utils/cenum.c']),
+        Extension("glypy._c.utils", ["src/glypy/_c/utils.c"]),
         Extension("glypy._c.structure.glycan_composition", [
-                  "glypy/_c/structure/glycan_composition.c"]),
+                  "src/glypy/_c/structure/glycan_composition.c"]),
     ]
 
 cmdclass = {}
 
 
-with open("glypy/version.py") as version_file:
+with open("src/glypy/version.py") as version_file:
     version = None
     for line in version_file.readlines():
         if "version = " in line:
@@ -109,12 +116,13 @@ def run_setup(include_cext=True):
     setup(
         name='glypy',
         version=version,
-        packages=find_packages(),
+        packages=find_packages(where='src'),
+        package_dir={"": 'src'},
         include_package_data=True,
         package_data={
-            "glypy.structure": ["glypy/structure/data/*"],
-            "glypy.io": ["glypy/io/data/*"],
-            "glypy.io.nomenclature": ["glypy/io/nomenclature/data/*"],
+            "glypy.structure": ["src/glypy/structure/data/*"],
+            "glypy.io": ["src/glypy/io/data/*"],
+            "glypy.io.nomenclature": ["src/glypy/io/nomenclature/data/*"],
         },
         install_requires=required,
         extras_require=extras,

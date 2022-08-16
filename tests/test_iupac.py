@@ -3,7 +3,7 @@ import unittest
 
 import glypy
 from glypy.composition import composition_transform
-from glypy.tests import common
+from . import common
 from glypy.io import iupac, glycoct
 
 monosaccharides = common.monosaccharides

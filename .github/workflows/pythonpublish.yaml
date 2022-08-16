@@ -28,7 +28,7 @@ jobs:
         pip install coverage pytest pytest-cov -U
         pip install Cython --install-option="--no-cython-compile"
         pip install -r requirements.txt
-        pip install -e .
+        pip install .
     - name: Test with pytest
       run: |
         make test

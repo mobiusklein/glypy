@@ -1,11 +1,11 @@
-recursive-include glypy *.pyx
-recursive-include glypy *.pxd
-recursive-include glypy *.h
-recursive-include glypy *.c
-recursive-include glypy/structure/data *.hjson
-recursive-include glypy/io/data *.json
-recursive-include glypy/io/data *.ttl
-recursive-include glypy/io/data *.owl
-recursive-include glypy/io/nomenclature/data *.json
-recursive-include glypy/io/nomenclature/data *.hjson
+recursive-include src/glypy *.pyx
+recursive-include src/glypy *.pxd
+recursive-include src/glypy *.h
+recursive-include src/glypy *.c
+recursive-include src/glypy/structure/data *.hjson
+recursive-include src/glypy/io/data *.json
+recursive-include src/glypy/io/data *.ttl
+recursive-include src/glypy/io/data *.owl
+recursive-include src/glypy/io/nomenclature/data *.json
+recursive-include src/glypy/io/nomenclature/data *.hjson
 include README.rst

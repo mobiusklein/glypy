@@ -12,7 +12,7 @@ Monosaccharide = monosaccharide.Monosaccharide
 
 
 monosaccharide_structures = hjson.load(
-    open("./glypy/structure/data/monosaccharides.hjson"))
+    open("./src/glypy/structure/data/monosaccharides.hjson"))
 
 wiki_masses = {
     "Iduronic Acid": 194.04,

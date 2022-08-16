@@ -1,7 +1,7 @@
 import unittest
 
 from glypy.io import linear_code
-from glypy.tests.common import load
+from .common import load
 
 
 class LinearCodeTests(unittest.TestCase):

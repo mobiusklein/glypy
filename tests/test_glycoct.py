@@ -2,7 +2,7 @@ import unittest
 
 import glypy
 from glypy.io import glycoct
-from glypy.tests.common import load, glycan, structures as raw_structures
+from .common import load, glycan, structures as raw_structures
 
 
 example_multiplicity = '''

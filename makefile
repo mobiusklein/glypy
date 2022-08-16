@@ -2,14 +2,14 @@ all: develop test docs
 
 
 test:
-	py.test -v  glypy --cov=glypy --cov-report html --cov-report term
+	py.test -v  ./tests --cov=glypy --cov-report html --cov-report term
 
 retest:
-	py.test -v glypy --lf
+	py.test -v ./tests --lf
 
 clean:
-	@rm  glypy/*/*.pyd
-	@rm  glypy/*/*.so
+	@rm  src/glypy/*/*.pyd
+	@rm  src/glypy/*/*.so
 
 sphinx:
 	python setup.py build_sphinx
