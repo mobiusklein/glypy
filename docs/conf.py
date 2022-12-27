@@ -311,6 +311,16 @@ def setup(app):
 
 plot_formats = ['svg', 'png', 'hires.png', 'pdf']
 
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+
+mathjax3_config = {
+    "tex": {
+        "inlineMath": [['$', '$'], ['\\(', '\\)']]
+    },
+    "svg": {
+        "fontCache": 'global'
+    }
+}
 
 # plot_template = r"""
 # {{ source_code }}

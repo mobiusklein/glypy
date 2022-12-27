@@ -6,7 +6,7 @@ Describes an arbitrary elemental composition
 .. automodule:: glypy.composition.composition
 
     .. autoclass:: CComposition
-        :members: mass, __getitem__, __setitem__, keys, values, items, calculate_mass, clone
+        :members: mass, __getitem__, __setitem__, keys, values, items, calc_mass, clone
 
     .. autofunction:: calculate_mass
 
