@@ -1115,6 +1115,9 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         '''
         Calculates the total mass of ``self``.
 
+        .. note::
+            The monoisotopic mass is cached on first computation in :attr:`_mass`.
+
         Parameters
         ----------
         average: bool, optional, defaults to False
@@ -1123,7 +1126,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         charge: int, optional, defaults to 0
             If charge is non-zero, m/z is calculated, where m is the theoretical mass, and z is ``charge``
         mass_data: dict, optional
-            If mass_data is None, standard NIST mass and isotopic abundance data are used. Otherwise the
+            If mass_data is :const:`None`, standard NIST mass and isotopic abundance data are used. Otherwise the
             contents of mass_data are assumed to contain elemental mass and isotopic abundance information.
             Defaults to :const:`None`.
 
