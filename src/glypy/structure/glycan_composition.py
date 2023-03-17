@@ -725,7 +725,7 @@ class FrozenMonosaccharideResidue(MonosaccharideResidue):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        if not average and charge == 0 and mass_data is None and self._frozen:
+        if not average and charge == 0 and mass_data is None and self._frozen and not average:
             if self._mass is None:
                 self._mass = self.total_composition().calc_mass()
             return self._mass
@@ -1135,7 +1135,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        if self._mass is not None and charge == 0:
+        if self._mass is not None and charge == 0 and not average:
             return self._mass
         if charge == 0:
             mass = self._composition_offset.mass
@@ -1143,7 +1143,8 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
                 mass += residue_type.mass(average=average, charge=0, mass_data=mass_data) * count
             if self._reducing_end is not None:
                 mass += self._reducing_end.mass(average=average, charge=0, mass_data=mass_data)
-            self._mass = mass
+            if not average:
+                self._mass = mass
         else:
             mass = self.total_composition().calc_mass(average=average, charge=charge, mass_data=mass_data)
         return mass
