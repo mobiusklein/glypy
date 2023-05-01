@@ -6,6 +6,8 @@ A simple dialect of the Glyconnect/GlycoMod glycan composition notation.
 '''
 import re
 
+from typing import Dict, Union, Optional, List, Tuple
+
 from urllib.parse import quote
 from dataclasses import dataclass, field
 from typing import List, Optional, Type, Generic, TypeVar
@@ -15,7 +17,6 @@ from glypy.structure.glycan_composition import (
     FrozenMonosaccharideResidue,
     SubstituentResidue)
 from glypy.structure.glycan import Glycan
-from glypy.utils import invert_dict
 
 
 try:
@@ -24,27 +25,45 @@ except ImportError:
     requests = None
 
 #: The set of defined symbols and their mappings.
-defined_symbols = {
+defined_symbols: Dict[str, Union[SubstituentResidue, FrozenMonosaccharideResidue]] = {
     "Hex": FrozenMonosaccharideResidue.from_iupac_lite("Hex"),
     "HexNAc": FrozenMonosaccharideResidue.from_iupac_lite('HexNAc'),
     "dHex": FrozenMonosaccharideResidue.from_iupac_lite('dHex'),
     "NeuAc": FrozenMonosaccharideResidue.from_iupac_lite("NeuAc"),
     "NeuGc": FrozenMonosaccharideResidue.from_iupac_lite("NeuGc"),
     "S": SubstituentResidue("sulfate"),
+    "Su": SubstituentResidue("sulfate"),
+    "Sulpho": SubstituentResidue("sulfate"),
     "P": SubstituentResidue("phosphate"),
     "Ph": SubstituentResidue("phosphate"),
+    "Phospho": SubstituentResidue("phosphate"),
     "Xyl": FrozenMonosaccharideResidue.from_iupac_lite("Xyl"),
     "HexA": FrozenMonosaccharideResidue.from_iupac_lite("HexA"),
     "Pent": FrozenMonosaccharideResidue.from_iupac_lite("Pen"),
     "Kdn": FrozenMonosaccharideResidue.from_iupac_lite("Kdn"),
-    "Su": SubstituentResidue("sulfate"),
 }
 
 
-monosaccharide_to_symbol = invert_dict(defined_symbols)
+def _invert_mapping(table: Dict[str, Union[SubstituentResidue, FrozenMonosaccharideResidue]]) -> Dict[Union[SubstituentResidue, FrozenMonosaccharideResidue], str]:
+    inverted = {}
+    for k, v in table.items():
+        if v in inverted:
+            if len(k) > len(inverted[v]):
+                continue
+        inverted[v] = k
+    return inverted
+
+
+monosaccharide_to_symbol = _invert_mapping(defined_symbols)
+
+
+def _generate_pattern(symbols: List[str]) -> re.Pattern:
+    symbols = sorted(symbols, key=len, reverse=True)
+    return re.compile(f"({'|'.join(symbols)})(\d+?)")
 
 
 tokenizer = re.compile(r"([^:\s]+):(\d+)")
+undelimited_tokenizer = _generate_pattern(defined_symbols)
 
 
 def loads(string):
@@ -64,6 +83,8 @@ def loads(string):
     :class:`KeyError`: Raised if a key isn't defined by the GlyConnect dialect
     '''
     tokens = tokenizer.findall(string)
+    if not tokens:
+        tokens = undelimited_tokenizer.findall(string)
     gc = FrozenGlycanComposition()
     for mono, count in tokens:
         mono = defined_symbols[mono]

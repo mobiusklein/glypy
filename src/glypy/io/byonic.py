@@ -25,7 +25,7 @@ defined_symbols = {
     "NeuGc": FrozenMonosaccharideResidue.from_iupac_lite("NeuGc"),
     "S": SubstituentResidue("sulfate"),
     "Sulfo": SubstituentResidue("sulfate"),
-    "S": SubstituentResidue("sulfate"),
+    "Sulpho": SubstituentResidue("sulfate"),
     "P": SubstituentResidue("phosphate"),
     "Ac": SubstituentResidue("acetyl"),
     "Acetyl": SubstituentResidue("acetyl"),
