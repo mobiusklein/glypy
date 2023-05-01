@@ -1,34 +1,49 @@
 import re
 from collections import namedtuple
+from typing import List
 
 from glypy.composition import molecular_graph, Composition, formula
 from glypy.structure import Substituent
 
 
-def tokenize_alin(code):
+def tokenize_alin(code: str) -> List[str]:
+    STATE_ALIN = 0
+    STATE_ISO = 1
     tokens = []
     current_token = ''
     i = 0
     n = len(code)
-    connector_symbols = ('=', '/', '#', '$')
+    connector_symbols = ('/', '$')
+    bond_symbols = ('=', '#')
+    state = STATE_ALIN
     while i < n:
         c = code[i]
         is_asterisk = c == '*'
         if c.isalpha() or is_asterisk:
             if c.isupper() or is_asterisk:
-                if current_token:
+                if current_token and state == STATE_ALIN:
                     tokens.append(current_token)
                     current_token = ''
                 current_token += c
+                state = STATE_ALIN
         elif c in ('^', '~'):
+            if current_token:
+                tokens.append(current_token)
+                current_token = ''
             current_token += code[i:i + 2]
             i += 2
+            state = STATE_ISO
             continue
         elif c in connector_symbols:
             if current_token:
                 tokens.append(current_token)
                 current_token = ''
             current_token += c
+        elif c in bond_symbols:
+            if current_token:
+                tokens.append(current_token)
+                current_token = ''
+            tokens.append(c)
         elif c.isdigit():
             current_token += c
 
@@ -38,7 +53,7 @@ def tokenize_alin(code):
     return tokens
 
 
-def parse_alin(code):
+def parse_alin(code: str) -> molecular_graph.MolecularGraph:
     graph = molecular_graph.MolecularGraph()
     last_vertex = None
     bond_type = 1
@@ -64,13 +79,14 @@ def parse_alin(code):
             vertex = molecular_graph.Atom(token, node_id_counter, **properties)
             graph.add_vertex(vertex)
             if last_vertex is not None:
-                graph.add_edge(molecular_graph.Bond([last_vertex.id, vertex.id], bond_type))
+                graph.add_edge(
+                    molecular_graph.Bond([last_vertex.id, vertex.id], bond_type))
             bond_type = 1
             last_vertex = vertex
     return graph
 
 
-def alin_to_substituent(alin):
+def alin_to_substituent(alin: str) -> Substituent:
     if "*" in alin:
         name_query = alin.replace("*", "")
     else:
@@ -79,7 +95,8 @@ def alin_to_substituent(alin):
         record = map_to_substituent[name_query]
         name = record.name
     except KeyError:
-        raise KeyError("Could not locate name for substituent described by %r" % (alin,))
+        raise KeyError(
+            "Could not locate name for substituent described by %r" % (alin,))
     graph = parse_alin(alin)
     composition = Composition()
     unpaired_electrons = 2 if alin.startswith("*") else 1
@@ -93,7 +110,7 @@ def alin_to_substituent(alin):
     return Substituent(name, composition=composition)
 
 
-def substituent_to_alin(substituent):
+def substituent_to_alin(substituent: Substituent) -> str:
     try:
         name = substituent.name
     except AttributeError:
