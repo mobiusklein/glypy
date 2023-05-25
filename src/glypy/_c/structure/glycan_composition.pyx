@@ -129,6 +129,8 @@ cdef str _reformat(dict self):
     strings = []
     i = 0
     while PyDict_Next(self, &i, &k, &v):
+        if not isinstance(<object>v, int):
+            print(f"Got value {<object>v} of type {type(<object>v)}. Expected integer")
         count = PyInt_AsLong(<object>v)
         if count != 0:
             key = <object>k
