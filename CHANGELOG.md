@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
-## [Unreleased]
+## [1.0.9] - 2023-05-26
 
 ### Added
 
@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Removed
 
 ### Fixed
+- Fix type conversion error in Py3.10 in `GlycanComposition.serialize`
 
 ### Security
 
@@ -203,7 +204,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.8...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.9...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
 [0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
@@ -216,3 +217,4 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.6]: https://github.com/mobiusklein/glypy/releases/v1.0.6
 [1.0.7]: https://github.com/mobiusklein/glypy/releases/v1.0.7
 [1.0.8]: https://github.com/mobiusklein/glypy/releases/v1.0.8
+[1.0.9]: https://github.com/mobiusklein/glypy/releases/v1.0.9
