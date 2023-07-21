@@ -27,7 +27,7 @@ from cpython.tuple cimport PyTuple_GetItem
 from cpython.list cimport PyList_GET_ITEM
 
 # Forward Declaration
-cdef: 
+cdef:
     str _atom = r'([A-Z][a-z+]*)(?:\[(\d+)\])?([+-]?\d+)?'
     str _formula = r'^({})*$'.format(_atom)
     str _isotope_string = r'^([A-Z][a-z+]*)(?:\[(\d+)\])?$'
@@ -82,6 +82,7 @@ cdef str _make_isotope_string(str element_name, int isotope_num):
         return <str>PyStr_Format('%s[%d]', parts)
 
 
+@cython.c_api_binop_methods(True)
 cdef class CComposition(dict):
     """A Composition object stores a chemical composition of a
     substance. Basically it is a dict object, in which keys are the names
@@ -191,7 +192,7 @@ cdef class CComposition(dict):
 
         if isinstance(other, CComposition):
             self, other = other, self
-        
+
         # prod = self.clone()
         # prod = CComposition()
         prod = CComposition._create(None)
