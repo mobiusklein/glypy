@@ -321,11 +321,11 @@ class PredicateCollection(ReferenceEntity):
         else:
             visited.add(key)
         for subj, obj in self:
-            if isinstance(subj, (unicode, str, int, float)):
+            if isinstance(subj, (str, int, float)):
                 is_uri_subj = isinstance(subj, URIRef)
                 if not is_uri_subj:
                     subj = Literal(subj)
-            if isinstance(obj, (unicode, str, int, float)):
+            if isinstance(obj, (str, int, float)):
                 is_uri_obj = isinstance(obj, URIRef)
                 if not is_uri_obj:
                     obj = Literal(obj)
@@ -362,7 +362,7 @@ class ObjectOfEntity(ReferenceEntity):
             visited.add(key)
 
         for predicate, subj in self:
-            if isinstance(subj, (unicode, str, int, float)):
+            if isinstance(subj, (str, int, float)):
                 is_uri = isinstance(subj, URIRef)
                 if not is_uri:
                     subj = Literal(subj)
@@ -375,7 +375,7 @@ class ObjectOfEntity(ReferenceEntity):
             elif isinstance(subj, list):
                 subj_collection = subj
                 for subj in subj_collection:
-                    if isinstance(subj, (unicode, str, int, float)):
+                    if isinstance(subj, (str, int, float)):
                         is_uri = isinstance(subj, URIRef)
                         if not is_uri:
                             subj = Literal(subj)

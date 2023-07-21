@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
+## [1.0.10] - 2023-07-21
+
+### Fixed
+- Compatibility with Cython 3
+
+
 ## [1.0.9] - 2023-05-26
 
 ### Added
@@ -218,3 +224,4 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.7]: https://github.com/mobiusklein/glypy/releases/v1.0.7
 [1.0.8]: https://github.com/mobiusklein/glypy/releases/v1.0.8
 [1.0.9]: https://github.com/mobiusklein/glypy/releases/v1.0.9
+[1.0.10]: https://github.com/mobiusklein/glypy/releases/v1.0.10
