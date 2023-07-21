@@ -129,12 +129,17 @@ def _update_stereocode_basic(code, monosaccharide):
 
 def _update_stereocode_extended(code, monosaccharide):
     null_position = (UnknownPosition, NoPosition)
+    # Count starting from 1 instead of 0 because ring coordinates are 1-base
     if monosaccharide.ring_start not in null_position and monosaccharide.ring_end not in null_position:
         ring_range = range(monosaccharide.ring_start, monosaccharide.ring_end + 1)
     else:
         ring_range = []
     ring_dimensions = range(1, monosaccharide.superclass.value + 1)
     termini = set(ring_dimensions) - set(ring_range)
+    if not termini:
+        # We cannot find an available carbon, so it must be on an otherwise
+        # occupied carbon, e.g. in xylopyranose
+        termini = ring_dimensions
     terminal = max(termini) - 1
     code[terminal] = Stereocoding.h
     for i in range(len(code)):

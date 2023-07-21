@@ -161,7 +161,7 @@ cdef struct monosaccharide_count_cell:
     float mass
 
 
-cdef int cmp_monosaccharide_count_cell(const void* lhs, const void* rhs) nogil:
+cdef int cmp_monosaccharide_count_cell(const void* lhs, const void* rhs) noexcept nogil:
     cdef monosaccharide_count_cell* left = <monosaccharide_count_cell*>lhs
     cdef monosaccharide_count_cell* right = <monosaccharide_count_cell*>rhs
 
