@@ -137,6 +137,7 @@ cdef class EnumMeta(type):
         return self.translate(v)
 
 
+@cython.c_api_binop_methods(True)
 cdef class EnumValue(object):
     '''Represents a wrapper around an value with a name to identify it and
     more rich comparison logic. A value of an enumerated type'''
