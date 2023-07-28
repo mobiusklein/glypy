@@ -224,7 +224,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.9...HEAD
+[Unreleased]: https://github.com/mobiusklein/glypy/compare/v1.0.11...HEAD
 [Released]: https://github.com/mobiusklein/glypy/releases
 [0.12.6]: https://github.com/mobiusklein/glypy/releases/v0.12.6
 [0.12.7]: https://github.com/mobiusklein/glypy/releases/v0.12.7
@@ -239,3 +239,4 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.8]: https://github.com/mobiusklein/glypy/releases/v1.0.8
 [1.0.9]: https://github.com/mobiusklein/glypy/releases/v1.0.9
 [1.0.10]: https://github.com/mobiusklein/glypy/releases/v1.0.10
+[1.0.11]: https://github.com/mobiusklein/glypy/releases/v1.0.11
