@@ -44,7 +44,7 @@ WHERE {
     ?Saccharide glycan:has_glycosequence ?GlycoSequence .
     ?GlycoSequence glycan:has_sequence ?Sequence .
     ?GlycoSequence glycan:in_carbohydrate_format glycan:carbohydrate_format_glycoct .
-    ?Saccharide a glycan:monosaccharide
+    ?Saccharide a glycan:Monosaccharide
 }
 '''
 

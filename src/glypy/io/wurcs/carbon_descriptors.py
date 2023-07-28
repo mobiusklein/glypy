@@ -12,6 +12,7 @@ from six import string_types as basestring
 
 from .basetype_conversion import (
     descriptors_to_base_type)
+from .utils import WURCSFeatureNotSupported
 
 from glypy.structure.monosaccharide import Monosaccharide, ReducedEnd
 from glypy.structure.constants import SuperClass, Anomer, Modification, Stem, Configuration, UnknownPosition
@@ -23,6 +24,11 @@ anomer_map = {
     Anomer.alpha: 'a',
     Anomer.uncyclized: 'o',
     Anomer.x: 'x'
+}
+
+
+UNSUPPORTED_DESCRIPTORS = {
+    '5', '6', '7', '8'
 }
 
 
@@ -104,6 +110,8 @@ class CarbonDescriptors(Sequence):
         is_reduced = False
         # translate stereocode into generic carbon code
         for i, site in enumerate(carbon_coding):
+            if site in UNSUPPORTED_DESCRIPTORS:
+                raise WURCSFeatureNotSupported(f"CarbonDescriptor {site!r} is not supported")
             if site == '1':
                 carbon_coding[i] = '3'
             elif site == '2':
@@ -114,11 +122,7 @@ class CarbonDescriptors(Sequence):
         anomer = self.anomer
         ring_start = self.ring_start
         ring_end = self.ring_end
-        if carbon_coding[0] == carbon_coding[-1] == 'h':
-            anomer = Anomer.uncyclized
-            ring_start = 0
-            ring_end = 0
-            is_reduced = True
+
         # if the stereosites are all defined
         if 'x' not in carbon_coding:
             # incrementally walk along the carbon sequence
@@ -181,10 +185,16 @@ class CarbonDescriptors(Sequence):
 
         anomeric_position = None
         double_bonds = []
+
+        maybe_uncyclized = False
+        if carbon_coding[0] == carbon_coding[-1] == 'h':
+            maybe_uncyclized = True
+
         for i, site in enumerate(self):
             if site in ('a', 'u', 'U'):
+                maybe_uncyclized = False
                 anomeric_position = i + 1
-                if anomeric_position == 2:
+                if anomeric_position == 2 or (i < len(self) and self[i + 1] == 'x'):
                     modifications[anomeric_position] = Modification.keto
             if site in ('E', 'F'):
                 double_bonds.append(i + 1)
@@ -192,11 +202,17 @@ class CarbonDescriptors(Sequence):
                 modifications[i + 1] = Modification.Deoxygenated
             if site == 'A':
                 modifications[i + 1] = Modification.Acidic
+            if site == 'O':
+                modifications[i + 1] = Modification.keto
         for site in double_bonds[::2]:
             modifications[i] = Modification.en
         stems = [Stem[x] for x in stems[::-1]]
         configurations = configurations[::-1]
-
+        if maybe_uncyclized:
+            anomer = Anomer.uncyclized
+            ring_start = 0
+            ring_end = 0
+            is_reduced = True
         base = Monosaccharide(
             anomer,
             configurations,

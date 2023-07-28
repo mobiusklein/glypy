@@ -140,7 +140,7 @@ class WURCSParser(object):
             gc[glycan_composition.MonosaccharideResidue.from_monosaccharide(node)] += 1
         return gc
 
-    def parse(self):
+    def parse(self, _allow_composition: bool = True):
         (count_section, node_type_section, node_index_to_type_section, node_linkage_section) = self.extract_sections()
         self.parse_counts(count_section)
         self.parse_node_type_section(node_type_section)
@@ -148,12 +148,16 @@ class WURCSParser(object):
         if node_linkage_section:
             if self.parse_connectivity_map(node_linkage_section):
                 return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
-            return self._to_composition()
+            if _allow_composition:
+                return self._to_composition()
+            return self.node_index_to_node[0]
         else:
-            return self._to_composition()
+            if _allow_composition:
+                return self._to_composition()
+            return self.node_index_to_node[0]
 
 
-def loads(text, structure_class=glycan.Glycan):
+def loads(text, structure_class=glycan.Glycan, _allow_composition: bool=True):
     """Parse a WURCS-encoded glycan structure from `text` into a :class:`~.Glycan`
     or :class:`~.GlycanComposition`.
 
@@ -170,5 +174,5 @@ def loads(text, structure_class=glycan.Glycan):
         The parsed result
     """
     parser = WURCSParser(text, structure_class=structure_class)
-    structure = parser.parse()
+    structure = parser.parse(_allow_composition=_allow_composition)
     return structure

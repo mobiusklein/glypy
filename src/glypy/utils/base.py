@@ -3,34 +3,19 @@ import os
 import random
 import sys
 import gzip
+import pickle
 
 from collections import defaultdict
-try:  # pragma: no cover
-    import cPickle as pickle
-except:  # pragma: no cover
-    import pickle
+from io import StringIO
+
 try:  # pragma: no cover
     from lxml import etree as ET
 except ImportError:  # pragma: no cover
-    try:
-        from xml.etree import cElementTree as ET
-    except:
-        from xml.etree import ElementTree as ET
+    from xml.etree import ElementTree as ET
 
-try:   # pragma: no cover
-    from cStringIO import StringIO
-except:  # pragma: no cover
-    try:
-        from StringIO import StringIO
-    except:
-        from io import StringIO
 
-try:  # pragma: no cover
-    i128 = long
-    basestring = basestring
-except:  # pragma: no cover
-    i128 = int
-    basestring = (bytes, str)
+i128 = int
+basestring = (bytes, str)
 
 
 def cyclewarning():

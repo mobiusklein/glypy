@@ -1,20 +1,34 @@
 import re
 from collections import namedtuple
+from typing import List, Tuple, Union
 
 from six import string_types as basestring
 
 from glypy.composition import Composition
-from glypy.structure import substituent as _substituent
+from glypy.structure import Monosaccharide, Substituent, Link, substituent as _substituent
 from glypy.io.tree_builder_utils import try_int
 
 from .carbon_descriptors import CarbonDescriptors
 from .substituent_conversion import alin_to_substituent, substituent_to_alin
 
 
+_HYDROXYL = Composition("OH")
+
 _NodeTypeSpec = namedtuple("NodeTypeSpec", [
     "carbon_descriptor",
     "substituents"
 ])
+
+
+def _mapspec_position_parse(token: str):
+    if token == '?':
+        return -1
+    return int(token.split("n")[0])
+
+
+
+def translate_mapspec_position(map_spec: str, i: int):
+    return [_mapspec_position_parse(tok) for tok in map_spec[:i].split('-')]
 
 
 class NodeTypeSpec(_NodeTypeSpec):
@@ -46,48 +60,50 @@ class NodeTypeSpec(_NodeTypeSpec):
                    cls.translate_substituents(substituents))
 
     @classmethod
-    def from_monosaccharide(cls, monosaccharide):
+    def from_monosaccharide(cls, monosaccharide: Monosaccharide):
         descriptors = CarbonDescriptors.from_monosaccharide(monosaccharide)
         substituents = []
-        for position, substituent in monosaccharide.substituents():
-            substituents.append((position, substituent.name))
+        for position, link in monosaccharide.substituent_links.items():
+            substituents.append((position, link.to(monosaccharide).name, link.parent_loss == _HYDROXYL))
         return cls(descriptors, substituents)
 
     @classmethod
-    def translate_substituents(self, substituents):
+    def translate_substituents(self, substituents: List[str]) -> List[Tuple[Union[int, List[int]],
+                                                                            str, bool]]:
         result = []
         for map_spec in substituents:
-            position = map_spec[0]
-            if position == "?":
-                position = -1
-                i = 1
-            else:
-                i = 0
-                position = ''
-                while map_spec[i].isdigit():
-                    position += map_spec[i]
-                    i += 1
-                position = int(position)
-            map_code = map_spec[1:]
-            record = alin_to_substituent(map_code)
-            result.append((position, record.name))
+            start_i = map_spec.index("*")
+            positions = translate_mapspec_position(map_spec, start_i)
+            map_code = map_spec[start_i + 1:]
+
+            record, deoxy = alin_to_substituent(map_code)
+            result.append((positions[0] if len(positions) == 1 else positions, record.name, deoxy))
         return result
 
     def to_monosaccharide(self):
-        base = self.carbon_descriptor.to_base_type()
+        base: Monosaccharide = self.carbon_descriptor.to_base_type()
         child_loss = Composition("H")
-        for position, subst in self.substituents:
-            try:
-                parent_loss = _substituent.attachment_composition_info[subst]
-            except KeyError:
-                parent_loss = _substituent.default_attachment_composition
-            base.add_substituent(subst, position, parent_loss=parent_loss, child_loss=child_loss)
+        for position, subst, deoxy in self.substituents:
+            if deoxy:
+                parent_loss = Composition("OH")
+            else:
+                parent_loss = Composition("H")
+            if isinstance(position, list):
+                subst = Substituent(subst)
+                for pi in position:
+                    Link(
+                        base, subst, parent_position=pi, parent_loss=parent_loss,
+                        child_loss=child_loss
+                    )
+            else:
+                base.add_substituent(subst, position, parent_loss=parent_loss, child_loss=child_loss,
+                                     max_occupancy=100)
         return base
 
     def to_res(self):
         mods = []
-        for position, substituent in self.substituents:
-            alin = substituent_to_alin(substituent)
+        for position, substituent, deoxy in self.substituents:
+            alin = substituent_to_alin(substituent, deoxy)
             if position == -1:
                 position = "?"
             mods.append("%s*%s" % (position, alin))

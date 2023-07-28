@@ -1,9 +1,10 @@
 import re
-from collections import namedtuple
-from typing import List
+from typing import List, NamedTuple, Tuple
 
 from glypy.composition import molecular_graph, Composition, formula
 from glypy.structure import Substituent
+
+from .utils import WURCSFeatureNotSupported
 
 
 def tokenize_alin(code: str) -> List[str]:
@@ -86,17 +87,36 @@ def parse_alin(code: str) -> molecular_graph.MolecularGraph:
     return graph
 
 
-def alin_to_substituent(alin: str) -> Substituent:
-    if "*" in alin:
-        name_query = alin.replace("*", "")
+_attachment_points_priority_pattern = re.compile(r"\*(\d+)")
+
+
+def alin_to_substituent(alin: str) -> Tuple[Substituent, bool]:
+    if alin.startswith("*"):
+        name_query = alin.replace("*", "", 1)
     else:
         name_query = alin
+    deoxy = False
     try:
-        record = map_to_substituent[name_query]
+        if name_query in deoxy_map_to_substituent:
+            record = deoxy_map_to_substituent[name_query]
+            deoxy = True
+        elif name_query in map_to_substituent:
+            record = map_to_substituent[name_query]
+        else:
+            drop_sites_name_query = name_query.replace('*', '')
+            if drop_sites_name_query in deoxy_map_to_substituent:
+                record = deoxy_map_to_substituent[drop_sites_name_query]
+                deoxy = True
+            elif drop_sites_name_query in map_to_substituent:
+                record = map_to_substituent[drop_sites_name_query]
+            else:
+                raise KeyError(name_query)
         name = record.name
     except KeyError:
+        if _attachment_points_priority_pattern.search(alin):
+            raise WURCSFeatureNotSupported("ALIN with prioritized attachment points not supported")
         raise KeyError(
-            "Could not locate name for substituent described by %r" % (alin,))
+            "Could not locate name for substituent described by %r" % (alin,)) from None
     graph = parse_alin(alin)
     composition = Composition()
     unpaired_electrons = 2 if alin.startswith("*") else 1
@@ -107,23 +127,27 @@ def alin_to_substituent(alin: str) -> Substituent:
         composition[node.element.symbol] += 1
         unpaired_electrons += node.unpaired_electrons
     composition["H"] += unpaired_electrons
-    return Substituent(name, composition=composition)
+    return Substituent(name, composition=composition), deoxy
 
 
-def substituent_to_alin(substituent: Substituent) -> str:
+def substituent_to_alin(substituent: Substituent, deoxy: bool) -> str:
     try:
         name = substituent.name
     except AttributeError:
         name = str(substituent)
     record = substituent_to_map[name]
-    return record.map_for_bmu
+    if not deoxy:
+        return record.map_for_bmu
+    else:
+        return record.deoxy_map
 
 
-_SubstituentTranslation = namedtuple(
-    "SubstituentTranslation", ("name", "map_for_bmu", "is_carbon_swap"))
+class SubstituentTranslation(NamedTuple):
+    name: str
+    map_for_bmu: str
+    is_carbon_swap: bool
+    deoxy_map: str = None
 
-
-class SubstituentTranslation(_SubstituentTranslation):
     @property
     def formula(self):
         graph = parse_alin(self.map_for_bmu)
@@ -136,56 +160,58 @@ class SubstituentTranslation(_SubstituentTranslation):
 
 
 _substituent_translation = [
-    SubstituentTranslation('acetyl', 'CC/2=O', None),
-    SubstituentTranslation('amino', 'N', None),
+    SubstituentTranslation('acetyl', 'OCC/3=O', None, 'CC/2=O'),
+    SubstituentTranslation('amino', 'ON', None, 'N'),
     SubstituentTranslation('anhydro', '', None),
-    SubstituentTranslation('bromo', 'Br', None),
-    SubstituentTranslation('chloro', 'Cl', None),
+    SubstituentTranslation('bromo', None, None, 'Br'),
+    SubstituentTranslation('chloro', None, None, 'Cl'),
     SubstituentTranslation('epoxy', '', None),
     SubstituentTranslation('ethanolamine', 'NCCO', False),
-    SubstituentTranslation('ethyl', 'CC', None),
-    SubstituentTranslation('fluoro', 'F', None),
-    SubstituentTranslation('formyl', 'C=O', None),
-    SubstituentTranslation('glycolyl', 'CCO/2=O', None),
-    SubstituentTranslation('hydroxymethyl', 'CO', None),
-    SubstituentTranslation('imino', '=N', False),
-    SubstituentTranslation('iodo', 'I', None),
+    SubstituentTranslation('ethyl', None, None, 'CC'),
+    SubstituentTranslation('fluoro', None, None, 'F'),
+    SubstituentTranslation('formyl', "OC=O", None, 'C=O'),
+    SubstituentTranslation('glycolyl', None, None, 'CCO/2=O'),
+    SubstituentTranslation('hydroxymethyl', 'OCO', None, 'CO',),
+    SubstituentTranslation('imino', None, False, '=N'),
+    SubstituentTranslation('iodo', None, None, 'I'),
     SubstituentTranslation('lactone', '', None),
-    SubstituentTranslation('methyl', 'C', None),
-    SubstituentTranslation('n-acetyl', 'NCC/3=O', None),
-    SubstituentTranslation('n-alanine', 'NCC^XC/4N/3=O', None),
-    SubstituentTranslation('n-dimethyl', 'NC/2C', None),
-    SubstituentTranslation('n-formyl', 'NC=O', None),
-    SubstituentTranslation('n-glycolyl', 'NCCO/3=O', None),
-    SubstituentTranslation('n-methyl', 'NC', None),
-    SubstituentTranslation('n-succinate', 'NCCCCO/6=O/3=O', None),
-    SubstituentTranslation('succinate', 'CCCCO/5=O/2=O', None),
-    SubstituentTranslation('n-sulfate', 'NSO/3=O/3=O', True),
-    SubstituentTranslation('n-triflouroacetyl', 'NCCF/4F/4F/3=O', None),
-    SubstituentTranslation('nitrate', 'C=O/2=O', None),
+    SubstituentTranslation('methyl', 'OC', None, 'C'),
+    SubstituentTranslation('n-acetyl', None, None, 'NCC/3=O'),
+    SubstituentTranslation('n-alanine', None, None, 'NCC^XC/4N/3=O'),
+    SubstituentTranslation('n-dimethyl', None, None, 'NC/2C'),
+    SubstituentTranslation('n-formyl', None, None, 'NC=O'),
+    SubstituentTranslation('n-glycolyl', None, None, 'NCCO/3=O'),
+    SubstituentTranslation('n-methyl', None, None, 'NC'),
+    SubstituentTranslation('n-succinate', None, None, 'NCCCCO/6=O/3=O'),
+    SubstituentTranslation('succinate', 'OCCCCO/6=O/3=O',
+                           None, 'CCCCO/5=O/2=O'),
+    SubstituentTranslation('n-sulfate', None, True, 'NSO/3=O/3=O'),
+    SubstituentTranslation('n-triflouroacetyl', None,
+                           None, 'NCCF/4F/4F/3=O'),
+    SubstituentTranslation('nitrate', None, None, 'C=O/2=O'),
     SubstituentTranslation('phosphate', 'OPO/3O/3=O', None),
-    SubstituentTranslation('pyruvate', None, None),
+    SubstituentTranslation('pyruvate', 'OC^XO*/3CO/6=O/3C', None),
     SubstituentTranslation('pyrophosphate', 'P^XOPO/4O/4=O/2O/2=O', None),
     SubstituentTranslation('triphosphate', 'P^XOP^XOPO/6O/6=O/4O/4=O/2O/2=O', None),
-    SubstituentTranslation('(r)-lactate', 'CC^RC/3O/2=O', None),
-    SubstituentTranslation('(r)-pyruvate', None, None),
-    SubstituentTranslation('(s)-lactate', 'CC^SC/3O/2=O', None),
+    SubstituentTranslation('(r)-lactate', 'OCC^RC/4O/3=O', None),
+    # SubstituentTranslation('(r)-pyruvate', '*1OC^RO*2/3CO/6=O/3C', None),
+    SubstituentTranslation('(s)-lactate', 'OCC^SC/4O/3=O', None),
     SubstituentTranslation('(s)-pyruvate', None, None),
     SubstituentTranslation('sulfate', 'OSO/3=O/3=O', None),
-    SubstituentTranslation('thio', 'S', None),
-    SubstituentTranslation('amidino', 'CN/2=N', None),
-    SubstituentTranslation('n-amidino', 'NCN/3=N', None),
+    SubstituentTranslation('thio', "OS", None, 'S'),
+    SubstituentTranslation('amidino', None, None, 'CN/2=N'),
+    SubstituentTranslation('n-amidino', None, None, 'NCN/3=N'),
     SubstituentTranslation('(r)-carboxymethyl', '?*', None),
-    SubstituentTranslation('carboxymethyl', 'CCO/3=O', None),
-    SubstituentTranslation('(s)-carboxymethyl', '?*', None),
-    SubstituentTranslation('(r)-carboxyethyl', 'C^RCO/3=O/2C', None),
-    SubstituentTranslation('(s)-carboxyethyl', 'C^SCO/3=O/2C', None),
-    SubstituentTranslation('n-methyl-carbamoyl', 'CNC/2=O', None),
+    SubstituentTranslation('(s)-carboxyethyl', 'OC^SCO/4=O/3C', None),
+    SubstituentTranslation('carboxyethyl', 'CCO/3=O', None),
+    SubstituentTranslation('(r)-carboxyethyl', 'OC^RCO/4=O/3C', None),
+    SubstituentTranslation('(s)-carboxymethyl', 'C^SCO/3=O/2C', None),
+    SubstituentTranslation('n-methyl-carbamoyl', None, None, 'CNC/2=O'),
     SubstituentTranslation('phospho-ethanolamine', 'P^XOCCN/2O/2=O', True),
     SubstituentTranslation('phospho-ethanolamine', 'OP^XOCCN/3O/3=O', True),
     SubstituentTranslation('diphospho-ethanolamine', 'P^XOP^XOCCN/4O/4=O/2O/2=O', True),
-    SubstituentTranslation('phospho-choline', 'P^XOCCN/5N/5N/2O/2=O', None),
-    SubstituentTranslation('(x)-lactate', 'CC^XC/3O/2=O', None),
+    SubstituentTranslation('phospho-choline', 'OP^XOCCNC/7C/7C/3O/3=O', None),
+    SubstituentTranslation('(x)-lactate', 'OCC^XC/4O/3=O', None),
     SubstituentTranslation('(r)-1-hydroxymethyl', '?*', None),
     SubstituentTranslation('(s)-1-hydroxymethyl', '?*', None),
 ]
@@ -195,11 +221,13 @@ substituent_to_map = {
     unit.internal_name: unit for unit in _substituent_translation
 }
 
-
-map_to_substituent = {
-    unit.map_for_bmu: unit for unit in _substituent_translation
-    if unit.map_for_bmu is not None
-}
+deoxy_map_to_substituent = {}
+map_to_substituent = {}
+for unit in _substituent_translation:
+    if unit.map_for_bmu is not None:
+        map_to_substituent[unit.map_for_bmu] = unit
+    if unit.deoxy_map is not None:
+        deoxy_map_to_substituent[unit.deoxy_map] = unit
 
 
 formula_to_substituent = {
