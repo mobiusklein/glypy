@@ -1,6 +1,6 @@
 import re
 from collections import namedtuple
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, DefaultDict
 
 from six import string_types as basestring
 
@@ -63,8 +63,23 @@ class NodeTypeSpec(_NodeTypeSpec):
     def from_monosaccharide(cls, monosaccharide: Monosaccharide):
         descriptors = CarbonDescriptors.from_monosaccharide(monosaccharide)
         substituents = []
+        subsituent_to_positions = DefaultDict(list)
+        substituent_by_id = {}
         for position, link in monosaccharide.substituent_links.items():
-            substituents.append((position, link.to(monosaccharide).name, link.parent_loss == _HYDROXYL))
+            dest: Substituent = link.to(monosaccharide)
+            subsituent_to_positions[dest.id].append((position, link.parent_loss == _HYDROXYL))
+            substituent_by_id[dest.id] = dest
+        for k, link_specs in subsituent_to_positions.items():
+            dest = substituent_by_id[k]
+            if len(link_specs) == 1:
+                position, deoxy = link_specs[0]
+            else:
+                position = [spec[0] for spec in link_specs]
+                # Doesn't account for the case where multiple attachment points are deoxy
+                deoxy = any(spec[1] for spec in link_specs)
+            substituents.append((position, dest.name, deoxy))
+        substituents = sorted(
+            substituents, key=lambda x: x[0] if isinstance(x[0], int) else x[0][0], reverse=True)
         return cls(descriptors, substituents)
 
     @classmethod
@@ -75,7 +90,7 @@ class NodeTypeSpec(_NodeTypeSpec):
             start_i = map_spec.index("*")
             positions = translate_mapspec_position(map_spec, start_i)
             map_code = map_spec[start_i + 1:]
-
+            # Doesn't account for the case where multiple attachment points are deoxy
             record, deoxy = alin_to_substituent(map_code)
             result.append((positions[0] if len(positions) == 1 else positions, record.name, deoxy))
         return result
@@ -83,7 +98,8 @@ class NodeTypeSpec(_NodeTypeSpec):
     def to_monosaccharide(self):
         base: Monosaccharide = self.carbon_descriptor.to_base_type()
         child_loss = Composition("H")
-        for position, subst, deoxy in self.substituents:
+        substituents_ordered = sorted(self.substituents, key=lambda x: x[0] if isinstance(x[0], int) else x[0][0])
+        for position, subst, deoxy in substituents_ordered:
             if deoxy:
                 parent_loss = Composition("OH")
             else:
@@ -92,7 +108,7 @@ class NodeTypeSpec(_NodeTypeSpec):
                 subst = Substituent(subst)
                 for pi in position:
                     Link(
-                        base, subst, parent_position=pi, parent_loss=parent_loss,
+                        base, subst, parent_position=pi, child_position=1, parent_loss=parent_loss,
                         child_loss=child_loss
                     )
             else:
@@ -104,8 +120,12 @@ class NodeTypeSpec(_NodeTypeSpec):
         mods = []
         for position, substituent, deoxy in self.substituents:
             alin = substituent_to_alin(substituent, deoxy)
-            if position == -1:
-                position = "?"
+            if isinstance(position, list):
+                position = [str(p) if p != -1 else '?' for p in position]
+                position = '-'.join(position)
+            else:
+                if position == -1:
+                    position = "?"
             mods.append("%s*%s" % (position, alin))
         encoded = '_'.join([self.carbon_descriptor.to_backbone_code()] + mods)
         return encoded

@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
+## [1.0.11] - 2023-07-28
+
+### Fixed
+- More compatibility with Cython 3
+- The WURCS parsing and writing code underwent substantial reworking to fix how substituent linkages are handled. Additional
+  work was done to try to account for multiple substituents attached to the same position or substituents with multiple attachment
+  positions. Several monosaccharides still do not convert correctly, particularly those with non-terminal modifications or those
+  without a known stereocode template.
+
+### Changed
+- The `wurcs.loads` function no longer returns glycan compositions when given a string encoding a single monosaccharide or serialize
+  single `Monosaccharide` instances differently than a single unit `Glycan` instance.
+
+
 ## [1.0.10] - 2023-07-21
 
 ### Fixed

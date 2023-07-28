@@ -126,15 +126,10 @@ def dumps(glycan):
     :class:`str`
         The structure encoded as a string.
     """
+    if isinstance(glycan, Monosaccharide):
+        glycan = Glycan(glycan.clone())
     if not isinstance(glycan, GlycanComposition):
-        try:
-            glycan = tree(glycan)
-        except TypeError:
-            if isinstance(glycan, Monosaccharide):
-                nts = NodeTypeSpec.from_monosaccharide(glycan)
-                return nts.to_res()
-            else:
-                raise
+        glycan = tree(glycan)
     return WURCSWriter(glycan).write()
 
 

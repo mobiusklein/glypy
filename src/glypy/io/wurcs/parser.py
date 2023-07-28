@@ -1,11 +1,13 @@
+from numbers import Number
 import re
+from typing import Dict, Tuple, Type
 try:
     from urllib import unquote
 except ImportError:
     from urllib.parse import unquote
 
 from glypy.composition import Composition
-from glypy.structure import glycan, link as _link, glycan_composition
+from glypy.structure import glycan, link as _link, glycan_composition, Monosaccharide
 from glypy.io.tree_builder_utils import try_int
 
 from .node_type import NodeTypeSpec
@@ -13,6 +15,17 @@ from .utils import base52, WURCSFeatureNotSupported
 
 
 class WURCSParser(object):
+    line: str
+    structure_class: Type[glycan.Glycan]
+    version: Number
+    node_type_count: int
+    node_count: int
+    edge_count: int
+    node_type_map: Dict[str, NodeTypeSpec]
+    node_index_to_node: Dict[int, Monosaccharide]
+    glyph_to_node_index: Dict[str, int]
+    has_uncertain_linkages: bool
+
     def __init__(self, line, structure_class=glycan.Glycan):
         self.line = unquote(line)
         self.structure_class = structure_class
@@ -25,7 +38,7 @@ class WURCSParser(object):
         self.glyph_to_node_index = {}
         self.has_uncertain_linkages = False
 
-    def extract_sections(self):
+    def extract_sections(self) -> Tuple[str]:
         version_section, count_section, rest = self.line.split("/", 2)
         node_type_section, rest = rest.split("]/")
         node_type_section += ']'
@@ -148,13 +161,11 @@ class WURCSParser(object):
         if node_linkage_section:
             if self.parse_connectivity_map(node_linkage_section):
                 return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
-            if _allow_composition:
-                return self._to_composition()
-            return self.node_index_to_node[0]
+            return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
         else:
-            if _allow_composition:
+            if self.has_uncertain_linkages and _allow_composition:
                 return self._to_composition()
-            return self.node_index_to_node[0]
+            return self.structure_class(root=self.node_index_to_node[0], index_method='dfs', canonicalize=True)
 
 
 def loads(text, structure_class=glycan.Glycan, _allow_composition: bool=True):

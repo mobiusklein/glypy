@@ -6,6 +6,7 @@ try:
 except ImportError:
     from collections import Sequence
 
+from typing import Callable, List
 import warnings
 
 from six import string_types as basestring
@@ -81,7 +82,7 @@ class CarbonDescriptors(Sequence):
     def __iter__(self):
         return iter(self.descriptors)
 
-    def to_d_stereoform(self, code):
+    def to_d_stereoform(self, code: List[str]):
         out = []
         is_l_stereoform = code[-1] == '3'
         for site in code:
@@ -96,22 +97,13 @@ class CarbonDescriptors(Sequence):
                 out.append(site)
         return out
 
-    def to_base_type(self):
-        '''Convert the :class:`CarbonDescriptors` into a
-        :class:`~.Monosaccharide`, not including substituents.
-
-        Returns
-        -------
-        :class:`~.Monosaccharide`
-        '''
+    def encode_stereo_configuration(self):
         superclass = SuperClass[len(self)]
         carbon_coding = list(map(str, self))
-        modifications = OrderedMultiMap()
-        is_reduced = False
-        # translate stereocode into generic carbon code
         for i, site in enumerate(carbon_coding):
             if site in UNSUPPORTED_DESCRIPTORS:
-                raise WURCSFeatureNotSupported(f"CarbonDescriptor {site!r} is not supported")
+                raise WURCSFeatureNotSupported(
+                    f"CarbonDescriptor {site!r} is not supported")
             if site == '1':
                 carbon_coding[i] = '3'
             elif site == '2':
@@ -119,10 +111,6 @@ class CarbonDescriptors(Sequence):
         start = 1
         stems = []
         configurations = []
-        anomer = self.anomer
-        ring_start = self.ring_start
-        ring_end = self.ring_end
-
         # if the stereosites are all defined
         if 'x' not in carbon_coding:
             # incrementally walk along the carbon sequence
@@ -131,6 +119,7 @@ class CarbonDescriptors(Sequence):
                 # stereosequences,
                 for i in range(4, 0, -1):
                     # extract the raw stereosequence
+                    # raw_chunk = take_k(carbon_coding, i, start, str.isdigit)
                     raw_chunk = carbon_coding[start:start + i]
                     # convert the stereosequence to D configuration and
                     # convert to a string for hash lookup
@@ -183,18 +172,41 @@ class CarbonDescriptors(Sequence):
                 stems.append(None)
                 configurations.append(None)
 
+        return superclass, carbon_coding, stems, configurations
+
+    def to_base_type(self):
+        """
+        Convert the :class:`CarbonDescriptors` into a
+        :class:`~.Monosaccharide`, not including substituents.
+
+        Returns
+        -------
+        :class:`~.Monosaccharide`
+        """
+        superclass, carbon_coding, stems, configurations = self.encode_stereo_configuration()
+
+        modifications = OrderedMultiMap()
+        is_reduced = False
+        anomer = self.anomer
+        ring_start = self.ring_start
+        ring_end = self.ring_end
+
         anomeric_position = None
         double_bonds = []
 
         maybe_uncyclized = False
+        maybe_reduced = False
         if carbon_coding[0] == carbon_coding[-1] == 'h':
+            maybe_uncyclized = True
+            maybe_reduced = True
+        if carbon_coding[0] == 'o':
             maybe_uncyclized = True
 
         for i, site in enumerate(self):
             if site in ('a', 'u', 'U'):
                 maybe_uncyclized = False
                 anomeric_position = i + 1
-                if anomeric_position == 2 or (i < len(self) and self[i + 1] == 'x'):
+                if anomeric_position == 2:
                     modifications[anomeric_position] = Modification.keto
             if site in ('E', 'F'):
                 double_bonds.append(i + 1)
@@ -205,14 +217,16 @@ class CarbonDescriptors(Sequence):
             if site == 'O':
                 modifications[i + 1] = Modification.keto
         for site in double_bonds[::2]:
-            modifications[i] = Modification.en
+            modifications[site] = Modification.en
         stems = [Stem[x] for x in stems[::-1]]
         configurations = configurations[::-1]
         if maybe_uncyclized:
             anomer = Anomer.uncyclized
             ring_start = 0
             ring_end = 0
-            is_reduced = True
+            if maybe_reduced:
+                is_reduced = True
+
         base = Monosaccharide(
             anomer,
             configurations,
@@ -242,7 +256,7 @@ class CarbonDescriptors(Sequence):
         code = [str(x.value) if x.value is not None else 'x' for x in stereocode]
         code[0] = 'u'
         code[-1] = 'h'
-        if monosaccharide.anomer == 'uncyclized':
+        if monosaccharide.anomer == Anomer.uncyclized:
             code[0] = 'h'
             code[-1] = 'h'
         anomer = monosaccharide.anomer
@@ -258,20 +272,20 @@ class CarbonDescriptors(Sequence):
                 if position == 1:
                     is_aldose = False
                 code[position - 1] = 'A'
-            elif modification == Modification.Deoxygenated:
+            elif modification == Modification.d:
                 if position == 1:
                     is_aldose = False
                 if is_terminal:
                     code[position - 1] = 'm'
                 else:
                     code[position - 1] = 'd'
-            elif modification == Modification.Ketone:
+            elif modification == Modification.keto:
                 is_aldose = False
                 # code[position] = 'o'
                 anomeric_sites.append(position)
             elif modification == Modification.en:
                 code[position - 1] = 'E'
-            elif modification == Modification.Alditol:
+            elif modification == Modification.aldi:
                 is_aldose = False
                 if position != 1:
                     raise ValueError("\"aldi\" must occur on the first carbon")

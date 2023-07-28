@@ -85,6 +85,7 @@ reference_stereomap = {
     ('beta', 'l', (('gul',), 'hex')): '211210',
     ('beta', 'l', (('rib',), 'hex')): '201110',
     ('alpha', 'd', (('xyl',), 'pen')): '22120',
+    ('uncyclized', 'd', (('lyx',), 'pen')): '01120',
     ('alpha', 'l', (('gal',), 'hex')): '112210',
     ('alpha', 'l', (('ido',), 'hex')): '121210',
     ('beta', 'l', (('ido',), 'hex')): '221210',
