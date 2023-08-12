@@ -345,7 +345,8 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
     __slots__ = ()
 
     @classmethod
-    def from_monosaccharide(cls, monosaccharide, configuration=False, stem=True, ring=False):
+    def from_monosaccharide(cls, monosaccharide, configuration=False, stem=True, ring=False,
+                            position=True):
         """Construct an instance of :class:`MonosaccharideResidue` from an instance
         of |Monosaccharide|. This function attempts to preserve derivatization if possible.
 
@@ -376,6 +377,8 @@ class MonosaccharideResidue(Monosaccharide, ResidueBase):
                 residue.configuration = (Configuration.x,)
             if not stem:
                 residue.stem = (Stem.x,)
+        if not position:
+            drop_positions(residue)
         if not ring:
             residue.ring_start = residue.ring_end = UnknownPosition
         if deriv:
