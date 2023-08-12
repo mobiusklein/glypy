@@ -21,7 +21,6 @@ x   unknown configuration (D or L) carbon atom
 
 import warnings
 from six import string_types as basestring
-from six.moves import range
 
 from glypy.utils.enum import EnumValue
 

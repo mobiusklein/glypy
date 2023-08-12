@@ -5,7 +5,7 @@ from collections import deque, namedtuple
 from functools import partial
 
 from glypy.structure import (
-    Monosaccharide, Glycan, Link, AmbiguousLink,
+    Monosaccharide, Glycan, AmbiguousLink,
     Substituent, constants, named_structures, UnknownPosition)
 from glypy.composition import Composition
 from glypy.composition.structure_composition import substituent_compositions
@@ -175,7 +175,7 @@ class SubstituentSerializer(object):
             else:
                 part = _make_substituent_name(name)
                 warnings.warn("Registering IUPAC  name %r for %r" %
-                              (name, part))
+                              (part, name))
                 self.substituent_map[name] = part
                 if part not in substituents_map_from:
                     substituents_map_from[part] = name

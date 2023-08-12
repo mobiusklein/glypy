@@ -6,11 +6,8 @@ A simple dialect of the Glyconnect/GlycoMod glycan composition notation.
 '''
 import re
 
-from typing import Dict, Union, Optional, List, Tuple
-
-from urllib.parse import quote
 from dataclasses import dataclass, field
-from typing import List, Optional, Type, Generic, TypeVar
+from typing import Dict, Union, List, Optional, Type, Generic, TypeVar
 
 from glypy.structure.glycan_composition import (
     FrozenGlycanComposition,
@@ -44,7 +41,10 @@ defined_symbols: Dict[str, Union[SubstituentResidue, FrozenMonosaccharideResidue
 }
 
 
-def _invert_mapping(table: Dict[str, Union[SubstituentResidue, FrozenMonosaccharideResidue]]) -> Dict[Union[SubstituentResidue, FrozenMonosaccharideResidue], str]:
+def _invert_mapping(table: Dict[str, Union[SubstituentResidue,
+                                           FrozenMonosaccharideResidue]]) -> Dict[Union[SubstituentResidue,
+                                                                                        FrozenMonosaccharideResidue],
+                                                                                        str]:
     inverted = {}
     for k, v in table.items():
         if v in inverted:

@@ -6,7 +6,6 @@ A simple dialect of Protein Metrics Byonic's glycan composition notation.
 '''
 import re
 
-from glypy.structure import glycan_composition
 from glypy.composition import Composition
 from glypy.structure.glycan_composition import (
     FrozenGlycanComposition,
