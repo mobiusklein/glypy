@@ -1,7 +1,16 @@
 import itertools
 import re
+from dataclasses import dataclass, field
+from typing import DefaultDict, Dict, List, Set, Optional, Deque, TYPE_CHECKING
 
 from glypy.composition import Composition
+
+from glypy.utils import tree as treep
+
+if TYPE_CHECKING:
+    from glypy.structure import Glycan, Link, Monosaccharide
+    from glypy.structure.glycan_composition import HashableGlycanComposition
+
 
 _fragment_shift = {
     "B": Composition(O=1, H=2),
@@ -91,6 +100,14 @@ class GlycanFragment(object):
         "crossring_cleavages",
         "composition",
     ]
+
+    mass: float
+    kind: str
+    included_nodes: Set[int]
+    link_ids: List[int]
+    name: str
+    crossring_cleavages: Dict
+    composition: Optional[Composition]
 
     def __init__(self, kind, link_ids, included_nodes, mass,
                  name=None, crossring_cleavages=None, composition=None):
@@ -199,8 +216,8 @@ class GlycanFragment(object):
         return hash((self.name, int(self.mass)))
 
     def __eq__(self, other):  # pragma: no cover
-        for field in self.__slots__:
-            if getattr(self, field) != getattr(other, field, NotImplemented):
+        for f in self.__slots__:
+            if getattr(self, f) != getattr(other, f, NotImplemented):
                 return False
         return True
 
@@ -268,6 +285,13 @@ class GlycanSubstructure(object):
 
     """
 
+    tree: 'Glycan'
+    include_nodes: Set[int]
+    link_ids: List[int]
+    parent_breaks: Dict[int, int]
+    child_breaks: Dict[int, int]
+    crossring_cleavages: Dict
+
     def __init__(self, tree, include_nodes, link_ids,
                  parent_breaks, child_breaks, crossring_cleavages=None):
         self.tree = tree
@@ -276,6 +300,15 @@ class GlycanSubstructure(object):
         self.parent_breaks = parent_breaks
         self.child_breaks = child_breaks
         self.crossring_cleavages = crossring_cleavages or {}
+
+    def __hash__(self):
+        return hash(frozenset(self.include_nodes))
+
+    def __eq__(self, other):
+        return treep(self) == treep(other)
+
+    def __ne__(self, other):
+        return not self == other
 
     def contains_reducing_end(self):
         """Whether or not the sub-tree includes a :class:`ReducedEnd`
@@ -314,9 +347,9 @@ class GlycanSubstructure(object):
         child_type = set("BC") & set(kind)
         crossring_type = set("AX") & set(kind)
         parent_shifts = [(lid, parent_type)
-                         for lid, nid in self.parent_breaks.items()]
+                         for lid in self.parent_breaks.keys()]
         child_shifts = [(lid, child_type)
-                        for lid, nid in self.child_breaks.items()]
+                        for lid in self.child_breaks.keys()]
 
         shift_masses = {k: _fragment_shift[k].calc_mass(average=average,
                                                         charge=charge,
@@ -329,7 +362,7 @@ class GlycanSubstructure(object):
         # were not requested.
         if len(crossring_contained & crossring_type) == 0 and len(
                 crossring_contained) != 0:
-            # raise StopIteration()
+
             return
 
         all_shifts = parent_shifts + child_shifts
@@ -346,7 +379,8 @@ class GlycanSubstructure(object):
         # GlycanSubstructure instances through without issue
         for shift_set in itertools.product(*frag_types):
             mass_offset = 0.0
-            composition_offset = Composition()
+            if include_composition:
+                composition_offset = Composition()
             link_ids = {}
             # The type of fragment being produced, expressed a collection of ABCXYZs
             kind = [] + [''.join(cr_kind)
@@ -357,13 +391,16 @@ class GlycanSubstructure(object):
                 link_id = all_link_ids[i]
                 shift = shift[0]
                 mass_offset -= shift_masses[shift]
-                composition_offset -= _fragment_shift[shift]
+                if include_composition:
+                    composition_offset -= _fragment_shift[shift]
                 link_ids[link_id] = ("", shift)
                 kind.append(shift)
                 i += 1
 
             if include_composition:
                 fragment_composition = base_composition + composition_offset
+            else:
+                fragment_composition = None
 
             yield GlycanFragment(kind=''.join(kind), link_ids=link_ids, included_nodes=self.include_nodes,
                                  mass=base_mass + mass_offset, name=None,
@@ -385,3 +422,157 @@ class GlycanSubstructure(object):
 
 
 Subtree = GlycanSubstructure
+
+
+def flatten(x: List) -> List:
+    return [
+        z for y in x
+        for z in ([y] if not isinstance(y, list) else flatten(y))
+    ]
+
+
+@dataclass
+class DepthFirstLinkTraversal:
+    path: List['Link'] = field(default_factory=list)
+    children: List['DepthFirstLinkTraversal'] = field(default_factory=list)
+
+    @classmethod
+    def build_from(cls, root: 'Monosaccharide',
+                   starting_link: Optional['Link']=None):
+        self = cls()
+        node_stack: Deque['Monosaccharide'] = Deque()
+        if starting_link is not None:
+            node_stack.append(starting_link[root])
+            self.path.append(starting_link)
+        else:
+            node_stack.append(root)
+        while len(node_stack) > 0:
+            node = node_stack.pop()
+            children = [c[1] for c in node.children(True)]
+            if len(children) == 1:
+                child = children[0]
+                self.path.append(child)
+                node_stack.appendleft(child[node])
+            elif len(children) > 1:
+                for child in children:
+                    self.children.append(cls.build_from(node, child))
+        return self
+
+    def __iter__(self):
+        for link in self.path:
+            yield [link]
+        for links in itertools.product(*[[None] + list(c) for c in self.children]):
+            links = [li for li in links if li is not None]
+            if not links:
+                continue
+            yield links
+
+    @classmethod
+    def generate_y_fragments(cls, glycan: 'Glycan', include_composition=False, traversal_method="index", **kwargs):
+        fragments = list(
+            itertools.chain.from_iterable(
+                (y_fragments_from_links(
+                    links,
+                    include_composition=include_composition,
+                    traversal_method=traversal_method, **kwargs
+                 ) for links in map(flatten, cls.build_from(glycan.root)))
+            )
+        )
+        for frag in fragments:
+            frag.name = glycan.name_fragment(frag)
+        return fragments
+
+
+def y_fragments_from_links(links_to_break: List['Link'], **kwargs):
+    from glypy.structure import Glycan
+    subtrees = []
+    for link in links_to_break:
+        parent, _child = link.break_link(refund=True)
+        parent_tree = Glycan(parent, index_method=None)
+        subtrees.append(parent_tree)
+
+    unique_subtrees = []
+    for subtree in subtrees:
+        ids = {n.id for n in subtree}
+        for uids, _unique in unique_subtrees:
+            if ids == uids:
+                break
+        else:
+            unique_subtrees.append((ids, subtree))
+
+    assert len(unique_subtrees) == 1
+
+    for ids, subtree in unique_subtrees:
+        subtree = subtree.reroot(index_method=None)
+        include_nodes = {n.id for n in subtree}
+
+        link_ids = [link.id for link in links_to_break
+                    if link.parent.id in include_nodes or
+                    link.child.id in include_nodes]
+
+        parent_break_ids = {link.id: link.parent.id for link in links_to_break
+                            if link.parent.id in include_nodes}
+
+        child_break_ids = {link.id: link.child.id for link in links_to_break
+                           if link.child.id in include_nodes}
+
+        yield from Subtree(
+            subtree,
+            include_nodes,
+            link_ids,
+            parent_break_ids,
+            child_break_ids).to_fragments('Y', **kwargs)
+
+    for link in links_to_break:
+        link.apply()
+
+
+def y_fragments_to_glycan_compositions(glycan: 'Glycan',
+                                       fragments: List[GlycanFragment]) -> DefaultDict['HashableGlycanComposition',
+                                                                                       List[GlycanFragment]]:
+    from glypy.structure.glycan_composition import (
+        FrozenMonosaccharideResidue, HashableGlycanComposition)
+    index_to_residue = {
+        node.id: FrozenMonosaccharideResidue.from_monosaccharide(
+            node, False, False, False, False
+        )
+        for node in glycan
+    }
+
+    compositions = DefaultDict(list)
+
+    for frag in fragments:
+        gc = HashableGlycanComposition()
+        for node_id in frag.included_nodes:
+            gc[index_to_residue[node_id]] += 1
+        compositions[gc].append(frag)
+
+    return compositions
+
+
+class LabileLeafMask:
+    glycan: 'Glycan'
+    monosaccharides: List['Monosaccharide']
+    links: List['Link']
+
+    def __init__(self, glycan: 'Glycan', monosaccharides: List['Monosaccharide']):
+        from glypy.algorithms.similarity import commutative_similarity
+        self.glycan = glycan
+        self.monosaccharides = monosaccharides
+        self.links = []
+        for leaf in self.glycan.leaves():
+            _, link = next(iter(leaf.links.items()))
+            for ref in self.monosaccharides:
+                if commutative_similarity(ref, leaf):
+                    self.links.append(link)
+                    break
+
+    def __enter__(self):
+        for link in self.links:
+            link.break_link(refund=True)
+        return self.links
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        for link in self.links:
+            link.apply()
+
