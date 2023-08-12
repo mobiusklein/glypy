@@ -73,7 +73,8 @@ class Link(object):
         child_loss: :class:`Composition` or str
             The elemental composition deducted from the child when the bond is applied
         id: int
-            A locally unique identifier within a graph. If |None|, :func:`~.glypy.utils.uid` is used to generate one. Defaults to |None|
+            A locally unique identifier within a graph. If |None|, :func:`~.glypy.utils.uid` is
+            used to generate one. Defaults to |None|
         attach: bool
             Whether to immediately attach the |Link| object to the `parent` and `child` molecules on instantiation
             by using :meth:`Link.apply`

@@ -87,7 +87,7 @@ def _get_standard_composition(monosaccharide):
     return base
 
 
-def traverse(monosaccharide, visited=None, apply_fn=ident_op):
+def traverse(monosaccharide, visited=None, apply_fn=None):
     '''
     A low-level depth-first traversal method for unwrapped residue
     graphs
@@ -108,7 +108,7 @@ def traverse(monosaccharide, visited=None, apply_fn=ident_op):
     '''
     if visited is None:
         visited = set()
-    yield apply_fn(monosaccharide)
+    yield apply_fn(monosaccharide) if apply_fn is not None else monosaccharide
     visited.add(monosaccharide.id)
     outnodes = sorted(list(monosaccharide.links.items()), key=lambda x: x[1][monosaccharide].degree(), reverse=True)
     for link_pos, link in outnodes:

@@ -594,8 +594,7 @@ class Glycan(SaccharideCollection):
         if not self.index:
             self._build_node_index()
         if from_node is None and apply_fn is identity:
-            for node in self.index:
-                yield node
+            yield from self.index
         else:
             i = 0
             n = len(self.index)
@@ -1092,7 +1091,7 @@ class Glycan(SaccharideCollection):
         --------
         :func:`glypy.composition.composition.calculate_mass`
         '''
-        if charge == 0:
+        if charge == 0 or charge is None:
             return sum(
                 node.mass(average=average, charge=0, mass_data=mass_data) for node in self.iternodes(method=method))
         else:
