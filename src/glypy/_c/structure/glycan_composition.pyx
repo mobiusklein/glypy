@@ -8,9 +8,7 @@ from glypy.composition import formula
 
 from glypy._c.utils cimport _prepare_glycan_composition_string
 
-cdef CComposition water = CComposition("H2O")
-
-
+cdef CComposition WATER = CComposition("H2O")
 cdef object ZERO = 0
 
 
@@ -21,7 +19,7 @@ cdef class _CompositionBase(dict):
         cdef _CompositionBase inst = cls.__new__(cls)
         inst._mass = None
         inst._reducing_end = None
-        inst._composition_offset = CComposition._create(water)
+        inst._composition_offset = CComposition._create(WATER)
         return inst
 
     cpdef object _getitem_fast(self, object key):
@@ -113,6 +111,16 @@ cdef class _CompositionBase(dict):
         if reduced is not None:
             result = "%s$%s" % (result, formula(reduced.total_composition()))
         return result
+
+    cpdef set_composition_offset(self, CComposition composition):
+        self._invalidate()
+        self._composition_offset = composition
+
+    cpdef CComposition get_composition_offset(self):
+        return self._composition_offset
+
+    cpdef _invalidate(self):
+        self._mass = None
 
 
 cdef str _reformat(dict self):

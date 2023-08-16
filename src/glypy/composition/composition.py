@@ -46,6 +46,11 @@ def _parse_isotope_string(label):
 
 class PComposition(defaultdict):
     '''Represent arbitrary elemental compositions'''
+
+    @staticmethod
+    def sum(compositions: list) -> 'PComposition':
+        return sum(compositions, PComposition())
+
     def __str__(self):   # pragma: no cover
         return 'Composition({})'.format(dict.__repr__(self))
 

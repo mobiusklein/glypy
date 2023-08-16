@@ -962,6 +962,16 @@ class _CompositionBase(dict):
             form = "%s$%s" % (form, formula(reduced.total_composition()))
         return form
 
+    def get_composition_offset(self) -> Composition:
+        return self._composition_offset
+
+    def set_composition_offset(self, composition: Composition):
+        self._composition_offset = composition
+        self._invalidate()
+
+    def _invalidate(self):
+        self._mass = None
+
 try:
     from glypy._c.structure.glycan_composition import _CompositionBase
 except ImportError:
@@ -1392,18 +1402,7 @@ class GlycanComposition(_CompositionBase, SaccharideCollection):
         self._invalidate()
         self._reducing_end = value
 
-    def _invalidate(self):
-        self._mass = None
-
-    @property
-    def composition_offset(self):
-        return self._composition_offset
-
-    @composition_offset.setter
-    def composition_offset(self, value):
-        self._invalidate()
-        self._composition_offset = value
-
+    composition_offset = property(_CompositionBase.get_composition_offset, _CompositionBase.set_composition_offset)
 
     def clone(self, propogate_composition_offset=True, copy_nodes=True):
         dup = self._empty()

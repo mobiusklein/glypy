@@ -14,3 +14,7 @@ cdef class _CompositionBase(dict):
 
     cdef void _add_from(self, _CompositionBase other)
     cdef void _subtract_from(self, _CompositionBase other)
+
+    cpdef set_composition_offset(self, CComposition composition)
+    cpdef CComposition get_composition_offset(self)
+    cpdef _invalidate(self)

@@ -6,25 +6,17 @@ from .mass_dict import nist_mass
 from .base import ChemicalCompositionError, composition_factory
 
 cimport cython
-from cpython cimport PY_MAJOR_VERSION
 
 from cpython.ref cimport PyObject
 from cpython.dict cimport (PyDict_GetItem, PyDict_SetItem, PyDict_Next,
                            PyDict_Keys, PyDict_Update, PyDict_DelItem, PyDict_Size)
 from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
-
-# if PY_MAJOR_VERSION < 3:
-#     from cpython.string cimport PyString_Format
-
-# cdef extern from *:
-#     unicode PyUnicode_Format(object format, object args)
-
 from glypy.composition.compat cimport PyStr_Format
 
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
-from cpython.list cimport PyList_GET_ITEM
+from cpython.list cimport PyList_GET_ITEM, PyList_GET_SIZE
 
 # Forward Declaration
 cdef:
@@ -82,6 +74,36 @@ cdef str _make_isotope_string(str element_name, int isotope_num):
         return <str>PyStr_Format('%s[%d]', parts)
 
 
+cpdef CComposition composition_sum(list compositions):
+    cdef:
+        size_t i, n
+        CComposition accumulator, current
+        str elem
+        long cnt
+        PyObject *pkey
+        PyObject *pvalue
+        Py_ssize_t ppos = 0
+
+    n = PyList_GET_SIZE(compositions)
+    if n == 1:
+        accumulator = <CComposition>PyList_GET_ITEM(compositions, 0)
+        return accumulator.copy()
+    elif n == 0:
+        accumulator = CComposition()
+        return accumulator
+    else:
+        accumulator = (<CComposition>PyList_GET_ITEM(compositions, 0)).copy()
+        for i in range(1, n):
+            current = <CComposition>PyList_GET_ITEM(compositions, i)
+            ppos = 0
+
+            while(PyDict_Next(current, &ppos, &pkey, &pvalue)):
+                elem = <str>pkey
+                cnt = accumulator.getitem(elem)
+                accumulator.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))
+        return accumulator
+
+
 @cython.c_api_binop_methods(True)
 cdef class CComposition(dict):
     """A Composition object stores a chemical composition of a
@@ -105,7 +127,10 @@ cdef class CComposition(dict):
     mass_data : dict, optional
         A dict with the masses of chemical elements (the default
         value is :py:data:`nist_mass`). It is used for formulae parsing only.
-        """
+    """
+
+    sum = staticmethod(composition_sum)
+
     def __str__(self):   # pragma: no cover
         return 'Composition({})'.format(dict.__repr__(self))
 
@@ -520,28 +545,6 @@ cdef class CComposition(dict):
         self._mass_args = None
 
 Composition = CComposition
-
-
-cpdef CComposition composition_sum(list compositions):
-    cdef:
-        size_t i
-        CComposition accumulator, current
-        str elem
-        long cnt
-        PyObject *pkey
-        PyObject *pvalue
-        Py_ssize_t ppos = 0
-
-    accumulator = CComposition()
-    for i in range(len(compositions)):
-        current = compositions[i]
-        ppos = 0
-
-        while(PyDict_Next(current, &ppos, &pkey, &pvalue)):
-            elem = <str>pkey
-            cnt = accumulator.getitem(elem)
-            accumulator.setitem(elem, cnt + PyInt_AsLong(<object>pvalue))
-    return accumulator
 
 
 @cython.wraparound(False)

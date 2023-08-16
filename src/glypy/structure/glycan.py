@@ -1236,8 +1236,8 @@ class Glycan(SaccharideCollection):
                 max_cleavages):
             yield frag
 
-    def name_fragment(self, fragment):
-        '''
+    def name_fragment(self, fragment, link_index=None):
+        """
         Attempt to assign a full name to a fragment based on the branch and position relative to
         the reducing end along side A/B/C/X/Y/Z, according to :title-reference:`Domon and Costello`
 
@@ -1260,7 +1260,18 @@ class Glycan(SaccharideCollection):
                                            "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" |
                                            "u" | "v" | "w" | "x" | "y" | "z"
 
-        '''
+        Parameters
+        ----------
+        fragment : :class:`~glypy.structure.fragment.GlycanFragment`
+            The fragment to name
+        link_index : dict, optional
+            A mapping to look up |Link| objects in, in case the :attr:`link_index` isn't
+            reliable.
+
+        Returns
+        -------
+        str
+        """
 
         break_targets = fragment.link_ids
         crossring_targets = fragment.crossring_cleavages
@@ -1291,7 +1302,10 @@ class Glycan(SaccharideCollection):
         for break_id, ion_type in break_targets.items():
             ion_type = ion_type[1]
             if _fragment_direction[ion_type] > 0:
-                link = self.link_index[break_id - 1]
+                if link_index:
+                    link = link_index[break_id]
+                else:
+                    link = self.link_index[break_id - 1]
                 label = link.label
                 name = "{}{}".format(
                     ion_type,
@@ -1300,7 +1314,10 @@ class Glycan(SaccharideCollection):
                         ""))
                 name_parts.append(name)
             else:
-                link = self.link_index[break_id - 1]
+                if link_index:
+                    link = link_index[break_id]
+                else:
+                    link = self.link_index[break_id - 1]
                 label = link.label
                 label_key = label[0]
                 distance = int(label[1:])

@@ -1,7 +1,7 @@
 import itertools
 import re
 from dataclasses import dataclass, field
-from typing import DefaultDict, Dict, List, Set, Optional, Deque, TYPE_CHECKING
+from typing import DefaultDict, Dict, List, Set, Optional, Deque, TYPE_CHECKING, Tuple, Union
 
 from glypy.composition import Composition
 
@@ -255,6 +255,59 @@ class GlycanFragment(object):
         """
         return len(self.included_nodes)
 
+    @classmethod
+    def to_glycan_compositions(cls, glycan: 'Glycan', fragments: List['GlycanFragment'],
+                               by_series: bool = True) -> Union[
+                                   DefaultDict['HashableGlycanComposition', List['GlycanFragment']],
+                                   DefaultDict[str, Dict['HashableGlycanComposition',
+                                                         List['GlycanFragment']]]
+                                ]:
+        """
+        From a list of :class:`GlycanFragment` instances, build
+        :class:`~glypy.structure.glycan_composition.HashableGlycanComposition`
+        instances corresponding to those fragments, and return a mapping relating
+        them.
+
+        Parameters
+        ----------
+        glycan : :class:`~.glypy.structure.glycan.Glycan`
+            The glycan the fragments came from.
+        fragments : :class:`list` of :class:`~
+        """
+        from glypy.structure.glycan_composition import (
+            FrozenMonosaccharideResidue, HashableGlycanComposition)
+        index_to_residue = {
+            node.id: FrozenMonosaccharideResidue.from_monosaccharide(
+                node, False, False, False, False
+            )
+            for node in glycan
+        }
+
+        compositions: DefaultDict[HashableGlycanComposition, List['GlycanFragment']] = DefaultDict(list)
+
+        for frag in fragments:
+            gc = HashableGlycanComposition()
+            for node_id in frag.included_nodes:
+                gc[index_to_residue[node_id]] += 1
+            compositions[gc].append(frag)
+        if not by_series:
+            return compositions
+
+        _shift_cache = {}
+        results: DefaultDict[str, Dict[HashableGlycanComposition, List[GlycanFragment]]] = DefaultDict(dict)
+        for gc, frags in compositions.items():
+            frags.sort(key=lambda x: x.kind)
+            for key, subset in itertools.groupby(frags, lambda x: x.kind):
+                if key not in _shift_cache:
+                    comp_shift = Composition.sum([_fragment_shift[k] for k in key])
+                    _shift_cache[key] = comp_shift
+                else:
+                    comp_shift = _shift_cache[key]
+                tmp = gc.clone()
+                tmp.composition_offset = tmp.composition_offset - comp_shift
+                results[key][tmp] = list(subset)
+        return results
+
 
 Fragment = GlycanFragment
 
@@ -478,8 +531,9 @@ class DepthFirstLinkTraversal:
                  ) for links in map(flatten, cls.build_from(glycan.root)))
             )
         )
+        link_index = {link.id: link for _, link in glycan.iterlinks()}
         for frag in fragments:
-            frag.name = glycan.name_fragment(frag)
+            frag.name = glycan.name_fragment(frag, link_index=link_index)
         return fragments
 
 
@@ -528,8 +582,11 @@ def y_fragments_from_links(links_to_break: List['Link'], **kwargs):
 
 
 def y_fragments_to_glycan_compositions(glycan: 'Glycan',
-                                       fragments: List[GlycanFragment]) -> DefaultDict['HashableGlycanComposition',
-                                                                                       List[GlycanFragment]]:
+                                       fragments: List[GlycanFragment],
+                                       composition_offset: Optional[Composition] = None) -> DefaultDict[
+                                           'HashableGlycanComposition',
+                                           List[GlycanFragment]
+                                        ]:
     from glypy.structure.glycan_composition import (
         FrozenMonosaccharideResidue, HashableGlycanComposition)
     index_to_residue = {
@@ -545,6 +602,8 @@ def y_fragments_to_glycan_compositions(glycan: 'Glycan',
         gc = HashableGlycanComposition()
         for node_id in frag.included_nodes:
             gc[index_to_residue[node_id]] += 1
+        if composition_offset is not None:
+            gc.set_composition_offset(composition_offset)
         compositions[gc].append(frag)
 
     return compositions
