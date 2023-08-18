@@ -513,7 +513,7 @@ class Glycan(SaccharideCollection):
     traversal_methods['depth_first_traversal'] = "depth_first_traversal"
 
     def breadth_first_traversal(self, from_node=None, apply_fn=identity, visited=None):
-        '''
+        """
         Make a breadth-first traversal of the glycan graph. Children are explored in descending bond-order.
 
         When selecting an iteration strategy, this strategy is specified as "bfs".
@@ -536,7 +536,7 @@ class Glycan(SaccharideCollection):
         See also
         --------
         Glycan.depth_first_traversal
-        '''
+        """
         node_queue = deque([self.root if from_node is None else from_node])
         visited = set() if visited is None else visited
         while len(node_queue) > 0:
@@ -549,8 +549,7 @@ class Glycan(SaccharideCollection):
                 res = apply_fn(node)
                 if res is not None:
                     yield res
-            # node_queue.extend(terminal for link in node.links.values()
-            #                   for terminal in link if terminal.id not in visited)
+
             for link in node.links.values():
                 terminal = link.parent
                 if terminal.id not in visited:
@@ -616,9 +615,11 @@ class Glycan(SaccharideCollection):
                 i += 1
 
     traversal_methods['index'] = "indexed_traversal"
+    traversal_methods['indexed_traversal'] = "indexed_traversal"
 
     def _get_traversal_method(self, method):
-        """An internal helper method used to resolve traversal
+        """
+        An internal helper method used to resolve traversal
         methods by name or alias.
 
         Parameters

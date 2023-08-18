@@ -1,15 +1,15 @@
 import itertools
 from uuid import uuid4
-try:
-    from collections.abc import Iterable
-except ImportError:
-    from collections import Iterable
+
+from typing import Iterable, Optional, List, TYPE_CHECKING
 
 from glypy.composition import Composition
 from glypy.utils import uid, basestring, make_struct
 from .base import SaccharideBase, SubstituentBase
 from .constants import UnknownPosition, LinkageType
 
+if TYPE_CHECKING:
+    from .base import MoleculeBase
 
 default_parent_loss = Composition({"O": 1, "H": 1})
 default_child_loss = Composition(H=1)
@@ -41,12 +41,35 @@ class Link(object):
     '''
 
     __slots__ = (
-        "parent", "child", "parent_position", "child_position",
-        "parent_loss", "child_loss", "id",
-        "label", "_attached",
+        "parent",
+        "child",
+        "parent_position",
+        "child_position",
+        "parent_loss",
+        "child_loss",
+        "id",
+        "label",
+        "_attached",
         "parent_linkage_type",
         "child_linkage_type"
     )
+
+    parent: Optional['MoleculeBase']
+    child: Optional['MoleculeBase']
+
+    parent_position: int
+    child_position: int
+
+    parent_loss: Composition
+    child_loss: Composition
+
+    id: Optional[int]
+    label: Optional[str]
+
+    parent_linkage_type: LinkageType
+    child_linkage_type: LinkageType
+
+    _attached: Optional[bool]
 
     def __init__(self, parent, child, parent_position=UnknownPosition, child_position=UnknownPosition,
                  parent_loss=None, child_loss=None, id=None, attach=True, parent_linkage_type=None,
@@ -524,6 +547,11 @@ class LinkMaskContext(object):
     '''
     A context manager for masking and unmasking |Link| objects on a residue
     '''
+
+    residue: "MoleculeBase"
+    links: List[Link]
+    attach: bool
+
     def __init__(self, residue, attach=False):
         self.residue = residue
         self.links = [link for link in residue.links.values()]
@@ -574,6 +602,12 @@ class AmbiguousLink(Link):
         "parent_choices", "parent_position_choices",
         "child_choices", "child_position_choices"
     )
+
+    parent_choices: List["MoleculeBase"]
+    child_choices: List["MoleculeBase"]
+
+    parent_position_choices: List[int]
+    child_position_choices: List[int]
 
     def __init__(self, parent, child, parent_position=(UnknownPosition,), child_position=(UnknownPosition,),
                  parent_loss=None, child_loss=None, id=None, attach=True, parent_linkage_type=None,

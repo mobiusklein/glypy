@@ -1,4 +1,5 @@
 import logging
+from typing import Optional, Tuple
 try:
     from itertools import chain, izip_longest
 except ImportError:
@@ -335,6 +336,21 @@ class Monosaccharide(SaccharideBase):
         "_reducing_end", "_degree",
         "_checked_for_reduction"
     )
+
+    id: int
+    _anomer: Anomer
+    _configuration: Tuple[Configuration]
+    _stem: Tuple[Stem]
+    _superclass: SuperClass
+    ring_start: Optional[int]
+    rind_end: Optional[int]
+    links: OrderedMultiMap[int, Link]
+    substituent_links: OrderedMultiMap[int, Link]
+    modifications: OrderedMultiMap[int, Modification]
+    composition: Composition
+    _reducing_end: Optional['ReducedEnd']
+    _degree: int
+    _checked_for_reduction: Optional[bool]
 
     def __init__(self, anomer=None, configuration=None, stem=None,
                  superclass=None, ring_start=UnknownPosition, ring_end=UnknownPosition,

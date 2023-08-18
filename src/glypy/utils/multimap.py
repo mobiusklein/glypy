@@ -2,6 +2,11 @@ import logging
 import json
 from collections import defaultdict
 
+from typing import DefaultDict, Generic, TypeVar, List
+
+K = TypeVar("K")
+V = TypeVar("V")
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,10 +17,13 @@ def _str_dump_multimap(mm):  # pragma: no cover
     return json.dumps(d, sort_keys=True, indent=4)
 
 
-class MultiMap(object):
+class MultiMap(Generic[K, V]):
+    """Implements a simple MultiMap data structure on top of a dictionary of lists"""
     __slots__ = ['contents', 'clean']
 
-    '''Implements a simple MultiMap data structure on top of a dictionary of lists'''
+    contents: DefaultDict[K, List[V]]
+    clean: bool
+
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
         for k, v in kwargs.items():
@@ -33,7 +41,7 @@ class MultiMap(object):
         self.invalidate()
 
     def pop(self, key, value):
-        '''
+        """
         Removes `value` from the collection of values stored at `key`
         and returns the `tuple` `(key, value)`
 
@@ -41,7 +49,7 @@ class MultiMap(object):
         ------
         IndexError
         KeyError
-        '''
+        """
         objs = self.contents[key]
         objs.pop(objs.index(value))
         if len(objs) == 0:
@@ -64,25 +72,25 @@ class MultiMap(object):
         return key in self.contents
 
     def keys(self):
-        '''
+        """
         Returns an iterator over the keys of :attr:`contents`
         An alias of :meth:`__iter__`
-        '''
+        """
         return iter(self)
 
     def values(self):
-        '''
+        """
         Returns an iterator over the values of :attr:`contents`
-        '''
+        """
         for k in self:
             for v in self[k]:
                 yield v
 
     def items(self):
-        '''
+        """
         Returns an iterator over the items of :attr:`contents`. Each item
         takes the form of `(key, value)`.
-        '''
+        """
         for k in self:
             for v in self[k]:
                 yield (k, v)
@@ -91,9 +99,9 @@ class MultiMap(object):
         return self.contents.items()
 
     def __len__(self):
-        '''
+        """
         Returns the number of items in :attr:`contents`
-        '''
+        """
         return sum(len(self[k]) for k in self)
 
     def __repr__(self):  # pragma: no cover
@@ -154,13 +162,14 @@ class MultiMap(object):
         return self.copy()
 
 
-class OrderedMultiMap(MultiMap):
-    '''
+class OrderedMultiMap(MultiMap[K, V]):
+    """
     Implements a simple MultiMap data structure on top of a dictionary of lists
     that remembers the order keys were first inserted in.
-    '''
+    """
 
     __slots__ = ['key_order', ]
+    key_order: List[K]
 
     def __init__(self, **kwargs):
         self.contents = defaultdict(list)
@@ -172,10 +181,10 @@ class OrderedMultiMap(MultiMap):
         self.invalidate()
 
     def __iter__(self):
-        '''
+        """
         Returns an iterator over the keys of :attr:`contents` in the order
         they were added.
-        '''
+        """
         for key in self.key_order:
             yield key
 
@@ -188,10 +197,10 @@ class OrderedMultiMap(MultiMap):
                 yield v
 
     def items(self):
-        '''
+        """
         As in :class:`MultiMap`, but items are yielded in the order their keys were
         first added.
-        '''
+        """
         for key in self.key_order:
             for v in self[key]:
                 yield (key, v)

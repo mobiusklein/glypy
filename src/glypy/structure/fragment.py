@@ -558,7 +558,7 @@ def y_fragments_from_links(links_to_break: List['Link'], **kwargs):
 
     for ids, subtree in unique_subtrees:
         subtree = subtree.reroot(index_method=None)
-        include_nodes = {n.id for n in subtree}
+        include_nodes = ids
 
         link_ids = [link.id for link in links_to_break
                     if link.parent.id in include_nodes or

@@ -13,6 +13,16 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     from xml.etree import ElementTree as ET
 
+from typing import (List, Type, Optional, Protocol, TYPE_CHECKING,
+                    Iterable, TypeVar, DefaultDict, Hashable,
+                    Callable, Generic, Dict, Mapping)
+
+if TYPE_CHECKING:
+    from glypy.structure.base import MoleculeBase
+    from glypy.structure import Glycan
+
+T = TypeVar("T")
+K = TypeVar("K", bound=Hashable)
 
 i128 = int
 basestring = (bytes, str)
@@ -52,7 +62,7 @@ def opener(obj, mode='r'):
         raise IOError("Can't find a way to open {}".format(obj))
 
 
-def invert_dict(d):
+def invert_dict(d: Mapping[K, T]) -> Dict[T, K]:
     return {v: k for k, v in d.items()}
 
 
@@ -81,7 +91,7 @@ def make_counter(start=1):
     return count_up
 
 
-def identity(x):   # pragma: no cover
+def identity(x: T) -> T:   # pragma: no cover
     return x
 
 
@@ -89,11 +99,11 @@ def nullop(*args, **kwargs):   # pragma: no cover
     pass
 
 
-def chrinc(a='a', i=1):
+def chrinc(a: str='a', i: int=1) -> str:
     return chr(ord(a) + i)
 
 
-def make_struct(name, fields, debug=False, docstring=None):
+def make_struct(name: str, fields: List[str], debug: bool=False, docstring: str=Optional[None]) -> Type:
     '''
     A convenience function for defining plain-old-data (POD) objects that are optimized
     for named accessor lookup, unlike `namedtuple`. If the named container does not
@@ -179,7 +189,7 @@ class {name}(object):
     return result
 
 
-class ClassPropertyDescriptor(object):
+class ClassPropertyDescriptor(Generic[T]):
     '''
     Standard Class Property Descriptor Implementation
     '''
@@ -187,12 +197,12 @@ class ClassPropertyDescriptor(object):
         self.fget = fget
         self.fset = fset
 
-    def __get__(self, obj, klass=None):
+    def __get__(self, obj, klass=None) -> T:
         if klass is None:  # pragma: no cover
             klass = type(obj)
         return self.fget.__get__(obj, klass)()
 
-    def __set__(self, obj, value):
+    def __set__(self, obj, value: T):
         if not self.fset:  # pragma: no cover
             raise AttributeError("can't set attribute")
         type_ = type(obj)
@@ -223,7 +233,13 @@ class RootProtocolNotSupportedError(TypeError):
     pass
 
 
-def root(structure):
+
+class Rootable(Protocol):
+    def __root__(self) -> "MoleculeBase":
+        ...
+
+
+def root(structure: Rootable):
     """A generic method for obtaining the root of a structure representing
     or containing a glycan graph with a single distinct root.
 
@@ -259,7 +275,12 @@ class TreeProtocolNotSupportedError(TypeError):
     pass
 
 
-def tree(structure):
+class Treeable(Protocol):
+    def __tree__(self) -> "Glycan":
+        ...
+
+
+def tree(structure: Treeable):
     """A generic method for obtaining the :class:`Glycan` of a structure representing
     or containing a glycan graph.
 
@@ -288,7 +309,7 @@ def tree(structure):
     return tree
 
 
-def groupby(ungrouped_list, key_fn=identity):
+def groupby(ungrouped_list: Iterable[T], key_fn: Callable[[T], K]=identity) -> DefaultDict[K, List[T]]:
     groups = defaultdict(list)
     for item in ungrouped_list:
         key_value = key_fn(item)
@@ -296,10 +317,10 @@ def groupby(ungrouped_list, key_fn=identity):
     return groups
 
 
-def where(iterable, fn):
+def where(iterable: Iterable[T], fn: Callable[[T], bool]) -> List[int]:
     return [i for i, k in enumerate(iterable) if fn(k)]
 
 
-def uid(n=128):
+def uid(n=128) -> int:
     int_ = random.getrandbits(n)
     return int_
