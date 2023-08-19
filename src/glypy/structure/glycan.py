@@ -258,6 +258,9 @@ class Glycan(SaccharideCollection):
             index.append(node)
         self.index = index
 
+    def _has_node_index(self):
+        return bool(self.index)
+
     def deindex(self):
         '''
         When combining two Glycan structures, very often their component ids will
@@ -1011,7 +1014,11 @@ class Glycan(SaccharideCollection):
         int
         '''
         count = 0
-        for node in self.depth_first_traversal():
+        if self._has_node_index():
+            trav = self.indexed_traversal
+        else:
+            trav = self.depth_first_traversal
+        for _node in trav():
             count += 1
         return count
 

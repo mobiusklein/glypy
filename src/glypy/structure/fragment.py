@@ -1,7 +1,7 @@
 import itertools
 import re
 from dataclasses import dataclass, field
-from typing import DefaultDict, Dict, List, Set, Optional, Deque, TYPE_CHECKING, Tuple, Union
+from typing import DefaultDict, Dict, FrozenSet, List, Set, Optional, Deque, TYPE_CHECKING, Tuple, Union
 
 from glypy.composition import Composition
 
@@ -486,29 +486,57 @@ def flatten(x: List) -> List:
 
 @dataclass
 class DepthFirstLinkTraversal:
-    path: List['Link'] = field(default_factory=list)
-    children: List['DepthFirstLinkTraversal'] = field(default_factory=list)
+    path: List["Link"] = field(default_factory=list)
+    children: List["DepthFirstLinkTraversal"] = field(default_factory=list)
+    visited: Set[int] = field(default_factory=set)
+    size: int = 0
 
     @classmethod
-    def build_from(cls, root: 'Monosaccharide',
-                   starting_link: Optional['Link']=None):
-        self = cls()
-        node_stack: Deque['Monosaccharide'] = Deque()
+    def build_from(
+        cls,
+        root: "Monosaccharide",
+        starting_link: Optional["Link"] = None,
+        traverse_children: bool = True,
+        max_size: int = -1,
+        visited: Optional[Set[int]] = None
+    ):
+        self = cls(visited=visited if visited else set())
+        node_stack: Deque["Monosaccharide"] = Deque()
         if starting_link is not None:
             node_stack.append(starting_link[root])
             self.path.append(starting_link)
+            self.visited.add(starting_link.id)
         else:
             node_stack.append(root)
         while len(node_stack) > 0:
+            if max_size >= 0 and len(self.path) >= max_size:
+                break
             node = node_stack.pop()
-            children = [c[1] for c in node.children(True)]
+            children = [
+                c[1]
+                for c in (
+                    node.children(
+                        True) if traverse_children else node.links.items()
+                )
+                if c[1].id not in self.visited
+            ]
             if len(children) == 1:
                 child = children[0]
                 self.path.append(child)
+                self.visited.add(child.id)
                 node_stack.appendleft(child[node])
             elif len(children) > 1:
                 for child in children:
-                    self.children.append(cls.build_from(node, child))
+                    self.visited.add(child.id)
+                    self.children.append(
+                        cls.build_from(
+                            node,
+                            child,
+                            traverse_children=traverse_children,
+                            max_size=max_size - len(self.path),
+                            visited=self.visited.copy()
+                        )
+                    )
         return self
 
     def __iter__(self):
@@ -521,20 +549,123 @@ class DepthFirstLinkTraversal:
             yield links
 
     @classmethod
-    def generate_y_fragments(cls, glycan: 'Glycan', include_composition=False, traversal_method="index", **kwargs):
+    def generate_y_fragments(cls, glycan: 'Glycan',
+                             include_composition: bool=False,
+                             traversal_method: str="index", **kwargs):
         fragments = list(
             itertools.chain.from_iterable(
                 (y_fragments_from_links(
                     links,
                     include_composition=include_composition,
                     traversal_method=traversal_method, **kwargs
-                 ) for links in map(flatten, cls.build_from(glycan.root)))
+                ) for links in map(flatten, cls.build_from(glycan.root)))
             )
         )
         link_index = {link.id: link for _, link in glycan.iterlinks()}
         for frag in fragments:
             frag.name = glycan.name_fragment(frag, link_index=link_index)
         return fragments
+
+    @classmethod
+    def _generate_b_fragments(cls, glycan: "Glycan", include_composition: bool=False,
+                             traversal_method: str="index", max_size: int = 4, **kwargs):
+        """Incomplete"""
+        seen = set()
+        bond_set_iterator = (
+            map(lambda x: flatten(x) if isinstance(x, list) else [x],
+                itertools.chain.from_iterable(
+                    itertools.chain.from_iterable(cls.build_from(
+                        leaf,
+                        traverse_children=False,
+                        max_size=max_size
+                    ) for leaf in glycan.leaves()),
+                )
+            )
+        )
+
+        def c(x):
+            return b_fragments_from_links(
+                x, include_composition=include_composition,
+                traversal_method=traversal_method,
+                max_size=max_size,
+                seen=seen,
+            )
+
+        fragments = itertools.chain.from_iterable(map(c, bond_set_iterator))
+        return fragments
+        # return bond_set_iterator
+
+        # return (itertools.chain.from_iterable(
+        #     map(
+        #         lambda x: b_fragments_from_links(
+        #             x, include_composition=include_composition,
+        #             traversal_method=traversal_method,
+        #             max_size=max_size,
+        #             seen=seen,
+        #         ),
+        #         map(
+        #             flatten,
+        #             itertools.chain.from_iterable(cls.build_from(
+        #                 leaf,
+        #                 traverse_children=False,
+        #                 max_size=max_size
+        #             ) for leaf in glycan.leaves()),
+        #         ),
+        #     )
+        # ))
+
+
+def b_fragments_from_links(links_to_break: List['Link'],
+                           max_size: int = 4,
+                           seen: Optional[Set[FrozenSet[int]]] = None,
+                           **kwargs):
+    from glypy.structure import Glycan
+    subtrees = []
+    if seen is None:
+        seen = set()
+    for link in links_to_break:
+        parent, child = link.break_link(refund=True)
+        child_tree = Glycan(child, index_method=None)
+        child_tree._build_node_index()
+        if len(child_tree) > max_size:
+            continue
+        subtrees.append(child_tree)
+
+    unique_subtrees = []
+    for subtree in subtrees:
+        ids = frozenset([n.id for n in subtree])
+        if ids in seen:
+            continue
+        for uids, _unique in unique_subtrees:
+            if ids == uids:
+                break
+        else:
+            unique_subtrees.append((ids, subtree))
+
+    for ids, subtree in unique_subtrees:
+        subtree = subtree.reroot(index_method=None)
+        include_nodes = ids
+        seen.add(ids)
+
+        link_ids = [link.id for link in links_to_break
+                    if link.parent.id in include_nodes or
+                    link.child.id in include_nodes]
+
+        parent_break_ids = {link.id: link.parent.id for link in links_to_break
+                            if link.parent.id in include_nodes}
+
+        child_break_ids = {link.id: link.child.id for link in links_to_break
+                           if link.child.id in include_nodes}
+
+        yield from Subtree(
+            subtree,
+            include_nodes,
+            link_ids,
+            parent_break_ids,
+            child_break_ids).to_fragments('B', **kwargs)
+
+    for link in links_to_break:
+        link.apply()
 
 
 def y_fragments_from_links(links_to_break: List['Link'], **kwargs):
