@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
+## [1.0.12] - 2023-08-18
+
+### Added
+- Added an efficient rooted traversal strategy for generating Y fragments, `DepthFirstLinkTraversal`
+
+
 ## [1.0.11] - 2023-07-28
 
 ### Fixed
@@ -240,3 +246,4 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [1.0.9]: https://github.com/mobiusklein/glypy/releases/v1.0.9
 [1.0.10]: https://github.com/mobiusklein/glypy/releases/v1.0.10
 [1.0.11]: https://github.com/mobiusklein/glypy/releases/v1.0.11
+[1.0.12]: https://github.com/mobiusklein/glypy/releases/v1.0.12
