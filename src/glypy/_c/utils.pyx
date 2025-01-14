@@ -105,7 +105,7 @@ cdef void init_str_ints():
     cdef str pa
     cdef char* a
     cdef char* atemp
-
+    print("Starting string number table build")
     for i in range(ARRAY_SIZE):
         pa = str(i)
         atemp = PyStr_AsUTF8AndSize(pa, &z)
@@ -114,7 +114,7 @@ cdef void init_str_ints():
         a[z] = "\0"
         str_ints[i].string = a
         str_ints[i].size = z
-
+    print("Finished building string number table")
 
 init_str_ints()
 
