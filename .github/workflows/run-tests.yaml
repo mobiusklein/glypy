@@ -10,8 +10,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [
+            ubuntu-latest,
+            windows-latest
+          ]
+        python-version: [
+          '3.8',
+          '3.9',
+          '3.10',
+          '3.11',
+          '3.12'
+        ]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -22,9 +31,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install coverage pytest pytest-cov -U
-        pip install Cython
+        pip install Cython==3.0.3
         pip install -r requirements.txt
-        pip install .
+        pip install -v .
     - name: Test with pytest
       run: |
         py.test -l -s -v ./tests --cov=glypy --cov-report=html --cov-report term
