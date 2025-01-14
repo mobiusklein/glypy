@@ -3,7 +3,11 @@
 
 name: Test Build Wheels
 
-on: [push]
+
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build-wheels:

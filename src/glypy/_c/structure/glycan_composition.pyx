@@ -9,7 +9,7 @@ from glypy.composition import formula
 from glypy._c.utils cimport _prepare_glycan_composition_string
 
 # cdef CComposition WATER = CComposition("H2O")
-cdef object ZERO = 0
+# cdef object ZERO = 0
 
 
 cdef class _CompositionBase(dict):
@@ -28,7 +28,7 @@ cdef class _CompositionBase(dict):
 
         ptmp = PyDict_GetItem(self, key)
         if ptmp == NULL:
-            return ZERO
+            return PyInt_FromLong(0)
         return <object>ptmp
 
     cpdef object _setitem_fast(self, object key, object value):
@@ -121,6 +121,7 @@ cdef class _CompositionBase(dict):
 
     cpdef _invalidate(self):
         self._mass = None
+
 
 
 cdef str _reformat(dict self):
