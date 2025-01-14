@@ -22,7 +22,11 @@ def Extension(*args, **kwargs):
         if not ext.extra_compile_args:
             ext.extra_compile_args = []
         ext.extra_compile_args.extend(
-            ["-fno-omit-frame-pointer", "-fsanitize=address", "-g3"]
+            [
+                "-fno-omit-frame-pointer",
+                # "-fsanitize=address",
+                # "-g3"
+            ]
         )
     return ext
 
