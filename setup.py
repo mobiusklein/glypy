@@ -17,6 +17,13 @@ if sys.platform == 'win32':
 def Extension(*args, **kwargs):
     ext = _Extension(*args, **kwargs)
     ext.include_dirs.append("src/glypy/_c/")
+    if sys.platform == "linux":
+        print("Adding sanitizing options to", ext)
+        if not ext.extra_compile_args:
+            ext.extra_compile_args = []
+        ext.extra_compile_args.extend(
+            ["-fno-omit-frame-pointer", "-fsanitize=address", "-g3"]
+        )
     return ext
 
 
