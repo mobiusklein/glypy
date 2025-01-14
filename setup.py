@@ -25,7 +25,7 @@ def Extension(*args, **kwargs):
             [
                 "-fno-omit-frame-pointer",
                 # "-fsanitize=address",
-                # "-g3"
+                "-g3"
             ]
         )
     return ext
