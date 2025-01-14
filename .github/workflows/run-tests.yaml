@@ -9,7 +9,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [
             ubuntu-latest,
@@ -35,9 +34,6 @@ jobs:
         pip install Cython==3.0.3
         pip install -r requirements.txt
         pip install -v .
-    - name: Run Script
-      run: |
-        python job.py
     - name: Test with pytest
       run: |
         py.test -l -s -v ./tests --cov=glypy --cov-report=html --cov-report term
