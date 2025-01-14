@@ -1,3 +1,6 @@
+import faulthandler
+faulthandler.enable()
+
 import glypy
 
 print(glypy)
