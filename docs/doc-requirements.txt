@@ -1,5 +1,4 @@
 sphinx>=4.0.2
--e git+https://github.com/numpy/numpydoc.git#egg=numpydoc
 matplotlib
 nbsphinx
 rdflib
