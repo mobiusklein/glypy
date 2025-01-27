@@ -1,6 +1,8 @@
-import pkg_resources
+import importlib.resources
 import hjson
 import re
+
+import importlib
 
 from glypy.utils import StringIO, identity, uid
 from glypy.utils.lazy import ProxyObject
@@ -47,7 +49,7 @@ class StructureIndex(dict):
 class MonosaccharideIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=lambda x: x.root):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.hjson")
+            stream = importlib.resources.open_text("glypy.structure.data", "monosaccharides.hjson")
         with stream:
             super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
 
@@ -65,7 +67,7 @@ class MonosaccharideResidueIndex(MonosaccharideIndex):
             return MonosaccharideResidue.from_monosaccharide(x.root)
 
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/monosaccharides.hjson")
+            stream = importlib.resources.open_text("glypy.structure.data", "monosaccharides.hjson")
         super(MonosaccharideIndex, self).__init__(stream, key_transform, value_transform)
 
 
@@ -75,7 +77,7 @@ monosaccharide_residues = ProxyObject(MonosaccharideResidueIndex)
 class GlycanIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/glycans.hjson")
+            stream = importlib.resources.open_text("glypy.structure.data", "glycans.hjson")
         super(GlycanIndex, self).__init__(stream, key_transform, value_transform)
 
 
@@ -85,7 +87,7 @@ glycans = ProxyObject(GlycanIndex)
 class MotifIndex(StructureIndex):
     def __init__(self, stream=None, key_transform=identity, value_transform=identity):
         if stream is None:
-            stream = pkg_resources.resource_stream(__name__, "data/motifs.hjson")
+            stream = importlib.resources.open_text("glypy.structure.data", "motifs.hjson")
         with stream:
             data = hjson.load(stream)
         motif_classes = set()
