@@ -790,10 +790,21 @@ class LinkageDeserializer(object):
 
 
 class SimpleLinkageDeserializer(LinkageDeserializer):
-    pattern = re.compile(r"""\((?P<anomer>[abo?])
+    pattern = re.compile(r"""\((?P<anomer>[abo?]?)
                              (?P<child_linkage>[0-9?/]+)->?
                              (?P<parent_linkage>[0-9?/]+)?\)?""",
                          re.VERBOSE)
+
+    def get_anomericity(self, linkage_text):
+        hit = self.pattern.search(linkage_text)
+        if not hit:
+            return anomer_map_from["?"]
+        else:
+            anomer = hit.groupdict().get('anomer')
+            if not anomer:
+                anomer = '?'
+            return anomer_map_from[anomer]
+
 
 
 parse_linkage_structure = LinkageDeserializer()
@@ -1088,6 +1099,9 @@ class SimpleMonosaccharideDeserializer(DerivatizationAwareMonosaccharideDeserial
         self.set_modifications(residue, modification)
         self.set_substituents(residue, match_dict['substituent'], base_is_modified, base_type)
         linkage = match_dict.get("linkage")
+        if linkage:
+            anomer = self.linkage_parser.get_anomericity(linkage)
+            residue.anomer = anomer
         return residue, linkage
 
 
