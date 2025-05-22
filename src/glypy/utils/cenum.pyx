@@ -254,9 +254,12 @@ cdef class EnumValue(object):
     def __ge__(self, other):
         return self.value >= other.value
 
-    cpdef int int_value(self) except *:
-        return PyInt_AsLong(int(self.value))
-
+    cpdef int int_value(self) except -1:
+        try:
+            return PyInt_AsLong(int(self.value))
+        except Exception:
+            PyErr_SetObject(TypeError, "Could not convert %s to int" % (self.value, ))
+            return -1
 
 
 cdef class IntEnumValue(EnumValue):
@@ -264,5 +267,5 @@ cdef class IntEnumValue(EnumValue):
         super(IntEnumValue, self).__init__(group, name, value, other_names)
         self._int_value = PyInt_AsLong(self.value)
 
-    cpdef int int_value(self) except *:
+    cpdef int int_value(self) except -1:
         return self._int_value
