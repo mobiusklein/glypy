@@ -10,9 +10,8 @@ cimport cython
 from cpython.ref cimport PyObject
 from cpython.dict cimport (PyDict_GetItem, PyDict_SetItem, PyDict_Next,
                            PyDict_Keys, PyDict_Update, PyDict_DelItem, PyDict_Size)
-from cpython.int cimport PyInt_AsLong, PyInt_Check, PyInt_FromLong
 
-from glypy.composition.compat cimport PyStr_Format
+from glypy._c.compat cimport PyStr_Format, PyInt_AsLong, PyInt_FromLong
 
 from cpython.float cimport PyFloat_AsDouble
 from cpython.tuple cimport PyTuple_GetItem
