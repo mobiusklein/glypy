@@ -15,11 +15,11 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.11']
-        os: [ubuntu-20.04, windows-2019]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -40,7 +40,7 @@ jobs:
     - name: Build wheels
       run: python -m cibuildwheel --output-dir dist/
       env:
-        CIBW_BUILD: "cp38* cp39* cp310*"
+        CIBW_BUILD: "cp38* cp39* cp310* cp311* cp312*"
         CIBW_SKIP: "*_i686 *win32 *musllinux* pp*"
         CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
         CIBW_TEST_REQUIRES: "pytest"
@@ -58,17 +58,17 @@ jobs:
 
   publish-wheels:
     needs: [build-wheels]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.9']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v4
         with:
           path: dist/
           pattern: dist-*

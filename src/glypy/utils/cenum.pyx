@@ -2,7 +2,7 @@ cimport cython
 from cpython cimport PyErr_SetString, PyErr_SetObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
 from cpython.object cimport PyObject
-from cpython.int cimport PyInt_AsLong
+from glypy._c.compat cimport PyInt_AsLong
 
 
 cdef str QMARK = "?"

@@ -2,7 +2,7 @@ from cpython.object cimport PyObject
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem, PyDict_Next
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE, PyList_Sort
 from cpython.tuple cimport PyTuple_GET_ITEM
-from cpython.int cimport PyInt_AsLong, PyInt_FromLong
+from glypy._c.compat cimport PyInt_AsLong, PyInt_FromLong
 from glypy.composition.ccomposition cimport CComposition
 from glypy.composition import formula
 

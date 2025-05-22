@@ -4,15 +4,13 @@ from cpython.object cimport PyObject
 from cpython.ref cimport Py_INCREF
 from cpython.list cimport PyList_Append
 from cpython.dict cimport PyDict_GetItem, PyDict_Size, PyDict_Next, PyDict_SetItem
-from cpython.int cimport PyInt_AsLong, PyInt_FromLong
-
 
 from libc.string cimport strcmp, memcpy, strlen, strncpy, strcpy
 from libc.stdlib cimport malloc, free, realloc, atoi, calloc
 
 from glypy._c.compat cimport (
     PyStr_FromStringAndSize, PyStr_AsUTF8AndSize, PyInt_FromString,
-    PyStr_InternInPlace)
+    PyStr_InternInPlace, PyInt_AsLong, PyInt_FromLong)
 
 cdef extern from * nogil:
     int printf (const char *template, ...)
